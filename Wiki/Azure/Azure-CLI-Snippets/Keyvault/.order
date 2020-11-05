@@ -1,0 +1,4 @@
+Create-Keyvault
+Set-Keyvault-Permissions-for-AppService-Identity
+Create-Keyvault-Key
+Upload-SSL-(pfx)-in-Keyvault

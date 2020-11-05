@@ -1,0 +1,50 @@
+[[_TOC_]]
+
+# Description
+This snippet will create a storage account if it does not exist within a given subnet. It will also make sure that public access is denied by default. It will whitelist the application subnet so your app can connect to the storageaccount within the vnet. All the needed components (private endpoint, service endpoint etc) will be created too.
+
+NOTE: This step was built with blob storage in mind. If you use anything else please test this extensively. It should work, but it is untested.
+
+# Parameters
+Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
+
+| Parameter | Example Value | Description |
+|--|--|--|
+| storageResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | ResourceGroupName where the storage account should be created |
+| storageAccountPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet where the storageaccount's private endpoint will reside in. |
+| applicationSubnetName | `app-subnet-4` | The subnetname for the subnet whitelist on the storage account. |
+| storageAccountName | `myteststgaccount$(Release.EnvironmentName)` | This is the storageaccount name to use. |
+| privateEndpointGroupId | `blob` | A privateendpoint per storagetype is needed. Use `az network private-link-resource list` to fetch a list of possible group id's |
+| DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
+| privateDnsZoneName | `privatelink.blob.core.windows.net` | Generally this will be `privatelink.blob.core.windows.net`. This defines which DNS Zone to use for the private storage endpoint. |
+
+# Code
+[Click here to download this script](../../../../src/Storage-Accounts/Create-Storage-account.ps1)
+
+# Links
+
+[Azure CLI - az-storage-account-create](https://docs.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az-storage-account-create)
+
+[Azure CLI - az-network-vnet-subnet-update](https://docs.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-update)
+
+[Azure CLI - az-storage-account-show](https://docs.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az-storage-account-show)
+
+[Azure CLI - az-network-private-endpoint-create](https://docs.microsoft.com/en-us/cli/azure/network/private-endpoint?view=azure-cli-latest#az-network-private-endpoint-create)
+
+[Azure CLI - az-network-private-dns-zone-show](https://docs.microsoft.com/en-us/cli/azure/ext/privatedns/network/private-dns/zone?view=azure-cli-latest#ext-privatedns-az-network-private-dns-zone-show)
+
+[Azure CLI - az-network-private-dns-zone-create](https://docs.microsoft.com/en-us/cli/azure/ext/privatedns/network/private-dns/zone?view=azure-cli-latest#ext-privatedns-az-network-private-dns-zone-create)
+
+[Azure CLI - az-network-private-dns-link-vnet-show](https://docs.microsoft.com/en-us/cli/azure/network/private-dns/link/vnet?view=azure-cli-latest#az-network-private-dns-link-vnet-show)
+
+[Azure CLI - az-network-private-dns-link-vnet-create](https://docs.microsoft.com/en-us/cli/azure/network/private-dns/link/vnet?view=azure-cli-latest#az-network-private-dns-link-vnet-create)
+
+[Azure CLI - az-network-private-endpoint-dns-zone-group-create](https://docs.microsoft.com/en-us/cli/azure/network/private-endpoint/dns-zone-group?view=azure-cli-latest#az-network-private-endpoint-dns-zone-group-create)
+
+[Azure CLI - az-network-vnet-subnet-show](https://docs.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-show)
+
+[Azure CLI - az-storage-account-network-rule-add](https://docs.microsoft.com/en-us/cli/azure/storage/account/network-rule?view=azure-cli-latest#az-storage-account-network-rule-add)
+
+[Azure CLI - az-storage-account-update](https://docs.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az-storage-account-update)
+
+[Azure CLI - az-network-private-link-resource-list](https://docs.microsoft.com/en-us/cli/azure/network/private-link-resource?view=azure-cli-latest#az-network-private-link-resource-list)

@@ -1,0 +1,4 @@
+Create-SQL-Server
+Public-Access
+Create-SQL-Database
+Grant-AppService-dataread&write&ddladmin-rights-on-SQL-Server
