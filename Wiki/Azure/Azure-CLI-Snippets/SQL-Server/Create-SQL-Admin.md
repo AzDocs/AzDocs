@@ -11,7 +11,7 @@ This snippet will create a SQL Admin AD user. This is needed to enable Managed I
 
 
 # Code
-[Click here to download this script](../../../../src/SQL-Server/Create-SQL-User.ps1)
+[Click here to download this script](../../../../src/SQL-Server/Create-SQL-Admin.ps1)
 
 # Links
 
