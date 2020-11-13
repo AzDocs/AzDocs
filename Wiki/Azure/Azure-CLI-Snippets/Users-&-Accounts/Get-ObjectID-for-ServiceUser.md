@@ -3,7 +3,7 @@
 # Description
 This snippet will give you the ObjectID for a Service User. This objectid is needed in the [Grant AppService dataread&write&ddladmin rights on SQL Server](/Azure/Azure-CLI-Snippets/SQL-Server/Grant-AppService-dataread&write&ddladmin-rights-on-SQL-Server) step for example.
 
-NOTE: THIS IS CANNOT BE A SERVICE PRINCIPAL USER but should be a AD User which can be requested @ Workspaces team.
+NOTE: THIS IS CANNOT BE A SERVICE PRINCIPAL USER but should be a AD User.
 
 # Parameters
 | Parameter | Example Value | Description |
