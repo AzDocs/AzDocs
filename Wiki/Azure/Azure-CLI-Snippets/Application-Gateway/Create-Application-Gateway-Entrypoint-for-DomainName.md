@@ -32,7 +32,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 
 # Code
-[Click here to download this script](../../../../src/Application-Gateway/Create-Application-Gateway-Entrypoint-for-AppService.ps1)
+[Click here to download this script](../../../../src/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1)
 
 # Links
 
