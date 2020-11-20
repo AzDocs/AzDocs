@@ -15,6 +15,6 @@ param (
 #endregion ===END IMPORTS===
 
 # Somehow we need to use the account key. Managed Identities/integrated security does not seem to work stable over the CLI versions.
-$accountKey = az storage account keys list --resource-group $storageAccountResourceGroupname --account-name $storageAccountName --query=[0].value | ConvertFrom-Json
+$accountKey = Invoke-Executable az storage account keys list --resource-group $storageAccountResourceGroupname --account-name $storageAccountName --query=[0].value | ConvertFrom-Json
 
-az storage share create --account-name $storageAccountName --name $shareName --account-key $accountKey
+Invoke-Executable az storage share create --account-name $storageAccountName --name $shareName --account-key $accountKey
