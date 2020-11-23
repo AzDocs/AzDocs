@@ -1,42 +1,3 @@
-<#
-.SYNOPSIS
-Configure the Application Gateway for a site.
-
-.DESCRIPTION
-Configure the Application Gateway for sites for a public or private certificate.
-
-#>
-[CmdletBinding()]
-param (
-    [Parameter(Mandatory)][String] $certificatePath, #TODO which one?
-    [Parameter(Mandatory)][string] $domainName,
-    [Parameter(Mandatory)][string] $gatewayName,
-    [Parameter(Mandatory)][string] $gatewayType,
-    [Parameter(Mandatory)][string] $sharedServicesResourceGroupName,
-    [Parameter(Mandatory)][string] $sharedServicesKeyvaultName,
-    [Parameter(Mandatory)][string] $certificatePassword,
-    [Parameter(Mandatory)][string] $backendDomainname,
-    [Parameter(Mandatory)][string] $healthProbePath,
-    [Parameter()][int] $healthProbeInterval = 60,
-    [Parameter()][int] $healthProbeThreshold = 2,
-    [Parameter()][int] $healthProbeTimeout = 20,
-    [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $healthProbeProtocol = "HTTPS",
-    [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $httpsSettingsProtocol = "HTTPS",
-    [Parameter()][ValidateRange(0, 65535)][int] $httpsSettingsPort = 443,
-    [Parameter()][ValidateSet("Disabled", "Enabled")][string] $httpsSettingsCookieAffinity = "Disabled",
-    [Parameter()][int] $httpsSettingsConnectionDrainingTimeout = 0,
-    [Parameter()][int] $httpsSettingsTimeout = 30,
-    [Parameter()][string] $matchStatusCodes = "200-399",
-    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $gatewayRuleType
-)
-Set-StrictMode -Version 3.0
-$ErrorActionPreference = "Continue"
-[Console]::ResetColor()
-
-#region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-#endregion ===END IMPORTS===
-
 #region Helper functions
 
 <#
@@ -384,8 +345,34 @@ function Grant-AppGwToKeyvault
 
 #endregion
 
-try
+
+#region Main function
+function New-Entrypoint
 {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][String] $certificatePath,
+        [Parameter(Mandatory)][string] $domainName,
+        [Parameter(Mandatory)][string] $gatewayName,
+        [Parameter(Mandatory)][string] $gatewayType,
+        [Parameter(Mandatory)][string] $sharedServicesResourceGroupName,
+        [Parameter(Mandatory)][string] $sharedServicesKeyvaultName,
+        [Parameter(Mandatory)][string] $certificatePassword,
+        [Parameter(Mandatory)][string] $backendDomainname,
+        [Parameter(Mandatory)][string] $healthProbePath,
+        [Parameter()][int] $healthProbeInterval = 60,
+        [Parameter()][int] $healthProbeThreshold = 2,
+        [Parameter()][int] $healthProbeTimeout = 20,
+        [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $healthProbeProtocol = "HTTPS",
+        [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $httpsSettingsProtocol = "HTTPS",
+        [Parameter()][ValidateRange(0, 65535)][int] $httpsSettingsPort = 443,
+        [Parameter()][ValidateSet("Disabled", "Enabled")][string] $httpsSettingsCookieAffinity = "Disabled",
+        [Parameter()][int] $httpsSettingsConnectionDrainingTimeout = 0,
+        [Parameter()][int] $httpsSettingsTimeout = 30,
+        [Parameter()][string] $matchStatusCodes = "200-399",
+        [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $gatewayRuleType
+    )
+
     # Fetch the commonname for the given certificate
     Write-Host "Fetching commonname"
     $commonName = Get-CommonnameFromCertificate -certificatePath $certificatePath -certificatePassword $certificatePassword
@@ -545,11 +532,4 @@ try
     }
     # ======= End Check if our backend is healthy =======
 }
-catch
-{
-    throw
-}
-finally
-{
-    [Console]::ResetColor()
-}
+#endregion Main function
