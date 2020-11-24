@@ -40,7 +40,12 @@ param (
     [string] $DNSZoneResourceGroupName,
 
     [Parameter()]
-    [string] $privateDnsZoneName = "privatelink.azurewebsites.net"
+    [string] $privateDnsZoneName = "privatelink.azurewebsites.net",
+
+    # If the slot is not empty or null, a slot will be created. If not defined the default staging slot will be created
+    [Parameter()]
+    [string]
+    $Slot = 'staging'
 )
 
 #region ===BEGIN IMPORTS===
@@ -66,6 +71,7 @@ Invoke-Executable az webapp update --ids $webAppId --https-only true
 # Disable FTPS
 Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled
 
+
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
 
@@ -74,6 +80,14 @@ Invoke-Executable az monitor diagnostic-settings create --resource $webAppId --n
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az webapp identity assign --ids $webAppId
+
+if ($Slot) {
+    Invoke-Executable az webapp deployment slot --resource-group $appServiceResourceGroupName --name $appServiceName --slot $Slot
+    Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled --slot $Slot
+    Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $Slot
+    Invoke-Executable az webapp identity assign --ids $webAppId --slot $Slot
+}
+
 
 # Disable private-endpoint-network-policies
 Invoke-Executable az network vnet subnet update --ids $applicationPrivateEndpointSubnetId --disable-private-endpoint-network-policies true
