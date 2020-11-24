@@ -1,42 +1,42 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
+    [Parameter(Mandatory)]
     [String] $vnetResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $vnetName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $applicationPrivateEndpointSubnetName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanSkuName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [System.Object[]] $resourceTags,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServiceResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServiceName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServiceRunTime,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServiceDiagnosticsName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $logAnalyticsWorkspaceName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $DNSZoneResourceGroupName,
 
     [Parameter()]
