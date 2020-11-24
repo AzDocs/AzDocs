@@ -50,8 +50,11 @@ $sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet sh
 $applicationSubnetId = (Invoke-Executable az network vnet subnet show -g $VnetResourceGroupName -n $ApplicationSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
 $sqlServerPrivateEndpointName = "$($SqlServerName)-pvtpsql"
 
-# Create PSQL Server
-Invoke-Executable az postgres server create --admin-password $SqlServerPassword --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName --sku-name $SqlServerSku --backup-retention $BackupRetentionInDays --assign-identity --public-network-access Disabled --version $SqlServerVersion
+# Create PSQL Server if it does not exist
+if([String]::IsNullOrWhiteSpace($(Invoke-Executable az postgres server show --name $SqlServerName --resource-group $SqlServerResourceGroupName)))
+{
+    Invoke-Executable az postgres server create --admin-password $SqlServerPassword --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName --sku-name $SqlServerSku --backup-retention $BackupRetentionInDays --assign-identity --public-network-access Disabled --version $SqlServerVersion
+}
 
 # Disable private-endpoint-network-policies to be able to add a private route to SQL Server
 Invoke-Executable az network vnet subnet update --ids $sqlServerPrivateEndpointSubnetId --disable-private-endpoint-network-policies true
