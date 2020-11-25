@@ -24,4 +24,4 @@ param (
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
 
-Invoke-Executable az webapp deployment slot swap  --resource-group $appServiceResourceGroupName --name $appServiceName --slot $SourcesSlot --target-slot $TargetSlot
+Invoke-Executable az webapp deployment slot swap --resource-group $appServiceResourceGroupName --name $appServiceName --slot $SourcesSlot --target-slot $TargetSlot
