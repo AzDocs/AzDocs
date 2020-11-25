@@ -1,44 +1,49 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
+    [Parameter(Mandatory)]
     [String] $vnetResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $vnetName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $applicationPrivateEndpointSubnetName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanSkuName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [System.Object[]] $resourceTags,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServiceResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServiceName,
 
     # This should be the name of the application insights name
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServiceDiagnosticsName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $logAnalyticsWorkspaceName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $DNSZoneResourceGroupName,
 
     [Parameter()]
-    [string] $privateDnsZoneName = "privatelink.azurewebsites.net"
+    [string] $privateDnsZoneName = "privatelink.azurewebsites.net",
+
+    # If the slot is not empty or null, a slot will be created. If not defined the default staging slot will be created
+    [Parameter()]
+    [string]
+    $Slot = 'staging'
 )
 
 #region ===BEGIN IMPORTS===
@@ -69,12 +74,20 @@ Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages
 
 #TODO check app service diagnostic settings , is the instrumentation key the same as the given appservicediagnostigname?
 
-
 #  Create diagnostics settings
 Invoke-Executable az monitor diagnostic-settings create --resource $webAppId --name $appServiceDiagnosticsName --workspace $logAnalyticsWorkspaceName --logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az webapp identity assign --ids $webAppId
+
+
+if ($Slot) {
+    Invoke-Executable az webapp deployment slot --resource-group $appServiceResourceGroupName --name $appServiceName --slot $Slot
+    Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled --slot $Slot
+    Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $Slot
+    Invoke-Executable az webapp identity assign --ids $webAppId --slot $Slot
+}
+
 
 # Disable private-endpoint-network-policies
 Invoke-Executable az network vnet subnet update --ids $applicationPrivateEndpointSubnetId --disable-private-endpoint-network-policies true

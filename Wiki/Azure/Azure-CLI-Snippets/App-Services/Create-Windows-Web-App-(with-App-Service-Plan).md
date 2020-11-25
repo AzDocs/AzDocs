@@ -1,19 +1,22 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will create an Web App if it does not exist & create an app service plan if it does not exist. It also adds the mandatory tags to the resources.
 
 The webapp is set to https only and the webapp cannot be deployed with ftp(s) for to be compliant with the azure policies.
 
 This snippet also managed the following compliancy rules:
- - HTTPS only
- - Disable FTP
- - Set Tags on this resource
- - Set a Managed Identity for the appservice
- - Adds a private endpoint to securely connect to this appservice
- - Sets the network configuration to only allow the private endpoint connection
+
+- HTTPS only
+- Disable FTP
+- Set Tags on this resource
+- Set a Managed Identity for the appservice
+- Adds a private endpoint to securely connect to this appservice
+- Sets the network configuration to only allow the private endpoint connection
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Example Value | Description |
 |--|--|--|
@@ -27,9 +30,11 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
 | privateDnsZoneName | `privatelink.azurewebsites.net` | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurewebsites.net` as value for AppServices.
 | appServiceResourceGroupName| `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your desired AppService will reside in |
+| Slot | `'staging'` | Name of the slot to create additional to the production slot. |
 
 # Code
-The snippet to create a Windows WebApp & ASP. Note that there can be no Linux App Service Plans in the same resourcegroup. This snippet will also create the app service plan if it does not exist. 
+
+The snippet to create a Windows WebApp & ASP. Note that there can be no Linux App Service Plans in the same resourcegroup. This snippet will also create the app service plan if it does not exist.
 
 [Click here to download this script](../../../../src/App-Services/Create-Web-App-with-App-Service-Plan-Windows.ps1)
 
@@ -43,4 +48,5 @@ The snippet to create a Windows WebApp & ASP. Note that there can be no Linux Ap
 - [App Service Az Monitor Diagnostics settings](https://docs.microsoft.com/en-us/cli/azure/monitor/diagnostic-settings?view=azure-cli-latest#az-monitor-diagnostic-settings-update)
 - [App Service Enable Diagnostics Logging](https://docs.microsoft.com/en-us/azure/app-service/troubleshoot-diagnostic-logs)
 - [Template settings for Diagnostics settings](https://docs.microsoft.com/en-us/azure/azure-monitor/samples/resource-manager-diagnostic-settings)
-- [Azure Cli for Diagnostics settings](http://techgenix.com/azure-diagnostic-settings/)
+- [Azure CLI for Diagnostics settings](http://techgenix.com/azure-diagnostic-settings/)
+- [Azure CLI - az webapp deployment slot create](https://docs.microsoft.com/en-us/cli/azure/webapp/deployment/slot?view=azure-cli-latest#az_webapp_deployment_slot_create)
