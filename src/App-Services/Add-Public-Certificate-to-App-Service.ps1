@@ -31,6 +31,6 @@ if ($cert) {
     $slots = Get-AzResource -ResourceGroupName $resource.ResourceGroup -ResourceType Microsoft.Web/sites/slots -ResourceName $appServiceName -ApiVersion $apiVersion
     foreach ($slot in $slots) {
         $resourceName = $slot.Name + "/" + $certificateNameForAppService
-        New-AzResource -Location $slot.Location -PropertyObject $PropertiesObject -ResourceGroupName $slot.ResourceGroup -ResourceType Microsoft.Web/sites/slots/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
+        New-AzResource -Location $slot.Location -PropertyObject $PropertiesObject -ResourceGroupName $slot.ResourceGroupName -ResourceType Microsoft.Web/sites/slots/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
     }
 }
