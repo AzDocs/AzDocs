@@ -3,7 +3,7 @@
 # Description
 This snippet will create a SQL Server if it does not exist within a given subnet. It will also make sure that public access is denied by default. It will whitelist the application subnet so your app can connect to the SQL Server within the vnet. All the needed components (private endpoint, service endpoint etc) will be created too.
 
-IMPORTANT NOTE: Make sure to use a `Azure Powershell` step inside Azure Devops
+IMPORTANT NOTE: Enable the `Access service principal details in script` checkbox in the Azure CLI step. This is needed for the last few lines of script which are built in Azure PowerShell.
 
 # Parameters
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.

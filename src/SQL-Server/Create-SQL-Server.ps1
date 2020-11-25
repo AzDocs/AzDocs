@@ -77,8 +77,9 @@ Invoke-Executable az network private-endpoint dns-zone-group create --resource-g
 # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
 Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceName "Microsoft.Sql"
 
+#TODO: Check why this doesnt work - op verzoek van Rob Hofmann
 # Add a firewall rule on SQL Server to allow the AppService vnet
-Invoke-Executable az sql server vnet-rule create --server $sqlServerName --name "$($applicationSubnetName)_allow" --resource-group $sqlServerResourceGroupName --subnet $applicationSubnetId
+#Invoke-Executable az sql server vnet-rule create --server $sqlServerName --name "$($applicationSubnetName)_allow" --resource-group $sqlServerResourceGroupName --subnet $applicationSubnetId
 
 Write-Host "Checking if public access is disabled"
 if((Invoke-Executable az sql server show -n $sqlServerName -g $sqlServerResourceGroupName | ConvertFrom-Json).publicNetworkAccess -eq "Enabled")
