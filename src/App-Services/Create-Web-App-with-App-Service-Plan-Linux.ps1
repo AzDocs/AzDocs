@@ -71,7 +71,6 @@ Invoke-Executable az webapp update --ids $webAppId --https-only true
 # Disable FTPS
 Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled
 
-
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
 
@@ -82,7 +81,7 @@ Invoke-Executable az monitor diagnostic-settings create --resource $webAppId --n
 Invoke-Executable az webapp identity assign --ids $webAppId
 
 if ($Slot) {
-    Invoke-Executable az webapp deployment slot --resource-group $appServiceResourceGroupName --name $appServiceName --slot $Slot
+    Invoke-Executable az webapp deployment slot create --resource-group $appServiceResourceGroupName --name $appServiceName --slot $Slot
     Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled --slot $Slot
     Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $Slot
     Invoke-Executable az webapp identity assign --ids $webAppId --slot $Slot
