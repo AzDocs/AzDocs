@@ -38,7 +38,4 @@ if($storageAccountIsInVnet)
     Invoke-Executable az storage account network-rule add --resource-group $storageAccountResourceGroupname --account-name $storageAccountName --subnet $subnetToWhitelistId
 }
 
-# Somehow we need to use the account key. Managed Identities/integrated security does not seem to work stable over the CLI versions.
-$accountKey = Invoke-Executable az storage account keys list --resource-group $storageAccountResourceGroupname --account-name $storageAccountName --query=[0].value | ConvertFrom-Json
-
-Invoke-Executable az storage share create --account-name $storageAccountName --name $shareName --account-key $accountKey
+Invoke-Executable az storage share-rm create --storage-account $storageAccountName --name $shareName
