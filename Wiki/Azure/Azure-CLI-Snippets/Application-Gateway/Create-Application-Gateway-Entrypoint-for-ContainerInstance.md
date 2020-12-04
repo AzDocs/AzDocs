@@ -1,7 +1,7 @@
 [[_TOC_]]
 
 # Description
-This code will do a full configuration of the Application Gateway for directing SSL traffic to an AppService/Function App, including uploading a certificate (pfx) to a Keyvault and Application Gateway.
+This code will do a full configuration of the Application Gateway for directing SSL traffic to an container instance, including uploading a certificate (pfx) to a Keyvault and Application Gateway.
 
 Also it will update certificates if your source certificate (the certificate in Azure DevOps Secure Files) is newer than the one currently in use.
 
@@ -15,7 +15,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | gatewayType | `Private` or `Public` | `Private` for internal (i.e. VNET) entries or `Public` for customer facing apps/api's. |
 | sharedServicesKeyvaultName | `myplatformkeyvault-$(Release.EnvironmentName)` | Name of your platform wide (shared) keyvault. |
 | certificatePassword | `S0m3Amaz1n6P@ssw0rd123!` | The password you gave your pfx/certificate |
-| backendDomainname | `mycoolbackend.azurewebsites.net` | The (backend)domainname which you want to create this entrypoint for |
+| containerName | `mycontainername` | The name of the container instance. |
+| containerResourceGroupName | `Myteam-MyApp-$(Release.EnvironmentName)` | The resourcegroup where the container resides in. |
 | healthProbePath | `/` | The relative URL path the probe should check after your URI |
 | healthProbeInterval | `60` | Probe interval in seconds |
 | healthProbeThreshold | `2` | Probe retry count |
@@ -32,7 +33,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 
 # Code
-[Click here to download this script](../../../../src/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1)
+[Click here to download this script](../../../../src/Application-Gateway/Create-Application-Gateway-Entrypoint-for-ContainerInstance.ps1)
 
 # Links
 
