@@ -15,7 +15,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | gatewayType | `Private` or `Public` | `Private` for internal (i.e. VNET) entries or `Public` for customer facing apps/api's. |
 | sharedServicesKeyvaultName | `myplatformkeyvault-$(Release.EnvironmentName)` | Name of your platform wide (shared) keyvault. |
 | certificatePassword | `S0m3Amaz1n6P@ssw0rd123!` | The password you gave your pfx/certificate |
-| backendDomainname | `mycoolbackend.azurewebsites.net` | The (backend)domainname which you want to create this entrypoint for. |
+| backendDomainname | `mycoolbackend.azurewebsites.net` | The (backend)domainname which you want to create this entrypoint for |
 | healthProbePath | `/` | The relative URL path the probe should check after your URI |
 | healthProbeInterval | `60` | Probe interval in seconds |
 | healthProbeThreshold | `2` | Probe retry count |
