@@ -28,7 +28,7 @@ param (
 
 $identityId = (Invoke-Executable az webapp identity show --name $appServiceName --resource-group $appServiceResourceGroupName | ConvertFrom-Json).principalId
 if (-not $identityId) {
-    throw "Could not find identity for $appConfigName"
+    throw "Could not find identity for $appServiceName"
 }
 Write-Host "Identity ID: $identityId"
 
