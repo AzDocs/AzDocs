@@ -1,54 +1,54 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
+    [Parameter(Mandatory)]
     [String] $vnetResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $vnetName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppPrivateEndpointSubnetName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanSkuName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [System.Object[]] $resourceTags,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppStorageAccountName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppDiagnosticsName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $logAnalyticsWorkspaceName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $DNSZoneResourceGroupName,
 
     [Parameter()]
     [string] $privateDnsZoneName = "privatelink.azurewebsites.net",
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $alwaysOn,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $FUNCTIONS_EXTENSION_VERSION,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $ASPNETCORE_ENVIRONMENT
 )
 
@@ -59,7 +59,6 @@ param (
 $vnetId = (Invoke-Executable az network vnet show -g $vnetResourceGroupName -n $vnetName | ConvertFrom-Json).id
 $functionAppPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $functionAppPrivateEndpointSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
 $functionAppPrivateEndpointName = "$($functionAppName)-pvtfunc"
-$appinsightskey = (Invoke-Executable az resource show --resource-group $ResourceGroupName --name "$(AppInsightsName)" --resource-type "Microsoft.Insights/components" | ConvertFrom-Json).properties.InstrumentationKey
 
 # Create AppService Plan
 $appServicePlanId = (Invoke-Executable az appservice plan create --resource-group $appServicePlanResourceGroupName  --name $appServicePlanName --sku $appServicePlanSkuName --tags ${resourceTags} | ConvertFrom-Json).id

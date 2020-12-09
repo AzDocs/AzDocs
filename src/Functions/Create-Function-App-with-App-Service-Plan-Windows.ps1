@@ -1,54 +1,54 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
+    [Parameter(Mandatory)]
     [String] $vnetResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $vnetName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppPrivateEndpointSubnetName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $appServicePlanSkuName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [System.Object[]] $resourceTags,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppResourceGroupName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppStorageAccountName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $functionAppDiagnosticsName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $logAnalyticsWorkspaceName,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $DNSZoneResourceGroupName,
 
     [Parameter()]
     [string] $privateDnsZoneName = "privatelink.azurewebsites.net",
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $alwaysOn,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $FUNCTIONS_EXTENSION_VERSION,
 
-    [Parameter()]
+    [Parameter(Mandatory)]
     [string] $ASPNETCORE_ENVIRONMENT
 )
 
