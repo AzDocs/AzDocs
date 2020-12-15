@@ -58,10 +58,10 @@ param (
     [string] $AzureFileShareMountPath,
 
     [Parameter()]
-    [String] $logAnalyticsWorkspaceId,
+    [String] $LogAnalyticsWorkspaceId,
 
     [Parameter()]
-    [String] $logAnalyticsWorkspaceKey
+    [String] $LogAnalyticsWorkspaceKey
 )
 
 #region ===BEGIN IMPORTS===
@@ -103,10 +103,10 @@ if ($AzureFileShareName -and $AzureFileShareStorageAccountName -and $AzureFileSh
     $scriptArguments += "--azure-file-volume-share-name", "$AzureFileShareName", "--azure-file-volume-account-name", "$AzureFileShareStorageAccountName", "--azure-file-volume-account-key", "$storageKey", "--azure-file-volume-mount-path", "$AzureFileShareMountPath"
 }
 
-if ($logAnalyticsWorkspaceId) {
-    $scriptArguments += '--log-analytics-workspace', "$logAnalyticsWorkspaceId"
-    if ($logAnalyticsWorkspaceKey) {
-        $scriptArguments += '--log-analytics-workspace-key', "$logAnalyticsWorkspaceKey"
+if ($LogAnalyticsWorkspaceId) {
+    $scriptArguments += '--log-analytics-workspace', "$LogAnalyticsWorkspaceId"
+    if ($LogAnalyticsWorkspaceKey) {
+        $scriptArguments += '--log-analytics-workspace-key', "$LogAnalyticsWorkspaceKey"
     }
 }
 
