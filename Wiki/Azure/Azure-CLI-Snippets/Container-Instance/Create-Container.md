@@ -27,8 +27,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AzureFileShareStorageAccountName | `mystorageaccount` | OPTIONAL: The name of the storage accountname where the fileshare resides in. |
 | AzureFileShareStorageAccountResourceGroupName | `MyTeam-MyApp-$(Release.EnvironmentName)` | OPTIONAL: The resourcegroupname of the resourcegroup where the storageaccount resides in. |
 | AzureFileShareMountPat | `/var/log/someapp` | OPTIONAL: The path to mount the given fileshare inside the container. |
-| logAnalyticsWorkspaceId | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | OPTIONAL: The log analytics workspace to write the auditing logs to for this container instance |
-| logAnalyticsWorkspaceKey | `myinstancename`| OPTIONAL: Name of the key in the log analytics workspace to push the logging into. |
+| logAnalyticsWorkspaceId | `225c2873-c15f-42da-a5d2-0dfb3df76da0` | OPTIONAL: The log analytics workspace Id |
+| logAnalyticsWorkspaceKey | `RGl0IGlzIGVlbiBvbmdlbGRpZ2UgdG9rZW4g8J+YgfCfmIHwn5iB8J+YgfCfmIHwn5iBLg==`| OPTIONAL: Primary or Secondary Key of the log analytics workspace. |
 
 # Code
 

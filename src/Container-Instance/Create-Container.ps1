@@ -58,7 +58,7 @@ param (
     [string] $AzureFileShareMountPath,
 
     [Parameter()]
-    [String] $LogAnalyticsWorkspaceId,
+    [Guid] $LogAnalyticsWorkspaceId,
 
     [Parameter()]
     [String] $LogAnalyticsWorkspaceKey
@@ -103,11 +103,9 @@ if ($AzureFileShareName -and $AzureFileShareStorageAccountName -and $AzureFileSh
     $scriptArguments += "--azure-file-volume-share-name", "$AzureFileShareName", "--azure-file-volume-account-name", "$AzureFileShareStorageAccountName", "--azure-file-volume-account-key", "$storageKey", "--azure-file-volume-mount-path", "$AzureFileShareMountPath"
 }
 
-if ($LogAnalyticsWorkspaceId) {
+if ($LogAnalyticsWorkspaceId -and $LogAnalyticsWorkspaceKey) {
     $scriptArguments += '--log-analytics-workspace', "$LogAnalyticsWorkspaceId"
-    if ($LogAnalyticsWorkspaceKey) {
-        $scriptArguments += '--log-analytics-workspace-key', "$LogAnalyticsWorkspaceKey"
-    }
+    $scriptArguments += '--log-analytics-workspace-key', "$LogAnalyticsWorkspaceKey"
 }
 
 Write-Host "Script Arguments: $scriptArguments"
