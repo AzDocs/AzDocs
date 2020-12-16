@@ -40,6 +40,9 @@ param (
     [Parameter()]
     [string] $privateDnsZoneName = "privatelink.azurewebsites.net",
 
+    [Parameter()]
+    [string] $AppServiceRunTime,
+
     # If the slot is not empty or null, a slot will be created. If not defined the default staging slot will be created
     [Parameter()]
     [string]
@@ -57,8 +60,12 @@ $appServicePrivateEndpointName = "$($appServiceName)-pvtapp"
 # Create AppService Plan
 $appServicePlanId = (Invoke-Executable az appservice plan create --resource-group $appServicePlanResourceGroupName  --name $appServicePlanName --sku $appServicePlanSkuName --tags ${resourceTags} | ConvertFrom-Json).id
 
+$optionalParameters = @{}
+if ($AppServiceRunTime) {
+    $optionalParameters.Add('--runtime', $AppServiceRunTime);
+}
 # Create AppService
-Invoke-Executable az webapp create --name $appServiceName --plan $appServicePlanId --resource-group $appServiceResourceGroupName --tags ${resourceTags}
+Invoke-Executable az webapp create --name $appServiceName --plan $appServicePlanId --resource-group $appServiceResourceGroupName --tags ${resourceTags} @optionalParameters
 
 # Fetch the ID from the AppService
 $webAppId = (Invoke-Executable az webapp show --name $appServiceName --resource-group $appServiceResourceGroupName | ConvertFrom-Json).id
@@ -82,7 +89,13 @@ Invoke-Executable az webapp identity assign --ids $webAppId
 
 
 if ($Slot) {
-    Invoke-Executable az webapp deployment slot create --resource-group $appServiceResourceGroupName --name $appServiceName --slot $Slot
+
+    $optionalParameters = @{}
+    if ($AppServiceRunTime) {
+        $optionalParameters.Add('--runtime', $AppServiceRunTime);
+    }
+
+    Invoke-Executable az webapp deployment slot create --resource-group $appServiceResourceGroupName --name $appServiceName --slot $Slot @optionalParameters
     Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled --slot $Slot
     Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $Slot
     Invoke-Executable az webapp identity assign --ids $webAppId --slot $Slot
