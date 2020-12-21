@@ -44,14 +44,14 @@ finally {
     Remove-Item -Recurse -Force $altIdProfilePath
 }
 
-Write-Host "Opening database connection for ensuring the managed identity of $appServicePrincipalName"
 
 $appServicePrincipalName = $appServiceName
 if ($appServiceSlotName) {
     $appServicePrincipalName += "/slots/$appServiceSlotName"
 }
 
-#TODO could it be done with sql parameters?
+Write-Host "Opening database connection for ensuring the managed identity of $appServicePrincipalName"
+
 $sql = @"
 IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = '$appServicePrincipalName')
     BEGIN
