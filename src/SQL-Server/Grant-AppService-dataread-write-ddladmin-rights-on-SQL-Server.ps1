@@ -54,12 +54,12 @@ if ($appServiceSlotName) {
 #TODO could it be done with sql parameters?
 $sql = @"
 IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = '$appServicePrincipalName')
-BEGIN
-    CREATE USER [$appServicePrincipalName] FROM EXTERNAL PROVIDER;
-    ALTER ROLE db_datareader ADD MEMBER [$appServicePrincipalName];
-    ALTER ROLE db_datawriter ADD MEMBER [$appServicePrincipalName];
-    ALTER ROLE db_ddladmin ADD MEMBER [$appServicePrincipalName];
-END
+    BEGIN
+        CREATE USER [$appServicePrincipalName] FROM EXTERNAL PROVIDER;
+        ALTER ROLE db_datareader ADD MEMBER [$appServicePrincipalName];
+        ALTER ROLE db_datawriter ADD MEMBER [$appServicePrincipalName];
+        ALTER ROLE db_ddladmin ADD MEMBER [$appServicePrincipalName];
+    END
 "@
 
 $conn = [System.Data.SqlClient.SqlConnection]::new()
