@@ -43,7 +43,9 @@ finally {
     $env:AZURE_CONFIG_DIR = $null
     Remove-Item -Recurse -Force $altIdProfilePath
 }
-
+if(!$AccessToken){
+    throw 'Could not fetch access token, something went wrong.'
+}
 
 $appServicePrincipalName = $appServiceName
 if ($appServiceSlotName) {
