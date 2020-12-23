@@ -27,6 +27,11 @@ function Invoke-Executable
         $AllowToFail
     )
 
+     #region ===BEGIN IMPORTS===
+     . "$PSScriptRoot\Write-HeaderFooter.ps1"
+     #endregion ===END IMPORTS===
+    Write-Header
+
     if ($LiteralPath -eq 'az')
     {
         if ($env:System_Debug -and $env:System_Debug -eq $true)
@@ -44,4 +49,5 @@ function Invoke-Executable
         throw $Error
     }
     [Console]::ResetColor()
+    Write-Footer
 }

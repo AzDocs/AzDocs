@@ -21,10 +21,12 @@ function Get-ManagedIdentity {
         [Parameter(ParameterSetName = 'functionapp')]
         [String] $SlotName
     )
-
     #region ===BEGIN IMPORTS===
+    . "$PSScriptRoot\Write-HeaderFooter.ps1"
     . "$PSScriptRoot\Invoke-Executable.ps1"
     #endregion ===END IMPORTS===
+
+    Write-Header
 
     $appType = $PSCmdlet.ParameterSetName
     $additionalParameters = @()
@@ -42,4 +44,6 @@ function Get-ManagedIdentity {
     Write-Host "Identity for $fullAppName : $identityId"
 
     Write-Output $identityId
+
+    Write-Footer
 }
