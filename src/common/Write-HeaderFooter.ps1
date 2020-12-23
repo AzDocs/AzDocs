@@ -13,9 +13,9 @@ function Write-ColorHost {
     if ( $Type -eq 'Regular') {
         Write-Host $Message
     }
-    if ($env:System.HostType) {
-        switch ($Type) {
 
+    if ($env:System_HostType) {
+        switch ($Type) {
             'BeginGroup' {
                 Write-Host "##[group]> $Message"
             }
@@ -31,7 +31,6 @@ function Write-ColorHost {
     else {
 
         switch -wildcard ($Type) {
-
             '*Group' {
                 Write-Host $Message -ForegroundColor Green
             }
@@ -41,7 +40,6 @@ function Write-ColorHost {
             Default {}
         }
     }
-
 }
 
 function Write-Header {
