@@ -15,11 +15,11 @@ function Write-ColorHost {
         $NoNewLine
     )
 
-    if ( $Type -eq 'Regular') {
+    if ($Type -eq 'Regular') {
         Write-Host $Message -NoNewline:$NoNewLine
     }
 
-    if ($env:System_HostType) {
+    if (Test-Path env:System_HostType) {
         switch ($Type) {
             'BeginGroup' {
                 Write-Host "##[group]$Message" -NoNewline:$NoNewLine
