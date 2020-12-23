@@ -42,4 +42,4 @@ $kvstp = $keyvaultStoragePermissions -split ' '
 
 Invoke-Executable az keyvault set-policy --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --object-id $identityId --name $keyvaultName
 
-Footer
+Write-Footer
