@@ -81,8 +81,12 @@ function Write-Header {
     }
 
     $myInvocation.BoundParameters.Keys | ForEach-Object {
-        $kv = $myInvocation.BoundParameters[$_]
-        Write-ColorHost ">  $_ : $kv" -Type 'Background'
+        $key = $_
+        $value = $myInvocation.BoundParameters[$key]
+        If ($key -like '*password*') {
+            $value = '****'
+        }
+        Write-ColorHost ">  $key : $value" -Type 'Background'
     }
 }
 

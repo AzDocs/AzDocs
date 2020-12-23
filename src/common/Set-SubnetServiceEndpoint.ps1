@@ -20,8 +20,11 @@ function Set-SubnetServiceEndpoint {
     )
 
     #region ===BEGIN IMPORTS===
+    . "$PSScriptRoot\Write-HeaderFooter.ps1"
     . "$PSScriptRoot\Invoke-Executable.ps1"
     #endregion ===END IMPORTS===
+
+    Write-Header
 
     $subnetInformation = Invoke-Executable az network vnet subnet show --ids $SubnetResourceId | ConvertFrom-Json
     [string[]]$endpoints = $subnetInformation.ServiceEndpoints.service
@@ -36,4 +39,6 @@ function Set-SubnetServiceEndpoint {
     else {
         Write-Host "$ServiceName Service Endpoint is already defined. No action needed."
     }
+
+    Write-Footer
 }

@@ -17,8 +17,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 $fullAppServiceName = $appServiceName
 $additionalParameters = @()
@@ -38,3 +41,5 @@ else {
     invoke-Executable az webapp vnet-integration add --resource-group $appServiceResourceGroupName --name $appServiceName --vnet $vnetName --subnet $appServiceVnetIntegrationSubnetName @additionalParameters
     invoke-Executable az webapp restart --name $appServiceName --resource-group $appServiceResourceGroupName @additionalParameters
 }
+
+Write-Footer

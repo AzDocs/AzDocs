@@ -53,8 +53,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 $vnetId = (Invoke-Executable az network vnet show -g $vnetResourceGroupName -n $vnetName | ConvertFrom-Json).id
 $functionAppPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $functionAppPrivateEndpointSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
@@ -106,3 +109,5 @@ if ([String]::IsNullOrWhiteSpace($(az network private-dns link vnet show --name 
 
 # Create DNS Zone Group
 Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $functionAppResourceGroupName --endpoint-name $functionAppPrivateEndpointName --name "$($functionAppName)-zonegroup" --private-dns-zone $dnsZoneId --zone-name appservice
+
+Write-Footer
