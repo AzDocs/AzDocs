@@ -48,9 +48,9 @@ param (
 
 Write-Header
 
-$vnetId = (Invoke-Executable az network vnet show -g $VnetResourceGroupName -n $VnetName | ConvertFrom-Json).id
-$sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $VnetResourceGroupName -n $SqlServerPrivateEndpointSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
-$applicationSubnetId = (Invoke-Executable az network vnet subnet show -g $VnetResourceGroupName -n $ApplicationSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
+$vnetId = (Invoke-Executable az network vnet show --resource-group $VnetResourceGroupName --name $VnetName | ConvertFrom-Json).id
+$sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $VnetResourceGroupName --name $SqlServerPrivateEndpointSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
+$applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $VnetResourceGroupName --name $ApplicationSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
 $sqlServerPrivateEndpointName = "$($SqlServerName)-pvtpsql"
 
 # Create PSQL Server if it does not exist

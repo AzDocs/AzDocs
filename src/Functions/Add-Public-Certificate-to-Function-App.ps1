@@ -13,6 +13,12 @@ param (
     [string] $certificateFilePath
 )
 
+#region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
+#endregion ===END IMPORTS===
+
+Write-Header
+
 $certificateEncryptedPassword = ConvertTo-SecureString -String "ThisReallyDoesntMatterButWeNeedIt123!" -AsPlainText -Force
 $cert = New-AzApplicationGatewaySslCertificate -Name $certificateNameForFunctionApp -CertificateFile $certificateFilePath -Password $certificateEncryptedPassword
 $apiVersion = '2018-02-01'
@@ -34,3 +40,5 @@ if ($cert) {
         New-AzResource -Location $slot.Location -PropertyObject $PropertiesObject -ResourceGroupName $slot.resourceGroupName -ResourceType Microsoft.Web/sites/slots/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
     }
 }
+
+Write-Footer

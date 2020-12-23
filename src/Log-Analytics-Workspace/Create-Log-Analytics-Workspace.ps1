@@ -21,6 +21,13 @@ param (
     [System.Object[]] $ResourceTags
 )
 
+#region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
+. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+#endregion ===END IMPORTS===
+
+Write-Header
+
 $scriptArguments = "--workspace-name","$LawName", "--resource-group","$LawResourceGroupName", "--retention-time","$LawRetentionInDays", "--tags",$ResourceTags
 
 if ($PublicInterfaceIngestionEnabled) {
@@ -32,9 +39,9 @@ if ($PublicInterfaceIngestionEnabled) {
 if ($PublicInterfaceQueryAccess) {
     $scriptArguments += "--query-access","Enabled"
 } else {
-    $scriptArguments += "--query-access","Disabled"    
+    $scriptArguments += "--query-access","Disabled"
 }
 
-Write-Host "Script Arguments: $scriptArguments"
+Invoke-Executable az monitor log-analytics workspace create @scriptArguments
 
-az monitor log-analytics workspace create @scriptArguments
+Write-Footer

@@ -14,7 +14,12 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
 
+Write-Header
+
 Invoke-Executable az keyvault certificate import --file $pfxFilename --name $keyvaultCertificateName --vault-name $sharedServicesKeyvaultName --password $pfxPassword
+
+Write-Footer

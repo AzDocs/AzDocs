@@ -27,37 +27,39 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
 
-$scriptArguments = "--vault-name","$keyVaultName", "--name","$secretName"
+Write-Header
+
+$scriptArguments = "--vault-name", "$keyVaultName", "--name", "$secretName"
 
 switch ($PSCmdlet.ParameterSetName) {
     "File" {
-        $scriptArguments += "--encoding","$fileEncoding", "--file","$filePath"
+        $scriptArguments += "--encoding", "$fileEncoding", "--file", "$filePath"
     }
     "Value" {
-        $scriptArguments += "--value","$value"
+        $scriptArguments += "--value", "$value"
     }
 }
 
 if ($secretDescription) {
-    $scriptArguments += "--description","$secretDescription"
+    $scriptArguments += "--description", "$secretDescription"
 }
 
 if ($secretExpires) {
-    $scriptArguments += "--expires","$secretExpires"
+    $scriptArguments += "--expires", "$secretExpires"
 }
 
 if ($secretNotBefore) {
-    $scriptArguments += "--not-before","$secretNotBefore"
+    $scriptArguments += "--not-before", "$secretNotBefore"
 }
 
-if ($env:System_Debug -and $env:System_Debug -eq $true)
-{
+if ($env:System_Debug -and $env:System_Debug -eq $true) {
     $scriptArguments += "--debug"
 }
 
-write-host $scriptArguments
-
 Invoke-Executable az keyvault secret set @scriptArguments
+
+Write-Footer

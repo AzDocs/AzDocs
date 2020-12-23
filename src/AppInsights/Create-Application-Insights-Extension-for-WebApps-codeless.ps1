@@ -14,8 +14,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 # get the application insights key
 $appInsightsSettings = Invoke-Executable az resource show --resource-group  $AppInsightsResourceGroupName --name $AppInsightsName --resource-type "Microsoft.Insights/components" | ConvertFrom-Json
@@ -37,3 +40,5 @@ Invoke-Executable az webapp config appsettings set --name $appServiceName -g $ap
 
 # turn on commands that your application runs to be visible in Application Insights
 Invoke-Executable az webapp config appsettings set --name $appServiceName -g $appServiceResourceGroupName --settings "InstrumentationEngine_EXTENSION_VERSION=~1" "XDT_MicrosoftApplicationInsights_BaseExtensions=~1"
+
+Write-Footer
