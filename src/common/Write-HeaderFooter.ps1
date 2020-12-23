@@ -22,10 +22,22 @@ function Write-ColorHost {
     if (Test-Path env:System_HostType) {
         switch ($Type) {
             'BeginGroup' {
-                Write-Host "##[group]$Message" -NoNewline:$NoNewLine
+                if ($env:System_HostType -eq 'build') {
+                    $formatPrefix = '##[group]'
+                }
+                else {
+                    $formatPrefix = '##[warning]'
+                }
+                Write-Host "$formatPrefix$Message" -NoNewline:$NoNewLine
             }
             'EndGroup' {
-                Write-Host "##[endgroup]$Message" -NoNewline:$NoNewLine
+                if ($env:System_HostType -eq 'build') {
+                    $formatPrefix = '##[endgroup]'
+                }
+                else {
+                    $formatPrefix = '##[warning]'
+                }
+                Write-Host "$formatPrefix$Message" -NoNewline:$NoNewLine
             }
             'Background' {
                 Write-Host "##[section]$Message" -NoNewline:$NoNewLine
