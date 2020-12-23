@@ -22,13 +22,13 @@ function Write-ColorHost {
     if ($env:System_HostType) {
         switch ($Type) {
             'BeginGroup' {
-                Write-Host "##[group]> $Message" -NoNewline:$NoNewLine
+                Write-Host "##[group]$Message" -NoNewline:$NoNewLine
             }
             'EndGroup' {
-                Write-Host "##[endgroup]> $Message" -NoNewline:$NoNewLine
+                Write-Host "##[endgroup]$Message" -NoNewline:$NoNewLine
             }
             'Background' {
-                Write-Host "##[section]> $Message" -NoNewline:$NoNewLine
+                Write-Host "##[section]$Message" -NoNewline:$NoNewLine
             }
             Default {}
         }

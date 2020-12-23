@@ -35,10 +35,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 . "$PSScriptRoot\..\common\Set-SubnetServiceEndpoint.ps1"
 #endregion ===END IMPORTS===
-
+Write-Header
 
 $vnetId = (Invoke-Executable az network vnet show -g $vnetResourceGroupName -n $vnetName | ConvertFrom-Json).id
 $keyvaultPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $keyvaultPrivateEndpointSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
@@ -117,3 +118,5 @@ Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceName "M
 
 # Whitelist our App's subnet in the keyvault so we can connect
 Invoke-Executable az keyvault network-rule add --resource-group $keyvaultResourceGroupName --name $keyvaultName --subnet $applicationSubnetId
+
+Write-Footer
