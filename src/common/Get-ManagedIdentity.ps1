@@ -28,17 +28,18 @@ function Get-ManagedIdentity {
 
     $appType = $PSCmdlet.ParameterSetName
     $additionalParameters = @()
-    $fullAppName = $AppServiceName
+    $fullAppName = $Name
 
-    if ($AppServiceSlotName) {
-        $additionalParameters += '--slot' , $AppServiceSlotName
-        $fullAppName += "[$AppServiceSlotName]"
+    if ($SlotName) {
+        $additionalParameters += '--slot' , $SlotName
+        $fullAppName += "[$SlotName]"
     }
 
-    $identityId = (Invoke-Executable az $appType identity show --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters | ConvertFrom-Json).principalId
+    $identityId = (Invoke-Executable az $appType identity show --resource-group $ResourceGroup --name $Name @additionalParameters | ConvertFrom-Json).principalId
     if (-not $identityId) {
         throw "Could not find identity for $fullAppName"
     }
     Write-Host "Identity for $fullAppName : $identityId"
-    return $identityId
+
+    Write-Output $identityId
 }
