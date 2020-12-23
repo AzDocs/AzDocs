@@ -30,7 +30,6 @@ function Invoke-Executable
      #region ===BEGIN IMPORTS===
      . "$PSScriptRoot\Write-HeaderFooter.ps1"
      #endregion ===END IMPORTS===
-    Write-Header
 
     if ($LiteralPath -eq 'az')
     {
@@ -39,8 +38,7 @@ function Invoke-Executable
             $PassThruArgs += "--debug"
         }
     }
-
-    Write-Host "Executing: $LiteralPath $PassThruArgs"
+    Write-Header -OverrideHeaderText "$LiteralPath $PassThruArgs" -HideParameters
     & $LiteralPath $PassThruArgs
     if (!$AllowToFail -and !$?)
     {
