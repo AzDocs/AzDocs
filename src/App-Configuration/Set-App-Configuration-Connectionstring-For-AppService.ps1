@@ -14,8 +14,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 $connectionString = ((Invoke-Executable az appconfig credential list --resource-group $appConfigResourceGroupName --name $appConfigName | ConvertFrom-Json) | Where-Object { $_.name -eq "Primary" }).connectionString
 
@@ -25,3 +28,5 @@ if ($connectionString) {
 else {
     Write-Error "Could not find connectionstring for specified AppConfiguration."
 }
+
+Write-Footer

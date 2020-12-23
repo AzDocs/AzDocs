@@ -5,7 +5,7 @@ param (
 
     [Parameter()]
     [String] $VnetName,
-    
+
     [Parameter()]
     [String] $SqlServerPrivateEndpointSubnetName,
 
@@ -41,9 +41,12 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 . "$PSScriptRoot\..\common\Set-SubnetServiceEndpoint.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 $vnetId = (Invoke-Executable az network vnet show -g $VnetResourceGroupName -n $VnetName | ConvertFrom-Json).id
 $sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $VnetResourceGroupName -n $SqlServerPrivateEndpointSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
@@ -82,3 +85,5 @@ Invoke-Executable az network private-endpoint dns-zone-group create --resource-g
 
 # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
 Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceName "Microsoft.Sql"
+
+Write-Footer

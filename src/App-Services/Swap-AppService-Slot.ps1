@@ -21,7 +21,12 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
 
+Write-Header
+
 Invoke-Executable az webapp deployment slot swap --resource-group $appServiceResourceGroupName --name $appServiceName --slot $SourcesSlot --target-slot $TargetSlot
+
+Write-Footer

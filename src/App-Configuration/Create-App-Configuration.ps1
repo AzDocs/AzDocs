@@ -35,9 +35,12 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #. "$PSScriptRoot\..\common\Set-SubnetServiceEndpoint.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 $vnetId = (Invoke-Executable az network vnet show -g $vnetResourceGroupName -n $vnetName | ConvertFrom-Json).id
 $appConfigPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $appConfigPrivateEndpointSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
@@ -81,3 +84,5 @@ Invoke-Executable az appconfig identity assign --resource-group $appConfigResour
 
 # Disable public access on the App Configuration store
 Invoke-Executable az appconfig update --resource-group $appConfigResourceGroupName --name $appConfigName --enable-public-network false
+
+Write-Footer
