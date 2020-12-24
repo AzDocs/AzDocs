@@ -28,7 +28,7 @@ param (
 Write-Header
 
 # Fetch the WebApp Identity ID
-$appIdentityId = Get-ManagedIdentity -Name $appServiceName -ResourceGroup $appServiceResourceGroupName -SlotName $AppServiceSlotName
+$appIdentityId = Get-ManagedIdentity -Name $appServiceName -ResourceGroup $appServiceResourceGroupName -Slot $AppServiceSlotName
 
 # Fetch the StorageAccount ID
 $storageId = Invoke-Executable az storage account show --name $storageAccountName --resource-group $storageResourceGroupName --query=id

@@ -19,7 +19,7 @@ function Get-ManagedIdentity {
 
         [Parameter(ParameterSetName = 'webapp')]
         [Parameter(ParameterSetName = 'functionapp')]
-        [String] $SlotName
+        [String] $Slot
     )
     #region ===BEGIN IMPORTS===
     . "$PSScriptRoot\Write-HeaderFooter.ps1"
@@ -32,9 +32,9 @@ function Get-ManagedIdentity {
     $additionalParameters = @()
     $fullAppName = $Name
 
-    if ($SlotName) {
-        $additionalParameters += '--slot' , $SlotName
-        $fullAppName += "[$SlotName]"
+    if ($Slot) {
+        $additionalParameters += '--slot' , $Slot
+        $fullAppName += "[$Slot]"
     }
 
     $identityId = (Invoke-Executable az $appType identity show --resource-group $ResourceGroup --name $Name @additionalParameters | ConvertFrom-Json).principalId

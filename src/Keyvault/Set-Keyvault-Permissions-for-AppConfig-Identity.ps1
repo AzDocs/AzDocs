@@ -19,10 +19,7 @@ param (
     [String] $keyvaultStoragePermissions,
 
     [Parameter(Mandatory)]
-    [String] $keyvaultName,
-
-    [Parameter()]
-    [String] $AppServiceSlotName
+    [String] $keyvaultName
 )
 
 #region ===BEGIN IMPORTS===
