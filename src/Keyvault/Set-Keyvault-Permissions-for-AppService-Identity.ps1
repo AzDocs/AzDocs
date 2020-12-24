@@ -33,7 +33,7 @@ param (
 
 Write-Header
 
-$identityId = Get-ManagedIdentity -Name $appServiceName -ResourceGroup $appServiceResourceGroupName -SlotName $AppServiceSlotName
+$identityId = Get-ManagedIdentity -Name $appServiceName -ResourceGroup $appServiceResourceGroupName -Slot $AppServiceSlotName
 
 $kvcp = $keyvaultCertificatePermissions -split ' '
 $kvkp = $keyvaultKeyPermissions -split ' '
