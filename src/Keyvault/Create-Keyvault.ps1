@@ -45,8 +45,17 @@ $keyvaultPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet sho
 $applicationSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $applicationSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
 $keyVaultPrivateEndpointName = "$($keyvaultName)-pvtkv"
 
-# Create KeyVault with the appropriate tags
-Invoke-Executable az keyvault create --name $keyvaultName --resource-group $keyvaultResourceGroupName --default-action Deny --sku standard --bypass None --tags ${resourceTags}
+# Check if keyvault needs to be created. Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/issues/13752
+$currentVaultsInResourceGroup = Invoke-Executable az keyvault list --resource-group $keyvaultResourceGroupName --resource-type 'vault' | ConvertFrom-Json
+$keyvaultExists = $currentVaultsInResourceGroup | Where-Object { $_.name -eq $keyvaultName }
+
+if ($keyvaultExists) {
+    Write-Host 'Keyvault already exists. Dont touch it because of bug that removes access policies'
+}
+else {
+    # Create KeyVault with the appropriate tags
+    Invoke-Executable az keyvault create --name $keyvaultName --resource-group $keyvaultResourceGroupName --default-action Deny --sku standard --bypass None --tags ${resourceTags}
+}
 
 # Fetch the Keyvault ID to use while creating the Diagnostics settings in the next step
 $keyvaultId = (Invoke-Executable az keyvault show --name $keyvaultName --resource-group $keyvaultResourceGroupName | ConvertFrom-Json).id
@@ -72,7 +81,6 @@ if ([String]::IsNullOrWhiteSpace($(az network private-dns link vnet show --name 
 }
 
 Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $keyvaultResourceGroupName --endpoint-name $keyVaultPrivateEndpointName --name "$($keyvaultName)-zonegroup" --private-dns-zone $dnsZoneId --zone-name keyvault
-
 
 #### i dont think we need this, but we need to check
 # Create DNS Record for the private endpoint

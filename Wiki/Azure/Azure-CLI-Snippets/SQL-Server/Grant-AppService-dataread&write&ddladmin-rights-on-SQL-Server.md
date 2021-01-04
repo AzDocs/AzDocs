@@ -1,9 +1,11 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will give the appservice identity the permissions to read/write data from/to a SQL Database.
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
@@ -15,8 +17,10 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | serviceUserObjectId | `ba7d0b10-3bfd-4d40-b6b4-a60b3476582f` | The object ID of the service user. See [Get ObjectID for ServiceUser](/Azure/Azure-CLI-Snippets/Get-ObjectID-for-ServiceUser) for details how to retrieve this ObjectId. |
 | serviceUserPassword | `Th15iSMyP@ssW0rD123!` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
 | appServiceName | `myappservice-$(Release.EnvironmentName)` | The name of the AppService to give permissions for |
+| appServiceSlotName | `staging` | OPTIONAL Name of the AppService slot to grand permissions to. If not defined. The default production slot will be used. |
 
 # Code
+
 [Click here to download this script](../../../../src/SQL-Server/Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1)
 
 # Links

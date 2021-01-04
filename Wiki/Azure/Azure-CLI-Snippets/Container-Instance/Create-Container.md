@@ -1,9 +1,11 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will create an Azure Container Instances instance for you. It will be integrated into the given subnet.
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
@@ -25,8 +27,11 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AzureFileShareStorageAccountName | `mystorageaccount` | OPTIONAL: The name of the storage accountname where the fileshare resides in. |
 | AzureFileShareStorageAccountResourceGroupName | `MyTeam-MyApp-$(Release.EnvironmentName)` | OPTIONAL: The resourcegroupname of the resourcegroup where the storageaccount resides in. |
 | AzureFileShareMountPat | `/var/log/someapp` | OPTIONAL: The path to mount the given fileshare inside the container. |
+| logAnalyticsWorkspaceId | `225c2873-c15f-42da-a5d2-0dfb3df76da0` | OPTIONAL: The log analytics workspace Id |
+| logAnalyticsWorkspaceKey | `RGl0IGlzIGVlbiBvbmdlbGRpZ2UgdG9rZW4g8J+YgfCfmIHwn5iB8J+YgfCfmIHwn5iBLg==`| OPTIONAL: Primary or Secondary Key of the log analytics workspace. |
 
 # Code
+
 [Click here to download this script](../../../../src/Container-Instance/Create-Container.ps1)
 
 # Links

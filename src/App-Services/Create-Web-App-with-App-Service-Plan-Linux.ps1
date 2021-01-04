@@ -82,11 +82,11 @@ Invoke-Executable az webapp identity assign --ids $webAppId
 
 if ($Slot) {
     Invoke-Executable az webapp deployment slot create --resource-group $appServiceResourceGroupName --name $appServiceName --slot $Slot
-    Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled --slot $Slot
-    Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $Slot
-    Invoke-Executable az webapp identity assign --ids $webAppId --slot $Slot
+    $webAppStagingId = (Invoke-Executable az webapp show --name $appServiceName --resource-group $appServiceResourceGroupName --slot $Slot | ConvertFrom-Json).id
+    Invoke-Executable az webapp config set --ids $webAppStagingId --ftps-state Disabled --slot $Slot
+    Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $Slot
+    Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $Slot
 }
-
 
 # Disable private-endpoint-network-policies
 Invoke-Executable az network vnet subnet update --ids $applicationPrivateEndpointSubnetId --disable-private-endpoint-network-policies true
