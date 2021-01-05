@@ -31,15 +31,15 @@ if ($AppServiceSlotName) {
     $fullAppServiceName += " [$AppServiceSlotName]"
 }
 
-$vnetIntegrations = invoke-Executable az webapp vnet-integration list --resource-group $appServiceResourceGroupName --name $appServiceName @additionalParameters | ConvertFrom-Json
+$vnetIntegrations = Invoke-Executable az webapp vnet-integration list --resource-group $appServiceResourceGroupName --name $appServiceName @additionalParameters | ConvertFrom-Json
 $matchedIntegrations = $vnetIntegrations | Where-Object  vnetResourceId -like "*/providers/Microsoft.Network/virtualNetworks/$vnetName/subnets/$appServiceVnetIntegrationSubnetName"
 if ($matchedIntegrations) {
     Write-Host "VNET Integration found for $fullAppServiceName"
 }
 else {
     Write-Host "VNET Integration NOT found, adding it to $fullAppServiceName"
-    invoke-Executable az webapp vnet-integration add --resource-group $appServiceResourceGroupName --name $appServiceName --vnet $vnetName --subnet $appServiceVnetIntegrationSubnetName @additionalParameters
-    invoke-Executable az webapp restart --name $appServiceName --resource-group $appServiceResourceGroupName @additionalParameters
+    Invoke-Executable az webapp vnet-integration add --resource-group $appServiceResourceGroupName --name $appServiceName --vnet $vnetName --subnet $appServiceVnetIntegrationSubnetName @additionalParameters
+    Invoke-Executable az webapp restart --name $appServiceName --resource-group $appServiceResourceGroupName @additionalParameters
 }
 
 Write-Footer
