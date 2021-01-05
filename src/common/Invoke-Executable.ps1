@@ -27,6 +27,10 @@ function Invoke-Executable
         $AllowToFail
     )
 
+     #region ===BEGIN IMPORTS===
+     . "$PSScriptRoot\Write-HeaderFooter.ps1"
+     #endregion ===END IMPORTS===
+
     if ($LiteralPath -eq 'az')
     {
         if ($env:System_Debug -and $env:System_Debug -eq $true)
@@ -34,8 +38,7 @@ function Invoke-Executable
             $PassThruArgs += "--debug"
         }
     }
-
-    Write-Host "Executing: $LiteralPath $PassThruArgs"
+    Write-Header -OverrideHeaderText "$LiteralPath $PassThruArgs" -HideParameters
     & $LiteralPath $PassThruArgs
     if (!$AllowToFail -and !$?)
     {
@@ -44,4 +47,5 @@ function Invoke-Executable
         throw $Error
     }
     [Console]::ResetColor()
+    Write-Footer
 }

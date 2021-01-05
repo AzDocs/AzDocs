@@ -38,9 +38,12 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 . "$PSScriptRoot\..\common\Set-SubnetServiceEndpoint.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 $vnetId = (Invoke-Executable az network vnet show -g $vnetResourceGroupName -n $vnetName | ConvertFrom-Json).id
 $sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $sqlServerPrivateEndpointSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
@@ -96,3 +99,5 @@ $encryptedPassword = ConvertTo-SecureString -String $env:servicePrincipalKey -As
 $pscredential = New-Object -TypeName System.Management.Automation.PSCredential($env:servicePrincipalId, $encryptedPassword)
 Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $env:tenantId -Subscription $subscriptionId
 Set-AzSqlServerAudit -ResourceGroupName $sqlServerResourceGroupName -ServerName $sqlServerName -LogAnalyticsTargetState Enabled -WorkspaceResourceId $logAnalyticsWorkspaceId
+
+Write-Footer

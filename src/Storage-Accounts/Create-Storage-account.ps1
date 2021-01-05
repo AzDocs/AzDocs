@@ -32,9 +32,12 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 . "$PSScriptRoot\..\common\Set-SubnetServiceEndpoint.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 $vnetId = (Invoke-Executable az network vnet show -g $vnetResourceGroupName -n $vnetName | ConvertFrom-Json).id
 $storageAccountPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $storageAccountPrivateEndpointSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
@@ -74,3 +77,5 @@ Invoke-Executable az storage account network-rule add --resource-group $storageR
 
 # Make sure the default action is "deny" which causes public traffic to be dropped (like is defined in the KSP)
 Invoke-Executable az storage account update --resource-group $storageResourceGroupName --name $storageAccountName --default-action Deny
+
+Write-Footer

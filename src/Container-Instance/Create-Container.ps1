@@ -65,8 +65,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 $vnetId = (Invoke-Executable az network vnet show -g $VnetResourceGroupName -n $VnetName | ConvertFrom-Json).id
 $containerSubnetId = (Invoke-Executable az network vnet subnet show -g $VnetResourceGroupName -n $ContainerSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
@@ -111,3 +114,5 @@ if ($LogAnalyticsWorkspaceId -and $LogAnalyticsWorkspaceKey) {
 Write-Host "Script Arguments: $scriptArguments"
 
 Invoke-Executable az container create @scriptArguments
+
+Write-Footer

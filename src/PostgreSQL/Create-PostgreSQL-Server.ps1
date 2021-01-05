@@ -5,7 +5,7 @@ param (
 
     [Parameter()]
     [String] $VnetName,
-    
+
     [Parameter()]
     [String] $SqlServerPrivateEndpointSubnetName,
 
@@ -41,13 +41,16 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 . "$PSScriptRoot\..\common\Set-SubnetServiceEndpoint.ps1"
 #endregion ===END IMPORTS===
 
-$vnetId = (Invoke-Executable az network vnet show -g $VnetResourceGroupName -n $VnetName | ConvertFrom-Json).id
-$sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $VnetResourceGroupName -n $SqlServerPrivateEndpointSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
-$applicationSubnetId = (Invoke-Executable az network vnet subnet show -g $VnetResourceGroupName -n $ApplicationSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
+Write-Header
+
+$vnetId = (Invoke-Executable az network vnet show --resource-group $VnetResourceGroupName --name $VnetName | ConvertFrom-Json).id
+$sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $VnetResourceGroupName --name $SqlServerPrivateEndpointSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
+$applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $VnetResourceGroupName --name $ApplicationSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
 $sqlServerPrivateEndpointName = "$($SqlServerName)-pvtpsql"
 
 # Create PSQL Server if it does not exist
@@ -82,3 +85,5 @@ Invoke-Executable az network private-endpoint dns-zone-group create --resource-g
 
 # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
 Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceName "Microsoft.Sql"
+
+Write-Footer

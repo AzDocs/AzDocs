@@ -26,8 +26,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 Invoke-Executable az sql server ad-admin create --resource-group $sqlServerResourceGroupName --server-name $sqlServerName --display-name $serviceUserEmail --object-id $serviceUserObjectId
 
@@ -77,3 +80,5 @@ try {
 finally {
     $conn.Close();
 }
+
+Write-Footer

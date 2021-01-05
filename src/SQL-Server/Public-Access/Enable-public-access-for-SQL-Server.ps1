@@ -8,8 +8,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 Write-Host "Checking if public access is enabled"
 if((Invoke-Executable az sql server show --name $sqlServerName --resource-group $sqlServerResourceGroupName | ConvertFrom-Json).publicNetworkAccess -eq "Disabled")
@@ -18,3 +21,5 @@ if((Invoke-Executable az sql server show --name $sqlServerName --resource-group 
      Write-Host "Public access is disabled. Enabling it now."
      Invoke-Executable az sql server update --name $sqlServerName --resource-group $sqlServerResourceGroupName --set publicNetworkAccess="Enabled"
 }
+
+Write-Footer

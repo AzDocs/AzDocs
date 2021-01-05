@@ -15,10 +15,15 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 # please note because of a bug, the SCM part should be first whitelisted and then the regular website (https://github.com/Azure/azure-cli/issues/14862)
 Invoke-Executable az webapp config access-restriction add --resource-group $ResourceGroupName --name $AppServiceName --priority 10 --description $RuleName --rule-name $RuleName --ip-address  $IpRangeToWhitelist --scm-site $true
 
 Invoke-Executable az webapp config access-restriction add --resource-group $ResourceGroupName --name $AppServiceName --priority 10 --description $RuleName --rule-name $RuleName --ip-address  $IpRangeToWhitelist --scm-site $false
+
+Write-Footer

@@ -30,15 +30,16 @@ param (
     [Parameter()][string] $matchStatusCodes = "200-399",
     [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $gatewayRuleType
 )
-Set-StrictMode -Version 3.0
+#TODO check this script, still valid?
 $ErrorActionPreference = "Continue"
-[Console]::ResetColor()
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 . "$PSScriptRoot\..\common\AppGateway-Helper-Functions.ps1"
 #endregion ===END IMPORTS===
 
+Write-Header
 try
 {
     # Get the IP for the container instance
@@ -64,3 +65,5 @@ finally
 {
     [Console]::ResetColor()
 }
+
+Write-Footer

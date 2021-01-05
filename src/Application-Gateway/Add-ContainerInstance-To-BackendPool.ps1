@@ -14,19 +14,21 @@ param (
     [Parameter(Mandatory)][string] $containerName,
     [Parameter(Mandatory)][string] $containerResourceGroupName
 )
-Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Continue"
-[Console]::ResetColor()
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 . "$PSScriptRoot\..\common\AppGateway-Helper-Functions.ps1"
 #endregion ===END IMPORTS===
 
+Write-Header
+
 try
 {
+    #TODO does invoke-executable have an extra switch for something like this?
     # Get the IP for the container instance
-    $ipAddress = az container show --name $containerName --resource-group $containerResourceGroupName --query=ipAddress.ip | ConvertFrom-Json
+    $ipAddress = Invoke-Executable az container show --name $containerName --resource-group $containerResourceGroupName --query=ipAddress.ip | ConvertFrom-Json
 
     if(!$ipAddress)
     {
@@ -51,3 +53,5 @@ finally
 {
     [Console]::ResetColor()
 }
+
+Write-Footer

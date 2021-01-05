@@ -23,9 +23,12 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
 . "$PSScriptRoot\..\common\Set-SubnetServiceEndpoint.ps1"
 #endregion ===END IMPORTS===
+
+Write-Header
 
 if($storageAccountIsInVnet)
 {
@@ -39,3 +42,5 @@ if($storageAccountIsInVnet)
 }
 
 Invoke-Executable az storage share-rm create --storage-account $storageAccountName --name $shareName
+
+Write-Footer

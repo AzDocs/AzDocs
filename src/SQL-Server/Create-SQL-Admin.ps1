@@ -7,4 +7,12 @@ param (
     [String] $Password
 )
 
-az ad user create --display-name "SQL Admin $($UserName)" --password $Password --user-principal-name $UserName --force-change-password-next-login false
+#region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
+. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+#endregion ===END IMPORTS===
+Write-Header
+
+Invoke-Executable az ad user create --display-name "SQL Admin $($UserName)" --password $Password --user-principal-name $UserName --force-change-password-next-login false
+
+Write-Footer

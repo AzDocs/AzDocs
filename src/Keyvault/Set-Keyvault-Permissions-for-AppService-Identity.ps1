@@ -26,19 +26,14 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
+. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+. "$PSScriptRoot\..\common\Get-ManagedIdentity.ps1"
 #endregion ===END IMPORTS===
 
-$additionalParameters = @()
-if ($AppServiceSlotName) {
-    $additionalParameters += '--slot' , $AppServiceSlotName
-}
+Write-Header
 
-$identityId = (Invoke-Executable az webapp identity show --resource-group $appServiceResourceGroupName --name $appServiceName @additionalParameters | ConvertFrom-Json).principalId
-if (-not $identityId) {
-    throw "Could not find identity for $appServiceName"
-}
-Write-Host "Identity ID: $identityId"
+$identityId = Get-ManagedIdentity -Name $appServiceName -ResourceGroup $appServiceResourceGroupName -Slot $AppServiceSlotName
 
 $kvcp = $keyvaultCertificatePermissions -split ' '
 $kvkp = $keyvaultKeyPermissions -split ' '
@@ -46,3 +41,5 @@ $kvsp = $keyvaultSecretPermissions -split ' '
 $kvstp = $keyvaultStoragePermissions -split ' '
 
 Invoke-Executable az keyvault set-policy --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --object-id $identityId --name $keyvaultName
+
+Write-Footer
