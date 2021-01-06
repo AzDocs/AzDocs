@@ -31,6 +31,7 @@ param (
 #region ===BEGIN IMPORTS===
 . "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+. "$PSScriptRoot\..\common\Set-SubnetServiceEndpoint.ps1"
 #endregion ===END IMPORTS===
 
 Write-Header
@@ -65,16 +66,7 @@ if ([String]::IsNullOrWhiteSpace($(az network private-dns link vnet show --name 
 Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $containerRegistryResourceGroupName --endpoint-name $containerRegistryPrivateEndpointName --name "$($containerRegistryName)-zonegroup" --private-dns-zone $dnsZoneId --zone-name $privateDnsZoneName
 
 # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-$endpoints = Invoke-Executable az network vnet subnet show --ids $applicationSubnetId --query=serviceEndpoints[].service --output=json | ConvertFrom-Json
-if (![String]::IsNullOrWhiteSpace($endpoints) -and $endpoints -isnot [Object[]]) {
-    $endpoints = @($endpoints)
-}
-Write-Host "Current service endpoints: $endpoints"
-if (!($endpoints -contains 'Microsoft.ContainerRegistry')) {
-    Write-Host "Microsoft.ContainerRegistry Service Endpoint isnt defined yet. Adding it to the list."
-    $endpoints += "Microsoft.ContainerRegistry"
-}
-Invoke-Executable az network vnet subnet update --ids $applicationSubnetId --service-endpoints $endpoints
+Set-SubnetServiceEndpoint  -SubnetResourceId $applicationSubnetId -ServiceName 'Microsoft.ContainerRegistry'
 
 # Whitelist our App's subnet in the Azure Container Registry so we can connect
 Invoke-Executable az acr network-rule add --resource-group $containerRegistryResourceGroupName --name $containerRegistryName --subnet $applicationSubnetId
