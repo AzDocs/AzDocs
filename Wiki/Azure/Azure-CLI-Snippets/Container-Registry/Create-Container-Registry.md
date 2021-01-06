@@ -10,8 +10,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 |--|--|--|
 | containerRegistryName | `customershared$(Release.EnvironmentName)` | The name of the container registry. |
 | containerRegistryResourceGroupName | `Customer-Shared-$(Release.EnvironmentName)` | The resourcegroup where the container registry should be. |
-| containerRegistryPrivateEndpointSubnetName | `app-subnet-1` | The subnetname where the private endpoint for this container registry should be created. |
-| applicationSubnetName | `app-subnet-3` | The name of the subnet where the containers will be spun up (This subnet will get access to the container registry). |
+| containerRegistryPrivateEndpointSubnetName | `app-subnet-3` | The subnetname where the private endpoint for this container registry should be created. |
+| applicationSubnetName | `app-subnet-1` | The name of the subnet where the containers will be spun up (This subnet will get access to the container registry). |
 | privateEndpointGroupId | `registry` | The Group ID for the  registry. You can safely use `registry` here. |
 | DNSZoneResourceGroupName | `Customer-DNSZones-$(Release.EnvironmentName)` | The resourcegroup where the DNS Zones reside in. This is generally a tenant-wide shared resourcegroup. |
 | privateDnsZoneName | `privatelink.azurecr.io` | The privatelink DNS Zone to use. `privatelink.azurecr.io` can be safely used here. |
