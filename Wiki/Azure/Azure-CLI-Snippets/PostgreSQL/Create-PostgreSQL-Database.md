@@ -8,9 +8,9 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| sqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the Resource Group the SQL server was created |
-| sqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name for the PostgreSQL Server resource. This has to be an existing PostgreSQL Server instance. |
-| sqlDatabaseName | `mydatabase` | The name for the PostgreSQL Database to create. Stick to alphanumerical and hyphens etc |
+| PostgreSqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the Resource Group the PostgreSQL server was created |
+| PostgreSqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name for the PostgreSQL Server resource. This has to be an existing PostgreSQL Server instance. |
+| PostgreSqlDatabaseName | `mydatabase` | The name for the PostgreSQL Database to create. Stick to alphanumerical and hyphens etc |
 
 # Code
 [Click here to download this script](../../../../src/PostgreSQL/Create-PostgreSQL-Database.ps1)

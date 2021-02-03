@@ -1,16 +1,11 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $appServiceResourceGroupName,
-
-    [Parameter()]
-    [string] $appServiceName,
-
-    [Parameter()]
-    [string] $certificateNameForAppService,
-
-    [Parameter()]
-    [string] $certificateFilePath
+    [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
+    [Parameter(Mandatory)][string] $AppServiceName,
+    [Alias("CertificateNameForAppService")]
+    [Parameter(Mandatory)][string] $AppServiceCertificateName,
+    [Alias("CertificateFilePath")]
+    [Parameter(Mandatory)][string] $AppServiceCertificateFilePath
 )
 
 #region ===BEGIN IMPORTS===
@@ -20,7 +15,7 @@ param (
 Write-Header
 
 $certificateEncryptedPassword = ConvertTo-SecureString -String "ThisReallyDoesntMatterButWeNeedIt123!" -AsPlainText -Force
-$cert = New-AzApplicationGatewaySslCertificate -Name $certificateNameForAppService -CertificateFile $certificateFilePath -Password $certificateEncryptedPassword
+$cert = New-AzApplicationGatewaySslCertificate -Name $AppServiceCertificateName -CertificateFile $AppServiceCertificateFilePath -Password $certificateEncryptedPassword
 $apiVersion = '2018-02-01'
 
 if ($cert) {
@@ -29,14 +24,14 @@ if ($cert) {
         publicCertificateLocation = "CurrentUserMy"
     }
 
-    $resource = Get-AzWebApp -ResourceGroupName $appServiceResourceGroupName -Name $appServiceName
-    $resourceName = $resource.Name + "/" + $certificateNameForAppService
+    $resource = Get-AzWebApp -ResourceGroupName $AppServiceResourceGroupName -Name $AppServiceName
+    $resourceName = $resource.Name + "/" + $AppServiceCertificateName
     New-AzResource -Location $resource.Location -PropertyObject $PropertiesObject -ResourceGroupName $resource.ResourceGroup -ResourceType Microsoft.Web/sites/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
 
     #Apply the cert to the deployment slots if any
-    $slots = Get-AzResource -ResourceGroupName $resource.ResourceGroup -ResourceType Microsoft.Web/sites/slots -ResourceName $appServiceName -ApiVersion $apiVersion
+    $slots = Get-AzResource -ResourceGroupName $resource.ResourceGroup -ResourceType Microsoft.Web/sites/slots -ResourceName $AppServiceName -ApiVersion $apiVersion
     foreach ($slot in $slots) {
-        $resourceName = $slot.Name + "/" + $certificateNameForAppService
+        $resourceName = $slot.Name + "/" + $AppServiceCertificateName
         New-AzResource -Location $slot.Location -PropertyObject $PropertiesObject -ResourceGroupName $slot.ResourceGroupName -ResourceType Microsoft.Web/sites/slots/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
     }
 }

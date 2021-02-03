@@ -1,16 +1,10 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $pfxFilename,
-
-    [Parameter()]
-    [String] $keyvaultCertificateName,
-
-    [Parameter()]
-    [String] $sharedServicesKeyvaultName,
-
-    [Parameter()]
-    [String] $pfxPassword
+    [Alias("SharedServicesKeyvaultName")]
+    [Parameter(Mandatory)][string] $KeyvaultName,
+    [Parameter(Mandatory)][string] $KeyvaultCertificateName,
+    [Parameter(Mandatory)][string] $PfxFilename,
+    [Parameter(Mandatory)][string] $PfxPassword
 )
 
 #region ===BEGIN IMPORTS===
@@ -20,6 +14,6 @@ param (
 
 Write-Header
 
-Invoke-Executable az keyvault certificate import --file $pfxFilename --name $keyvaultCertificateName --vault-name $sharedServicesKeyvaultName --password $pfxPassword
+Invoke-Executable az keyvault certificate import --file $PfxFilename --name $KeyvaultCertificateName --vault-name $KeyvaultName --password $PfxPassword
 
 Write-Footer

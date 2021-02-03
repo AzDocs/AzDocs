@@ -1,18 +1,13 @@
-<#
-.SYNOPSIS
-Configure the Application Gateway for a site.
-
-.DESCRIPTION
-Configure the Application Gateway for sites for a public or private certificate.
-
-#>
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)][string] $domainName,
-    [Parameter(Mandatory)][string] $gatewayName,
-    [Parameter(Mandatory)][string] $sharedServicesResourceGroupName,
-    [Parameter(Mandatory)][string] $containerName,
-    [Parameter(Mandatory)][string] $containerResourceGroupName
+    [Alias("DomainName")]
+    [Parameter(Mandatory)][string] $IngressDomainName,
+    [Alias("GatewayName")]
+    [Parameter(Mandatory)][string] $ApplicationGatewayName,
+    [Alias("SharedServicesResourceGroupName")]
+    [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
+    [Parameter(Mandatory)][string] $ContainerName,
+    [Parameter(Mandatory)][string] $ContainerResourceGroupName
 )
 $ErrorActionPreference = "Continue"
 
@@ -26,9 +21,8 @@ Write-Header
 
 try
 {
-    #TODO does invoke-executable have an extra switch for something like this?
     # Get the IP for the container instance
-    $ipAddress = Invoke-Executable az container show --name $containerName --resource-group $containerResourceGroupName --query=ipAddress.ip | ConvertFrom-Json
+    $ipAddress = Invoke-Executable -AllowToFail az container show --name $ContainerName --resource-group $ContainerResourceGroupName --query=ipAddress.ip | ConvertFrom-Json
 
     if(!$ipAddress)
     {
@@ -37,13 +31,20 @@ try
 
     # Get the dashed version of the domainname to use as name for multiple app gateway components
     Write-Host "Fetching dashed domainname"
-    $dashedDomainName = Get-DashedDomainname -domainName $domainName
+    $dashedDomainName = Get-DashedDomainname -DomainName $IngressDomainName
     Write-Host "Dashed domainname: $dashedDomainName"
 
     # Adding container to the list of backends
-    Write-Host "Adding backend to the backendpool"
-    Invoke-Executable az network application-gateway address-pool update --gateway-name $gatewayName --name "$dashedDomainName-httpspool" --resource-group $sharedServicesResourceGroupName --add backendAddresses '{ "ip_address": "{' + $ipAddress + '}" }'
-    Write-Host "Added backend to the backendpool"
+    Write-Host "Adding backend $ipAddress to the backendpool"
+    if(!(az network application-gateway address-pool show --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpspool" --query "backendAddresses[?ipAddress=='$($ipAddress)']" | ConvertFrom-Json).ipAddress)
+    {
+        Invoke-Executable az network application-gateway address-pool update --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpspool" --resource-group $ApplicationGatewayResourceGroupName --add backendAddresses ip_address=$ipAddress
+        Write-Host "Added backend to the backendpool"
+    }
+    else
+    {
+        Write-Host "IpAddress $ipAddress already exists in backendpool"
+    }
 }
 catch
 {

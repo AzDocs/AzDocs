@@ -1,24 +1,14 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $LawResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [String] $LawName,
-
-    [Parameter(Mandatory)]
-    [int] $LawRetentionInDays = 30,
-
-    [Parameter()]
-    [switch]
-    $PublicInterfaceIngestionEnabled,
-
-    [Parameter()]
-    [switch]
-    $PublicInterfaceQueryAccess,
-
-    [Parameter(Mandatory)]
-    [System.Object[]] $ResourceTags
+    [Alias("LawResourceGroupName")]
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceGroupName,
+    [Alias("LawName")]
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
+    [Alias("LawRetentionInDays")]
+    [Parameter()][int] $LogAnalyticsWorkspaceRetentionInDays = 30,
+    [Parameter()][switch] $PublicInterfaceIngestionEnabled,
+    [Parameter()][switch] $PublicInterfaceQueryAccess,
+    [Parameter(Mandatory)][System.Object[]] $ResourceTags
 )
 
 #region ===BEGIN IMPORTS===
@@ -28,7 +18,7 @@ param (
 
 Write-Header
 
-$scriptArguments = "--workspace-name","$LawName", "--resource-group","$LawResourceGroupName", "--retention-time","$LawRetentionInDays", "--tags",$ResourceTags
+$scriptArguments = "--workspace-name","$LogAnalyticsWorkspaceName", "--resource-group","$LogAnalyticsWorkspaceResourceGroupName", "--retention-time","$LogAnalyticsWorkspaceRetentionInDays", "--tags",$ResourceTags
 
 if ($PublicInterfaceIngestionEnabled) {
     $scriptArguments += "--ingestion-access","Enabled"

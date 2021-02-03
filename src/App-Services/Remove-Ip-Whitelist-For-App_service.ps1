@@ -1,13 +1,10 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $ResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [string] $AppServiceName,
-
-    [Parameter(Mandatory)]
-    [string] $RuleName
+    [Alias("ResourceGroupName")]
+    [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
+    [Parameter(Mandatory)][string] $AppServiceName,
+    [Alias("RuleName")]
+    [Parameter(Mandatory)][string] $AccessRestrictionRuleName
 )
 
 #region ===BEGIN IMPORTS===
@@ -17,8 +14,7 @@ param (
 
 Write-Header
 
-Invoke-Executable az webapp config access-restriction remove --resource-group "$ResourceGroupName" --name "$AppServiceName" --rule-name "$RuleName" --scm-site $true
-
-Invoke-Executable az webapp config access-restriction remove --resource-group "$ResourceGroupName" --name "$AppServiceName" --rule-name "$RuleName" --scm-site $false
+Invoke-Executable az webapp config access-restriction remove --resource-group $AppServiceResourceGroupName --name $AppServiceName --rule-name $AccessRestrictionRuleName --scm-site $true
+Invoke-Executable az webapp config access-restriction remove --resource-group $AppServiceResourceGroupName --name $AppServiceName --rule-name $AccessRestrictionRuleName --scm-site $false
 
 Write-Footer

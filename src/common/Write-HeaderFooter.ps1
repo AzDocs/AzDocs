@@ -1,83 +1,69 @@
 function Write-ColorHost {
     [CmdletBinding()]
     param (
-        [Parameter()]
-        [string]
-        $Message,
-
-        [Parameter()]
-        [validateset('Regular', 'BeginGroup', 'EndGroup', 'Background')]
-        [string]
-        $Type = 'Regular',
-
-        [Parameter()]
-        [switch]
-        $NoNewLine
+        [Parameter()][string] $Message,
+        [Alias("Type")]
+        [Parameter()][ValidateSet('White', 'Orange', 'Green', 'Blue', 'Purple', 'Red')][string] $Color = 'White',
+        [Parameter()][switch] $NoNewLine
     )
 
-    if ($Type -eq 'Regular') {
+    if ($Color -eq 'White') {
         Write-Host $Message -NoNewline:$NoNewLine
     }
 
-    if (Test-Path env:System_HostType) {
-        switch ($Type) {
-            'BeginGroup' {
-                if ($env:System_HostType -eq 'build') {
-                    $formatPrefix = '##[group]'
-                }
-                else {
-                    $formatPrefix = '##[warning]'
-                }
-                Write-Host "$formatPrefix$Message" -NoNewline:$NoNewLine
+    if (Test-Path env:System_HostType) { # Are we in Azure DevOps?
+        switch ($Color) {
+            'Orange' {
+                $formatPrefix = '##[warning]'
             }
-            'EndGroup' {
-                if ($env:System_HostType -eq 'build') {
-                    $formatPrefix = '##[endgroup]'
-                }
-                else {
-                    $formatPrefix = '##[warning]'
-                }
-                Write-Host "$formatPrefix$Message" -NoNewline:$NoNewLine
+            'Green' {
+                $formatPrefix = '##[section]'
             }
-            'Background' {
-                Write-Host "##[section]$Message" -NoNewline:$NoNewLine
+            'Blue' {
+                $formatPrefix = '##[command]'
+            }
+            'Purple' {
+                $formatPrefix = '##[debug]'
+            }
+            'Red' {
+                $formatPrefix = '##[error]'
             }
             Default {}
         }
+        Write-Host "$formatPrefix$Message" -NoNewline:$NoNewLine
     }
     else {
-        switch -wildcard ($Type) {
-            '*Group' {
-                Write-Host $Message -ForegroundColor Green  -NoNewline:$NoNewLine
+        switch -wildcard ($Color) {
+            'Orange' {
+                $Color = "Yellow"
             }
-            'Background' {
-                Write-Host $Message  -ForegroundColor DarkGray  -NoNewline:$NoNewLine
+            'Blue' {
+                $Color = "Cyan"
+            }
+            'Purple' {
+                $Color = "Magenta"
             }
             Default {}
         }
+        Write-Host $Message -ForegroundColor $Color -NoNewline:$NoNewLine
     }
 }
 
 function Write-Header {
     [CmdletBinding()]
     param (
-        [Parameter()]
-        [string]
-        $OverrideHeaderText,
-
-        [Parameter()]
-        [switch]
-        $HideParameters
+        [Parameter()][string] $OverrideMessage,
+        [Parameter()][switch] $OmitOutputParameters
     )
     [System.Management.Automation.InvocationInfo]$myInvocation = Get-Variable -Name "MyInvocation" -Scope 1 -ValueOnly
-    Write-ColorHost "> $($myInvocation.InvocationName) $OverrideHeaderText" -Type 'BeginGroup'
-    if ($HideParameters) {
+    Write-ColorHost "> $($myInvocation.InvocationName) $OverrideMessage" -Color Orange
+    if ($OmitOutputParameters) {
         return
     }
 
     [System.Management.Automation.PSCmdlet]$headerCmdlet = Get-Variable -Name "PSCmdlet" -Scope 1 -ValueOnly
     if ($headerCmdlet.ParameterSetName -ne '__AllParameterSets') {
-        Write-ColorHost ">  ParameterSetName : $($headerCmdlet.ParameterSetName)" -Type 'Background'
+        Write-ColorHost ">  ParameterSetName : $($headerCmdlet.ParameterSetName)" -Color Green
     }
 
     $myInvocation.BoundParameters.Keys | ForEach-Object {
@@ -86,11 +72,11 @@ function Write-Header {
         If ($key -like '*password*') {
             $value = '****'
         }
-        Write-ColorHost ">  $key : $value" -Type 'Background'
+        Write-ColorHost ">  $key : $value" -Color Green
     }
 }
 
 function Write-Footer {
-    [System.Management.Automation.InvocationInfo]$myInvocation = Get-Variable -Name "MyInvocation" -Scope 1 -ValueOnly
-    Write-ColorHost "< $($myInvocation.InvocationName)" -Type 'EndGroup'
+    [System.Management.Automation.InvocationInfo] $myInvocation = Get-Variable -Name "MyInvocation" -Scope 1 -ValueOnly
+    Write-ColorHost "< $($myInvocation.InvocationName)" -Color Orange
 }

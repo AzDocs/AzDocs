@@ -12,37 +12,27 @@
 function Invoke-Executable
 {
     param(
-        # Path to the executable
-        [Parameter(Mandatory)]
-        [string]
-        $LiteralPath,
-
-        # Arguments that are passed to the executable
-        [Parameter(ValueFromRemainingArguments)]
-        $PassThruArgs,
-
-        # Parameter help description
-        [Parameter()]
-        [switch]
-        $AllowToFail
+        [Parameter(Mandatory)][string] $ExecutableLiteralPath,
+        [Parameter(ValueFromRemainingArguments)] $ExecutableArguments,
+        [Parameter()][switch] $AllowToFail
     )
 
      #region ===BEGIN IMPORTS===
      . "$PSScriptRoot\Write-HeaderFooter.ps1"
      #endregion ===END IMPORTS===
 
-    if ($LiteralPath -eq 'az')
+    if ($ExecutableLiteralPath -eq 'az')
     {
         if ($env:System_Debug -and $env:System_Debug -eq $true)
         {
-            $PassThruArgs += "--debug"
+            $ExecutableArguments += "--debug"
         }
     }
-    Write-Header -OverrideHeaderText "$LiteralPath $PassThruArgs" -HideParameters
-    & $LiteralPath $PassThruArgs
+    Write-Header -OverrideMessage "$ExecutableLiteralPath $ExecutableArguments" -OmitOutputParameters
+    & $ExecutableLiteralPath $ExecutableArguments
     if (!$AllowToFail -and !$?)
     {
-        Write-Error "Arguments: $LiteralPath $PassThruArgs"
+        Write-Error "Arguments: $ExecutableLiteralPath $ExecutableArguments"
         Get-Error
         throw $Error
     }

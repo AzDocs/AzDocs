@@ -6,7 +6,7 @@ Sometimes you need to register a so called "provider" before you can use a certa
 # Parameters
 | Parameter | Example Value | Description |
 |--|--|--|
-| Namespace | `Microsoft.Insights` | The namespace you want to register. |
+| ResourceProviderNamespace | `Microsoft.Insights` | The namespace you want to register. |
 
 
 # Code

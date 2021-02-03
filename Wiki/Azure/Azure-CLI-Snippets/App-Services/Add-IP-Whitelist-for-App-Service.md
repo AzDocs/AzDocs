@@ -7,9 +7,10 @@ This snippet will Add an IP range from the whitelist so that the website or SCM-
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Example Value | Description |
 |--|--|--|
+| AppServiceResourceGroupName | `MyTeam-SomeApi-$(Release.EnvironmentName)` | The resourcegroup where the AppService resides in. |
 | AppServiceName | `App-Service-name` | Name of the app service to set the whitelist on. | 
-| RuleName| `Hosted Agent` | Name of the Rule to add to the whitelist  |
-| IpRangeToWhitelist | `1.2.3.4/32` | Ip range in [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) notation that should be whitelisted |  
+| AccessRestrictionRuleName | `Hosted Agent` | Name of the Rule to add to the whitelist  |
+| CIDRToWhitelist | `1.2.3.4/32` | IP range in [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) notation that should be whitelisted |  
 
 # Code
 [Click here to download this script](../../../../src/App-Services/Add-IP-Whitelist-for-App-Service.ps1)

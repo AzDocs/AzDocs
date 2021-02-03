@@ -15,14 +15,18 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| applicationSubnetName | `app-subnet-3` | The subnetname for the subnet whitelist on the keyvault. |
+| KeyvaultPrivateEndpointVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your SQL Server Private Endpoint, resides in. |
+| KeyvaultPrivateEndpointVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the Keyvault Private Endpoint in. |
+| ApplicationVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your appservice, resides in. |
+| ApplicationVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the appservice is in|
+| ApplicationSubnetName | `app-subnet-3` | The subnetname for the subnet whitelist on the keyvault. |
 | DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| privateDnsZoneName | `privatelink.vaultcore.azure.net` | Generally this will be `privatelink.vaultcore.azure.net`. This defines which DNS Zone to use for the private keyvault endpoint. |
-| keyvaultDiagnosticsName | `mykeyvault-$(Release.EnvironmentName)` | This name will be used as an identifier in the log analytics workspace. |
-| keyvaultName | `mykeyvault-$(Release.EnvironmentName)` | This is the keyvault name to use. |
-| keyvaultPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet where the keyvault's private endpoint will reside in. |
-| logAnalyticsWorkspaceName | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The name of the Log Analytics Workspace for the diagnostics settings of the keyvault. |
-| keyvaultResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your keyvault will reside in. |
+| KeyvaultPrivateDnsZoneName | `privatelink.vaultcore.azure.net` | Generally this will be `privatelink.vaultcore.azure.net`. This defines which DNS Zone to use for the private keyvault endpoint. |
+| KeyvaultDiagnosticsName | `mykeyvault-$(Release.EnvironmentName)` | This name will be used as an identifier in the log analytics workspace. It is recommended to use your Application Insights name for this parameter. |
+| KeyvaultName | `mykeyvault-$(Release.EnvironmentName)` | This is the keyvault name to use. |
+| KeyvaultPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet where the keyvault's private endpoint will reside in. |
+| LogAnalyticsWorkspaceName | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The name of the Log Analytics Workspace for the diagnostics settings of the keyvault. |
+| KeyvaultResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your keyvault will reside in. |
 
 # Code
 [Click here to download this script](../../../../src/Keyvault/Create-Keyvault.ps1)

@@ -1,22 +1,11 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $keyvaultName,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultResourceGroupName,
-
-    [Parameter()]
-    [String] $keyvaultCertificatePermissions = "",
-
-    [Parameter()]
-    [String] $keyvaultKeyPermissions = "",
-
-    [Parameter()]
-    [String] $keyvaultSecretPermissions = "",
-
-    [Parameter()]
-    [String] $keyvaultStoragePermissions = ""
+    [Parameter(Mandatory)][string] $KeyvaultName,
+    [Parameter(Mandatory)][string] $KeyvaultResourceGroupName,
+    [Parameter()][string] $KeyvaultCertificatePermissions = "",
+    [Parameter()][string] $KeyvaultKeyPermissions = "",
+    [Parameter()][string] $KeyvaultSecretPermissions = "",
+    [Parameter()][string] $KeyvaultStoragePermissions = ""
 )
 
 #region ===BEGIN IMPORTS===
@@ -28,15 +17,15 @@ Write-Header
 
 $identityId = (Invoke-Executable az account show | ConvertFrom-Json).user.name
 
-$kvcp = $keyvaultCertificatePermissions -split ' '
-$kvkp = $keyvaultKeyPermissions -split ' '
-$kvsp = $keyvaultSecretPermissions -split ' '
-$kvstp = $keyvaultStoragePermissions -split ' '
+$kvcp = $KeyvaultCertificatePermissions -split ' '
+$kvkp = $KeyvaultKeyPermissions -split ' '
+$kvsp = $KeyvaultSecretPermissions -split ' '
+$kvstp = $KeyvaultStoragePermissions -split ' '
 
 if (!$identityId) {
     throw "Identity not found"
 }
 Write-Host "Identity ID: $identityId"
-Invoke-Executable az keyvault set-policy --name $keyvaultName --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --spn $identityId --resource-group $keyvaultResourceGroupName | Out-Null
+Invoke-Executable az keyvault set-policy --name $KeyvaultName --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --spn $identityId --resource-group $KeyvaultResourceGroupName | Out-Null
 
 Write-Footer

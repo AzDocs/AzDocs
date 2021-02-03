@@ -1,72 +1,47 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $vnetResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [string] $vnetName,
-
-    [Parameter(Mandatory)]
-    [string] $applicationPrivateEndpointSubnetName,
-
-    [Parameter(Mandatory)]
-    [string] $appServicePlanName,
-
-    [Parameter(Mandatory)]
-    [string] $appServicePlanResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [string] $appServicePlanSkuName,
-
-    [Parameter(Mandatory)]
-    [System.Object[]] $resourceTags,
-
-    [Parameter(Mandatory)]
-    [string] $appServiceResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [string] $appServiceName,
-
-    [Parameter(Mandatory)]
-    [string] $appServiceRunTime,
-
-    [Parameter(Mandatory)]
-    [string] $appServiceDiagnosticsName,
-
-    [Parameter(Mandatory)]
-    [string] $logAnalyticsWorkspaceName,
-
-    [Parameter(Mandatory)]
-    [string] $DNSZoneResourceGroupName,
-
-    [Parameter()]
-    [string] $privateDnsZoneName = "privatelink.azurewebsites.net",
-
-    # If the slot is not empty or null, a slot will be created. If not defined the default staging slot will be created
-    [Parameter()]
-    [string]
-    $Slot = 'staging'
+    [Alias("VnetResourceGroupName")]
+    [Parameter(Mandatory)][string] $AppServicePrivateEndpointVnetResourceGroupName,
+    [Alias("VnetName")]
+    [Parameter(Mandatory)][string] $AppServicePrivateEndpointVnetName,
+    [Alias("ApplicationPrivateEndpointSubnetName")]
+    [Parameter(Mandatory)][string] $AppServicePrivateEndpointSubnetName,
+    [Parameter(Mandatory)][string] $AppServicePlanName,
+    [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,
+    [Parameter(Mandatory)][string] $AppServicePlanSkuName,
+    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
+    [Parameter(Mandatory)][string] $AppServiceName,
+    [Parameter(Mandatory)][string] $AppServiceRunTime,
+    [Parameter(Mandatory)][string] $AppServiceDiagnosticsName,
+    [Alias("LogAnalyticsWorkspaceName")]
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
+    [Alias("PrivateDnsZoneName")]
+    [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
+    [Parameter()][string] $AppServiceSlotName = 'staging'
 )
 
 #region ===BEGIN IMPORTS===
 . "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
 #endregion ===END IMPORTS===
 
 Write-Header
 
-$vnetId = (Invoke-Executable az network vnet show -g $vnetResourceGroupName -n $vnetName | ConvertFrom-Json).id
-$applicationPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $applicationPrivateEndpointSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
-$appServicePrivateEndpointName = "$($appServiceName)-pvtapp"
+$vnetId = (Invoke-Executable az network vnet show --resource-group $AppServicePrivateEndpointVnetResourceGroupName --name $AppServicePrivateEndpointVnetName | ConvertFrom-Json).id
+$applicationPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $AppServicePrivateEndpointVnetResourceGroupName --name $AppServicePrivateEndpointSubnetName --vnet-name $AppServicePrivateEndpointVnetName | ConvertFrom-Json).id
+$appServicePrivateEndpointName = "$($AppServiceName)-pvtapp"
 
 # Create AppService Plan
-$appServicePlanId = (Invoke-Executable az appservice plan create --is-linux --resource-group $appServicePlanResourceGroupName  --name $appServicePlanName --sku $appServicePlanSkuName --tags ${resourceTags} | ConvertFrom-Json).id
+$appServicePlanId = (Invoke-Executable az appservice plan create --is-linux --resource-group $AppServicePlanResourceGroupName  --name $AppServicePlanName --sku $AppServicePlanSkuName --tags ${ResourceTags} | ConvertFrom-Json).id
 
 # Create AppService
-Invoke-Executable az webapp create --runtime $appServiceRunTime --name $appServiceName --plan $appServicePlanId --resource-group $appServiceResourceGroupName --tags ${resourceTags}
+Invoke-Executable az webapp create --runtime $AppServiceRunTime --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags}
 
 # Fetch the ID from the AppService
-$webAppId = (Invoke-Executable az webapp show --name $appServiceName --resource-group $appServiceResourceGroupName | ConvertFrom-Json).id
+$webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
 
 # Disable HTTPS
 Invoke-Executable az webapp update --ids $webAppId --https-only true
@@ -78,37 +53,20 @@ Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
 
 #  Create diagnostics settings
-Invoke-Executable az monitor diagnostic-settings create --resource $webAppId --name $appServiceDiagnosticsName --workspace $logAnalyticsWorkspaceName --logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+Invoke-Executable az monitor diagnostic-settings create --resource $webAppId --name $AppServiceDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az webapp identity assign --ids $webAppId
 
-if ($Slot) {
-    Invoke-Executable az webapp deployment slot create --resource-group $appServiceResourceGroupName --name $appServiceName --slot $Slot
-    $webAppStagingId = (Invoke-Executable az webapp show --name $appServiceName --resource-group $appServiceResourceGroupName --slot $Slot | ConvertFrom-Json).id
-    Invoke-Executable az webapp config set --ids $webAppStagingId --ftps-state Disabled --slot $Slot
-    Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $Slot
-    Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $Slot
+if ($AppServiceSlotName) {
+    Invoke-Executable az webapp deployment slot create --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceSlotName
+    $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceSlotName | ConvertFrom-Json).id
+    Invoke-Executable az webapp config set --ids $webAppStagingId --ftps-state Disabled --slot $AppServiceSlotName
+    Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceSlotName
+    Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceSlotName
 }
 
-# Disable private-endpoint-network-policies
-Invoke-Executable az network vnet subnet update --ids $applicationPrivateEndpointSubnetId --disable-private-endpoint-network-policies true
-
-# Create private endpoint for AppService
-Invoke-Executable az network private-endpoint create --name $appServicePrivateEndpointName --resource-group $appServiceResourceGroupName --subnet $applicationPrivateEndpointSubnetId --connection-name "$($appServiceName)-connection" --private-connection-resource-id $webAppId --group-id sites
-
-# Add Private DNS zone & set it up
-if ([String]::IsNullOrWhiteSpace($(az network private-dns zone show -g $DNSZoneResourceGroupName -n $privateDnsZoneName))) {
-    Invoke-Executable az network private-dns zone create --resource-group $DNSZoneResourceGroupName --name $privateDnsZoneName
-}
-
-$dnsZoneId = (Invoke-Executable az network private-dns zone show --resource-group $DNSZoneResourceGroupName --name $privateDnsZoneName | ConvertFrom-Json).id
-
-if ([String]::IsNullOrWhiteSpace($(az network private-dns link vnet show --name "$($vnetName)-appservice" --resource-group $DNSZoneResourceGroupName --zone-name $privateDnsZoneName))) {
-    Invoke-Executable az network private-dns link vnet create --resource-group $DNSZoneResourceGroupName --zone-name $privateDnsZoneName --name "$($vnetName)-appservice" --virtual-network $vnetId --registration-enabled false
-}
-
-# Create DNS Zone Group
-Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $appServiceResourceGroupName --endpoint-name $appServicePrivateEndpointName --name "$($appServiceName)-zonegroup" --private-dns-zone $dnsZoneId --zone-name appservice
+# Add private endpoint & Setup Private DNS
+Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $applicationPrivateEndpointSubnetId -PrivateEndpointName $appServicePrivateEndpointName -PrivateEndpointResourceGroupName $AppServiceResourceGroupName -TargetResourceId $webAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $AppServicePrivateDnsZoneName -PrivateDnsLinkName "$($AppServicePrivateEndpointVnetName)-appservice"
 
 Write-Footer

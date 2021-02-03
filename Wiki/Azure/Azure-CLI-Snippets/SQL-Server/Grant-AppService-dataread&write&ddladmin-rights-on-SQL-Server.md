@@ -10,14 +10,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| sqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup where the SQL server was created |
-| sqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name of the SQL Server to give permissions on |
-| sqlDatabaseName | `mydb` | The name of the SQL Database to give permissions on |
-| serviceUserEmail | `my_user@domain.com` | The emailaddress of the service account to use (this cannot be a service principal unfortunately) |
-| serviceUserObjectId | `ba7d0b10-3bfd-4d40-b6b4-a60b3476582f` | The object ID of the service user. See [Get ObjectID for ServiceUser](/Azure/Azure-CLI-Snippets/Get-ObjectID-for-ServiceUser) for details how to retrieve this ObjectId. |
-| serviceUserPassword | `Th15iSMyP@ssW0rD123!` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
-| appServiceName | `myappservice-$(Release.EnvironmentName)` | The name of the AppService to give permissions for |
-| appServiceSlotName | `staging` | OPTIONAL Name of the AppService slot to grand permissions to. If not defined. The default production slot will be used. |
+| SqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup where the SQL server was created |
+| SqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name of the SQL Server to give permissions on |
+| SqlDatabaseName | `mydb` | The name of the SQL Database to give permissions on |
+| ServiceUserEmail | `my_user@domain.com` | The emailaddress of the service account to use (this cannot be a service principal unfortunately) |
+| ServiceUserObjectId | `ba7d0b10-3bfd-4d40-b6b4-a60b3476582f` | The object ID of the service user. See [Get ObjectID for ServiceUser](/Azure/Azure-CLI-Snippets/Get-ObjectID-for-ServiceUser) for details how to retrieve this ObjectId. |
+| ServiceUserPassword | `Th15iSMyP@ssW0rD123!` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
+| AppServiceName | `myappservice-$(Release.EnvironmentName)` | The name of the AppService to give permissions for |
+| AppServiceSlotName | `staging` | OPTIONAL Name of the AppService slot to grand permissions to. If not defined. The default production slot will be used. |
 
 # Code
 

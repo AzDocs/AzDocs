@@ -1,67 +1,35 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [string] $ContainerName,
-
-    [Parameter(Mandatory)]
-    [string] $ContainerResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [int] $ContainerCpuCount,
-
-    [Parameter(Mandatory)]
-    [int] $ContainerMemoryInGb,
-
-    [Parameter(Mandatory)]
-    [string] $ContainerOs,
-
-    [Parameter(Mandatory)]
-    [string] $ContainerPorts,
-
-    [Parameter(Mandatory)]
-    [string] $ContainerImageName,
-
-    [Parameter(Mandatory)]
-    [string] $VnetName,
-
-    [Parameter(Mandatory)]
-    [string] $VnetResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [string] $ContainerSubnetName,
-
-    [Parameter()]
-    [string] $RegistryLoginServer,
-
-    [Parameter()]
-    [string] $RegistryUserName,
-
-    [Parameter()]
-    [string] $RegistryPassword,
-
-    [Parameter()]
-    [string] $ContainerEnvironmentVariables,
-
-    [Parameter()]
-    [string] $ContainerEnvironmentVariablesDelimiter = ";",
-
-    [Parameter()]
-    [string] $AzureFileShareName,
-
-    [Parameter()]
-    [string] $AzureFileShareStorageAccountName,
-
-    [Parameter()]
-    [string] $AzureFileShareStorageAccountResourceGroupName,
-
-    [Parameter()]
-    [string] $AzureFileShareMountPath,
-
-    [Parameter()]
-    [Guid] $LogAnalyticsWorkspaceId,
-
-    [Parameter()]
-    [String] $LogAnalyticsWorkspaceKey
+    [Parameter(Mandatory)][string] $ContainerName,
+    [Parameter(Mandatory)][string] $ContainerResourceGroupName,
+    [Parameter(Mandatory)][int] $ContainerCpuCount,
+    [Parameter(Mandatory)][int] $ContainerMemoryInGb,
+    [Parameter(Mandatory)][string] $ContainerOs,
+    [Parameter(Mandatory)][string] $ContainerPorts,
+    [Parameter(Mandatory)][string] $ContainerImageName,
+    [Alias("VnetName")]
+    [Parameter(Mandatory)][string] $ContainerVnetName,
+    [Alias("VnetResourceGroupName")]
+    [Parameter(Mandatory)][string] $ContainerVnetResourceGroupName,
+    [Parameter(Mandatory)][string] $ContainerSubnetName,
+    [Alias("RegistryLoginServer")]
+    [Parameter()][string] $ImageRegistryLoginServer,
+    [Alias("RegistryUserName")]
+    [Parameter()][string] $ImageRegistryUserName,
+    [Alias("RegistryPassword")]
+    [Parameter()][string] $ImageRegistryPassword,
+    [Parameter()][string] $ContainerEnvironmentVariables,
+    [Parameter()][string] $ContainerEnvironmentVariablesDelimiter = ";",
+    [Alias("AzureFileShareName")]
+    [Parameter()][string] $StorageAccountFileShareName,
+    [Alias("AzureFileShareStorageAccountName")]
+    [Parameter()][string] $FileShareStorageAccountName,
+    [Alias("AzureFileShareStorageAccountResourceGroupName")]
+    [Parameter()][string] $FileShareStorageAccountResourceGroupName,
+    [Alias("AzureFileShareMountPath")]
+    [Parameter()][string] $StorageAccountFileShareMountPath,
+    [Parameter()][Guid] $LogAnalyticsWorkspaceId,
+    [Parameter()][string] $LogAnalyticsWorkspaceKey
 )
 
 #region ===BEGIN IMPORTS===
@@ -71,8 +39,8 @@ param (
 
 Write-Header
 
-$vnetId = (Invoke-Executable az network vnet show -g $VnetResourceGroupName -n $VnetName | ConvertFrom-Json).id
-$containerSubnetId = (Invoke-Executable az network vnet subnet show -g $VnetResourceGroupName -n $ContainerSubnetName --vnet-name $VnetName | ConvertFrom-Json).id
+$vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerVnetName | ConvertFrom-Json).id
+$containerSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerSubnetName --vnet-name $ContainerVnetName | ConvertFrom-Json).id
 $ContainerName = $ContainerName.ToLower()
 
 $scriptArguments = "--name", "$ContainerName", "--resource-group", "$ContainerResourceGroupName", "--ip-address", "Private", "--os-type", "$ContainerOs", "--cpu", $ContainerCpuCount, "--memory", $ContainerMemoryInGb, "--image", "$ContainerImageName", "--vnet", "$vnetId", "--subnet", "$containerSubnetId"
@@ -85,25 +53,25 @@ if ($ContainerPorts) {
     }
 }
 
-if ($RegistryLoginServer) {
-    $scriptArguments += "--registry-login-server", "$RegistryLoginServer"
+if ($ImageRegistryLoginServer) {
+    $scriptArguments += "--registry-login-server", "$ImageRegistryLoginServer"
 }
 
-if ($RegistryLoginServer) {
-    $scriptArguments += "--registry-username", "$RegistryUserName"
+if ($ImageRegistryUserName) {
+    $scriptArguments += "--registry-username", "$ImageRegistryUserName"
 }
 
-if ($RegistryLoginServer) {
-    $scriptArguments += "--registry-password", "$RegistryPassword"
+if ($ImageRegistryPassword) {
+    $scriptArguments += "--registry-password", "$ImageRegistryPassword"
 }
 
 if ($ContainerEnvironmentVariables) {
     $scriptArguments += "--environment-variables", $ContainerEnvironmentVariables -split $ContainerEnvironmentVariablesDelimiter
 }
 
-if ($AzureFileShareName -and $AzureFileShareStorageAccountName -and $AzureFileShareStorageAccountResourceGroupName -and $AzureFileShareMountPath) {
-    $storageKey = Invoke-Executable az storage account keys list -g $AzureFileShareStorageAccountResourceGroupName -n $AzureFileShareStorageAccountName --query=[0].value --output tsv
-    $scriptArguments += "--azure-file-volume-share-name", "$AzureFileShareName", "--azure-file-volume-account-name", "$AzureFileShareStorageAccountName", "--azure-file-volume-account-key", "$storageKey", "--azure-file-volume-mount-path", "$AzureFileShareMountPath"
+if ($StorageAccountFileShareName -and $FileShareStorageAccountName -and $FileShareStorageAccountResourceGroupName -and $StorageAccountFileShareMountPath) {
+    $storageKey = Invoke-Executable az storage account keys list --resource-group $FileShareStorageAccountResourceGroupName --name $FileShareStorageAccountName --query=[0].value --output tsv
+    $scriptArguments += "--azure-file-volume-share-name", "$StorageAccountFileShareName", "--azure-file-volume-account-name", "$FileShareStorageAccountName", "--azure-file-volume-account-key", "$storageKey", "--azure-file-volume-mount-path", "$StorageAccountFileShareMountPath"
 }
 
 if ($LogAnalyticsWorkspaceId -and $LogAnalyticsWorkspaceKey) {

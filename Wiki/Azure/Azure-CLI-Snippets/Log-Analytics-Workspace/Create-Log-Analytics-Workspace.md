@@ -8,9 +8,9 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| LawResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your log analytics workspace to be created in |
-| LawName | `My-Shared-Law-$(Release.EnvironmentName)` | The name you want to use for your log analytics-workspace.  |
-| LawRetentionInDays | `30` | OPTIONAL: The retention in days for the log analytics workspace. NOTE: The default value is 30 days.  |
+| LogAnalyticsWorkspaceResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your log analytics workspace to be created in |
+| LogAnalyticsWorkspaceName | `My-Shared-Law-$(Release.EnvironmentName)` | The name you want to use for your log analytics-workspace.  |
+| LogAnalyticsWorkspaceRetentionInDays | `30` | OPTIONAL: The retention in days for the log analytics workspace. NOTE: The default value is 30 days.  |
 | PublicInterfaceIngestionEnabled | n.a. | If you pass this switch (without value), public access for ingestion data will be enabled for this log analytics workspace (you still need to be authenticated). |
 | PublicInterfaceQueryAccess | n.a. | If you pass this switch (without value), public access for querying data will be enabled for this log analytics workspace (you still need to be authenticated). |
 

@@ -1,19 +1,10 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $appConfigName,
-
-    [Parameter()]
-    [String] $appConfigKeyName,
-
-    [Parameter()]
-    [String] $keyVaultName,
-
-    [Parameter()]
-    [String] $keyVaultSecretName,
-
-    [Parameter()]
-    [String] $label
+    [Parameter(Mandatory)][string] $AppConfigName,
+    [Parameter(Mandatory)][string] $AppConfigKeyName,
+    [Parameter(Mandatory)][string] $KeyVaultName,
+    [Parameter(Mandatory)][string] $KeyVaultSecretName,
+    [Parameter(Mandatory)][string] $Label
 )
 
 #region ===BEGIN IMPORTS===
@@ -22,8 +13,8 @@ param (
 #endregion ===END IMPORTS===
 Write-Header
 
-$keyVaultSecretId = (Invoke-Executable az keyvault secret list --vault-name $keyVaultName --query "[?name=='$($keyVaultSecretName)']" | ConvertFrom-Json).id
+$keyVaultSecretId = (Invoke-Executable az keyvault secret list --vault-name $KeyVaultName --query "[?name=='$($KeyVaultSecretName)']" | ConvertFrom-Json).id
 
-Invoke-Executable az appconfig kv set-keyvault --name $appConfigName --key $appConfigKeyName --label $label --secret-identifier $keyVaultSecretId --yes
+Invoke-Executable az appconfig kv set-keyvault --name $AppConfigName --key $AppConfigKeyName --label $Label --secret-identifier $keyVaultSecretId --yes
 
 Write-Footer

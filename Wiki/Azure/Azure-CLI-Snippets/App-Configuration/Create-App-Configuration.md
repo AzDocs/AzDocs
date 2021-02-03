@@ -14,14 +14,16 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| applicationSubnetName | `app-subnet-3` | The subnetname for the subnet to set the service endpoint on (this will allow the application to connect over the private endpoint within the azure backbone). |
+| ApplicationSubnetName | `app-subnet-3` | The subnetname for the subnet to set the service endpoint on (this will allow the application to connect over the private endpoint within the azure backbone). |
 | DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | ResourceGroupName for DNS Zones |
-| privateDnsZoneName | `privatelink.azconfig.io` | Generally this will be `privatelink.azconfig.io`. This defines which DNS Zone to use for the private app configuration endpoint. |
-| appConfigDiagnosticsName | `myappconfig-$(Release.EnvironmentName)` | This name will be used as an identifier in the log analytics workspace. |
-| appConfigName | `myappconfig-$(Release.EnvironmentName)` | This is the app configuration name to use. |
-| appConfigPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet where the app configurations private endpoint will reside in. |
-| logAnalyticsWorkspaceName | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The name of the Log Analytics Workspace for the diagnostics settings of the app configuration. |
-| appConfigResourceGroup | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your app configuration will reside in. |
+| AppConfigPrivateDnsZoneName | `privatelink.azconfig.io` | Generally this will be `privatelink.azconfig.io`. This defines which DNS Zone to use for the private app configuration endpoint. |
+| AppConfigDiagnosticsName | `myappconfig-$(Release.EnvironmentName)` | This name will be used as an identifier in the log analytics workspace. It is recommended to use your Application Insights name for this parameter. |
+| AppConfigName | `myappconfig-$(Release.EnvironmentName)` | This is the app configuration name to use. |
+| AppConfigPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet where the app configurations private endpoint will reside in. |
+| LogAnalyticsWorkspaceName | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The name of the Log Analytics Workspace for the diagnostics settings of the app configuration. |
+| AppConfigResourceGroup | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your app configuration will reside in. |
+| AppConfigPrivateEndpointVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to use for creating the App Config private endpoint in. |
+| AppConfigPrivateEndpointVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where the AppConfig PrivateEndpoint VNET resides in. |
 
 # Code
 [Click here to download this script](../../../../src/App-Configuration/Create-App-Configuration.ps1)

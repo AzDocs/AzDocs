@@ -8,9 +8,9 @@ NOTE: An action group belongs to a resourcegroup. It is not bound to a specific 
 # Parameters
 | Parameter | Example Value | Description |
 |--|--|--|
-| actionGroupName | `OpsGenie $(Release.EnvironmentName) alerts` | The name of the actiongroup name. This is a function name, so a smart reference to the contents of the actiongroup is advised. |
-| applicationResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group for the action group to be created in. Generally it is advised to use the application resource group (where also the AppInsights should live) |
-| action | `@("email"; "emailtarget"; "my-receiver@domain.com")` | This value consists out of `@("<actionType>"; "<actionName>"; "<actionValue>")`. |
+| MonitorAlertActionGroupName | `OpsGenie $(Release.EnvironmentName) alerts` | The name of the actiongroup name. This is a function name, so a smart reference to the contents of the actiongroup is advised. |
+| MonitorAlertActionResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group for the action group to be created in. Generally it is advised to use the application resource group (where also the AppInsights should live) |
+| AlertAction | `@("email"; "emailtarget"; "my-receiver@domain.com")` | This value consists out of `@("<actionType>"; "<actionName>"; "<actionValue>")`. |
 
 
 # Code

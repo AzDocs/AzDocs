@@ -7,11 +7,11 @@ This script will add a containerinstance to the backend of your appgateway entry
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Example Value | Description |
 |--|--|--|
-| gatewayName | `my-gateway-$(Release.EnvironmentName)` | The name of the Application Gateway the managed identity is created for. |
-| domainName | `my.domain.com` | DNS name for your site you want to configure in Application Gateway |
-| containerName | `mycontainername` | The name of the container instance. |
-| containerResourceGroupName | `Myteam-MyApp-$(Release.EnvironmentName)` | The resourcegroup where the container resides in. |
-| sharedServicesResourceGroupName | `sharedservices-rg` | The name of the Resource Group for the shared resources for the Application Gateway and Keyvault (certificate). |
+| ApplicationGatewayName | `my-gateway-$(Release.EnvironmentName)` | The name of the Application Gateway the managed identity is created for. |
+| IngressDomainName | `my.domain.com` | DNS name for your site you want to configure in Application Gateway |
+| ContainerName | `mycontainername` | The name of the container instance. |
+| ContainerResourceGroupName | `Myteam-MyApp-$(Release.EnvironmentName)` | The resourcegroup where the container resides in. |
+| ApplicationGatewayResourceGroupName | `sharedservices-rg` | The name of the Resource Group for the shared resources for the Application Gateway and Keyvault (certificate). |
 
 
 # Code

@@ -1,19 +1,11 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $appServiceResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [string] $appServiceName,
-
-    [Parameter(Mandatory)]
-    [string] $vnetName,
-
-    [Parameter(Mandatory)]
-    [string] $appServiceVnetIntegrationSubnetName,
-
-    [Parameter()]
-    [string] $AppServiceSlotName
+    [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
+    [Parameter(Mandatory)][string] $AppServiceName,
+    [Alias("VnetName")]
+    [Parameter(Mandatory)][string] $AppServiceVnetIntegrationVnetName,
+    [Parameter(Mandatory)][string] $AppServiceVnetIntegrationSubnetName,
+    [Parameter()][string] $AppServiceSlotName
 )
 
 #region ===BEGIN IMPORTS===
@@ -23,7 +15,7 @@ param (
 
 Write-Header
 
-$fullAppServiceName = $appServiceName
+$fullAppServiceName = $AppServiceName
 $additionalParameters = @()
 
 if ($AppServiceSlotName) {
@@ -31,15 +23,18 @@ if ($AppServiceSlotName) {
     $fullAppServiceName += " [$AppServiceSlotName]"
 }
 
-$vnetIntegrations = Invoke-Executable az webapp vnet-integration list --resource-group $appServiceResourceGroupName --name $appServiceName @additionalParameters | ConvertFrom-Json
-$matchedIntegrations = $vnetIntegrations | Where-Object  vnetResourceId -like "*/providers/Microsoft.Network/virtualNetworks/$vnetName/subnets/$appServiceVnetIntegrationSubnetName"
+$vnetIntegrations = Invoke-Executable az webapp vnet-integration list --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters | ConvertFrom-Json
+$matchedIntegrations = $vnetIntegrations | Where-Object  vnetResourceId -like "*/providers/Microsoft.Network/virtualNetworks/$AppServiceVnetIntegrationVnetName/subnets/$AppServiceVnetIntegrationSubnetName"
 if ($matchedIntegrations) {
     Write-Host "VNET Integration found for $fullAppServiceName"
 }
 else {
     Write-Host "VNET Integration NOT found, adding it to $fullAppServiceName"
-    Invoke-Executable az webapp vnet-integration add --resource-group $appServiceResourceGroupName --name $appServiceName --vnet $vnetName --subnet $appServiceVnetIntegrationSubnetName @additionalParameters
-    Invoke-Executable az webapp restart --name $appServiceName --resource-group $appServiceResourceGroupName @additionalParameters
+    Invoke-Executable az webapp vnet-integration add --resource-group $AppServiceResourceGroupName --name $AppServiceName --vnet $AppServiceVnetIntegrationVnetName --subnet $AppServiceVnetIntegrationSubnetName @additionalParameters
+    Invoke-Executable az webapp restart --name $AppServiceName --resource-group $AppServiceResourceGroupName @additionalParameters
 }
+
+# Set WEBSITE_VNET_ROUTE_ALL=1 for vnet integration
+Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters --settings "WEBSITE_VNET_ROUTE_ALL=1"
 
 Write-Footer

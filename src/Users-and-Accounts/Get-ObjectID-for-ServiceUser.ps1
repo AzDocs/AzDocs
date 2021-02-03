@@ -1,10 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $serviceUserEmail,
-
-    [Parameter(Mandatory)]
-    [String] $serviceUserPassword
+    [Parameter(Mandatory)][string] $ServiceUserEmail,
+    [Parameter(Mandatory)][string] $ServiceUserPassword
 )
 
 #region ===BEGIN IMPORTS===
@@ -14,7 +11,7 @@ param (
 
 Write-Header
 
-Invoke-Executable az login --username $serviceUserEmail --password $serviceUserPassword --allow-no-subscriptions
-Write-Output (Invoke-Executable az ad user show --id $serviceUserEmail | ConvertFrom-Json).objectId
+Invoke-Executable az login --username $ServiceUserEmail --password $ServiceUserPassword --allow-no-subscriptions
+Write-Output (Invoke-Executable az ad user show --id $ServiceUserEmail | ConvertFrom-Json).objectId
 
 Write-Footer

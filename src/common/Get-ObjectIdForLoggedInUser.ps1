@@ -1,10 +1,13 @@
-function Get-ObjectId-For-LoggedIn-User {
+function Get-ObjectIdForLoggedInUser {
     [OutputType([string])]
     param ()
 
     #region ===BEGIN IMPORTS===
+    . "$PSScriptRoot\Write-HeaderFooter.ps1"
     . "$PSScriptRoot\Invoke-Executable.ps1"
     #endregion ===END IMPORTS===
+
+    Write-Header
 
     # Fetch the Identity ID of the logged in user
     $userIdentity = (Invoke-Executable az account show | ConvertFrom-Json).user
@@ -22,5 +25,8 @@ function Get-ObjectId-For-LoggedIn-User {
         $objectId = (Invoke-Executable az ad sp show --id $identityId | ConvertFrom-Json).objectId
     }
     Write-Verbose "objectId: $objectId"
+    
+    Write-Footer
+
     return $objectId
 }

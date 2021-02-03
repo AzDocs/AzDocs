@@ -1,13 +1,11 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [string] $actionGroupName,
-
-    [Parameter()]
-    [string] $applicationResourceGroupName,
-
-    [Parameter()]
-    [string[]] $action
+    [Alias("ActionGroupName")]
+    [Parameter(Mandatory)][string] $MonitorAlertActionGroupName,
+    [Alias("ApplicationResourceGroupName")]
+    [Parameter(Mandatory)][string] $MonitorAlertActionResourceGroupName,
+    [Alias("Action")]
+    [Parameter(Mandatory)][string[]] $AlertAction
 )
 
 #region ===BEGIN IMPORTS===
@@ -17,6 +15,6 @@ param (
 
 Write-Header
 
-Invoke-Executable az monitor action-group create --name $actionGroupName --resource-group $applicationResourceGroupName --action @action
+Invoke-Executable az monitor action-group create --name $MonitorAlertActionGroupName --resource-group $MonitorAlertActionResourceGroupName --action @AlertAction
 
 Write-Footer

@@ -1,23 +1,11 @@
 [CmdletBinding()]
 param (
-
-    # Name of the web app resource group
-    [Parameter(Mandatory)]
-    [string] $appServiceResourceGroupName,
-
-    # Name of the webapp
-    [Parameter(Mandatory)]
-    [string] $appServiceName,
-
-    # Source slot to swap from
-    [Parameter()]
-    [string]
-    $SourcesSlot = 'staging',
-
-    # Target slot to swap to
-    [Parameter()]
-    [string]
-    $TargetSlot = 'production'
+    [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
+    [Parameter(Mandatory)][string] $AppServiceName,
+    [Alias("SourcesSlot")]
+    [Parameter()][string] $AppServiceSourceSlot = 'staging',
+    [Alias("TargetSlot")]
+    [Parameter()][string] $AppServiceTargetSlot = 'production'
 )
 
 #region ===BEGIN IMPORTS===
@@ -27,6 +15,6 @@ param (
 
 Write-Header
 
-Invoke-Executable az webapp deployment slot swap --resource-group $appServiceResourceGroupName --name $appServiceName --slot $SourcesSlot --target-slot $TargetSlot
+Invoke-Executable az webapp deployment slot swap --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceSourceSlot --target-slot $AppServiceTargetSlot
 
 Write-Footer

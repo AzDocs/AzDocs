@@ -8,8 +8,9 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| subnet | `10.0.0.0/24` | The subnet identifier for the subnet to create. This is done using the CIDR notation. |
-| subnetName | `app-subnet-3` | The name to use for the subnet to create.  |
+| VnetCidr | `10.0.0.0/16` | The VNET address space to create. This uses the CIDR notation. |
+| Subnet | `10.0.0.0/24` | The subnet identifier for the subnet to create. This uses the CIDR notation. |
+| SubnetName | `app-subnet-3` | The name to use for the subnet to create.  |
 
 
 # Code

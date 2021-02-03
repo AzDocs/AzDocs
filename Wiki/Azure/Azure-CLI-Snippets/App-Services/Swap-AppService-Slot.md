@@ -11,8 +11,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 |--|--|--|
 | AppServiceResourceGroupName| `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your AppService reside in. |
 | AppServiceName | `App-Service-name` | Name of the web application. |
-| SourcesSlot| `'staging'` | Name of the source slot to swap from.  |
-| TargetSlot | `'production'` | name of the destination slot to swap to. |
+| AppServiceSourceSlot | `'staging'` | Name of the source slot to swap from.  |
+| AppServiceTargetSlot | `'production'` | name of the destination slot to swap to. |
 
 # Code
 

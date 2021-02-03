@@ -10,12 +10,12 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| storageResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | Name of resourcegroup where your storage account is in |
-| appServiceResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | Name of resourcegroup where your AppService is in |
-| appServiceName | `mytestapp-$(Release.EnvironmentName)` | Name of the appservice to grant permissions for |
-| appServiceSlotName | `staging` | OPTIONAL By default the production slot is used, use this variable to use a different slot. |
-| roleToAssign | `Storage Blob Data Contributor` | This is the rolename to assign. Please refer to "Roles" under "Access control (IAM)" in your Storage Account for role names. |
-| storageAccountName | `myteststgaccount$(Release.EnvironmentName)` | This is the storageaccount name to use. |
+| StorageResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | Name of resourcegroup where your storage account is in |
+| AppServiceResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | Name of resourcegroup where your AppService is in |
+| AppServiceName | `mytestapp-$(Release.EnvironmentName)` | Name of the appservice to grant permissions for |
+| AppServiceSlotName | `staging` | OPTIONAL By default the production slot is used, use this variable to use a different slot. |
+| RoleToAssign | `Storage Blob Data Contributor` | This is the rolename to assign. Please refer to "Roles" under "Access control (IAM)" in your Storage Account for role names. |
+| StorageAccountName | `myteststgaccount$(Release.EnvironmentName)` | This is the storageaccount name to use. |
 
 # Code
 

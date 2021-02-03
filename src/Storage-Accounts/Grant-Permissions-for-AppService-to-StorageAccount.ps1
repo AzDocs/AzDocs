@@ -1,22 +1,11 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $storageResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [String] $appServiceResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [String] $appServiceName,
-
-    [Parameter()]
-    [String] $AppServiceSlotName,
-
-    [Parameter(Mandatory)]
-    [String] $storageAccountName,
-
-    [Parameter(Mandatory)]
-    [String] $roleToAssign
+    [Parameter(Mandatory)][string] $StorageResourceGroupName,
+    [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
+    [Parameter(Mandatory)][string] $AppServiceName,
+    [Parameter()][string] $AppServiceSlotName,
+    [Parameter(Mandatory)][string] $StorageAccountName,
+    [Parameter(Mandatory)][string] $RoleToAssign
 )
 
 #region ===BEGIN IMPORTS===
@@ -28,13 +17,13 @@ param (
 Write-Header
 
 # Fetch the WebApp Identity ID
-$appIdentityId = Get-ManagedIdentity -Name $appServiceName -ResourceGroup $appServiceResourceGroupName -Slot $AppServiceSlotName
+$appIdentityId = Get-ManagedIdentity -AppService -ResourceName $AppServiceName -ResourceGroupName $AppServiceResourceGroupName -AppServiceSlotName $AppServiceSlotName
 
 # Fetch the StorageAccount ID
-$storageId = Invoke-Executable az storage account show --name $storageAccountName --resource-group $storageResourceGroupName --query=id
+$storageId = Invoke-Executable az storage account show --name $StorageAccountName --resource-group $StorageResourceGroupName --query=id
 Write-Host "storageId: $storageId"
 
 # Assign the appropriate role to the appservice
-Invoke-Executable az role assignment create --role $roleToAssign --assignee-object-id $appIdentityId --scope $storageId
+Invoke-Executable az role assignment create --role $RoleToAssign --assignee-object-id $appIdentityId --scope $storageId
 
 Write-Footer

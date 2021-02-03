@@ -8,11 +8,11 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| appConfigName | `myappconfig-$(Release.EnvironmentName)` | This is the app configuration name to use. |
-| appConfigKeyName | `mykeyinappconfig` | The name of the key you want to use in App Configuration. |
-| keyVaultName | `mykeyvault$(Release.EnvironmentName)` | The name of the keyvault where your secret resides in. |
-| keyVaultSecretName | `mysecretname` | The name of the secret which you want to reference to. |
-| label | `$(Release.EnvironmentName)` | The label to add to this key. Generally this will be the environmentname, null or Default. |
+| AppConfigName | `myappconfig-$(Release.EnvironmentName)` | This is the app configuration name to use. |
+| AppConfigKeyName | `mykeyinappconfig` | The name of the key you want to use in App Configuration. |
+| KeyVaultName | `mykeyvault$(Release.EnvironmentName)` | The name of the keyvault where your secret resides in. |
+| KeyVaultSecretName | `mysecretname` | The name of the secret which you want to reference to. |
+| Label | `$(Release.EnvironmentName)` | The label to add to this key. Generally this will be the environmentname, null or Default. |
 
 # Code
 [Click here to download this script](../../../../src/App-Configuration/Link-AppConfig-Key-To-Keyvault-Secret.ps1)

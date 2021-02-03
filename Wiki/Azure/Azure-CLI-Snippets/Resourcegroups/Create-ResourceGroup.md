@@ -6,8 +6,8 @@ This snippet will create a Resource Group if it does not exist. It also adds the
 # Parameters
 | Parameter | Example Value | Description |
 |--|--|--|
-| location | `westeurope` | The location in Azure the resource group should be created |
-| resourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name for the resource group |
+| ResourceGroupLocation | `westeurope` | The location in Azure the resource group should be created |
+| ResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name for the resource group |
 
 
 # Code

@@ -1,13 +1,9 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $storageAccountResourceGroupname,
-
-    [Parameter()]
-    [String] $storageAccountName,
-
-    [Parameter()]
-    [String] $containerName
+    [Alias("StorageAccountName")]
+    [Parameter(Mandatory)][string] $BlobStorageAccountName,
+    [Alias("ContainerName")]
+    [Parameter(Mandatory)][string] $BlobStorageContainerName
 )
 
 #region ===BEGIN IMPORTS===
@@ -17,6 +13,6 @@ param (
 
 Write-Header
 
-Invoke-Executable az storage container create --account-name $storageAccountName --name $containerName --auth-mode login
+Invoke-Executable az storage container create --account-name $BlobStorageAccountName --name $BlobStorageContainerName --auth-mode login
 
 Write-Footer

@@ -11,16 +11,16 @@ Azure DevOps has some system variables which you can use. The most important one
 [A full list of system variables can be found here](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/variables?view=azure-devops&tabs=batch)
 
 # General Parameters
-In all CLI scripts some standarized namings have been used. You can find the list of standard namings below.
+In some CLI scripts some standarized namings have been used. You can find the list of standard namings below.
 
 | Parameter | Example Value | Description |
 |--|--|--|
 | Location | `West Europe`/`westeurope` | Defines the Azure Location for a resource (group) to be in (you can use `az account list-locations -o table` to get a list of locations you can use) |
-| subscriptionName | `MY SUBSCRIPTION $(Release.EnvironmentName)` | The Service Connection Name for the subscription to deploy resources in. It's recommended to use the Subscriptionname as the Service Connection name. |
-| resourceGroupName | `MyTeam-SomeApi-$(Release.EnvironmentName)` | The resourcegroup to deploy to or to create. We generally use `<Team>-<Product>-$(Release.EnvironmentName)` for this. |
-| vnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to use for your resource. |
-| vnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET resides in. If you are unsure use `sharedservices-rg` |
-| resourceTags | `@("BillingIdentifier=$(Tag_BillingIdentifier)"; "EnvironmentType=$(Tag_EnvironmentType)";  "ApplicationName=$(Tag_ApplicationName)"; "AppTechOwner=$(Tag_AppTechOwner)"; "ApplicationOwner=$(Tag_ApplicationOwner)"; "ApplicationID=$(Tag_ApplicationID)";  "BusinessUnit=$(Tag_BusinessUnit)")` | The Azure tags to use for this resource. This has to be a powershell object array (Can be defined with `@("Tagname=Value";"AnotherTagname=Value2")`. Make sure to NOT enclose this value with quotes. |
+| SubscriptionName | `MY SUBSCRIPTION $(Release.EnvironmentName)` | The Service Connection Name for the subscription to deploy resources in. It's recommended to use the Subscriptionname as the Service Connection name. |
+| ResourceGroupName | `MyTeam-SomeApi-$(Release.EnvironmentName)` | The resourcegroup to deploy to or to create. We generally use `<Team>-<Product>-$(Release.EnvironmentName)` for this. |
+| VnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to use for your resource. |
+| VnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET resides in. If you are unsure use `sharedservices-rg` |
+| ResourceTags | `@("BillingIdentifier=$(Tag_BillingIdentifier)"; "EnvironmentType=$(Tag_EnvironmentType)";  "ApplicationName=$(Tag_ApplicationName)"; "AppTechOwner=$(Tag_AppTechOwner)"; "ApplicationOwner=$(Tag_ApplicationOwner)"; "ApplicationID=$(Tag_ApplicationID)";  "BusinessUnit=$(Tag_BusinessUnit)")` | The Azure tags to use for this resource. This has to be a powershell object array (Can be defined with `@("Tagname=Value";"AnotherTagname=Value2")`. Make sure to NOT enclose this value with quotes. |
 | Tag_BillingIdentifier | `123456` | The billing identifier. This is the centercode of your department. |
 | Tag_EnvironmentType | `$(Release.EnvironmentName)` | The environmentname for this environment. We generally use `$(Release.EnvironmentName)` for this to let it be the same as the DevOps pipeline environmentname. |
 | Tag_ApplicationName | `SOME APPNAME` | The CMDB Application Name |

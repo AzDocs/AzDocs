@@ -7,8 +7,9 @@ This snippet will add an AppInsights resource to a Resource Group. The az cli us
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Example Value | Description |
 |--|--|--|
-| appInsightsName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)-AppInsights` | The name of the AppInsights Resource. It's recommended to stick to alphanumeric & hyphens for this. |
-| appInsightsResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group the AppInsights resource will be created in |
+| AppInsightsName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)-AppInsights` | The name of the AppInsights Resource. It's recommended to stick to alphanumeric & hyphens for this. |
+| AppInsightsResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group the AppInsights resource will be created in |
+| AppInsightsLocation | `West Europe`/`westeurope` | Defines the Azure Location for the App Insights resource to reside in (you can use `az account list-locations -o table` to get a list of locations you can use) |
 
 
 # Code

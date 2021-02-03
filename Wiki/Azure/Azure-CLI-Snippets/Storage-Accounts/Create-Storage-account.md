@@ -10,13 +10,17 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| storageResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | ResourceGroupName where the storage account should be created |
-| storageAccountPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet where the storageaccount's private endpoint will reside in. |
-| applicationSubnetName | `app-subnet-4` | The subnetname for the subnet whitelist on the storage account. |
-| storageAccountName | `myteststgaccount$(Release.EnvironmentName)` | This is the storageaccount name to use. |
-| privateEndpointGroupId | `blob` | A privateendpoint per storagetype is needed. Use `az network private-link-resource list` to fetch a list of possible group id's |
+| StorageAccountResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | ResourceGroupName where the storage account should be created |
+| StorageAccountPrivateEndpointVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your storage account private endpoint, resides in. |
+| StorageAccountPrivateEndpointVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the storage account private endpoint in. |
+| StorageAccountPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet where the storageaccount's private endpoint will reside in. |
+ ApplicationVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your storage account, resides in. |
+| ApplicationVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the storage account is in|
+| ApplicationSubnetName | `app-subnet-4` | The subnetname for the subnet whitelist on the storage account. |
+| StorageAccountName | `myteststgaccount$(Release.EnvironmentName)` | This is the storageaccount name to use. |
+| PrivateEndpointGroupId | `blob` | A privateendpoint per storagetype is needed. Use `az network private-link-resource list` to fetch a list of possible group id's |
 | DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| privateDnsZoneName | `privatelink.blob.core.windows.net` | Generally this will be `privatelink.blob.core.windows.net`. This defines which DNS Zone to use for the private storage endpoint. |
+| StorageAccountPrivateDnsZoneName | `privatelink.blob.core.windows.net` | Generally this will be `privatelink.blob.core.windows.net`. This defines which DNS Zone to use for the private storage endpoint. |
 
 # Code
 [Click here to download this script](../../../../src/Storage-Accounts/Create-Storage-account.ps1)

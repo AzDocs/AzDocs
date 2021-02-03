@@ -1,10 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $sqlServerResourceGroupName,
-
-    [Parameter()]
-    [String] $sqlServerName
+    [Parameter(Mandatory)][string] $SqlServerResourceGroupName,
+    [Parameter(Mandatory)][string] $SqlServerName
 )
 
 #region ===BEGIN IMPORTS===
@@ -15,11 +12,11 @@ param (
 Write-Header
 
 Write-Host "Checking if public access is enabled"
-if((Invoke-Executable az sql server show --name $sqlServerName --resource-group $sqlServerResourceGroupName | ConvertFrom-Json).publicNetworkAccess -eq "Disabled")
+if((Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).publicNetworkAccess -eq "Disabled")
 {
      # Update setting for Public Network Access
      Write-Host "Public access is disabled. Enabling it now."
-     Invoke-Executable az sql server update --name $sqlServerName --resource-group $sqlServerResourceGroupName --set publicNetworkAccess="Enabled"
+     Invoke-Executable az sql server update --name $SqlServerName --resource-group $SqlServerResourceGroupName --set publicNetworkAccess="Enabled"
 }
 
 Write-Footer

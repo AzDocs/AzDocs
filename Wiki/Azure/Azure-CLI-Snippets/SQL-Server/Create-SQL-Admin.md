@@ -6,8 +6,8 @@ This snippet will create a SQL Admin AD user. This is needed to enable Managed I
 # Parameters
 | Parameter | Example Value | Description |
 |--|--|--|
-| UserName | `sql_myproject` | The username to use for this user. Use only lowercase characters and dots (.). Recommendation: prefix the username with `sql_` |
-| Password | `ThisIsMyC00LP@ssw0rd123!` | The password for the service user |
+| AdUserName | `sql_myproject` | The username to use for this user. Use only lowercase characters and dots (.). Recommendation: prefix the username with `sql_` |
+| AdPassword | `ThisIsMyC00LP@ssw0rd123!` | The password for the ad user |
 
 
 # Code

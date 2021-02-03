@@ -1,19 +1,10 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [string] $AppInsightsName,
-
-    [Parameter(Mandatory)]
-    [string] $AppInsightsResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [string] $FunctionAppName,
-
-    [Parameter(Mandatory)]
-    [string] $FunctionAppResourceGroupName,
-
-    [Parameter()]
-    [string] $AppServiceSlotName
+    [Parameter(Mandatory)][string] $AppInsightsName,
+    [Parameter(Mandatory)][string] $AppInsightsResourceGroupName,
+    [Parameter(Mandatory)][string] $FunctionAppName,
+    [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
+    [Parameter()][string] $AppServiceSlotName
 )
 
 #region ===BEGIN IMPORTS===

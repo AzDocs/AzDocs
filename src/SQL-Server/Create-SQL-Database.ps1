@@ -1,19 +1,10 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $sqlServerResourceGroupName,
-
-    [Parameter()]
-    [String] $sqlServerName,
-
-    [Parameter()]
-    [String] $sqlDatabaseName,
-
-    [Parameter()]
-    [String] $sqlDatabaseSkuName,
-
-    [Parameter()]
-    [System.Object[]] $resourceTags
+    [Parameter(Mandatory)][string] $SqlServerResourceGroupName,
+    [Parameter(Mandatory)][string] $SqlServerName,
+    [Parameter(Mandatory)][string] $SqlDatabaseName,
+    [Parameter(Mandatory)][string] $SqlDatabaseSkuName,
+    [Parameter(Mandatory)][System.Object[]] $ResourceTags
 )
 
 #region ===BEGIN IMPORTS===
@@ -23,6 +14,6 @@ param (
 
 Write-Header
 
-Invoke-Executable az sql db create --name $sqlDatabaseName --resource-group $sqlServerResourceGroupName --server $sqlServerName --service-objective $sqlDatabaseSkuName --tags ${resourceTags}
+Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName --service-objective $SqlDatabaseSkuName --tags ${ResourceTags}
 
 Write-Footer

@@ -8,10 +8,10 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| appConfigName | `myappconfig-$(Release.EnvironmentName)` | The name of the app configuration resource. |
-| appConfigResourceGroup | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your app configuration resides in. |
-| appServiceName | `myteamtestapi$(Release.EnvironmentName)` | The name of the app service. It's recommended to stick to lowercase alphanumeric characters. |
-| appServiceResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The resourcegroup where the app service resides in |
+| AppConfigName | `myappconfig-$(Release.EnvironmentName)` | The name of the app configuration resource. |
+| AppConfigResourceGroup | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your app configuration resides in. |
+| AppServiceName | `myteamtestapi$(Release.EnvironmentName)` | The name of the app service. It's recommended to stick to lowercase alphanumeric characters. |
+| AppServiceResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The resourcegroup where the app service resides in |
 
 # Code
 [Click here to download this script](../../../../src/App-Configuration/Set-App-Configuration-Connectionstring-For-AppService.ps1)

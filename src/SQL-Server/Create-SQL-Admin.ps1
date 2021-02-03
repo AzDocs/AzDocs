@@ -1,10 +1,9 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $UserName,
-
-    [Parameter(Mandatory)]
-    [String] $Password
+    [Alias("UserName")]
+    [Parameter(Mandatory)][string] $AdUserName,
+    [Alias("Password")]
+    [Parameter(Mandatory)][string] $AdPassword
 )
 
 #region ===BEGIN IMPORTS===
@@ -13,6 +12,6 @@ param (
 #endregion ===END IMPORTS===
 Write-Header
 
-Invoke-Executable az ad user create --display-name "SQL Admin $($UserName)" --password $Password --user-principal-name $UserName --force-change-password-next-login false
+Invoke-Executable az ad user create --display-name "SQL Admin $($AdUserName)" --password $AdPassword --user-principal-name $AdUserName --force-change-password-next-login false
 
 Write-Footer

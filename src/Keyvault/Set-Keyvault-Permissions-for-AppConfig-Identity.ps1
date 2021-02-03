@@ -1,25 +1,12 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $appConfigName,
-
-    [Parameter(Mandatory)]
-    [String] $appConfigResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultCertificatePermissions,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultKeyPermissions,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultSecretPermissions,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultStoragePermissions,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultName
+    [Parameter(Mandatory)][string] $AppConfigName,
+    [Parameter(Mandatory)][string] $AppConfigResourceGroupName,
+    [Parameter(Mandatory)][string] $KeyvaultCertificatePermissions,
+    [Parameter(Mandatory)][string] $KeyvaultKeyPermissions,
+    [Parameter(Mandatory)][string] $KeyvaultSecretPermissions,
+    [Parameter(Mandatory)][string] $KeyvaultStoragePermissions,
+    [Parameter(Mandatory)][string] $KeyvaultName
 )
 
 #region ===BEGIN IMPORTS===
@@ -30,13 +17,13 @@ param (
 
 Write-Header
 
-$identityId = Get-ManagedIdentity -Appconfig -Name $appConfigName -ResourceGroup $appConfigResourceGroupName
+$identityId = Get-ManagedIdentity -AppConfig -ResourceName $AppConfigName -ResourceGroupName $AppConfigResourceGroupName
 
-$kvcp = $keyvaultCertificatePermissions -split ' '
-$kvkp = $keyvaultKeyPermissions -split ' '
-$kvsp = $keyvaultSecretPermissions -split ' '
-$kvstp = $keyvaultStoragePermissions -split ' '
+$kvcp = $KeyvaultCertificatePermissions -split ' '
+$kvkp = $KeyvaultKeyPermissions -split ' '
+$kvsp = $KeyvaultSecretPermissions -split ' '
+$kvstp = $KeyvaultStoragePermissions -split ' '
 
-Invoke-Executable az keyvault set-policy --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --object-id $identityId --name $keyvaultName
+Invoke-Executable az keyvault set-policy --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --object-id $identityId --name $KeyvaultName
 
 Write-Footer

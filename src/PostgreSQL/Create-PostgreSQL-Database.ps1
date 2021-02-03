@@ -1,13 +1,11 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $SqlServerResourceGroupName,
-
-    [Parameter()]
-    [String] $SqlServerName,
-
-    [Parameter()]
-    [String] $SqlDatabaseName
+    [Alias("SqlServerResourceGroupName")]
+    [Parameter(Mandatory)][string] $PostgreSqlServerResourceGroupName,
+    [Alias("SqlServerName")]
+    [Parameter(Mandatory)][string] $PostgreSqlServerName,
+    [Alias("SqlDatabaseName")]
+    [Parameter(Mandatory)][string] $PostgreSqlDatabaseName
 )
 
 #region ===BEGIN IMPORTS===
@@ -17,6 +15,6 @@ param (
 
 Write-Header
 
-Invoke-Executable az postgres db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName
+Invoke-Executable az postgres db create --name $PostgreSqlDatabaseName --resource-group $PostgreSqlServerResourceGroupName --server $PostgreSqlServerName
 
 Write-Footer

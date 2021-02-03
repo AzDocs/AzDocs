@@ -1,19 +1,10 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $appConfigName,
-
-    [Parameter()]
-    [String] $label,
-
-    [Parameter()]
-    [String] $jsonFilePath,
-
-    [Parameter()]
-    [String] $keyValuePairSeparator = ":",
-
-    [Parameter()]
-    [String] $keyPrefix
+    [Parameter(Mandatory)][string] $AppConfigName,
+    [Parameter(Mandatory)][string] $Label,
+    [Parameter(Mandatory)][string] $JsonFilePath,
+    [Parameter()][string] $KeyValuePairSeparator = ":",
+    [Parameter(Mandatory)][string] $KeyPrefix
 )
 
 #region ===BEGIN IMPORTS===
@@ -23,6 +14,6 @@ param (
 
 Write-Header
 
-Invoke-Executable az appconfig kv import --name $appConfigName --label $label --source file --path $jsonFilePath --format json --separator $keyValuePairSeparator --prefix $keyPrefix --yes
+Invoke-Executable az appconfig kv import --name $AppConfigName --label $Label --source file --path $JsonFilePath --format json --separator $KeyValuePairSeparator --prefix $KeyPrefix --yes
 
 Write-Footer

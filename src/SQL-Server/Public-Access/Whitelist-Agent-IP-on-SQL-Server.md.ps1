@@ -1,10 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $sqlServerResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [String] $sqlServerName
+    [Parameter(Mandatory)][string] $SqlServerResourceGroupName,
+    [Parameter(Mandatory)][string] $SqlServerName
 )
 
 #region ===BEGIN IMPORTS===
@@ -17,9 +14,9 @@ Write-Header
 $response  = Invoke-WebRequest 'https://ipinfo.io/ip'
 $ip = $response.Content.Trim()
 
-$sqlserverlowercase = $sqlServerName.ToLower()
-Write-Output $sqlserverlowercase
+$sqlServerLowerCase = $SqlServerName.ToLower()
+Write-Output $sqlServerLowerCase
 
-Invoke-Executable az sql server firewall-rule create --resource-group $sqlServerResourceGroupName --server $sqlserverlowercase --name 'TMPAGENT' --start-ip-address $ip --end-ip-address $ip
+Invoke-Executable az sql server firewall-rule create --resource-group $SqlServerResourceGroupName --server $sqlServerLowerCase --name 'TMPAGENT' --start-ip-address $ip --end-ip-address $ip
 
 Write-Footer

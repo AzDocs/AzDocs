@@ -8,8 +8,8 @@ NOTE: THIS IS CANNOT BE A SERVICE PRINCIPAL USER but should be a AD User.
 # Parameters
 | Parameter | Example Value | Description |
 |--|--|--|
-| serviceUserEmail | `my_user@domain.com` | The e-mailaddress for the service user |
-| serviceUserPassword | `ThisIsMyC00LP@ssw0rd123!` | The password for the service user |
+| ServiceUserEmail | `my_user@domain.com` | The e-mailaddress for the service user |
+| ServiceUserPassword | `ThisIsMyC00LP@ssw0rd123!` | The password for the service user |
 
 
 # Code

@@ -8,10 +8,10 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| sqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the Resource Group the SQL server was created |
-| sqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. This has to be an existing SQL Server instance. |
-| sqlDatabaseName | `mydatabase` | The name for the SQL Database to create. Stick to alphanumerical and hyphens etc |
-| sqlDatabaseSkuName | `S1` | The skuname for the SQL database to use. Information about performance & pricing can be found [here](https://azure.microsoft.com/en-us/pricing/details/sql-database/single/) |
+| SqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the Resource Group the SQL server was created |
+| SqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. This has to be an existing SQL Server instance. |
+| SqlDatabaseName | `mydatabase` | The name for the SQL Database to create. Stick to alphanumerical and hyphens etc |
+| SqlDatabaseSkuName | `S1` | The skuname for the SQL database to use. Information about performance & pricing can be found [here](https://azure.microsoft.com/en-us/pricing/details/sql-database/single/) |
 
 # Code
 [Click here to download this script](../../../../src/SQL-Server/Create-SQL-Database.ps1)

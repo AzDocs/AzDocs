@@ -18,17 +18,19 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ContainerPorts | `80 443` | Space delimited list of ports you want to expose to the container. |
 | ContainerImageName | `myacr.azurecr.io/mycompany/myimage:latest` | The image name to use. Please refer to [this docker documentation](https://docs.docker.com/engine/reference/commandline/tag/) for information about image & tag naming. |
 | ContainerSubnetName | `my-subnet-123` | The subnetname for the subnet where the container should land in. |
-| RegistryLoginServer | `myacr.azurecr.io` | OPTIONAL: The address of the registry login server. This is usualy the address of the image repository itself. |
-| RegistryUserName | `myuser` | OPTIONAL: The username to use to authenticate against the image registry. |
-| RegistryPassword | `S0m3S3cre7P@ssw0rd123!` | OPTIONAL: The password to use to authenticate against the image registry. |
+| ImageRegistryLoginServer | `myacr.azurecr.io` | OPTIONAL: The address of the registry login server. This is usualy the address of the image repository itself. |
+| ImageRegistryUserName | `myuser` | OPTIONAL: The username to use to authenticate against the image registry. |
+| ImageRegistryPassword | `S0m3S3cre7P@ssw0rd123!` | OPTIONAL: The password to use to authenticate against the image registry. |
 | ContainerEnvironmentVariables | `'ENVIRONMENT="ACC";SOMECONNECTIONSTRING="THISISMYCONNECTIONSTRING"` | OPTIONAL: A list of environmentvariables which should be made available inside the container. This should be delimited by the value from `ContainerEnvironmentVariablesDelimiter`. |
 | ContainerEnvironmentVariablesDelimiter | `;` | OPTIONAL: This is the delimiter for `ContainerEnvironmentVariables`. This defaults to `;`. |
-| AzureFileShareName | `myfileshare` | OPTIONAL: The name of the fileshare inside the storage account. |
-| AzureFileShareStorageAccountName | `mystorageaccount` | OPTIONAL: The name of the storage accountname where the fileshare resides in. |
-| AzureFileShareStorageAccountResourceGroupName | `MyTeam-MyApp-$(Release.EnvironmentName)` | OPTIONAL: The resourcegroupname of the resourcegroup where the storageaccount resides in. |
-| AzureFileShareMountPat | `/var/log/someapp` | OPTIONAL: The path to mount the given fileshare inside the container. |
-| logAnalyticsWorkspaceId | `225c2873-c15f-42da-a5d2-0dfb3df76da0` | OPTIONAL: The log analytics workspace Id |
-| logAnalyticsWorkspaceKey | `RGl0IGlzIGVlbiBvbmdlbGRpZ2UgdG9rZW4g8J+YgfCfmIHwn5iB8J+YgfCfmIHwn5iBLg==`| OPTIONAL: Primary or Secondary Key of the log analytics workspace. |
+| StorageAccountFileShareName | `myfileshare` | OPTIONAL: The name of the fileshare inside the storage account. |
+| FileShareStorageAccountName | `mystorageaccount` | OPTIONAL: The name of the storage accountname where the fileshare resides in. |
+| FileShareStorageAccountResourceGroupName | `MyTeam-MyApp-$(Release.EnvironmentName)` | OPTIONAL: The resourcegroupname of the resourcegroup where the storageaccount resides in. |
+| StorageAccountFileShareMountPath | `/var/log/someapp` | OPTIONAL: The path to mount the given fileshare inside the container. |
+| LogAnalyticsWorkspaceId | `225c2873-c15f-42da-a5d2-0dfb3df76da0` | OPTIONAL: The log analytics workspace Id |
+| LogAnalyticsWorkspaceKey | `RGl0IGlzIGVlbiBvbmdlbGRpZ2UgdG9rZW4g8J+YgfCfmIHwn5iB8J+YgfCfmIHwn5iBLg==`| OPTIONAL: Primary or Secondary Key of the log analytics workspace. |
+| ContainerVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET where your container resides in. |
+| ContainerVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your container, resides in. |
 
 # Code
 

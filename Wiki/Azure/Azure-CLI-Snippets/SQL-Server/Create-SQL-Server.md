@@ -10,16 +10,20 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| subscriptionId | `2cf65221-ba2c-42ba-987b-ef8981519431` | The subscription ID (or name) on which the SQL Server should be provisioned. |
-| sqlServerPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet you want your sql server's private endpoint to be in |
-| applicationSubnetName | `app-subnet-4` | The name of the subnet the appservice is in |
-| sqlServerPassword | `#$mydatabas**e` | The password for the sqlserverusername |
-| sqlServerUsername | `rob` | The admin username for the sqlserver |
-| sqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
-| sqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your sql server to be created in |
+| SqlServerSubscriptionId | `2cf65221-ba2c-42ba-987b-ef8981519431` | The subscription ID (or name) on which the SQL Server should be provisioned. |
+| SqlServerPrivateEndpointVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your SQL Server Private Endpoint, resides in. |
+| SqlServerPrivateEndpointVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the SQL Server Private Endpoint in. |
+| SqlServerPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet you want your sql server's private endpoint to be in |
+| ApplicationVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your appservice, resides in. |
+| ApplicationVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the appservice is in|
+| ApplicationSubnetName | `app-subnet-4` | The name of the subnet the appservice is in |
+| SqlServerPassword | `#$mydatabas**e` | The password for the sqlserverusername |
+| SqlServerUsername | `rob` | The admin username for the sqlserver |
+| SqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
+| SqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your sql server to be created in |
 | DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| privateDnsZoneName | `privatelink.database.windows.net` | The name of DNS zone where your private endpoint will be created in. If you are unsure use `privatelink.database.windows.net` |
-| logAnalyticsWorkspaceId | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace to write the auditing logs to for this SQL Server instance |
+| SqlServerPrivateDnsZoneName | `privatelink.database.windows.net` | The name of DNS zone where your private endpoint will be created in. If you are unsure use `privatelink.database.windows.net` |
+| LogAnalyticsWorkspaceResourceId | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace to write the auditing logs to for this SQL Server instance |
 
 # Code
 [Click here to download this script](../../../../src/SQL-Server/Create-SQL-Server.ps1)

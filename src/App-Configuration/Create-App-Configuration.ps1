@@ -1,88 +1,49 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $vnetResourceGroupName,
-
-    [Parameter()]
-    [String] $vnetName,
-
-    [Parameter()]
-    [String] $appConfigPrivateEndpointSubnetName,
-
-    [Parameter()]
-    [String] $applicationSubnetName,
-
-    [Parameter()]
-    [String] $appConfigName,
-
-    [Parameter()]
-    [String] $appConfigLocation = "westeurope",
-
-    [Parameter()]
-    [String] $appConfigResourceGroupName,
-
-    [Parameter()]
-    [String] $appConfigDiagnosticsName,
-
-    [Parameter()]
-    [String] $logAnalyticsWorkspaceName,
-
-    [Parameter()]
-    [String] $DNSZoneResourceGroupName,
-
-    [Parameter()]
-    [String] $privateDnsZoneName = "privatelink.azconfig.io"
+    [Alias("VnetResourceGroupName")]
+    [Parameter(Mandatory)][string] $AppConfigPrivateEndpointVnetResourceGroupName,
+    [Alias("VnetName")]
+    [Parameter(Mandatory)][string] $AppConfigPrivateEndpointVnetName,
+    [Parameter(Mandatory)][string] $AppConfigPrivateEndpointSubnetName,
+    [Parameter(Mandatory)][string] $ApplicationSubnetName,
+    [Parameter(Mandatory)][string] $AppConfigName,
+    [Parameter()][string] $AppConfigLocation = "westeurope",
+    [Parameter(Mandatory)][string] $AppConfigResourceGroupName,
+    [Parameter()][string] $AppConfigDiagnosticsName,
+    [Parameter()][string] $LogAnalyticsWorkspaceName,
+    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
+    [Alias("PrivateDnsZoneName")]
+    [Parameter()][string] $AppConfigPrivateDnsZoneName = "privatelink.azconfig.io"
 )
 
 #region ===BEGIN IMPORTS===
 . "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
 . "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-#. "$PSScriptRoot\..\common\Set-SubnetServiceEndpoint.ps1"
+. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
 #endregion ===END IMPORTS===
 
 Write-Header
 
-$vnetId = (Invoke-Executable az network vnet show -g $vnetResourceGroupName -n $vnetName | ConvertFrom-Json).id
-$appConfigPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $appConfigPrivateEndpointSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
-$applicationSubnetId = (Invoke-Executable az network vnet subnet show -g $vnetResourceGroupName -n $applicationSubnetName --vnet-name $vnetName | ConvertFrom-Json).id
-$appConfigPrivateEndpointName = "$($appConfigName)-pvtappcfg"
+$appConfigPrivateEndpointVnetId = (Invoke-Executable az network vnet show --resource-group $AppConfigPrivateEndpointVnetResourceGroupName --name $AppConfigPrivateEndpointVnetName | ConvertFrom-Json).id
+$appConfigPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $AppConfigPrivateEndpointVnetResourceGroupName --name $AppConfigPrivateEndpointSubnetName --vnet-name $AppConfigPrivateEndpointVnetName | ConvertFrom-Json).id
+$appConfigPrivateEndpointName = "$($AppConfigName)-pvtappcfg"
 
 # Create AppConfig with the appropriate tags
-Invoke-Executable az appconfig create --resource-group $appConfigResourceGroupName --name $appConfigName --location $appConfigLocation --sku Standard
+Invoke-Executable az appconfig create --resource-group $AppConfigResourceGroupName --name $AppConfigName --location $AppConfigLocation --sku Standard
 
 # Fetch the App Config ID to use while creating the Diagnostics settings in the next step
-$appConfigId = (Invoke-Executable az appconfig show --name $appConfigName --resource-group $appConfigResourceGroupName | ConvertFrom-Json).id
+$appConfigId = (Invoke-Executable az appconfig show --name $AppConfigName --resource-group $AppConfigResourceGroupName | ConvertFrom-Json).id
 
 # Create diagnostics settings for the App Config resource
-Invoke-Executable az monitor diagnostic-settings create --resource $appConfigId --name $appConfigDiagnosticsName --workspace $logAnalyticsWorkspaceName --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+Invoke-Executable az monitor diagnostic-settings create --resource $appConfigId --name $AppConfigDiagnosticsName --workspace $LogAnalyticsWorkspaceName --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
-# Disable Private Endpoint policies, else we cannot add the private endpoint to this subnet
-Invoke-Executable az network vnet subnet update --ids $appConfigPrivateEndpointSubnetId --disable-private-endpoint-network-policies true
-
-# Create the Private Endpoint based on the resource id fetched in the previous step.
-Invoke-Executable az network private-endpoint create --name $appConfigPrivateEndpointName --resource-group $appConfigResourceGroupName --subnet $appConfigPrivateEndpointSubnetId --private-connection-resource-id $appConfigId --group-id configurationStores --connection-name "$($appConfigName)-connection"
-
-# Create Private DNS Zone for this service. This will enable us to get dynamic IP's within the subnet which will keep traffic within the subnet
-if ([String]::IsNullOrWhiteSpace($(az network private-dns zone show -g $DNSZoneResourceGroupName -n $privateDnsZoneName))) {
-    Invoke-Executable az network private-dns zone create --resource-group $DNSZoneResourceGroupName --name $privateDnsZoneName
-}
-
-$dnsZoneId = (Invoke-Executable az network private-dns zone show --name $privateDnsZoneName --resource-group $DNSZoneResourceGroupName | ConvertFrom-Json).id
-
-if ([String]::IsNullOrWhiteSpace($(az network private-dns link vnet show --name "$($vnetName)-appcfg" --resource-group $DNSZoneResourceGroupName --zone-name $privateDnsZoneName))) {
-    Invoke-Executable az network private-dns link vnet create --resource-group $DNSZoneResourceGroupName --zone-name $privateDnsZoneName --name "$($vnetName)-appcfg" --virtual-network $vnetId --registration-enabled false
-}
-
-Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $appConfigResourceGroupName --endpoint-name $appConfigPrivateEndpointName --name "$($appConfigName)-zonegroup" --private-dns-zone $dnsZoneId --zone-name appconfiguration
-
-# Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-# TODO this is not possible ATM
-# Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceName  "Microsoft.AppConfiguration"
+# Add private endpoint & Setup Private DNS
+Add-PrivateEndpoint -PrivateEndpointVnetId $appConfigPrivateEndpointVnetId -PrivateEndpointSubnetId $appConfigPrivateEndpointSubnetId -PrivateEndpointName $appConfigPrivateEndpointName -PrivateEndpointResourceGroupName $AppConfigResourceGroupName -TargetResourceId $appConfigId -PrivateEndpointGroupId configurationStores -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $AppConfigPrivateDnsZoneName -PrivateDnsLinkName "$($AppConfigPrivateEndpointVnetName)-appcfg"
 
 # Assign Identity to App Configuration store
-Invoke-Executable az appconfig identity assign --resource-group $appConfigResourceGroupName --name $appConfigName
+Invoke-Executable az appconfig identity assign --resource-group $AppConfigResourceGroupName --name $AppConfigName
 
 # Disable public access on the App Configuration store
-Invoke-Executable az appconfig update --resource-group $appConfigResourceGroupName --name $appConfigName --enable-public-network false
+Invoke-Executable az appconfig update --resource-group $AppConfigResourceGroupName --name $AppConfigName --enable-public-network false
 
 Write-Footer

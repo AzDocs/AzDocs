@@ -1,36 +1,44 @@
-<#
-.SYNOPSIS
-Configure the Application Gateway for a site.
-
-.DESCRIPTION
-Configure the Application Gateway for sites for a public or private certificate.
-
-#>
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)][String] $certificatePath,
-    [Parameter(Mandatory)][string] $domainName,
-    [Parameter(Mandatory)][string] $gatewayName,
-    [Parameter(Mandatory)][string] $gatewayType,
-    [Parameter(Mandatory)][string] $sharedServicesResourceGroupName,
-    [Parameter(Mandatory)][string] $sharedServicesKeyvaultName,
-    [Parameter(Mandatory)][string] $certificatePassword,
-    [Parameter(Mandatory)][string] $containerName,
-    [Parameter(Mandatory)][string] $containerResourceGroupName,
-    [Parameter(Mandatory)][string] $healthProbePath,
-    [Parameter()][int] $healthProbeInterval = 60,
-    [Parameter()][int] $healthProbeThreshold = 2,
-    [Parameter()][int] $healthProbeTimeout = 20,
-    [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $healthProbeProtocol = "HTTPS",
-    [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $httpsSettingsProtocol = "HTTPS",
-    [Parameter()][ValidateRange(0, 65535)][int] $httpsSettingsPort = 443,
-    [Parameter()][ValidateSet("Disabled", "Enabled")][string] $httpsSettingsCookieAffinity = "Disabled",
-    [Parameter()][int] $httpsSettingsConnectionDrainingTimeout = 0,
-    [Parameter()][int] $httpsSettingsTimeout = 30,
-    [Parameter()][string] $matchStatusCodes = "200-399",
-    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $gatewayRuleType
+    [Parameter(Mandatory)][string] $CertificatePath,
+    [Parameter(Mandatory)][string] $CertificatePassword,
+    [Alias("DomainName")]
+    [Parameter(Mandatory)][string] $IngressDomainName,
+    [Alias("GatewayName")]
+    [Parameter(Mandatory)][string] $ApplicationGatewayName,
+    [Alias("GatewayType")]
+    [Parameter(Mandatory)][ValidateSet("Private", "Public")][string] $ApplicationGatewayFacingType,
+    [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
+    [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName,
+    [Alias("SharedServicesKeyvaultName")]
+    [Parameter(Mandatory)][string] $CertificateKeyvaultName,
+    [Parameter(Mandatory)][string] $ContainerName,
+    [Parameter(Mandatory)][string] $ContainerResourceGroupName,
+    [Alias("HealthProbePath")]
+    [Parameter(Mandatory)][string] $HealthProbeUrlPath,
+    [Alias("HealthProbeInterval")]
+    [Parameter()][int] $HealthProbeIntervalInSeconds = 60,
+    [Alias("HealthProbeThreshold")]
+    [Parameter()][int] $HealthProbeNumberOfTriesBeforeMarkedDown = 2,
+    [Alias("HealthProbeTimeout")]
+    [Parameter()][int] $HealthProbeTimeoutInSeconds = 20,
+    [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $HealthProbeProtocol = "HTTPS",
+    [Alias("HttpsSettingsProtocol")]
+    [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $HttpsSettingsRequestToBackendProtocol = "HTTPS",
+    [Alias("HttpsSettingsPort")]
+    [Parameter()][ValidateRange(0, 65535)][int] $HttpsSettingsRequestToBackendPort = 443,
+    [Alias("HttpsSettingsCookieAffinity")]
+    [Parameter()][ValidateSet("Disabled", "Enabled")][string] $HttpsSettingsRequestToBackendCookieAffinity = "Disabled",
+    [Alias("HttpsSettingsConnectionDrainingTimeout")]
+    [Parameter()][int] $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds = 0,
+    [Alias("HttpsSettingsTimeout")]
+    [Parameter()][int] $HttpsSettingsRequestToBackendTimeoutInSeconds = 30,
+    [Alias("MatchStatusCodes")]
+    [Parameter()][string] $HealthProbeMatchStatusCodes = "200-399",
+    [Alias("GatewayRuleType")]
+    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType
 )
-#TODO check this script, still valid?
+
 $ErrorActionPreference = "Continue"
 
 #region ===BEGIN IMPORTS===
@@ -40,10 +48,11 @@ $ErrorActionPreference = "Continue"
 #endregion ===END IMPORTS===
 
 Write-Header
+
 try
 {
     # Get the IP for the container instance
-    $ipAddress = az container show --name $containerName --resource-group $containerResourceGroupName --query=ipAddress.ip | ConvertFrom-Json
+    $ipAddress = Invoke-Executable -AllowToFail az container show --name $ContainerName --resource-group $ContainerResourceGroupName --query=ipAddress.ip | ConvertFrom-Json
 
     if(!$ipAddress)
     {
@@ -51,11 +60,11 @@ try
     }
 
     # Create the Entrypoint. In this script thats simply done with the backenddomain directly.
-    New-Entrypoint -certificatePath $certificatePath -domainName $domainName -gatewayName $gatewayName -gatewayType $gatewayType -sharedServicesResourceGroupName $sharedServicesResourceGroupName `
-    -sharedServicesKeyvaultName $sharedServicesKeyvaultName -certificatePassword $certificatePassword -backendDomainname $ipAddress -healthProbePath $healthProbePath -healthProbeInterval $healthProbeInterval `
-    -healthProbeThreshold $healthProbeThreshold -healthProbeTimeout $healthProbeTimeout -healthProbeProtocol $healthProbeProtocol -httpsSettingsProtocol $httpsSettingsProtocol -httpsSettingsPort $httpsSettingsPort `
-    -httpsSettingsCookieAffinity $httpsSettingsCookieAffinity -httpsSettingsConnectionDrainingTimeout $httpsSettingsConnectionDrainingTimeout -httpsSettingsTimeout $httpsSettingsTimeout -matchStatusCodes $matchStatusCodes `
-    -gatewayRuleType $gatewayRuleType
+    New-ApplicationGatewayEntrypoint -CertificatePath $CertificatePath -IngressDomainName $IngressDomainName -ApplicationGatewayName $ApplicationGatewayName -ApplicationGatewayFacingType $ApplicationGatewayFacingType -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -CertificateKeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName `
+    -CertificateKeyvaultName $CertificateKeyvaultName -CertificatePassword $CertificatePassword -BackendDomainName $ipAddress -HealthProbeUrlPath $HealthProbeUrlPath -HealthProbeIntervalInSeconds $HealthProbeIntervalInSeconds `
+    -HealthProbeNumberOfTriesBeforeMarkedDown $HealthProbeNumberOfTriesBeforeMarkedDown -HealthProbeTimeoutInSeconds $HealthProbeTimeoutInSeconds -HealthProbeProtocol $HealthProbeProtocol -HttpsSettingsRequestToBackendProtocol $HttpsSettingsRequestToBackendProtocol -HttpsSettingsRequestToBackendPort $HttpsSettingsRequestToBackendPort `
+    -HttpsSettingsRequestToBackendCookieAffinity $HttpsSettingsRequestToBackendCookieAffinity -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds -HttpsSettingsRequestToBackendTimeoutInSeconds $HttpsSettingsRequestToBackendTimeoutInSeconds -HealthProbeMatchStatusCodes $HealthProbeMatchStatusCodes `
+    -ApplicationGatewayRuleType $ApplicationGatewayRuleType
 }
 catch
 {

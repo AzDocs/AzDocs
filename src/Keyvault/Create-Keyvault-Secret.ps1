@@ -1,29 +1,16 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $keyVaultName,
-
-    [Parameter(Mandatory)]
-    [String] $secretName,
-
-    [Parameter()]
-    [String] $secretDescription,
-
-    [Parameter()]
-    [String] $secretExpires,
-
-    [Parameter()]
-    [String] $secretNotBefore,
-
-    [Parameter(Mandatory, ParameterSetName = "File")]
-    [String] $filePath,
-
-    [Parameter(Mandatory, ParameterSetName = "File")]
-    [ValidateSet("ascii", "base64", "hex", "utf-16be", "utf-16le", "utf-8")]
-    [String] $fileEncoding,
-
-    [Parameter(Mandatory, ParameterSetName = "Value")]
-    [String] $value
+    [Parameter(Mandatory)][string] $KeyVaultName,
+    [Parameter(Mandatory)][string] $SecretName,
+    [Parameter()][string] $SecretDescription,
+    [Parameter()][string] $SecretExpires,
+    [Parameter()][string] $SecretNotBefore,
+    [Alias("FilePath")]
+    [Parameter(Mandatory, ParameterSetName = "File")][string] $SecretFilePath,
+    [Alias("FileEncoding")]
+    [Parameter(Mandatory, ParameterSetName = "File")][ValidateSet("ascii", "base64", "hex", "utf-16be", "utf-16le", "utf-8")][string] $SecretFileFileEncoding,
+    [Alias("Value")]
+    [Parameter(Mandatory, ParameterSetName = "Value")][string] $SecretValue
 )
 
 #region ===BEGIN IMPORTS===
@@ -33,31 +20,27 @@ param (
 
 Write-Header
 
-$scriptArguments = "--vault-name", "$keyVaultName", "--name", "$secretName"
+$scriptArguments = "--vault-name", "$KeyVaultName", "--name", "$SecretName"
 
 switch ($PSCmdlet.ParameterSetName) {
     "File" {
-        $scriptArguments += "--encoding", "$fileEncoding", "--file", "$filePath"
+        $scriptArguments += "--encoding", "$SecretFileFileEncoding", "--file", "$SecretFilePath"
     }
     "Value" {
-        $scriptArguments += "--value", "$value"
+        $scriptArguments += "--value", "$SecretValue"
     }
 }
 
-if ($secretDescription) {
-    $scriptArguments += "--description", "$secretDescription"
+if ($SecretDescription) {
+    $scriptArguments += "--description", "$SecretDescription"
 }
 
-if ($secretExpires) {
-    $scriptArguments += "--expires", "$secretExpires"
+if ($SecretExpires) {
+    $scriptArguments += "--expires", "$SecretExpires"
 }
 
-if ($secretNotBefore) {
-    $scriptArguments += "--not-before", "$secretNotBefore"
-}
-
-if ($env:System_Debug -and $env:System_Debug -eq $true) {
-    $scriptArguments += "--debug"
+if ($SecretNotBefore) {
+    $scriptArguments += "--not-before", "$SecretNotBefore"
 }
 
 Invoke-Executable az keyvault secret set @scriptArguments

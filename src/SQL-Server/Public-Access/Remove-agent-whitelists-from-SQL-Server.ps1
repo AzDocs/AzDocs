@@ -1,10 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $sqlServerResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [String] $sqlServerName
+    [Parameter(Mandatory)][string] $SqlServerResourceGroupName,
+    [Parameter(Mandatory)][string] $SqlServerName
 )
 
 #region ===BEGIN IMPORTS===
@@ -14,6 +11,6 @@ param (
 
 Write-Header
 
-Invoke-Executable az sql server firewall-rule delete --resource-group $sqlServerResourceGroupName --server $sqlServerName --name 'TMPAGENT'
+Invoke-Executable az sql server firewall-rule delete --resource-group $SqlServerResourceGroupName --server $SqlServerName --name 'TMPAGENT'
 
 Write-Footer

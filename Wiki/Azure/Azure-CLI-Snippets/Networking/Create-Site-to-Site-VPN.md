@@ -8,15 +8,16 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| virtualNetworkGatewaySubnetName | `GatewaySubnet` | This is restricted to `GatewaySubnet` at the point of writing. |
-| virtualNetworkGatewayName | `VPN-To-Onprem` | The name of the virtual network gateway. |
-| virtualNetworkGatewayResouceGroupName | `Customer-Shared-$(Release.EnvironmentName)` | The resourcegroup where the virtual network gateway should be. This is usually in the same resourcegroup as your vnet. |
-| virtualNetworkGatewaySkuName | `VpnGw1` | The SKU name for the Virtual network gateway. Accepted values: `Basic, ErGw1AZ, ErGw2AZ, ErGw3AZ, HighPerformance, Standard, UltraPerformance, VpnGw1, VpnGw1AZ, VpnGw2, VpnGw2AZ, VpnGw3, VpnGw3AZ, VpnGw4, VpnGw4AZ, VpnGw5, VpnGw5AZ` |
-| localGatewayName | `onpremises-network-location-$(Release.EnvironmentName)` | The name of the local gateway to use. |
-| localGatewayIpAddress | `172.16.0.1` | The local IP address for your gateway in your to-be-connected-datacenter. |
-| localNetworkCIDR | `172.16.0.0/12` | The CIDR for your to-be-connected-datacenter network. |
-| vpnConnectionName | `customer-$(Release.EnvironmentName)-to-onpremises` | The name for the connection resource. |
-| vpnConnectionSharedKey | `aM2uzBKjT2nAxwKhzS3u` | The shared key for the VPN connection. |
+| VirtualNetworkGatewayVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET. |
+| VirtualNetworkGatewayVnetResourceGroupName | `sharedservices-rg` | The resource group of the VNET. |
+| VirtualNetworkGatewayName | `VPN-To-Onprem` | The name of the virtual network gateway. |
+| VirtualNetworkGatewayResouceGroupName | `Customer-Shared-$(Release.EnvironmentName)` | The resourcegroup where the virtual network gateway should be. This is usually in the same resourcegroup as your vnet. |
+| VirtualNetworkGatewaySkuName | `VpnGw1` | The SKU name for the Virtual network gateway. Accepted values: `Basic, ErGw1AZ, ErGw2AZ, ErGw3AZ, HighPerformance, Standard, UltraPerformance, VpnGw1, VpnGw1AZ, VpnGw2, VpnGw2AZ, VpnGw3, VpnGw3AZ, VpnGw4, VpnGw4AZ, VpnGw5, VpnGw5AZ` |
+| LocalGatewayName | `onpremises-network-location-$(Release.EnvironmentName)` | The name of the local gateway to use. |
+| LocalGatewayIpAddress | `172.16.0.1` | The local IP address for your gateway in your to-be-connected-datacenter. |
+| LocalNetworkCIDR | `172.16.0.0/12` | The CIDR for your to-be-connected-datacenter network. |
+| VpnConnectionName | `customer-$(Release.EnvironmentName)-to-onpremises` | The name for the connection resource. |
+| VpnConnectionSharedKey | `aM2uzBKjT2nAxwKhzS3u` | The shared key for the VPN connection. |
 
 # Code
 [Click here to download this script](../../../../src/Networking/Create-Site-to-Site-VPN.ps1)

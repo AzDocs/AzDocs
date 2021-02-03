@@ -1,16 +1,10 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $functionAppResourceGroupName,
-
-    [Parameter()]
-    [string] $functionAppName,
-
-    [Parameter()]
-    [string] $vnetName,
-
-    [Parameter()]
-    [string] $functionAppVnetIntegrationSubnetName
+    [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
+    [Parameter(Mandatory)][string] $FunctionAppName,
+    [Alias("VnetName")]
+    [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationName,
+    [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationSubnetName
 )
 
 #region ===BEGIN IMPORTS===
@@ -20,11 +14,14 @@ param (
 
 Write-Header
 
-if((Invoke-Executable az functionapp vnet-integration list -g $functionAppResourceGroupName -n $functionAppName).length -le 2)
+if((Invoke-Executable az functionapp vnet-integration list --resource-group $FunctionAppResourceGroupName --name $FunctionAppName).length -le 2)
 {
-    Write-Host "VNET Integration not found, adding it to $functionAppName"
-    Invoke-Executable az functionapp vnet-integration add --resource-group $functionAppResourceGroupName --name $functionAppName --vnet $vnetName --subnet $functionAppVnetIntegrationSubnetName
-    Invoke-Executable az functionapp restart --name $functionAppName --resource-group $functionAppResourceGroupName
+    Write-Host "VNET Integration not found, adding it to $FunctionAppName"
+    Invoke-Executable az functionapp vnet-integration add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --vnet $FunctionAppVnetIntegrationName --subnet $FunctionAppVnetIntegrationSubnetName
+    Invoke-Executable az functionapp restart --name $FunctionAppName --resource-group $FunctionAppResourceGroupName
 }
+
+# Set WEBSITE_VNET_ROUTE_ALL=1 for vnet integration
+Invoke-Executable az functionapp config appsettings set --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --settings "WEBSITE_VNET_ROUTE_ALL=1"
 
 Write-Footer

@@ -7,8 +7,9 @@ This snippet will remove an IP range from the whitelist so that the website or S
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Example Value | Description |
 |--|--|--|
+| AppServiceResourceGroupName | `MyTeam-SomeApi-$(Release.EnvironmentName)` | The resourcegroup where the AppService resides in. |
 | AppServiceName | `App-Service-name` | Name of the app service to set the whitelist on. | 
-| RuleName| `Hosted Agent` | Name of the Rule to remove from the whitelist/blacklist  |
+| AccessRestrictionRuleName | `Hosted Agent` | Name of the Rule to remove from the whitelist/blacklist  |
 
 
 # Code

@@ -1,28 +1,13 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $sqlServerResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [String] $sqlServerName,
-
-    [Parameter(Mandatory)]
-    [String] $sqlDatabaseName,
-
-    [Parameter(Mandatory)]
-    [String] $serviceUserEmail,
-
-    [Parameter(Mandatory)]
-    [String] $serviceUserObjectId,
-
-    [Parameter(Mandatory)]
-    [String] $serviceUserPassword,
-
-    [Parameter(Mandatory)]
-    [String] $appServiceName,
-
-    [Parameter()]
-    [String] $appServiceSlotName
+    [Parameter(Mandatory)][string] $SqlServerResourceGroupName,
+    [Parameter(Mandatory)][string] $SqlServerName,
+    [Parameter(Mandatory)][string] $SqlDatabaseName,
+    [Parameter(Mandatory)][string] $ServiceUserEmail,
+    [Parameter(Mandatory)][string] $ServiceUserObjectId,
+    [Parameter(Mandatory)][string] $ServiceUserPassword,
+    [Parameter(Mandatory)][string] $AppServiceName,
+    [Parameter()][string] $AppServiceSlotName
 )
 
 #region ===BEGIN IMPORTS===
@@ -32,14 +17,14 @@ param (
 
 Write-Header
 
-Invoke-Executable az sql server ad-admin create --resource-group $sqlServerResourceGroupName --server-name $sqlServerName --display-name $serviceUserEmail --object-id $serviceUserObjectId
+Invoke-Executable az sql server ad-admin create --resource-group $SqlServerResourceGroupName --server-name $SqlServerName --display-name $ServiceUserEmail --object-id $ServiceUserObjectId
 
 $altIdProfilePath = Join-Path ([io.path]::GetTempPath()) '.azure-altId'
 $AccessToken = $null
 try {
     $env:AZURE_CONFIG_DIR = $altIdProfilePath
 
-    Invoke-Executable az login --username $serviceUserEmail --password $serviceUserPassword --allow-no-subscriptions
+    Invoke-Executable az login --username $ServiceUserEmail --password $ServiceUserPassword --allow-no-subscriptions
     $AccessToken = (Invoke-Executable az account get-access-token --resource https://database.windows.net | ConvertFrom-Json).accessToken
 }
 finally {
@@ -50,9 +35,9 @@ if(!$AccessToken){
     throw 'Could not fetch access token, something went wrong.'
 }
 
-$appServicePrincipalName = $appServiceName
-if ($appServiceSlotName) {
-    $appServicePrincipalName += "/slots/$appServiceSlotName"
+$appServicePrincipalName = $AppServiceName
+if ($AppServiceSlotName) {
+    $appServicePrincipalName += "/slots/$AppServiceSlotName"
 }
 
 Write-Host "Opening database connection for ensuring the managed identity of $appServicePrincipalName"
@@ -69,7 +54,7 @@ IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = '$appServic
 
 $conn = [System.Data.SqlClient.SqlConnection]::new()
 try {
-    $conn.ConnectionString = "Server=tcp:$($sqlServerName).database.windows.net,1433;Initial Catalog=$($sqlDatabaseName);Persist Security Info=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+    $conn.ConnectionString = "Server=tcp:$($SqlServerName).database.windows.net,1433;Initial Catalog=$($SqlDatabaseName);Persist Security Info=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
     $conn.AccessToken = $AccessToken
     $conn.Open()
     $cmd = [System.Data.SqlClient.SqlCommand]::new($sql, $conn);

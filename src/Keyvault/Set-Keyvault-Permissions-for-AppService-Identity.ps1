@@ -1,28 +1,13 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $appServiceName,
-
-    [Parameter(Mandatory)]
-    [String] $appServiceResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultCertificatePermissions,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultKeyPermissions,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultSecretPermissions,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultStoragePermissions,
-
-    [Parameter(Mandatory)]
-    [String] $keyvaultName,
-
-    [Parameter()]
-    [String] $AppServiceSlotName
+    [Parameter(Mandatory)][string] $AppServiceName,
+    [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
+    [Parameter()][string] $KeyvaultCertificatePermissions,
+    [Parameter()][string] $KeyvaultKeyPermissions,
+    [Parameter()][string] $KeyvaultSecretPermissions,
+    [Parameter()][string] $KeyvaultStoragePermissions,
+    [Parameter(Mandatory)][string] $KeyvaultName,
+    [Parameter()][string] $AppServiceSlotName
 )
 
 #region ===BEGIN IMPORTS===
@@ -33,13 +18,13 @@ param (
 
 Write-Header
 
-$identityId = Get-ManagedIdentity -Name $appServiceName -ResourceGroup $appServiceResourceGroupName -Slot $AppServiceSlotName
+$identityId = Get-ManagedIdentity -AppService -ResourceName $AppServiceName -ResourceGroupName $AppServiceResourceGroupName -AppServiceSlotName $AppServiceSlotName
 
-$kvcp = $keyvaultCertificatePermissions -split ' '
-$kvkp = $keyvaultKeyPermissions -split ' '
-$kvsp = $keyvaultSecretPermissions -split ' '
-$kvstp = $keyvaultStoragePermissions -split ' '
+$kvcp = $KeyvaultCertificatePermissions -split ' '
+$kvkp = $KeyvaultKeyPermissions -split ' '
+$kvsp = $KeyvaultSecretPermissions -split ' '
+$kvstp = $KeyvaultStoragePermissions -split ' '
 
-Invoke-Executable az keyvault set-policy --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --object-id $identityId --name $keyvaultName
+Invoke-Executable az keyvault set-policy --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --object-id $identityId --name $KeyvaultName
 
 Write-Footer

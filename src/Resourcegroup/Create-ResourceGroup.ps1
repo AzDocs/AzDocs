@@ -1,13 +1,9 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $location,
-
-    [Parameter(Mandatory)]
-    [String] $resourceGroupName,
-
-    [Parameter()]
-    [string[]] $resourceTags
+    [Alias("Location")]
+    [Parameter(Mandatory)][string] $ResourceGroupLocation,
+    [Parameter(Mandatory)][string] $ResourceGroupName,
+    [Parameter(Mandatory)][string[]] $ResourceTags
 )
 
 #region ===BEGIN IMPORTS===
@@ -16,6 +12,6 @@ param (
 #endregion ===END IMPORTS===
 Write-Header
 
-Invoke-Executable az group create --location $location --name $resourceGroupName --tags @resourceTags
+Invoke-Executable az group create --location $ResourceGroupLocation --name $ResourceGroupName --tags @ResourceTags
 
 Write-Footer

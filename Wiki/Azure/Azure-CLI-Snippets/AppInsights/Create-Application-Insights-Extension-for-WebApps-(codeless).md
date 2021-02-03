@@ -22,10 +22,10 @@ This approach is much more customizable, but it requires adding a dependency on 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Example Value | Description |
 |--|--|--|
-| appInsightsName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)-AppInsights` | The name of the AppInsights resource to use. |
-| appServiceName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the WebApp resource the AppInsights settings will be configured on. |
-| appServiceResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group where the AppService resource resides. Typically this is the same ResourceGroup as the appInsightsResourceGroupName |
-| appInsightsResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group where the AppInsights resource resides. Typically this is the same ResourceGroup as the appInsightsResourceGroupName |
+| AppInsightsName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)-AppInsights` | The name of the AppInsights resource to use. |
+| AppServiceName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the WebApp resource the AppInsights settings will be configured on. |
+| AppServiceResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group where the AppService resource resides. Typically this is the same ResourceGroup as the appInsightsResourceGroupName |
+| AppInsightsResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group where the AppInsights resource resides. Typically this is the same ResourceGroup as the appInsightsResourceGroupName |
 
 
 # Code

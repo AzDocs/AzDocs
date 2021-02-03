@@ -1,13 +1,9 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [string] $appInsightsName,
-
-    [Parameter(Mandatory)]
-    [string] $appInsightsResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [string] $location
+    [Parameter(Mandatory)][string] $AppInsightsName,
+    [Parameter(Mandatory)][string] $AppInsightsResourceGroupName,
+    [Alias("Location")]
+    [Parameter(Mandatory)][string] $AppInsightsLocation
 )
 
 #region ===BEGIN IMPORTS===
@@ -20,10 +16,11 @@ Write-Header
 #az monitor app-insights is in preview. Need to add extension
 Invoke-Executable az extension add --name application-insights
 
-Invoke-Executable az monitor app-insights component create --app $appInsightsName --resource-group $appInsightsResourceGroupName --location $location
+Invoke-Executable az monitor app-insights component create --app $AppInsightsName --resource-group $AppInsightsResourceGroupName --location $AppInsightsLocation
 
-$id = (Invoke-Executable az resource show --resource-group $appInsightsResourceGroupName --name $appInsightsName --resource-type "Microsoft.Insights/components" | ConvertFrom-Json).properties.InstrumentationKey
-#TODO Should this not be write-host and write-output with only the id?
-Write-Output "The AppInsightsInstrumentationKey of the AppInsights workspace is $id"
+$instrumentationKey = (Invoke-Executable az resource show --resource-group $AppInsightsResourceGroupName --name $AppInsightsName --resource-type "Microsoft.Insights/components" | ConvertFrom-Json).properties.InstrumentationKey
+
+Write-Host "The AppInsightsInstrumentationKey of the AppInsights workspace is $instrumentationKey"
+Write-Output $instrumentationKey
 
 Write-Footer

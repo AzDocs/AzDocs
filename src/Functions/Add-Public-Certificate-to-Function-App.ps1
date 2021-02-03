@@ -1,16 +1,9 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
-    [String] $functionAppResourceGroupName,
-
-    [Parameter()]
-    [string] $functionAppName,
-
-    [Parameter()]
-    [string] $certificateNameForFunctionApp,
-
-    [Parameter()]
-    [string] $certificateFilePath
+    [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
+    [Parameter(Mandatory)][string] $FunctionAppName,
+    [Parameter(Mandatory)][string] $CertificateNameForFunctionApp,
+    [Parameter(Mandatory)][string] $CertificateFilePath
 )
 
 #region ===BEGIN IMPORTS===
@@ -20,7 +13,7 @@ param (
 Write-Header
 
 $certificateEncryptedPassword = ConvertTo-SecureString -String "ThisReallyDoesntMatterButWeNeedIt123!" -AsPlainText -Force
-$cert = New-AzApplicationGatewaySslCertificate -Name $certificateNameForFunctionApp -CertificateFile $certificateFilePath -Password $certificateEncryptedPassword
+$cert = New-AzApplicationGatewaySslCertificate -Name $CertificateNameForFunctionApp -CertificateFile $CertificateFilePath -Password $certificateEncryptedPassword
 $apiVersion = '2018-02-01'
 
 if ($cert) {
@@ -29,14 +22,14 @@ if ($cert) {
         publicCertificateLocation = "CurrentUserMy"
     }
 
-    $resource = Get-AzFunctionApp -ResourceGroupName $functionAppResourceGroupName -Name $functionAppName
-    $resourceName = $resource.Name + "/" + $certificateNameForFunctionApp
+    $resource = Get-AzFunctionApp -ResourceGroupName $FunctionAppResourceGroupName -Name $FunctionAppName
+    $resourceName = $resource.Name + "/" + $CertificateNameForFunctionApp
     New-AzResource -Location $resource.Location -PropertyObject $PropertiesObject -ResourceGroupName $resource.resourceGroupName -ResourceType Microsoft.Web/sites/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
 
     #Apply the cert to the deployment slots if any
-    $slots = Get-AzResource -ResourceGroupName $resource.resourceGroupName -ResourceType Microsoft.Web/sites/slots -ResourceName $functionAppName -ApiVersion $apiVersion
+    $slots = Get-AzResource -ResourceGroupName $resource.resourceGroupName -ResourceType Microsoft.Web/sites/slots -ResourceName $FunctionAppName -ApiVersion $apiVersion
     foreach ($slot in $slots) {
-        $resourceName = $slot.Name + "/" + $certificateNameForFunctionApp
+        $resourceName = $slot.Name + "/" + $CertificateNameForFunctionApp
         New-AzResource -Location $slot.Location -PropertyObject $PropertiesObject -ResourceGroupName $slot.resourceGroupName -ResourceType Microsoft.Web/sites/slots/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
     }
 }

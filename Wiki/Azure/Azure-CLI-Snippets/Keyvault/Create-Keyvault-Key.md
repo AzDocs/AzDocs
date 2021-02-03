@@ -8,8 +8,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Example Value | Description |
 |--|--|--|
-| keyvaultName | `mykeyvault-$(Release.EnvironmentName)` | This is the keyvault name to use. |
-| keyName | `oneofmysecretkeys` | This is the keyname to use. |
+| KeyvaultName | `mykeyvault-$(Release.EnvironmentName)` | This is the keyvault name to use. |
+| KeyName | `oneofmysecretkeys` | This is the keyname to use. |
 
 # Code
 [Click here to download this script](../../../../src/Keyvault/Create-Keyvault-Key.ps1)

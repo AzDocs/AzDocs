@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $Namespace
+    [Alias("Namespace")]
+    [Parameter(Mandatory)][string] $ResourceProviderNamespace
 )
 #region ===BEGIN IMPORTS===
 . "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
@@ -10,6 +10,6 @@ param (
 
 Write-Header
 
-Invoke-Executable az provider register --namespace $Namespace
+Invoke-Executable az provider register --namespace $ResourceProviderNamespace
 
 Write-Footer
