@@ -122,7 +122,7 @@ function New-ApplicationGatewayPort (
 {
     Write-Header
 
-    Write-Output Invoke-Executable az network application-gateway frontend-port create --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "port_$PortNumber" --port $PortNumber | ConvertFrom-Json
+    Write-Output ((Invoke-Executable az network application-gateway frontend-port create --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "port_$PortNumber" --port $PortNumber) | ConvertFrom-Json)
 
     Write-Footer
 }
