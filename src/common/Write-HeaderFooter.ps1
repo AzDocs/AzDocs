@@ -11,7 +11,7 @@ function Write-ColorHost {
         Write-Host $Message -NoNewline:$NoNewLine
     }
 
-    if (Test-Path env:System_HostType) { # Are we in Azure DevOps?
+    if (Test-Path env:SYSTEM_HOSTTYPE) { # Are we in Azure DevOps?
         switch ($Color) {
             'Orange' {
                 $formatPrefix = '##[warning]'
