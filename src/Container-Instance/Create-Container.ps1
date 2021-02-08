@@ -70,7 +70,7 @@ if ($ContainerEnvironmentVariables) {
 }
 
 if ($StorageAccountFileShareName -and $FileShareStorageAccountName -and $FileShareStorageAccountResourceGroupName -and $StorageAccountFileShareMountPath) {
-    $storageKey = Invoke-Executable az storage account keys list --resource-group $FileShareStorageAccountResourceGroupName --name $FileShareStorageAccountName --query=[0].value --output tsv
+    $storageKey = Invoke-Executable az storage account keys list --resource-group $FileShareStorageAccountResourceGroupName --account-name $FileShareStorageAccountName --query=[0].value --output tsv
     $scriptArguments += "--azure-file-volume-share-name", "$StorageAccountFileShareName", "--azure-file-volume-account-name", "$FileShareStorageAccountName", "--azure-file-volume-account-key", "$storageKey", "--azure-file-volume-mount-path", "$StorageAccountFileShareMountPath"
 }
 
