@@ -37,10 +37,11 @@ $appServicePrivateEndpointName = "$($AppServiceName)-pvtapp"
 # Create AppService Plan
 $appServicePlanId = (Invoke-Executable az appservice plan create --resource-group $AppServicePlanResourceGroupName  --name $AppServicePlanName --sku $AppServicePlanSkuName --tags ${ResourceTags} | ConvertFrom-Json).id
 
-$optionalParameters = @{}
-if ($AppServiceRunTime) {
-    $optionalParameters.Add('--runtime', $AppServiceRunTime);
+$optionalParameters = @()
+if ($AppServiceRuntime) {
+    $optionalParameters += "--runtime", "$AppServiceRunTime"
 }
+
 # Create AppService
 Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters
 
@@ -62,13 +63,13 @@ Invoke-Executable az monitor diagnostic-settings create --resource $webAppId --n
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az webapp identity assign --ids $webAppId
 
-
 if ($AppServiceSlotName) {
 
-    Invoke-Executable az webapp deployment slot create --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceSlotName @optionalParameters
-    Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled --slot $AppServiceSlotName
-    Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceSlotName
-    Invoke-Executable az webapp identity assign --ids $webAppId --slot $AppServiceSlotName
+    Invoke-Executable az webapp deployment slot create --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceSlotName
+    $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceSlotName | ConvertFrom-Json).id
+    Invoke-Executable az webapp config set --ids $webAppStagingId --ftps-state Disabled --slot $AppServiceSlotName
+    Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceSlotName
+    Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceSlotName
 }
 
 # Add private endpoint & Setup Private DNS
