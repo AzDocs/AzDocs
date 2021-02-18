@@ -4,7 +4,8 @@ param (
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Alias("VnetName")]
     [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationName,
-    [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationSubnetName
+    [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationSubnetName,
+    [Parameter()][string] $FunctionAppServiceDeploymentSlotName
 )
 
 #region ===BEGIN IMPORTS===
@@ -14,10 +15,24 @@ param (
 
 Write-Header
 
-if((Invoke-Executable az functionapp vnet-integration list --resource-group $FunctionAppResourceGroupName --name $FunctionAppName).length -le 2)
+$fullFunctionAppName = $FunctionAppName
+$additionalParameters = @()
+
+if ($FunctionAppServiceDeploymentSlotName) {
+    $additionalParameters += '--slot' , $FunctionAppServiceDeploymentSlotName
+    $fullFunctionAppName += " [$FunctionAppServiceDeploymentSlotName]"
+}
+
+$vnetIntegrations = Invoke-Executable az functionapp vnet-integration list --resource-group $FunctionAppResourceGroupName --name $FunctionAppName @additionalParameters | ConvertFrom-Json
+$matchedIntegrations = $vnetIntegrations | Where-Object  vnetResourceId -like "*/providers/Microsoft.Network/virtualNetworks/$FunctionAppVnetIntegrationName/subnets/$FunctionAppVnetIntegrationSubnetName"
+if($matchedIntegrations)
 {
-    Write-Host "VNET Integration not found, adding it to $FunctionAppName"
-    Invoke-Executable az functionapp vnet-integration add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --vnet $FunctionAppVnetIntegrationName --subnet $FunctionAppVnetIntegrationSubnetName
+    Write-Host "VNET Integration found for $fullFunctionAppName"
+}
+else
+{
+    Write-Host "VNET Integration not found, adding it to $fullFunctionAppName"
+    Invoke-Executable az functionapp vnet-integration add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --vnet $FunctionAppVnetIntegrationName --subnet $FunctionAppVnetIntegrationSubnetName @additionalParameters
     Invoke-Executable az functionapp restart --name $FunctionAppName --resource-group $FunctionAppResourceGroupName
 }
 

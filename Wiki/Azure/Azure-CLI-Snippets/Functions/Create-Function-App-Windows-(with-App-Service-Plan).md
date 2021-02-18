@@ -3,7 +3,7 @@
 # Description
 This snippet will create an Function App if it does not exist & create an app service plan if it does not exist. It also adds the mandatory tags to the resources.
 
-The webapp is set to https only and the webapp cannot be deployed with ftp(s) for to be compliant with the azure policies.
+The function app is set to https only and the webapp cannot be deployed with ftp(s) for to be compliant with the azure policies.
 
 This snippet also managed the following compliancy rules:
  - HTTPS only
@@ -33,6 +33,9 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ASPNETCORE_ENVIRONMENT | `Development` | Use either `Development`, `Acceptance` or `Production`. NOTE: `Development` and `Production` have features which are provided by the framework. [Read more here](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments) |
 | FunctionAppPrivateEndpointVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the Function App Private Endpoint in. |
 | FunctionAppPrivateEndpointVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your Function App Private Endpoint, resides in. |
+| EnableFunctionAppDeploymentSlot | If you pass this switch (without value), a deployment slot will be created. | 
+| FunctionAppDeploymentSlotName | `staging` | Name of the slot to create additional to the production slot. Has the default value of "staging". |
+| DisablePublicAccessForFunctionAppDeploymentSlot | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |  
 
 # Code
 ## Create Windows WebApp

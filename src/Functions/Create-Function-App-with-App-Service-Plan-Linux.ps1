@@ -1,4 +1,4 @@
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'default')]
 param (
     [Alias("VnetResourceGroupName")]
     [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetResourceGroupName,
@@ -20,7 +20,10 @@ param (
     [Alias("AlwaysOn")]
     [Parameter(Mandatory)][string] $FunctionAppAlwaysOn,
     [Parameter(Mandatory)][string] $FUNCTIONS_EXTENSION_VERSION,
-    [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT
+    [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT, 
+    [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
+    [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging", 
+    [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true
 )
 
 #region ===BEGIN IMPORTS===
@@ -42,8 +45,7 @@ $appServicePlanId = (Invoke-Executable az appservice plan create --resource-grou
 $functionAppId = (Invoke-Executable -AllowToFail az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 
 #TODO: az functionapp create is not idempotent, therefore the following fix. For more information, see https://github.com/Azure/azure-cli/issues/11863 
-if (!$functionAppId)
-{
+if (!$functionAppId) {
     # Create FunctionApp
     Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlanId --os-type "Linux" --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime dotnet --functions-version 3 --disable-app-insights --tags ${ResourceTags}
     $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
@@ -66,6 +68,28 @@ Invoke-Executable az monitor diagnostic-settings create --resource $functionAppI
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az functionapp identity assign --ids $functionAppId
+
+# By default a staging slot will be added
+if ($EnableFunctionAppDeploymentSlot) {
+    Invoke-Executable az functionapp deployment slot create --resource-group $FunctionAppResourceGroupName --name $FunctionAppName  --slot $FunctionAppDeploymentSlotName
+    $functionAppStagingId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json).id
+    Invoke-Executable az functionapp config set --ids $functionAppStagingId --ftps-state Disabled --slot $FunctionAppDeploymentSlotName
+    Invoke-Executable az functionapp config appsettings set --ids $functionAppStagingId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
+    Invoke-Executable az functionapp identity assign --ids $functionAppStagingId --slot $FunctionAppDeploymentSlotName
+
+    if ($DisablePublicAccessForFunctionAppDeploymentSlot) {
+        $accessRestrictionRuleName = 'DisablePublicAccess'
+        $restrictions =  Invoke-Executable az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json
+        
+        if (!($restrictions.scmIpSecurityRestrictions | Where-Object {$_.Name -eq $accessRestrictionRuleName})) {
+            Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --action Deny --priority 100000 --description $FunctionAppName --rule-name $accessRestrictionRuleName --ip-address '0.0.0.0/0' --scm-site $true --slot $FunctionAppDeploymentSlotName
+        }
+
+        if (!($restrictions.ipSecurityRestrictions | Where-Object {$_.Name -eq $accessRestrictionRuleName})) {
+            Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --action Deny --priority 100000 --description $FunctionAppName --rule-name $accessRestrictionRuleName --ip-address '0.0.0.0/0' --scm-site $false --slot $FunctionAppDeploymentSlotName
+        }
+    }
+}
 
 # Add private endpoint & Setup Private DNS
 Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $functionAppPrivateEndpointSubnetId -PrivateEndpointName $functionAppPrivateEndpointName -PrivateEndpointResourceGroupName $FunctionAppResourceGroupName -TargetResourceId $functionAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $FunctionAppPrivateDnsZoneName -PrivateDnsLinkName "$($FunctionAppPrivateEndpointVnetName)-appservice"

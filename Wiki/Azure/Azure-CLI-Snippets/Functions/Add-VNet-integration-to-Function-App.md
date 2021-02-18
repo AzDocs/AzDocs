@@ -11,6 +11,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | FunctionAppVnetIntegrationName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET where to place the vnet-integration in. |
 | FunctionAppResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The resourcegroup where the function app resides in
 | FunctionAppVnetIntegrationSubnetName | `app-subnet-4` | The name of the subnet to place the vnet-integration in. Note: Adding a function app vnetintegration to a subnet will delegate that entire subnet to the function apps. This means that no other resources can be placed inside this vnet (even no other appserviceplans). This has to be an empty subnet. |
+| FunctionAppServiceDeploymentSlotName | `staging` | OPTIONAL By default the production slot is used, use this variable to use a different slot. | 
 
 # Code
 [Click here to download this script](../../../../src/Functions/Add-VNet-integration-to-Function-App.ps1)
