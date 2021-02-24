@@ -19,9 +19,13 @@ param (
     [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
+    
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $AppServiceDeploymentSlotName = 'staging',
-    [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForAppServiceDeploymentSlot = $true
+    [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForAppServiceDeploymentSlot = $true,
+
+    # Use container image name with optional tag for example thelastpickle/cassandra-reaper:latest
+    [Parameter(Mandatory, ParameterSetName = 'Container')][string] $ContainerImageName
 )
 
 #region ===BEGIN IMPORTS===
@@ -39,8 +43,14 @@ $appServicePrivateEndpointName = "$($AppServiceName)-pvtapp"
 # Create AppService Plan
 $appServicePlanId = (Invoke-Executable az appservice plan create --is-linux --resource-group $AppServicePlanResourceGroupName  --name $AppServicePlanName --sku $AppServicePlanSkuName --tags ${ResourceTags} | ConvertFrom-Json).id
 
+#adding additional parameters in case of an deployment with container image
+$optionalParameters = @()
+if ($ContainerImageName) {
+    $optionalParameters += '--deployment-container-image-name', "$ContainerImageName"
+}
+
 # Create AppService
-Invoke-Executable az webapp create --runtime $AppServiceRunTime --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags}
+Invoke-Executable az webapp create --runtime $AppServiceRunTime --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters
 
 # Fetch the ID from the AppService
 $webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id

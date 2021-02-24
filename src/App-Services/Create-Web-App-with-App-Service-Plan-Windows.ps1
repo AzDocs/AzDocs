@@ -19,6 +19,7 @@ param (
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
     [Parameter()][string] $AppServiceRunTime,
+    
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $AppServiceDeploymentSlotName = 'staging',
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForAppServiceDeploymentSlot = $true
@@ -40,6 +41,7 @@ $appServicePrivateEndpointName = "$($AppServiceName)-pvtapp"
 $appServicePlanId = (Invoke-Executable az appservice plan create --resource-group $AppServicePlanResourceGroupName  --name $AppServicePlanName --sku $AppServicePlanSkuName --tags ${ResourceTags} | ConvertFrom-Json).id
 
 $optionalParameters = @()
+
 if ($AppServiceRuntime) {
     $optionalParameters += "--runtime", "$AppServiceRunTime"
 }
