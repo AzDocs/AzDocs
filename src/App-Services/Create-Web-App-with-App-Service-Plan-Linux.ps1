@@ -12,7 +12,7 @@ param (
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
-    [Parameter(Mandatory)][string] $AppServiceRunTime,
+    [Parameter(Mandatory, ParameterSetName = 'default')][Parameter(Mandatory, ParameterSetName = 'DeploymentSlot')][string] $AppServiceRunTime,
     [Parameter(Mandatory)][string] $AppServiceDiagnosticsName,
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
@@ -43,14 +43,19 @@ $appServicePrivateEndpointName = "$($AppServiceName)-pvtapp"
 # Create AppService Plan
 $appServicePlanId = (Invoke-Executable az appservice plan create --is-linux --resource-group $AppServicePlanResourceGroupName  --name $AppServicePlanName --sku $AppServicePlanSkuName --tags ${ResourceTags} | ConvertFrom-Json).id
 
-#adding additional parameters in case of an deployment with container image
+#adding additional parameters
 $optionalParameters = @()
+
 if ($ContainerImageName) {
     $optionalParameters += '--deployment-container-image-name', "$ContainerImageName"
 }
 
+if ($AppServiceRunTime) {
+    $optionalParameters += '--runtime', "$AppServiceRunTime"
+}
+
 # Create AppService
-Invoke-Executable az webapp create --runtime $AppServiceRunTime --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters
+Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters
 
 # Fetch the ID from the AppService
 $webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
