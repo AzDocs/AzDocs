@@ -3,15 +3,10 @@
 # Description
 This snippet will create an Function App if it does not exist & create an app service plan if it does not exist. It also adds the mandatory tags to the resources.
 
-The function app is set to https only and the webapp cannot be deployed with ftp(s) for to be compliant with the azure policies.
+This script will call the following 2 scripts in order (please refer to those scripts for information):
 
-This snippet also managed the following compliancy rules:
- - HTTPS only
- - Disable FTP
- - Set Tags on this resource
- - Set a Managed Identity for the function app
- - Adds a private endpoint to securely connect to this function app
- - Sets the network configuration to only allow the private endpoint connection
+[Create-App-Service-Plan-Windows](/Azure/Azure-CLI-Snippets/App-Services/Create-App-Service-Plan-Windows)
+[Create-Function-App-Windows](/Azure/Azure-CLI-Snippets/Functions/Create-Function-App-Windows)
 
 # Parameters
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
@@ -38,19 +33,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | DisablePublicAccessForFunctionAppDeploymentSlot | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |  
 
 # Code
-## Create Windows WebApp
+## Create Windows Function App
 The snippet to create a Windows Function App & ASP. Note that there can be no Linux App Service Plan in the same resourcegroup. This snippet will also create the app service plan if it does not exist. 
 
 [Click here to download this script](../../../../src/Functions/Create-Function-App-with-App-Service-Plan-Windows.ps1)
-
-# Links
-
-- [Azure CLI - az-functionapp-create](https://docs.microsoft.com/en-us/cli/azure/functionapp?view=azure-cli-latest#az-functionapp-create)
-- [Azure CLI - az appservice plan create](https://docs.microsoft.com/en-us/cli/azure/appservice/plan?view=azure-cli-latest#az-appservice-plan-create)
-- [Azure CLI - az-functionapp-identity-assign](https://docs.microsoft.com/en-us/cli/azure/functionapp/identity?view=azure-cli-latest#az-functionapp-identity-assign)
-- [App Service Pricing for SKU's](https://azure.microsoft.com/nl-nl/pricing/details/app-service/windows/)
-- [App Service Create Diagnostics settings](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/diagnostic-settings)
-- [App Service Az Monitor Diagnostics settings](https://docs.microsoft.com/en-us/cli/azure/monitor/diagnostic-settings?view=azure-cli-latest#az-monitor-diagnostic-settings-update)
-- [App Service Enable Diagnostics Logging](https://docs.microsoft.com/en-us/azure/app-service/troubleshoot-diagnostic-logs)
-- [Template settings for Diagnostics settings](https://docs.microsoft.com/en-us/azure/azure-monitor/samples/resource-manager-diagnostic-settings)
-- [Azure Cli for Diagnostics settings](http://techgenix.com/azure-diagnostic-settings/)
