@@ -35,17 +35,19 @@ function Write-ColorHost {
     else {
         switch -wildcard ($Color) {
             'Orange' {
-                $Color = "Yellow"
+                $PSColor = "Yellow"
             }
             'Blue' {
-                $Color = "Cyan"
+                $PSColor = "Cyan"
             }
             'Purple' {
-                $Color = "Magenta"
+                $PSColor = "Magenta"
             }
-            Default {}
+            Default {
+                $PSColor = $Color
+            }
         }
-        Write-Host $Message -ForegroundColor $Color -NoNewline:$NoNewLine
+        Write-Host $Message -ForegroundColor $PSColor -NoNewline:$NoNewLine
     }
 }
 
@@ -53,22 +55,22 @@ function Write-Header {
     [CmdletBinding()]
     param (
         [Parameter()][string] $OverrideMessage,
-        [Parameter()][switch] $OmitOutputParameters
+        [Parameter()][switch] $OmitOutputParameters,
+        [Parameter()][System.Management.Automation.PSCmdlet] $ScopedPSCmdlet
     )
-    [System.Management.Automation.InvocationInfo]$myInvocation = Get-Variable -Name "MyInvocation" -Scope 1 -ValueOnly
-    Write-ColorHost "> $($myInvocation.InvocationName) $OverrideMessage" -Color Orange
+    
+    Write-ColorHost "> $($ScopedPSCmdlet.MyInvocation.InvocationName) $OverrideMessage" -Color Orange
     if ($OmitOutputParameters) {
         return
     }
 
-    [System.Management.Automation.PSCmdlet]$headerCmdlet = Get-Variable -Name "PSCmdlet" -Scope 1 -ValueOnly
-    if ($headerCmdlet.ParameterSetName -ne '__AllParameterSets') {
-        Write-ColorHost ">  ParameterSetName : $($headerCmdlet.ParameterSetName)" -Color Green
+    if ($ScopedPSCmdlet.ParameterSetName -ne '__AllParameterSets') {
+        Write-ColorHost ">  ParameterSetName : $($ScopedPSCmdlet.ParameterSetName)" -Color Green
     }
 
-    $myInvocation.BoundParameters.Keys | ForEach-Object {
+    $ScopedPSCmdlet.MyInvocation.BoundParameters.Keys | ForEach-Object {
         $key = $_
-        $value = $myInvocation.BoundParameters[$key]
+        $value = $ScopedPSCmdlet.MyInvocation.BoundParameters[$key]
         If ($key -like '*password*') {
             $value = '****'
         }
@@ -77,6 +79,10 @@ function Write-Header {
 }
 
 function Write-Footer {
-    [System.Management.Automation.InvocationInfo] $myInvocation = Get-Variable -Name "MyInvocation" -Scope 1 -ValueOnly
-    Write-ColorHost "< $($myInvocation.InvocationName)" -Color Orange
+    [CmdletBinding()]
+    param (
+        [Parameter()][System.Management.Automation.PSCmdlet] $ScopedPSCmdlet
+    )
+
+    Write-ColorHost "< $($ScopedPSCmdlet.MyInvocation.InvocationName)" -Color Orange
 }

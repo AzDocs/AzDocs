@@ -33,11 +33,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerVnetName | ConvertFrom-Json).id
 $containerSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerSubnetName --vnet-name $ContainerVnetName | ConvertFrom-Json).id
@@ -83,4 +82,4 @@ Write-Host "Script Arguments: $scriptArguments"
 
 Invoke-Executable az container create @scriptArguments
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

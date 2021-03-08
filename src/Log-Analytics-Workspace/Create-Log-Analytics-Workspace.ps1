@@ -12,11 +12,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $scriptArguments = "--workspace-name","$LogAnalyticsWorkspaceName", "--resource-group","$LogAnalyticsWorkspaceResourceGroupName", "--retention-time","$LogAnalyticsWorkspaceRetentionInDays", "--tags",$ResourceTags
 
@@ -34,4 +33,4 @@ if ($PublicInterfaceQueryAccess) {
 
 Invoke-Executable az monitor log-analytics workspace create @scriptArguments
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

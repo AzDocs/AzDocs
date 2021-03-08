@@ -1,8 +1,3 @@
-#region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-#endregion ===END IMPORTS===
-
 #region Helper functions
 
 <#
@@ -26,7 +21,7 @@ function Add-AccessRestriction
         [Parameter(ParameterSetName = 'myIp', Mandatory)][switch] $WhiteListMyIp
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $optionalParameters = @()
     if ($DeploymentSlotName)
@@ -50,7 +45,7 @@ function Add-AccessRestriction
         Invoke-Executable az $AppType config access-restriction add --resource-group $ResourceGroupName --name $ResourceName --action $AccessRestrictionAction --priority $Priority --description $AccessRestrictionRuleName --rule-name $AccessRestrictionRuleName --ip-address $CIDRToWhitelist --scm-site $false @optionalParameters
     }
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 <#
@@ -70,7 +65,7 @@ function Remove-AccessRestriction
         [Parameter()][string] $DeploymentSlotName
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $optionalParameters = @()
     if ($DeploymentSlotName)
@@ -81,8 +76,15 @@ function Remove-AccessRestriction
     Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $true @optionalParameters 
     Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $false @optionalParameters
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
+
+<#
+.SYNOPSIS
+    Check if Access restrictions exist on app service and/or function app
+.DESCRIPTION
+    Check if Access restrictions exist on app service and/or function app
+#>
 
 function Confirm-AccessRestriction
 {  
@@ -95,6 +97,8 @@ function Confirm-AccessRestriction
         [Parameter(Mandatory)][ValidateSet("ipSecurityRestrictions", "scmIpSecurityRestrictions")][string] $SecurityRestrictionObjectName,
         [Parameter()][string] $DeploymentSlotName
     )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $optionalParameters = @()
     if ($DeploymentSlotName)
@@ -113,6 +117,8 @@ function Confirm-AccessRestriction
         Write-Host "Access restriction for type $SecurityRestrictionObjectName does not exist. Creating."
         Write-Output $false
     }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 #endregion

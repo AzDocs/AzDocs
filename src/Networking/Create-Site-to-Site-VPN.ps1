@@ -15,11 +15,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Prepare some information
 $vnetId = (Invoke-Executable az network vnet show --resource-group $VirtualNetworkGatewayVnetResourceGroupName --name $VirtualNetworkGatewayVnetName | ConvertFrom-Json).id
@@ -55,4 +54,4 @@ if(!$vpnConnection)
     Invoke-Executable az network vpn-connection create --name $VpnConnectionName --resource-group $VirtualNetworkGatewayResouceGroupName --vnet-gateway1 $virtualNetworkGatewayId --shared-key $VpnConnectionSharedKey --local-gateway2 $LocalGatewayName
 }
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

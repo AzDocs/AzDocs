@@ -7,11 +7,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
-Write-Header
+
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Invoke-Executable az ad user create --display-name "SQL Admin $($AdUserName)" --password $AdPassword --user-principal-name $AdUserName --force-change-password-next-login false
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

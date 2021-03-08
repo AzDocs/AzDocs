@@ -17,10 +17,6 @@ function Invoke-Executable
         [Parameter()][switch] $AllowToFail
     )
 
-     #region ===BEGIN IMPORTS===
-     . "$PSScriptRoot\Write-HeaderFooter.ps1"
-     #endregion ===END IMPORTS===
-
     if ($ExecutableLiteralPath -eq 'az')
     {
         if ($env:System_Debug -and $env:System_Debug -eq $true)
@@ -28,7 +24,7 @@ function Invoke-Executable
             $ExecutableArguments += "--debug"
         }
     }
-    Write-Header -OverrideMessage "$ExecutableLiteralPath $ExecutableArguments" -OmitOutputParameters
+    Write-Header -ScopedPSCmdlet $PSCmdlet -OverrideMessage "$ExecutableLiteralPath $ExecutableArguments" -OmitOutputParameters
     & $ExecutableLiteralPath $ExecutableArguments
     if (!$AllowToFail -and !$?)
     {
@@ -37,5 +33,5 @@ function Invoke-Executable
         throw $Error
     }
     [Console]::ResetColor()
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }

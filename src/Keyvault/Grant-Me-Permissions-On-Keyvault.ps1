@@ -9,11 +9,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $identityId = (Invoke-Executable az account show | ConvertFrom-Json).user.name
 
@@ -28,4 +27,4 @@ if (!$identityId) {
 Write-Host "Identity ID: $identityId"
 Invoke-Executable az keyvault set-policy --name $KeyvaultName --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --spn $identityId --resource-group $KeyvaultResourceGroupName | Out-Null
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

@@ -8,10 +8,10 @@ function Get-DashedDomainname
         [Parameter(Mandatory)][string] $DomainName
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $dashedDomainName = $DomainName.Replace("-", "--").Replace(".", "-").Replace("*", "wildcard")
     Write-Output $dashedDomainName
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }

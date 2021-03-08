@@ -15,12 +15,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $gatewaySubnetId = (Invoke-Executable az network vnet subnet show --name $ApplicationGatewaySubnetName --vnet-name $ApplicationGatewayVnetName --resource-group $ApplicationGatewayVnetResourceGroupName | ConvertFrom-Json).id
 Write-Host "Gateway Subnet ID: $gatewaySubnetId"
@@ -46,4 +44,4 @@ Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointSer
 # Whitelist our Gateway's subnet in the Certificate Keyvault so we can connect
 Invoke-Executable az keyvault network-rule add --resource-group $CertificateKeyvaultResourceGroupName --name $CertificateKeyvaultName --subnet $gatewaySubnetId
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

@@ -11,12 +11,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $subnetToWhitelistId = (Invoke-Executable az network vnet subnet show --resource-group $StorageAccountVnetResourceGroupName --name $SubnetToWhiteListOnStorageAccount --vnet-name $StorageAccountVnetName | ConvertFrom-Json).id
 
@@ -26,4 +24,4 @@ Set-SubnetServiceEndpoint -SubnetResourceId $subnetToWhitelistId -ServiceEndpoin
 # Whitelist our App's subnet in the storage account so we can connect
 Invoke-Executable az storage account network-rule add --resource-group $StorageResourceGroupName --account-name $StorageAccountName --subnet $subnetToWhitelistId
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

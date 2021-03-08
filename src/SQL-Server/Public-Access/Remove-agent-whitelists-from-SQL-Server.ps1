@@ -5,12 +5,11 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Invoke-Executable az sql server firewall-rule delete --resource-group $SqlServerResourceGroupName --server $SqlServerName --name 'TMPAGENT'
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

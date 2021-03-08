@@ -9,12 +9,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\Get-ManagedIdentity.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Fetch the WebApp Identity ID
 $appIdentityId = Get-ManagedIdentity -AppService -ResourceName $AppServiceName -ResourceGroupName $AppServiceResourceGroupName -AppServiceSlotName $AppServiceSlotName
@@ -26,4 +24,4 @@ Write-Host "storageId: $storageId"
 # Assign the appropriate role to the appservice
 Invoke-Executable az role assignment create --role $RoleToAssign --assignee-object-id $appIdentityId --scope $storageId
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

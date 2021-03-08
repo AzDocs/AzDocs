@@ -30,10 +30,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 #region functions
 function Get-NextLowPriority
@@ -183,4 +183,4 @@ else
 
 Set-AzApplicationGatewayFirewallPolicy -Name $ApplicationGatewayWafName -ResourceGroupName $ApplicationGatewayResourceGroupName -CustomRule $azPolicy.CustomRules
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet
