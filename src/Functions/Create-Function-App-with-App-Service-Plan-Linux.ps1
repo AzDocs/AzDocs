@@ -23,7 +23,9 @@ param (
     [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT, 
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging", 
-    [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true
+    [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true,
+    [Parameter()][string] $AppServicePlanNumberOfWorkerInstances = 3,
+    [Parameter()][string] $FunctionAppNumberOfInstances = 2
 )
 
 #region ===BEGIN IMPORTS===
@@ -33,7 +35,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Create App Service Plan
-& "$PSScriptRoot\..\App-Services\Create-App-Service-Plan-Linux.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -ResourceTags ${ResourceTags}
+& "$PSScriptRoot\..\App-Services\Create-App-Service-Plan-Linux.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -AppServicePlanNumberOfWorkerInstances $AppServicePlanNumberOfWorkerInstances -ResourceTags ${ResourceTags}
 
 # Create Function App
 & "$PSScriptRoot\Create-Function-App-Linux.ps1" @PSBoundParameters

@@ -23,6 +23,7 @@ param (
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging", 
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true,
+    [Parameter()][string] $FunctionAppNumberOfInstances = 2,
 
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Function-App-with-App-Service-Plan-Linux.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
@@ -58,6 +59,9 @@ Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=tru
 # Disable FTPS
 Invoke-Executable az functionapp config set --ids $functionAppId --ftps-state Disabled
 
+# Set number of instances
+Invoke-Executable az functionapp config set --ids $functionAppId --number-of-workers $FunctionAppNumberOfInstances
+
 # Set Always On
 Invoke-Executable az functionapp config set --always-on $AlwaysOn --ids $functionAppId
 
@@ -76,6 +80,7 @@ if ($EnableFunctionAppDeploymentSlot)
     Invoke-Executable az functionapp deployment slot create --resource-group $FunctionAppResourceGroupName --name $FunctionAppName  --slot $FunctionAppDeploymentSlotName
     $functionAppStagingId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json).id
     Invoke-Executable az functionapp config set --ids $functionAppStagingId --ftps-state Disabled --slot $FunctionAppDeploymentSlotName
+    Invoke-Executable az functionapp config set --ids $functionAppStagingId --number-of-workers $FunctionAppNumberOfInstances --slot $FunctionAppDeploymentSlotName
     Invoke-Executable az functionapp config appsettings set --ids $functionAppStagingId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
     Invoke-Executable az functionapp identity assign --ids $functionAppStagingId --slot $FunctionAppDeploymentSlotName
 

@@ -18,6 +18,7 @@ param (
     [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
+    [Parameter()][string] $AppServiceNumberOfInstances = 2,
     
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $AppServiceDeploymentSlotName = 'staging',
@@ -68,6 +69,9 @@ Invoke-Executable az webapp update --ids $webAppId --https-only true
 # Disable FTPS
 Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled
 
+# Set number of instances
+Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppServiceNumberOfInstances
+
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
 
@@ -82,6 +86,7 @@ if ($EnableAppServiceDeploymentSlot)
     Invoke-Executable az webapp deployment slot create --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceDeploymentSlotName
     $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json).id
     Invoke-Executable az webapp config set --ids $webAppStagingId --ftps-state Disabled --slot $AppServiceDeploymentSlotName
+    Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceDeploymentSlotName
     

@@ -3,6 +3,7 @@ param (
     [Parameter(Mandatory)][string] $AppServicePlanName,
     [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,
     [Parameter(Mandatory)][string] $AppServicePlanSkuName,
+    [Parameter()][string] $AppServicePlanNumberOfWorkerInstances = 3,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags
 )
 
@@ -13,7 +14,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Create AppService Plan
-$appServicePlanId = (Invoke-Executable az appservice plan create --resource-group $AppServicePlanResourceGroupName  --name $AppServicePlanName --sku $AppServicePlanSkuName --tags ${ResourceTags} | ConvertFrom-Json).id
+$appServicePlanId = (Invoke-Executable az appservice plan create --resource-group $AppServicePlanResourceGroupName --per-site-scaling --number-of-workers $AppServicePlanNumberOfWorkerInstances --name $AppServicePlanName --sku $AppServicePlanSkuName --tags ${ResourceTags} | ConvertFrom-Json).id
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
 

@@ -19,6 +19,8 @@ param (
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
     [Parameter()][string] $AppServiceRunTime,
+    [Parameter()][string] $AppServicePlanNumberOfWorkerInstances = 3,
+    [Parameter()][string] $AppServiceNumberOfInstances = 2,
     
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $AppServiceDeploymentSlotName = 'staging',
@@ -32,7 +34,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Create AppServicePlan
-& "$PSScriptRoot\Create-App-Service-Plan-Windows.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -ResourceTags ${ResourceTags}
+& "$PSScriptRoot\Create-App-Service-Plan-Windows.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -AppServicePlanNumberOfWorkerInstances $AppServicePlanNumberOfWorkerInstances -ResourceTags ${ResourceTags}
 
 # Create AppService
 & "$PSScriptRoot\Create-Web-App-Windows.ps1" @PSBoundParameters
