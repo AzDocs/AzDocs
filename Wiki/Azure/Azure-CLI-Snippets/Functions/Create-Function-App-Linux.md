@@ -35,6 +35,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | EnableFunctionAppDeploymentSlot | If you pass this switch (without value), a deployment slot will be created. | 
 | FunctionAppDeploymentSlotName | `staging` | Name of the slot to create additional to the production slot. Has the default value of "staging". |
 | DisablePublicAccessForFunctionAppDeploymentSlot | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |  
+| FunctionAppNumberOfInstances | `2` | OPTIONAL: You can define how much instances of your functions will be ran (use 2 or more for HA. use 1 if you have server side sessions/stateful apps). The default value (if you don't pass any value) will be 2. |
 
 # Code
 ## Create Linux FunctionApp
