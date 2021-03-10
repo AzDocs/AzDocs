@@ -534,21 +534,17 @@ function Confirm-RewriteRule
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
-    if (!$currentRule.HeaderName -or !$currentRule.HeaderValue -or !$currentRule.ConditionVariable -or !$currentRule.ConditionPattern)
-    {
-        if (!$newRule.HeaderName -or !$newRule.HeaderValue -or !$newRule.ConditionVariable -or !$newRule.ConditionPattern)
-        {
-            throw 'Missing one of the propertynames to check on: HeaderName, HeaderValue, ConditionVariable, ConditionPattern'
+    if ($null -eq $currentRule.HeaderName -or $null -eq $currentRule.HeaderValue -or $null -eq $currentRule.ConditionVariable -or $null -eq $currentRule.ConditionPattern -or $null -eq $currentRule.ConditionNegate) {
+        if ($null -eq $newRule.HeaderName -or $null -eq $newRule.HeaderValue -or $null -eq $newRule.ConditionVariable -or $null -eq $newRule.ConditionPattern -or $null -eq $newRule.ConditionNegate) {
+            throw 'Missing one of the propertynames to check on: HeaderName, HeaderValue, ConditionVariable, ConditionPattern and ConditionNegate'
         }
     }
 
-    if ($currentRule.HeaderName -ne $newRule.HeaderName -or $currentRule.HeaderValue -ne $newRule.HeaderValue -or $currentRule.ConditionVariable -ne $newRule.ConditionVariable -or $currentRule.ConditionPattern -ne $newRule.ConditionPattern)
-    {
+    if ($currentRule.HeaderName -ne $newRule.HeaderName -or $currentRule.HeaderValue -ne $newRule.HeaderValue -or $currentRule.ConditionVariable -ne $newRule.ConditionVariable -or $currentRule.ConditionPattern -ne $newRule.ConditionPattern -or $currentRule.ConditionNegate -ne $newRule.ConditionNegate) {
         Write-Host "Values have changed for the rule. Updating."
         Write-Output $true
     }
-    else
-    {
+    else {
         Write-Host "No values have changed for the rule. Continueing."
         Write-Output $false
     }
@@ -633,8 +629,20 @@ function New-RewriteRuleAndCondition
     {
         Write-Host "Verifying rule: '$($rewriteRule.Name)'"
         
-        $currentRule = [PSCustomObject]@{HeaderName = $rewriteRule.actionSet.responseHeaderConfigurations.headerName; HeaderValue = $rewriteRule.actionSet.responseHeaderConfigurations.headerValue; ConditionVariable = $rewriteRule.conditions.variable; ConditionPattern = $rewriteRule.conditions.pattern }
-        $newRule = [PsCustomObject]@{HeaderName = $HeaderName; HeaderValue = $HeaderValue; ConditionVariable = $ConditionVariable; ConditionPattern = "$($ConditionPattern)" }
+        $currentRule = [PSCustomObject]@{
+            HeaderName        = $rewriteRule.actionSet.responseHeaderConfigurations.headerName
+            HeaderValue       = $rewriteRule.actionSet.responseHeaderConfigurations.headerValue
+            ConditionVariable = $rewriteRule.conditions.variable
+            ConditionPattern  = $rewriteRule.conditions.pattern
+            ConditionNegate   = $rewriteRule.conditions.negate
+        }
+        $newRule = [PsCustomObject]@{
+            HeaderName        = $HeaderName
+            HeaderValue       = $HeaderValue
+            ConditionVariable = $ConditionVariable
+            ConditionPattern  = $ConditionPattern 
+            ConditionNegate   = $ConditionNegate
+        }
 
         # Validate if anything changed in the rewrite rule
         $needToRewrite = Confirm-RewriteRule -currentRule $currentRule -newRule $newRule 
