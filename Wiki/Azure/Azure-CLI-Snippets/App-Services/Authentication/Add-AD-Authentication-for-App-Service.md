@@ -9,6 +9,25 @@ This snippet will enable the following:
 - Adds a rewrite rule set if it does not exist to the Application Gateway, adds specific rewrite rules and conditions and assigns this to a specific Application Gateway rule.
 - Update the healthprobe to accept http status code 401
 
+In short, this is about what happens:
+::: mermaid
+sequenceDiagram
+    participant Client
+    participant AppGateway
+    participant AppService
+    participant AAD
+    Client->>AppGateway: Hey give me this page
+    AppGateway->>AppService: Hey give me this page
+    AppService-->>AppGateway: Please authenticate first!
+    AppGateway->>Client: Please authenticate first!
+    Client->>AAD: Hey i'd like to authenticate. I'm Rob!
+    AAD-->>Client: Ok. Here's your token!
+    Client->>AppGateway: Here's my token. Please give me the page.
+    AppGateway->>AppService: Here's the users token. Please give me the page.
+    AppService-->>AppGateway: Perfect! here's your page!
+    AppGateway-->>Client: Here's your page!
+:::
+
 # Parameters
 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
