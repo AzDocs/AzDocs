@@ -1,18 +1,21 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will add an AppInsights resource to a Resource Group. The az cli used is in preview, so keep an eye on possible changes as announced by Microsoft.
 
 # Parameters
-Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
-| Parameter | Example Value | Description |
-|--|--|--|
-| AppInsightsName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)-AppInsights` | The name of the AppInsights Resource. It's recommended to stick to alphanumeric & hyphens for this. |
-| AppInsightsResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group the AppInsights resource will be created in |
-| AppInsightsLocation | `West Europe`/`westeurope` | Defines the Azure Location for the App Insights resource to reside in (you can use `az account list-locations -o table` to get a list of locations you can use) |
 
+Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
+| Parameter | Required | Example Value | Description |
+|--|--|--|--|
+| AppInsightsName | -[x] | `MyTeam-AzureTestApi-$(Release.EnvironmentName)-AppInsights` | The name of the AppInsights Resource. It's recommended to stick to alphanumeric & hyphens for this. |
+| AppInsightsResourceGroupName | -[x] | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group the AppInsights resource will be created in |
+| AppInsightsLocation | -[x] | `West Europe`/`westeurope` | Defines the Azure Location for the App Insights resource to reside in (you can use `az account list-locations -o table` to get a list of locations you can use) |
+| LogAnalyticsWorkspaceResourceId | -[ ] | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace that Application Insights can be linked to. |
 
 # Code
+
 [Click here to download this script](../../../../src/AppInsights/Create-AppInsights-Resource.ps1)
 
 # Links

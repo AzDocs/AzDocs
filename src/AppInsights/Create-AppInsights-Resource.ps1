@@ -3,7 +3,8 @@ param (
     [Parameter(Mandatory)][string] $AppInsightsName,
     [Parameter(Mandatory)][string] $AppInsightsResourceGroupName,
     [Alias("Location")]
-    [Parameter(Mandatory)][string] $AppInsightsLocation
+    [Parameter(Mandatory)][string] $AppInsightsLocation, 
+    [Parameter()][string] $LogAnalyticsWorkspaceResourceId
 )
 
 #region ===BEGIN IMPORTS===
@@ -15,7 +16,13 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 #az monitor app-insights is in preview. Need to add extension
 Invoke-Executable az extension add --name application-insights
 
-Invoke-Executable az monitor app-insights component create --app $AppInsightsName --resource-group $AppInsightsResourceGroupName --location $AppInsightsLocation
+$optionalParameters = @()
+if ($LogAnalyticsWorkspaceResourceId)
+{
+    $optionalParameters += '--workspace', "$LogAnalyticsWorkspaceResourceId"
+}
+
+Invoke-Executable az monitor app-insights component create --app $AppInsightsName --resource-group $AppInsightsResourceGroupName --location $AppInsightsLocation @optionalParameters
 
 $instrumentationKey = (Invoke-Executable az resource show --resource-group $AppInsightsResourceGroupName --name $AppInsightsName --resource-type "Microsoft.Insights/components" | ConvertFrom-Json).properties.InstrumentationKey
 
