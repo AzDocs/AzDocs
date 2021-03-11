@@ -605,7 +605,7 @@ function New-RewriteRuleAndCondition
         [Parameter(Mandatory)][String] $RewriteRuleSetName,
         [Parameter(Mandatory)][String] $RewriteRuleName,
         [Parameter(Mandatory)][String] $HeaderName,
-        [Parameter(Mandatory)][String] $HeaderValue,
+        [Parameter(Mandatory)][AllowEmptyString()][String] $HeaderValue,
         [Parameter(Mandatory)][String] $ConditionVariable,
         [Parameter(Mandatory)][String] $ConditionPattern,
         [Parameter(Mandatory)][Boolean] $ConditionNegate

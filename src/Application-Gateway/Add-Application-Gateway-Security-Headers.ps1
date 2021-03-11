@@ -9,8 +9,8 @@ param (
     $ApplicationGatewayName,
 
     [Parameter(Mandatory)]
-    [string]
-    $ApplicationGatewayRequestRoutingRuleName,
+    [string] 
+    $IngressDomainName,
 
     [Parameter()]
     [string]
@@ -24,8 +24,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
    
-
-$applicationGatewayRewriteRuleSetName = $ApplicationGatewayRequestRoutingRuleName.Substring(0, $ApplicationGatewayRequestRoutingRuleName.Length - 'rule'.Length ) + '-rewriteset'
+$dashedDomainName = Get-DashedDomainname -DomainName $IngressDomainName
+$applicationGatewayRequestRoutingRuleName = "$dashedDomainName-httpsrule"
+$applicationGatewayRewriteRuleSetName = $applicationGatewayRequestRoutingRuleName.Substring(0, $applicationGatewayRequestRoutingRuleName.Length - 'rule'.Length ) + '-rewriteset'
 
 $rewriteHeaders = @"
 Name;                                               Header;                             Value
@@ -77,6 +78,6 @@ $rewriteRemoveHeaders | ForEach-Object {
     New-RewriteRuleAndCondition @params
 }
 
-New-RewriteRuleSetAssignment -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -RewriteRuleSetName $applicationGatewayRewriteRuleSetName -ApplicationGatewayRequestRoutingRuleName $ApplicationGatewayRequestRoutingRuleName
+New-RewriteRuleSetAssignment -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -RewriteRuleSetName $applicationGatewayRewriteRuleSetName -applicationGatewayRequestRoutingRuleName $applicationGatewayRequestRoutingRuleName
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
