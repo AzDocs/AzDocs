@@ -9,7 +9,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 |--|--|--|--|
 | ApplicationGatewayResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The name of the Resource Group for the shared resources for the Application Gateway. |
 | ApplicationGatewayName | <input type="checkbox" checked> | `customer-appgw-$(Release.EnvironmentName)` | The name of the Application Gateway |
-| ApplicationGatewayRequestRoutingRuleName | <input type="checkbox" checked> | `website-example-com-httpsrule` | Name of the routing rule, on which the default security headers should be appended. |
+| IngressDomainName| <input type="checkbox" checked> | `website-example.com` | Name of the domain to adjust the security headers. |
 | ContentSecurityPolicyValue | <input type="checkbox"> | `default-src 'self'` | Define the value of the  Content Security Policy to use in case there is no one defined in the return headers.
 
 # Code
