@@ -17,12 +17,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerRegistryPrivateEndpointVnetResourceGroupName --name $ContainerRegistryPrivateEndpointVnetName | ConvertFrom-Json).id
 $containerRegistryPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerRegistryPrivateEndpointVnetResourceGroupName --name $ContainerRegistryPrivateEndpointSubnetName --vnet-name $ContainerRegistryPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -46,4 +44,4 @@ Invoke-Executable az acr network-rule add --resource-group $ContainerRegistryRes
 # Make sure the default action is "deny" which causes public traffic to be dropped (like is defined in the KSP)
 Invoke-Executable az acr update --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --default-action Deny
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

@@ -9,11 +9,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $fullAppServiceName = $AppServiceName
 $additionalParameters = @()
@@ -37,4 +36,4 @@ else {
 # Set WEBSITE_VNET_ROUTE_ALL=1 for vnet integration
 Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters --settings "WEBSITE_VNET_ROUTE_ALL=1"
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

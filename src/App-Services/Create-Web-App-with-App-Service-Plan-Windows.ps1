@@ -1,4 +1,4 @@
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'default')]
 param (
     [Alias("VnetResourceGroupName")]
     [Parameter(Mandatory)][string] $AppServicePrivateEndpointVnetResourceGroupName,
@@ -19,59 +19,24 @@ param (
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
     [Parameter()][string] $AppServiceRunTime,
-    [Parameter()][string] $AppServiceSlotName = 'staging'
+    [Parameter()][string] $AppServicePlanNumberOfWorkerInstances = 3,
+    [Parameter()][string] $AppServiceNumberOfInstances = 2,
+    
+    [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
+    [Parameter(ParameterSetName = 'DeploymentSlot')][string] $AppServiceDeploymentSlotName = 'staging',
+    [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForAppServiceDeploymentSlot = $true
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$vnetId = (Invoke-Executable az network vnet show --resource-group $AppServicePrivateEndpointVnetResourceGroupName --name $AppServicePrivateEndpointVnetName | ConvertFrom-Json).id
-$applicationPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $AppServicePrivateEndpointVnetResourceGroupName --name $AppServicePrivateEndpointSubnetName --vnet-name $AppServicePrivateEndpointVnetName | ConvertFrom-Json).id
-$appServicePrivateEndpointName = "$($AppServiceName)-pvtapp"
+# Create AppServicePlan
+& "$PSScriptRoot\Create-App-Service-Plan-Windows.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -AppServicePlanNumberOfWorkerInstances $AppServicePlanNumberOfWorkerInstances -ResourceTags ${ResourceTags}
 
-# Create AppService Plan
-$appServicePlanId = (Invoke-Executable az appservice plan create --resource-group $AppServicePlanResourceGroupName  --name $AppServicePlanName --sku $AppServicePlanSkuName --tags ${ResourceTags} | ConvertFrom-Json).id
-
-$optionalParameters = @{}
-if ($AppServiceRunTime) {
-    $optionalParameters.Add('--runtime', $AppServiceRunTime);
-}
 # Create AppService
-Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters
+& "$PSScriptRoot\Create-Web-App-Windows.ps1" @PSBoundParameters
 
-# Fetch the ID from the AppService
-$webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
-
-# Disable HTTPS
-Invoke-Executable az webapp update --ids $webAppId --https-only true
-
-# Disable FTPS
-Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled
-
-# Set logging to FileSystem
-Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
-
-# Create diagnostics settings
-Invoke-Executable az monitor diagnostic-settings create --resource $webAppId --name $AppServiceDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
-
-# Create & Assign WebApp identity to AppService
-Invoke-Executable az webapp identity assign --ids $webAppId
-
-
-if ($AppServiceSlotName) {
-
-    Invoke-Executable az webapp deployment slot create --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceSlotName @optionalParameters
-    Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled --slot $AppServiceSlotName
-    Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceSlotName
-    Invoke-Executable az webapp identity assign --ids $webAppId --slot $AppServiceSlotName
-}
-
-# Add private endpoint & Setup Private DNS
-Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $applicationPrivateEndpointSubnetId -PrivateEndpointName $appServicePrivateEndpointName -PrivateEndpointResourceGroupName $AppServiceResourceGroupName -TargetResourceId $webAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $AppServicePrivateDnsZoneName -PrivateDnsLinkName "$($AppServicePrivateEndpointVnetName)-appservice"
-
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

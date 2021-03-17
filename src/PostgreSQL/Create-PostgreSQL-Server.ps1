@@ -28,12 +28,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $vnetId = (Invoke-Executable az network vnet show --resource-group $PostgreSqlServerPrivateEndpointVnetResourceGroupName --name $PostgreSqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
 $sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $PostgreSqlServerPrivateEndpointVnetResourceGroupName --name $PostgreSqlServerPrivateEndpointSubnetName --vnet-name $PostgreSqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -58,4 +56,4 @@ Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sql
 # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
 Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

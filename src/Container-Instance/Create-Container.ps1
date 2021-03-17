@@ -33,11 +33,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerVnetName | ConvertFrom-Json).id
 $containerSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerSubnetName --vnet-name $ContainerVnetName | ConvertFrom-Json).id
@@ -70,7 +69,7 @@ if ($ContainerEnvironmentVariables) {
 }
 
 if ($StorageAccountFileShareName -and $FileShareStorageAccountName -and $FileShareStorageAccountResourceGroupName -and $StorageAccountFileShareMountPath) {
-    $storageKey = Invoke-Executable az storage account keys list --resource-group $FileShareStorageAccountResourceGroupName --name $FileShareStorageAccountName --query=[0].value --output tsv
+    $storageKey = Invoke-Executable az storage account keys list --resource-group $FileShareStorageAccountResourceGroupName --account-name $FileShareStorageAccountName --query=[0].value --output tsv
     $scriptArguments += "--azure-file-volume-share-name", "$StorageAccountFileShareName", "--azure-file-volume-account-name", "$FileShareStorageAccountName", "--azure-file-volume-account-key", "$storageKey", "--azure-file-volume-mount-path", "$StorageAccountFileShareMountPath"
 }
 
@@ -83,4 +82,4 @@ Write-Host "Script Arguments: $scriptArguments"
 
 Invoke-Executable az container create @scriptArguments
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

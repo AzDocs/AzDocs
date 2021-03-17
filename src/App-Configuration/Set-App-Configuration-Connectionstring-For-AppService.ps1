@@ -9,11 +9,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 if($ReadOnlyConnectionString)
 {
@@ -36,4 +35,4 @@ if ($AppServiceSlotName) {
 
 Invoke-Executable az webapp config connection-string set --resource-group $AppServiceResourceGroupName --name $AppServiceName --connection-string-type Custom --settings AppConfiguration=$connectionString @additionalParameters
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

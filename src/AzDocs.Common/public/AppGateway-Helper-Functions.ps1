@@ -1,10 +1,3 @@
-#region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\Common-Helper-Functions.ps1"
-#endregion ===END IMPORTS===
-
-
 #region Helper functions
 
 <#
@@ -24,14 +17,14 @@ function Get-ApplicationGatewayFrontendIpName
         [Parameter(Mandatory)][string] $InterfaceType
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $appgateway_frontendips = Invoke-Executable az network application-gateway frontend-ip list --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json
     $ip = $appgateway_frontendips | Where-Object { ![string]::IsNullOrWhiteSpace($_."$($InterfaceType)IpAddress") }
 
     Write-Output $ip.name
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 <#
@@ -47,12 +40,12 @@ function ConvertTo-Certificate
         [Parameter(Mandatory)][byte[]] $CertificateBytes
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $p7b = [System.Security.Cryptography.Pkcs.SignedCms]::new()
     $p7b.Decode($CertificateBytes)
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 
     return $p7b.Certificates[0]
 }
@@ -70,7 +63,7 @@ function Get-CertificateFromApplicationGateway
     [Parameter(Mandatory)][string] $DomainName
 )
 {
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $certlist = Invoke-Executable az network application-gateway ssl-cert list --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName | ConvertFrom-Json
     foreach ($cert in $certlist)
@@ -98,14 +91,14 @@ function Get-CertificateFromApplicationGateway
         $regexcn = '^' + $cn.Replace('.', '\.').Replace('*', '[A-Za-z0-9\-]+') + '$'
         if ($DomainName -match $regexcn)
         {
-            Write-Footer
+            Write-Footer -ScopedPSCmdlet $PSCmdlet
             return $cert.id
         }
     }
 
     Write-Host "Geen certificaat gevonden die aan de eisen voldoet."
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 <#
@@ -120,11 +113,11 @@ function New-ApplicationGatewayPort (
     [Parameter(Mandatory)][string] $PortNumber
 )
 {
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     Write-Output Invoke-Executable az network application-gateway frontend-port create --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "port_$PortNumber" --port $PortNumber | ConvertFrom-Json
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 <#
@@ -138,7 +131,7 @@ function Get-ApplicationGatewayPortName (
     [Parameter(Mandatory)][string] $ApplicationGatewayName,
     [Parameter(Mandatory)][int] $PortNumber )
 {
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $ports = Invoke-Executable az network application-gateway frontend-port list --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json
     $port = $ports | Where-Object { $_.port -eq $PortNumber }
@@ -152,7 +145,7 @@ function Get-ApplicationGatewayPortName (
 
     if ($port)
     {
-        Write-Footer
+        Write-Footer -ScopedPSCmdlet $PSCmdlet
         return $port.name
     }
     else
@@ -160,7 +153,7 @@ function Get-ApplicationGatewayPortName (
         throw "Port could not be found"
     }
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 <#
@@ -174,14 +167,14 @@ function Get-CertificateFromKeyvault (
     [Parameter(Mandatory)][string] $DomainName,
     [Parameter(Mandatory)][string] $ExpectedCertificateThumbprint )
 {
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     if ($ExpectedCertificateThumbprint)
     {
         $certificates = Invoke-Executable az keyvault certificate list --vault-name $KeyvaultName --query="[?x509ThumbprintHex=='$ExpectedCertificateThumbprint']" | ConvertFrom-Json
         if ($certificates -and $certificates.Length -eq 1)
         {
-            Write-Footer
+            Write-Footer -ScopedPSCmdlet $PSCmdlet
             return $certificates[0]
         }
         elseif ($certificates -and $certificates.Length -gt 1)
@@ -194,7 +187,7 @@ function Get-CertificateFromKeyvault (
 
     if (!$certlist)
     {
-        Write-Footer
+        Write-Footer -ScopedPSCmdlet $PSCmdlet
         return $null
     }
 
@@ -206,12 +199,12 @@ function Get-CertificateFromKeyvault (
         $regexcn = '^' + $cn.replace('.', '\.').Replace('*', '[A-Za-z0-9\-]+') + '$'
         if ($DomainName -match $regexcn)
         {
-            Write-Footer
+            Write-Footer -ScopedPSCmdlet $PSCmdlet
             return $cert
         }
     }
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
     return $null
 }
 
@@ -220,12 +213,12 @@ function Grant-MePermissionsOnKeyvault (
     [Parameter(Mandatory)][string] $KeyvaultResourceGroupName,
     [Parameter(Mandatory)][string] $KeyvaultName )
 {
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $identityId = (Invoke-Executable az account show | ConvertFrom-Json).user.name
     Invoke-Executable az keyvault set-policy --name $KeyvaultName --certificate-permissions get list create update import purge --key-permissions get list create update import purge --secret-permissions get list set purge --storage-permissions get list update set purge --spn $identityId --resource-group $KeyvaultResourceGroupName | Out-Null
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 # Adds a certificate to Keyvault
@@ -236,11 +229,11 @@ function Add-CertificateToKeyvault (
     [Parameter(Mandatory)][string] $CertificatePassword,
     [Parameter(Mandatory)][string] $CommonName )
 {
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     Invoke-Executable az keyvault certificate import --vault-name $KeyvaultName --name $CertificateName --file $CertificatePath --password $CertificatePassword --tags CommonName=$CommonName
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 # Adds a certificate from Keyvault to the AppGateway
@@ -254,14 +247,14 @@ function Add-KeyvaultCertificateToApplicationGateway
         [Parameter(Mandatory)][string] $KeyvaultCertificateName
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     # Get the keyvault-secret-id of the certificate in the Keyvault
     $keyvaultSecretId = Invoke-Executable az keyvault secret show --name $KeyvaultCertificateName --vault-name $KeyvaultName --query=id
     # Upload an SSL certificate using key-vault-secret-id of a KeyVault Secret
     Invoke-Executable az network application-gateway ssl-cert create --gateway-name $ApplicationGatewayName --name $KeyvaultCertificateName --key-vault-secret-id $keyvaultSecretId --resource-group $ApplicationGatewayResourceGroupName
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 
@@ -274,11 +267,12 @@ function Get-CommonnameFromCertificate
         [Parameter(Mandatory)][string] $CertificatePassword
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $certificate = Get-Certificate -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword
 
-    if(!$certificate.Subject){
+    if (!$certificate.Subject)
+    {
         throw 'Could not find a subject for this certificate'
     }
 
@@ -290,7 +284,7 @@ function Get-CommonnameFromCertificate
 
     write-output $cn
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 function Get-Certificate
@@ -301,15 +295,16 @@ function Get-Certificate
         [Parameter(Mandatory)][string] $CertificatePassword
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     [System.Security.Cryptography.X509Certificates.X509Certificate2]$certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($CertificatePath, $CertificatePassword);
-    if (!$certificate) {
+    if (!$certificate)
+    {
         throw "Could not fetch the certificate $CertificatePath"
     }
     Write-Output $certificate
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 function Test-ShouldReplaceCertificate(
@@ -318,7 +313,7 @@ function Test-ShouldReplaceCertificate(
     [Parameter()][PSObject] $KeyvaultCertificate
 )
 {
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     if (!$KeyvaultCertificate)
     {
@@ -331,7 +326,7 @@ function Test-ShouldReplaceCertificate(
         $sourceCertificate = Get-Certificate -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword
         $shouldReplaceCertificate = $sourceCertificate.Thumbprint -ne $KeyvaultCertificate.x509ThumbprintHex -and $sourceCertificate.NotAfter -gt $KeyvaultCertificate.attributes.expires -and (Get-Date) -gt $sourceCertificate.notBefore
         Write-Output $shouldReplaceCertificate
-        Write-Footer
+        Write-Footer -ScopedPSCmdlet $PSCmdlet
     }
     #TODO wat moet die returnen als het bovenstaande niet waar is?
 }
@@ -347,7 +342,7 @@ function Test-ApplicationGatewayBackendIsHealthy
         [Parameter(Mandatory)][string] $BackendDomainName
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     # Fetch Backends from Azure
     $backends = (Invoke-Executable az network application-gateway show-backend-health --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --query backendAddressPools[].backendHttpSettingsCollection[].servers[] | ConvertFrom-Json)
@@ -358,7 +353,7 @@ function Test-ApplicationGatewayBackendIsHealthy
     # Check if the backend is present
     if (!$backend)
     {
-        Write-Footer
+        Write-Footer -ScopedPSCmdlet $PSCmdlet
         # Backend is not present
         throw "Could not find specified backend"
     }
@@ -367,7 +362,7 @@ function Test-ApplicationGatewayBackendIsHealthy
     $backendHealthy = $backend.health -eq "Healthy"
     Write-Output $backendHealthy
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 # Fetches the User Identity which is used by the AppGateway
@@ -380,12 +375,12 @@ function Get-UserIdentityForGateway
         [Parameter(Mandatory)][string] $ApplicationGatewayName
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $userIdentity = (Invoke-Executable az identity show --name "useridentity-$ApplicationGatewayName" --resource-group $ApplicationGatewayResourceGroupName -AllowToFail)
     Write-Output $userIdentity
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 # Make sure our AppGateway User Identity is assigned to keyvault (the process will break if this isn't the case)
@@ -398,7 +393,7 @@ function Grant-ApplicationGatewayPermissionsToKeyvault
         [Parameter(Mandatory)][string] $KeyvaultName
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $userIdentity = Invoke-Executable az network application-gateway identity show --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName -AllowToFail | ConvertFrom-Json
     $principalId = $userIdentity.userAssignedIdentities.psobject.Properties.value.principalId
@@ -422,11 +417,248 @@ function Grant-ApplicationGatewayPermissionsToKeyvault
     Write-Host "UserIdentity Principal ID: $principalId"
     Invoke-Executable az keyvault set-policy --name $KeyvaultName --object-id $principalId --certificate-permissions backup create delete deleteissuers get getissuers import list listissuers managecontacts manageissuers purge recover restore setissuers update --key-permissions backup create decrypt delete encrypt get import list purge recover restore sign unwrapKey update verify wrapKey --secret-permissions backup delete get list purge recover restore set --storage-permissions backup delete deletesas get getsas list listsas purge recover regeneratekey restore set setsas update | Out-Null
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 #endregion
 
+#region Rewrite rule functions
+
+<#
+.SYNOPSIS
+Get rewrite rule set
+.DESCRIPTION
+Get rewrite rule set
+#>
+function Get-RewriteRuleSet
+{
+    [OutputType([PsCustomObject])]
+    param (
+        [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayName,
+        [Parameter(Mandatory)][string] $RewriteRuleSetName
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $existingRewriteRulesets = Invoke-Executable az network application-gateway rewrite-rule set list --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName | ConvertFrom-Json 
+    $rewriteRuleSet = $existingRewriteRulesets | Where-Object Name -eq $RewriteRuleSetName
+
+    Write-Output $rewriteRuleSet
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+<#
+.SYNOPSIS
+Create a new rewrite rule set
+.DESCRIPTION
+Create a new rewrite rule set
+#>
+function New-RewriteRuleSet
+{
+    param (
+        [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayName,
+        [Parameter(Mandatory)][string] $RewriteRuleSetName
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+    
+    if (!(Get-RewriteRuleSet -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -RewriteRuleSetName $RewriteRuleSetName))
+    {
+        Write-Host "Rewrite set does not exist yet, creating: '$RewriteRuleSetName' in gateway '$ApplicationGatewayName'"
+        Invoke-Executable az network application-gateway rewrite-rule set create --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name $RewriteRuleSetName
+    }
+    else
+    {
+        Write-Host "Rewrite rule set exists : $RewriteRuleSetName"
+    }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+<#
+.SYNOPSIS
+Assign a rewrite rule set to a request routing rule
+.DESCRIPTION
+Assign a rewrite rule set to a request routing rule
+#>
+function New-RewriteRuleSetAssignment
+{
+    param (
+        [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayName,
+        [Parameter(Mandatory)][string] $RewriteRuleSetName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayRequestRoutingRuleName
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $rewriteRuleSet = Get-RewriteRuleSet -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -RewriteRuleSetName $RewriteRuleSetName
+    if (!$rewriteRuleSet)
+    {
+        Write-Host 'Rewrite rule set has not been found and cannot be assigned.'
+    }
+    else
+    {
+        # check if rewrite rule set has already been attached
+        $rewriteSetId = (Invoke-Executable az network application-gateway rule show --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --name $ApplicationGatewayRequestRoutingRuleName | ConvertFrom-Json).rewriteRuleSet.id
+        if ($rewriteSetId -eq $rewriteRuleSet.id)
+        {
+            Write-Host "The rewrite rule has already been assigned. Continueing"
+        }
+        else
+        {
+            Write-Host 'Assigning rewrite-rule set'
+            Invoke-Executable az network application-gateway rule update --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name $ApplicationGatewayRequestRoutingRuleName --rewrite-rule-set $RewriteRuleSetName
+        }
+    }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+<#
+.SYNOPSIS
+Validate if there were any changes to a rewrite rule and its condition
+.DESCRIPTION
+Validate if there were any changes to a rewrite rule and its condition
+#>
+function Confirm-RewriteRule
+{
+    [OutputType([boolean])]
+    param (
+        [Parameter(Mandatory)][PSCustomObject] $currentRule, 
+        [Parameter(Mandatory)][PSCustomObject] $newRule
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    if ($null -eq $currentRule.HeaderName -or $null -eq $currentRule.HeaderValue -or $null -eq $currentRule.ConditionVariable -or $null -eq $currentRule.ConditionPattern -or $null -eq $currentRule.ConditionNegate) {
+        if ($null -eq $newRule.HeaderName -or $null -eq $newRule.HeaderValue -or $null -eq $newRule.ConditionVariable -or $null -eq $newRule.ConditionPattern -or $null -eq $newRule.ConditionNegate) {
+            throw 'Missing one of the propertynames to check on: HeaderName, HeaderValue, ConditionVariable, ConditionPattern and ConditionNegate'
+        }
+    }
+
+    if ($currentRule.HeaderName -ne $newRule.HeaderName -or $currentRule.HeaderValue -ne $newRule.HeaderValue -or $currentRule.ConditionVariable -ne $newRule.ConditionVariable -or $currentRule.ConditionPattern -ne $newRule.ConditionPattern -or $currentRule.ConditionNegate -ne $newRule.ConditionNegate) {
+        Write-Host "Values have changed for the rule. Updating."
+        Write-Output $true
+    }
+    else {
+        Write-Host "No values have changed for the rule. Continueing."
+        Write-Output $false
+    }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+<#
+.SYNOPSIS
+Remove rewrite rule from rewrite rule set
+.DESCRIPTION
+Remove rewrite rule from rewrite rule set
+#>
+function Remove-RewriteRule
+{
+    param (
+        [Parameter(Mandatory)][String] $ApplicationGatewayName,
+        [Parameter(Mandatory)][String] $ApplicationGatewayResourceGroupName, 
+        [Parameter(Mandatory)][String] $RewriteRuleSetName,
+        [Parameter(Mandatory)][String] $RewriteRuleName
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $rewriteRuleSet = Get-RewriteRuleSet -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -RewriteRuleSetName $RewriteRuleSetName
+    # check if rewrite rule set exists
+    if (!$rewriteRuleSet)
+    {
+        throw 'Rewrite rule set does not exist.'
+    }
+
+    # check if rewrite rule exists
+    $rewriteRule = $rewriteRuleSet.rewriteRules | Where-Object Name -eq $RewriteRuleName
+    if (!$rewriteRule)
+    {
+        Write-Host "Rewrite rule $RewriteRuleName does not exist or has already been removed. Continueing."
+    }
+    else
+    {
+        Write-Host "Removing rewrite rule from set with name $RewriteRuleName"
+        Invoke-Executable az network application-gateway rewrite-rule delete --gateway-name $ApplicationGatewayName --name $RewriteRuleName --resource-group $ApplicationGatewayResourceGroupName --rule-set-name $RewriteRuleSetName
+    }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+<#
+.SYNOPSIS
+Creates and adds a new rewrite rule including condition
+.DESCRIPTION
+Creates and adds a new rewrite rule including condition
+#>
+function New-RewriteRuleAndCondition
+{
+    param (
+        [Parameter(Mandatory)][String] $ApplicationGatewayName,
+        [Parameter(Mandatory)][String] $ApplicationGatewayResourceGroupName, 
+        [Parameter(Mandatory)][String] $RewriteRuleSetName,
+        [Parameter(Mandatory)][String] $RewriteRuleName,
+        [Parameter(Mandatory)][String] $HeaderName,
+        [Parameter(Mandatory)][AllowEmptyString()][String] $HeaderValue,
+        [Parameter(Mandatory)][String] $ConditionVariable,
+        [Parameter(Mandatory)][String] $ConditionPattern,
+        [Parameter(Mandatory)][Boolean] $ConditionNegate
+    )
+    
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $rewriteRuleSet = Get-RewriteRuleSet -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -RewriteRuleSetName $RewriteRuleSetName
+    # Check if rewrite rule set exists
+    if (!$rewriteRuleSet)
+    {
+        throw 'Rewrite rule set does not exist.'
+    }
+
+    $rewriteRule = $rewriteRuleSet.rewriteRules | Where-Object Name -eq $RewriteRuleName
+    if (!$rewriteRule)
+    {
+        $needToRewrite = $true;
+    }
+    else
+    {
+        Write-Host "Verifying rule: '$($rewriteRule.Name)'"
+        
+        $currentRule = [PSCustomObject]@{
+            HeaderName        = $rewriteRule.actionSet.responseHeaderConfigurations.headerName
+            HeaderValue       = $rewriteRule.actionSet.responseHeaderConfigurations.headerValue
+            ConditionVariable = $rewriteRule.conditions.variable
+            ConditionPattern  = $rewriteRule.conditions.pattern
+            ConditionNegate   = $rewriteRule.conditions.negate
+        }
+        $newRule = [PsCustomObject]@{
+            HeaderName        = $HeaderName
+            HeaderValue       = $HeaderValue
+            ConditionVariable = $ConditionVariable
+            ConditionPattern  = $ConditionPattern 
+            ConditionNegate   = $ConditionNegate
+        }
+
+        # Validate if anything changed in the rewrite rule
+        $needToRewrite = Confirm-RewriteRule -currentRule $currentRule -newRule $newRule 
+    }
+
+    # Create new rewrite rules + conditions
+    if ($needToRewrite)
+    {
+        Invoke-Executable az network application-gateway rewrite-rule create --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --rule-set-name  $RewriteRuleSetName --name $RewriteRuleName --response-headers "$($HeaderName)=$($HeaderValue)"
+        Invoke-Executable az network application-gateway rewrite-rule condition create --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --rule-set-name  $RewriteRuleSetName --rule-name $RewriteRuleName --variable "$($ConditionVariable)" --negate $ConditionNegate --pattern `"$ConditionPattern`"
+    }
+    
+    Write-Footer -ScopedPSCmdlet $PSCmdlett
+}
+
+#endregion
 
 #region Main function
 function New-ApplicationGatewayEntrypoint
@@ -456,7 +688,7 @@ function New-ApplicationGatewayEntrypoint
         [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType
     )
 
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     # Fetch the commonname for the given certificate
     Write-Host "Fetching commonname"
@@ -613,11 +845,12 @@ function New-ApplicationGatewayEntrypoint
     }
     else
     {
-        Write-Footer
+        Write-Footer -ScopedPSCmdlet $PSCmdlet
         throw "$BackendDomainName offline!"
     }
     # ======= End Check if our backend is healthy =======
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 #endregion Main function
+

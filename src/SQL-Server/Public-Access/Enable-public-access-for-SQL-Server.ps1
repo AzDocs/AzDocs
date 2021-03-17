@@ -5,11 +5,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Write-Host "Checking if public access is enabled"
 if((Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).publicNetworkAccess -eq "Disabled")
@@ -19,4 +18,4 @@ if((Invoke-Executable az sql server show --name $SqlServerName --resource-group 
      Invoke-Executable az sql server update --name $SqlServerName --resource-group $SqlServerResourceGroupName --set publicNetworkAccess="Enabled"
 }
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

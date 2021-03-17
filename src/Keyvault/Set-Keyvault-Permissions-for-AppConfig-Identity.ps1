@@ -10,12 +10,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\Get-ManagedIdentity.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $identityId = Get-ManagedIdentity -AppConfig -ResourceName $AppConfigName -ResourceGroupName $AppConfigResourceGroupName
 
@@ -26,4 +24,4 @@ $kvstp = $KeyvaultStoragePermissions -split ' '
 
 Invoke-Executable az keyvault set-policy --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --object-id $identityId --name $KeyvaultName
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

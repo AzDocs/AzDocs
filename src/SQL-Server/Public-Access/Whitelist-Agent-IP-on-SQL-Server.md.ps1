@@ -5,11 +5,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $response  = Invoke-WebRequest 'https://ipinfo.io/ip'
 $ip = $response.Content.Trim()
@@ -19,4 +18,4 @@ Write-Output $sqlServerLowerCase
 
 Invoke-Executable az sql server firewall-rule create --resource-group $SqlServerResourceGroupName --server $sqlServerLowerCase --name 'TMPAGENT' --start-ip-address $ip --end-ip-address $ip
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

@@ -10,7 +10,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AppServiceResourceGroupName | `MyTeam-SomeApi-$(Release.EnvironmentName)` | The resourcegroup where the AppService resides in. |
 | AppServiceName | `App-Service-name` | Name of the app service to set the whitelist on. | 
 | AccessRestrictionRuleName | `Hosted Agent` | Name of the Rule to remove from the whitelist/blacklist  |
-
+| AppServiceDeploymentSlotName | `staging` |  Name of the deployment slot to add ip whitelisting to. This is an optional field. |
 
 # Code
 [Click here to download this script](../../../../src/App-Services/Remove-Ip-Whitelist-For-App_service.ps1)

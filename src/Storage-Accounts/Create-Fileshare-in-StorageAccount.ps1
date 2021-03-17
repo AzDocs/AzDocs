@@ -17,12 +17,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 if($FileshareStorageAccountIsInVnet)
 {
@@ -37,4 +35,4 @@ if($FileshareStorageAccountIsInVnet)
 
 Invoke-Executable az storage share-rm create --storage-account $FileshareStorageAccountName --name $FileshareName
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

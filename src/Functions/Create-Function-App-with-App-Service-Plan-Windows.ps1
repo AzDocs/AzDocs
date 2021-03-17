@@ -1,4 +1,4 @@
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'default')]
 param (
     [Alias("VnetResourceGroupName")]
     [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetResourceGroupName,
@@ -20,54 +20,24 @@ param (
     [Alias("AlwaysOn")]
     [Parameter(Mandatory)][string] $FunctionAppAlwaysOn,
     [Parameter(Mandatory)][string] $FUNCTIONS_EXTENSION_VERSION,
-    [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT
+    [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT,
+    [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
+    [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging", 
+    [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true,
+    [Parameter()][string] $AppServicePlanNumberOfWorkerInstances = 3,
+    [Parameter()][string] $FunctionAppNumberOfInstances = 2
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$vnetId = (Invoke-Executable az network vnet show --resource-group $FunctionAppPrivateEndpointVnetResourceGroupName --name $FunctionAppPrivateEndpointVnetName | ConvertFrom-Json).id
-$functionAppPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $FunctionAppPrivateEndpointVnetResourceGroupName --name $FunctionAppPrivateEndpointSubnetName --vnet-name $FunctionAppPrivateEndpointVnetName | ConvertFrom-Json).id
-$functionAppPrivateEndpointName = "$($FunctionAppName)-pvtfunc"
+# Create App Service Plan
+& "$PSScriptRoot\..\App-Services\Create-App-Service-Plan-Windows.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -AppServicePlanNumberOfWorkerInstances $AppServicePlanNumberOfWorkerInstances -ResourceTags ${ResourceTags}
 
-# Create AppService Plan
-$appServicePlanId = (Invoke-Executable az appservice plan create --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName --sku $AppServicePlanSkuName --tags ${ResourceTags} | ConvertFrom-Json).id
+# Create Function App
+& "$PSScriptRoot\Create-Function-App-Windows.ps1" @PSBoundParameters
 
-# Fetch the ID from the FunctionApp
-$functionAppId = (Invoke-Executable -AllowToFail az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
-
-#TODO: az functionapp create is not idempotent, therefore the following fix. For more information, see https://github.com/Azure/azure-cli/issues/11863 
-if (!$functionAppId)
-{
-    # Create FunctionApp
-    Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlanId --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime dotnet --functions-version 3 --disable-app-insights --tags ${ResourceTags}
-    $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
-}
-
-# Disable HTTPS
-Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=true
-
-# Disable FTPS
-Invoke-Executable az functionapp config set --ids $functionAppId --ftps-state Disabled
-
-# Set Always On
-Invoke-Executable az functionapp config set --always-on $FunctionAppAlwaysOn --ids $functionAppId
-
-# Set some basic configs (including vnet route all)
-Invoke-Executable az functionapp config appsettings set --ids $functionAppId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
-
-#  Create diagnostics settings
-Invoke-Executable az monitor diagnostic-settings create --resource $functionAppId --name $FunctionAppDiagnosticsName --workspace $LogAnalyticsWorkspaceName --logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
-
-# Create & Assign WebApp identity to AppService
-Invoke-Executable az functionapp identity assign --ids $functionAppId
-
-# Add private endpoint & Setup Private DNS
-Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $functionAppPrivateEndpointSubnetId -PrivateEndpointName $functionAppPrivateEndpointName -PrivateEndpointResourceGroupName $FunctionAppResourceGroupName -TargetResourceId $functionAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $FunctionAppPrivateDnsZoneName -PrivateDnsLinkName "$($FunctionAppPrivateEndpointVnetName)-appservice"
-
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

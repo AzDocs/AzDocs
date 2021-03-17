@@ -22,12 +22,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\PrivateEndpoint-Helper-Functions.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $vnetId = (Invoke-Executable az network vnet show --resource-group $SqlServerPrivateEndpointVnetResourceGroupName --name $SqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
 $sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $SqlServerPrivateEndpointVnetResourceGroupName --name $SqlServerPrivateEndpointSubnetName --vnet-name $SqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -35,7 +33,7 @@ $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource
 $sqlServerPrivateEndpointName = "$($SqlServerName)-pvtsql"
 
 # Create SQL Server
-Invoke-Executable az sql server create --admin-password $SqlServerPassword --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName
+Invoke-Executable az sql server create --admin-password $SqlServerPassword --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName --enable-public-network false
 
 # Fetch the resource id for the just created SQL Server
 $sqlServerId = (Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).id
@@ -48,15 +46,14 @@ Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpoin
 
 #TODO: Issue created. You currently seem to have to enable public access before whitelisting subnets is allowed. Issue: https://github.com/Azure/azure-cli/issues/16771
 # Add a firewall rule on SQL Server to allow the AppService vnet
-#Invoke-Executable az sql server vnet-rule create --server $SqlServerName --name "$($ApplicationSubnetName)_allow" --resource-group $SqlServerResourceGroupName --subnet $applicationSubnetId
-
-Write-Host "Checking if public access is disabled"
-if((Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).publicNetworkAccess -eq "Enabled")
-{
-     # Update setting for Public Network Access
-     Write-Host "Public access is enabled. Disabling it now."
-     Invoke-Executable az sql server update --name $SqlServerName --resource-group $SqlServerResourceGroupName --set publicNetworkAccess="Disabled"
-}
+# Invoke-Executable az sql server vnet-rule create --server $SqlServerName --name "$($ApplicationSubnetName)_allow" --resource-group $SqlServerResourceGroupName --subnet $applicationSubnetId
+# Write-Host "Checking if public access is disabled"
+# if((Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).publicNetworkAccess -eq "Enabled")
+# {
+#      # Update setting for Public Network Access
+#      Write-Host "Public access is enabled. Disabling it now."
+#      Invoke-Executable az sql server update --name $SqlServerName --resource-group $SqlServerResourceGroupName --set publicNetworkAccess="Disabled"
+# }
 
 # Set auditing policy on SQL server
 Install-Module PowerShellGet -Force
@@ -66,4 +63,4 @@ $pscredential = New-Object -TypeName System.Management.Automation.PSCredential($
 Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $env:tenantId -Subscription $SqlServerSubscriptionId
 Set-AzSqlServerAudit -ResourceGroupName $SqlServerResourceGroupName -ServerName $SqlServerName -LogAnalyticsTargetState Enabled -WorkspaceResourceId $LogAnalyticsWorkspaceResourceId
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

@@ -8,13 +8,13 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
-Write-Header
+
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $keyVaultSecretId = (Invoke-Executable az keyvault secret list --vault-name $KeyVaultName --query "[?name=='$($KeyVaultSecretName)']" | ConvertFrom-Json).id
 
 Invoke-Executable az appconfig kv set-keyvault --name $AppConfigName --key $AppConfigKeyName --label $Label --secret-identifier $keyVaultSecretId --yes
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

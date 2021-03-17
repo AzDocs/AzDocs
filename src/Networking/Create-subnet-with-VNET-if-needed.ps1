@@ -10,11 +10,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 if(!$(Invoke-Executable -AllowToFail az network vnet show --resource-group $VnetResourceGroupName --name $VnetName))
 {
@@ -26,4 +25,4 @@ if(!$(Invoke-Executable -AllowToFail az network vnet subnet show --resource-grou
     Invoke-Executable az network vnet subnet create --resource-group $VnetResourceGroupName --vnet-name $VnetName --name $SubnetName --address-prefixes $Subnet
 }
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

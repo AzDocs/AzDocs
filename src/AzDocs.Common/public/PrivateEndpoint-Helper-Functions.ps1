@@ -1,10 +1,3 @@
-#region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Common-Helper-Functions.ps1"
-#endregion ===END IMPORTS===
-
-
 <#
 .SYNOPSIS
     Ensure the given servicename is set to the given subnet resource identifier
@@ -19,12 +12,7 @@ function Set-SubnetServiceEndpoint
         [Parameter(Mandatory)][string][ValidateSet("Microsoft.Storage", "Microsoft.Sql", "Microsoft.AzureActiveDirectory", "Microsoft.AzureCosmosDB", "Microsoft.Web", "Microsoft.KeyVault", "Microsoft.EventHub", "Microsoft.ServiceBus", "Microsoft.ContainerRegistry", "Microsoft.CognitiveServices")] $ServiceEndpointServiceIdentifier
     )
 
-    #region ===BEGIN IMPORTS===
-    . "$PSScriptRoot\Write-HeaderFooter.ps1"
-    . "$PSScriptRoot\Invoke-Executable.ps1"
-    #endregion ===END IMPORTS===
-
-    Write-Header
+    Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $subnetInformation = Invoke-Executable az network vnet subnet show --ids $SubnetResourceId | ConvertFrom-Json
     [string[]]$endpoints = $subnetInformation.ServiceEndpoints.service
@@ -45,7 +33,7 @@ function Set-SubnetServiceEndpoint
         Write-Host "$ServiceEndpointServiceIdentifier Service Endpoint is already defined. No action needed."
     }
 
-    Write-Footer
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 function Add-PrivateEndpoint

@@ -8,34 +8,20 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
-. "$PSScriptRoot\..\common\Invoke-Executable.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
-# get the application insights key
-$appInsightsSettings = Invoke-Executable az resource show --resource-group  $AppInsightsResourceGroupName --name $AppInsightsName --resource-type "Microsoft.Insights/components" | ConvertFrom-Json
-
-$connectionString = $appInsightsSettings.properties.ConnectionString
-$appInsightsKey = $appInsightsSettings.properties.InstrumentationKey
+# Set the AppInsights connection information on the AppService
+SetAppInsightsForAppService -AppInsightsName $AppInsightsName -AppInsightsResourceGroupName $AppInsightsResourceGroupName -AppServiceName $AppServiceName -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceSlotName $AppServiceSlotName
 
 $additionalParameters = @()
 if ($AppServiceSlotName) {
     $additionalParameters += '--slot' , $AppServiceSlotName
 }
 
-# set the key on the web app  (codeless application insights)
-Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$appInsightsKey"
-Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters --settings "APPLICATIONINSIGHTS_CONNECTION_STRING=$connectionString"
+# Enable Codeless AppInsights module with optional settings. Note: this might affect performance due to heavy monitoring
+Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters --settings "ApplicationInsightsAgent_EXTENSION_VERSION=~2" "InstrumentationEngine_EXTENSION_VERSION=~1" "XDT_MicrosoftApplicationInsights_BaseExtensions=~1" "XDT_MicrosoftApplicationInsights_Mode=recommended"
 
-# To turn on the Application Insights Agent extension (codeless application insights)
-Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters --settings "ApplicationInsightsAgent_EXTENSION_VERSION=~2"
-
-# "recommended", but if we wanted to explicitly configure
-Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters --settings "XDT_MicrosoftApplicationInsights_Mode=recommended"
-
-# turn on commands that your application runs to be visible in Application Insights
-Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters --settings "InstrumentationEngine_EXTENSION_VERSION=~1" "XDT_MicrosoftApplicationInsights_BaseExtensions=~1"
-
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet

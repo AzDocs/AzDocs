@@ -7,10 +7,10 @@ param (
 )
 
 #region ===BEGIN IMPORTS===
-. "$PSScriptRoot\..\common\Write-HeaderFooter.ps1"
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
-Write-Header
+Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $certificateEncryptedPassword = ConvertTo-SecureString -String "ThisReallyDoesntMatterButWeNeedIt123!" -AsPlainText -Force
 $cert = New-AzApplicationGatewaySslCertificate -Name $CertificateNameForFunctionApp -CertificateFile $CertificateFilePath -Password $certificateEncryptedPassword
@@ -34,4 +34,4 @@ if ($cert) {
     }
 }
 
-Write-Footer
+Write-Footer -ScopedPSCmdlet $PSCmdlet
