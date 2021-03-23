@@ -26,6 +26,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AppServiceName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the WebApp resource the AppInsights settings will be configured on. |
 | AppServiceResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group where the AppService resource resides. Typically this is the same ResourceGroup as the appInsightsResourceGroupName |
 | AppInsightsResourceGroupName | `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group where the AppInsights resource resides. Typically this is the same ResourceGroup as the appInsightsResourceGroupName |
+| ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving the app service |
 
 
 # Code

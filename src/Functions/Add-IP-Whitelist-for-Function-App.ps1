@@ -7,7 +7,8 @@ param (
     [Parameter(Mandatory, ParameterSetName = 'myIp')][switch] $WhiteListMyIp,
     [Parameter()][string] $FunctionAppDeploymentSlotName,
     [Parameter()][string] $AccessRestrictionAction = "Allow",
-    [Parameter()][string] $Priority = 10
+    [Parameter()][string] $Priority = 10,
+    [Parameter()][bool] $ApplyToAllSlots = $false
 )
 
 #region ===BEGIN IMPORTS===
@@ -16,17 +17,36 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
+if ($ApplyToAllSlots)
+{
+    $availableSlots = Invoke-Executable -AllowToFail az functionapp deployment slot list --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json
+}
+
 switch ($PSCmdlet.ParameterSetName)
 {
     'cidr'
     {
         Add-AccessRestriction -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $AccessRestrictionRuleName `
             -CIDRToWhiteList $CIDRToWhiteList -AccessRestrictionAction $AccessRestrictionAction -Priority $Priority -DeploymentSlotName $FunctionAppDeploymentSlotName
+
+        # Apply to all slots if desired
+        foreach($availableSlot in $availableSlots)
+        {
+            Add-AccessRestriction -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $AccessRestrictionRuleName `
+            -CIDRToWhiteList $CIDRToWhiteList -AccessRestrictionAction $AccessRestrictionAction -Priority $Priority -DeploymentSlotName $availableSlot.name
+        }
     }
     'myIp'
     {
         Add-AccessRestriction -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $AccessRestrictionRuleName `
             -DeploymentSlotName $FunctionAppDeploymentSlotName -AccessRestrictionAction $AccessRestrictionAction -Priority $Priority -WhiteListMyIp
+
+        # Apply to all slots if desired
+        foreach($availableSlot in $availableSlots)
+        {
+            Add-AccessRestriction -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $AccessRestrictionRuleName `
+            -DeploymentSlotName $availableSlot.name -AccessRestrictionAction $AccessRestrictionAction -Priority $Priority -WhiteListMyIp
+        }
     }
 }
 
