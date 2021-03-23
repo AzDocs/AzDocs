@@ -16,6 +16,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AppServiceSlotName | `staging` | OPTIONAL By default the production slot is used, use this variable to use a different slot. |
 | RoleToAssign | `Storage Blob Data Contributor` | This is the rolename to assign. Please refer to "Roles" under "Access control (IAM)" in your Storage Account for role names. |
 | StorageAccountName | `myteststgaccount$(Release.EnvironmentName)` | This is the storageaccount name to use. |
+| ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving the appservice |
 
 # Code
 

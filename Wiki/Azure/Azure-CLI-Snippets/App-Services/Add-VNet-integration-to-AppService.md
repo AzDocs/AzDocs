@@ -15,6 +15,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AppServiceVnetIntegrationVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET where the vnet integration should take place. |
 | AppServiceVnetIntegrationSubnetName | `app-subnet-4` | The name of the subnet to place the vnet-integration in. Note: Adding an appservice vnetintegration to a subnet will delegate that entire subnet to the appservice. This means that no other resources can be placed inside this vnet (even no other appserviceplans). This has to be an empty subnet. |
 | AppServiceSlotName | `staging` | OPTIONAL By default the production slot is used, use this variable to use a different slot. |
+| ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving this resource |
 
 # Code
 

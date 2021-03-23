@@ -11,6 +11,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | FunctionAppName | `Function-App-name` | Name of the function app to set the whitelist on. | 
 | AccessRestrictionRuleName | `Hosted Agent` | Name of the Rule to remove from the whitelist/blacklist  |
 | FunctionAppDeploymentSlotName | `staging` |  Name of the deployment slot to add ip whitelisting to. This is an optional field. |
+| ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving this resource |
 
 # Code
 [Click here to download this script](../../../../src/Functions/Remove-Ip-Whitelist-For-Function-App.ps1)
