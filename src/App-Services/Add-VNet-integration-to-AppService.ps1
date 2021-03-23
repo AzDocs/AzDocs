@@ -53,24 +53,19 @@ function Add-VnetIntegration
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
-Write-Footer -ScopedPSCmdlet $PSCmdlet
-
-# To slot or not, thats the question
-if($AppServiceSlotName)
-{
-    Add-VnetIntegration -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AppServiceVnetIntegrationVnetName $AppServiceVnetIntegrationVnetName -AppServiceVnetIntegrationSubnetName $AppServiceVnetIntegrationSubnetName -AppServiceSlotName $AppServiceSlotName
-}
-else
-{
-    Add-VnetIntegration -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AppServiceVnetIntegrationVnetName $AppServiceVnetIntegrationVnetName -AppServiceVnetIntegrationSubnetName $AppServiceVnetIntegrationSubnetName
-}
-
-# Apply to all slots if desired
+# Fetch available slots if we want to deploy all slots
 if ($ApplyToAllSlots)
 {
     $availableSlots = Invoke-Executable -AllowToFail az webapp deployment slot list --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json
-    foreach($availableSlot in $availableSlots)
-    {
-        Add-VnetIntegration -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AppServiceVnetIntegrationVnetName $AppServiceVnetIntegrationVnetName -AppServiceVnetIntegrationSubnetName $AppServiceVnetIntegrationSubnetName -AppServiceSlotName $availableSlot.name
-    }
 }
+
+# Set VNET Integration on the main given slot (normally production)
+Add-VnetIntegration -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AppServiceVnetIntegrationVnetName $AppServiceVnetIntegrationVnetName -AppServiceVnetIntegrationSubnetName $AppServiceVnetIntegrationSubnetName -AppServiceSlotName $AppServiceSlotName
+
+# Apply to all slots if desired
+foreach($availableSlot in $availableSlots)
+{
+    Add-VnetIntegration -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AppServiceVnetIntegrationVnetName $AppServiceVnetIntegrationVnetName -AppServiceVnetIntegrationSubnetName $AppServiceVnetIntegrationSubnetName -AppServiceSlotName $availableSlot.name
+}
+
+Write-Footer -ScopedPSCmdlet $PSCmdlet
