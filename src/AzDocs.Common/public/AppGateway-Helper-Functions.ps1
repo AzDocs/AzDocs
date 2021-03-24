@@ -805,9 +805,19 @@ function New-ApplicationGatewayEntrypoint
     Write-Host "Created HTTPS Listener"
 
     # Add the routing rule
-    Write-Host "Creating routing rule"
-    Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsrule" --http-listener "$dashedDomainName-httpslistener" --address-pool "$dashedDomainName-httpspool" --http-settings "$dashedDomainName-httpssettings" --rule-type $ApplicationGatewayRuleType --resource-group $ApplicationGatewayResourceGroupName | Out-Null
-    Write-Host "Created routing rule"
+    $gatewayRule = Invoke-Executable -AllowToFail az network application-gateway rule show --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsrule" | ConvertFrom-Json
+    if(!$gatewayRule)
+    {
+        Write-Host "Creating routing rule"
+        Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsrule" --http-listener "$dashedDomainName-httpslistener" --address-pool "$dashedDomainName-httpspool" --http-settings "$dashedDomainName-httpssettings" --rule-type $ApplicationGatewayRuleType --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+        Write-Host "Created routing rule"
+    }
+    else
+    {
+        Write-Host "Updating the existing routing rule"
+        Invoke-Executable az network application-gateway rule update --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsrule" --http-listener "$dashedDomainName-httpslistener" --address-pool "$dashedDomainName-httpspool" --http-settings "$dashedDomainName-httpssettings" --rule-type $ApplicationGatewayRuleType --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+        Write-Host "Updated the existing routing rule"
+    }
 
     # ======= End Create entry point =======
 
@@ -831,9 +841,19 @@ function New-ApplicationGatewayEntrypoint
     Write-Host "Created redirect config (HTTP to HTTPS)"
 
     # Create routing rule for HTTP to HTTPS
-    Write-Host "Creating routing rule for HTTP entrypoint"
-    Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" | Out-Null
-    Write-Host "Created routing rule for HTTP entrypoint"
+    $gatewayRule = Invoke-Executable -AllowToFail az network application-gateway rule show --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" | ConvertFrom-Json
+    if(!$gatewayRule)
+    {
+        Write-Host "Creating routing rule for HTTP entrypoint"
+        Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" | Out-Null
+        Write-Host "Created routing rule for HTTP entrypoint"
+    }
+    else
+    {
+        Write-Host "Updating routing rule for HTTP entrypoint"
+        Invoke-Executable az network application-gateway rule update --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" | Out-Null
+        Write-Host "Updated routing rule for HTTP entrypoint"
+    }
 
     # ======= End Create HTTP to HTTPS redirection entry point =======
 
