@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
-    [Parameter(Mandatory)][string] $AppServiceAppSettings,
+    [Parameter(Mandatory)][string[]] $AppServiceAppSettings,
     [Parameter()][string] $AppServiceDeploymentSlotName,
     [Parameter()][bool] $ApplyToAllSlots = $false
 )
@@ -24,11 +24,11 @@ if ($AppServiceDeploymentSlotName)
     $optionalParameters += "--slot", "$AppServiceDeploymentSlotName"
 }
 
-Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName --settings $AppServiceAppSettings @optionalParameters
+Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName --settings @AppServiceAppSettings @optionalParameters
 
 foreach($availableSlot in $availableSlots)
 {
-    Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName --settings $AppServiceAppSettings --slot $availableSlot.name
+    Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName --settings @AppServiceAppSettings --slot $availableSlot.name
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
