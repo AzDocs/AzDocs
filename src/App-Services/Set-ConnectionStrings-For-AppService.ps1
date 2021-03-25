@@ -26,13 +26,15 @@ if ($AppServiceDeploymentSlotName)
 
 foreach($AppServiceConnectionString in ($AppServiceConnectionStringsInJson | ConvertFrom-Json))
 {
+    $connectionStringKeyValuePair = "$($AppServiceConnectionString.name)=`"$($AppServiceConnectionString.value)`""
+    
     # Updated defined slot
-    Invoke-Executable az webapp config connection-string set --resource-group $AppServiceResourceGroupName --name $AppServiceName --connection-string-type $AppServiceConnectionString.type --settings $AppServiceConnectionString.name=$AppServiceConnectionString.value @optionalParameters
+    Invoke-Executable az webapp config connection-string set --resource-group $AppServiceResourceGroupName --name $AppServiceName --connection-string-type $($AppServiceConnectionString.type) --settings $connectionStringKeyValuePair @optionalParameters
 
     # Update slots
     foreach($availableSlot in $availableSlots)
     {
-        Invoke-Executable az webapp config connection-string set --resource-group $AppServiceResourceGroupName --name $AppServiceName --connection-string-type $AppServiceConnectionString.type --settings $AppServiceConnectionString.name=$AppServiceConnectionString.value --slot $availableSlot.name
+        Invoke-Executable az webapp config connection-string set --resource-group $AppServiceResourceGroupName --name $AppServiceName --connection-string-type $($AppServiceConnectionString.type) --settings $connectionStringKeyValuePair --slot $availableSlot.name
     }
 }
 
