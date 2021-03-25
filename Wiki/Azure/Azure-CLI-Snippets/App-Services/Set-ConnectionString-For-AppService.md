@@ -9,9 +9,10 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 |--|--|--|
 | AppServiceResourceGroupName | `MyTeam-SomeApi-$(Release.EnvironmentName)` | The resourcegroup where the AppService resides in. |
 | AppServiceName | `App-Service-name` | Name of the app service to set the whitelist on. | 
-| AppServiceAppSettings | `mySetting=value` and/or `@moreSettings.json` | Space separated list of appsettings. Also you can load a file with JSON settings. |
+| AppServiceConnectionString | `mysql1='Server=myServer;Database=myDB;Uid=myUser;Pwd=myPwd;'`| ConnectionString in the form of `<connectionstringname>='<connectionstring>'` |
+| AppServiceConnectionStringType | `MySql` | Type of the connectionstring. Options are: `ApiHub`, `Custom`, `DocDb`, `EventHub`, `MySql`, `NotificationHub`, `PostgreSQL`, `RedisCache`, `SQLAzure`, `SQLServer`, `ServiceBus` |
 | AppServiceDeploymentSlotName | `staging` |  Name of the deployment slot to add ip whitelisting to. This is an optional field. |
 | ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving this resource |
 
 # Code
-[Click here to download this script](../../../../src/App-Services/Set-AppSettings-For-Webapp.ps1)
+[Click here to download this script](../../../../src/App-Services/Set-ConnectionString-For-AppService.ps1)
