@@ -9,7 +9,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 |--|--|--|
 | AppServiceResourceGroupName | `MyTeam-SomeApi-$(Release.EnvironmentName)` | The resourcegroup where the AppService resides in. |
 | AppServiceName | `App-Service-name` | Name of the app service to set the whitelist on. | 
-| AppServiceAppSettings | `mySetting=value` and/or `@moreSettings.json` | Space separated list of appsettings. Also you can load a file with JSON settings. |
+| AppServiceAppSettings | `@("settingname=settingvalue"; "anothersettingname=anothersettingvalue")` and/or `@moreSettings.json` | Powershell string array with settings, Also you can load a file with JSON settings. |
 | AppServiceDeploymentSlotName | `staging` |  Name of the deployment slot to add ip whitelisting to. This is an optional field. |
 | ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving this resource |
 
