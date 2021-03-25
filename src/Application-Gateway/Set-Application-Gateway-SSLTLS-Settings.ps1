@@ -42,7 +42,9 @@ param (
         'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384',
         'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256',
         'TLS_RSA_WITH_AES_256_GCM_SHA384',
-        'TLS_RSA_WITH_AES_128_GCM_SHA256'
+        'TLS_RSA_WITH_AES_128_GCM_SHA256',
+        'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384',
+        'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
     )
 )
 
@@ -52,6 +54,6 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-Invoke-Executable az network application-gateway ssl-policy set --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --policy-type Custom --min-protocol-version $MinimalProtocolVersion --cipher-suites @CipherSuites
+Invoke-Executable az network application-gateway ssl-policy set --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --policy-type Custom --min-protocol-version $ApplicationGatewayMinimalProtocolVersion --cipher-suites @ApplicationGatewayCipherSuites
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
