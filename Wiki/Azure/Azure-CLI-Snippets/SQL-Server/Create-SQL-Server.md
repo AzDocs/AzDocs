@@ -1,29 +1,39 @@
 [[_TOC_]]
 
 # Description
-This snippet will create a SQL Server if it does not exist within a given subnet. It will also make sure that public access is denied by default. It will whitelist the application subnet so your app can connect to the SQL Server within the vnet. All the needed components (private endpoint, service endpoint etc) will be created too.
+This snippet will create a SQL Server if it does not exist. There are two options of connecting your application to this SQL Server.
 
-IMPORTANT NOTE: Enable the `Access service principal details in script` checkbox in the Azure CLI step. This is needed for the last few lines of script which are built in Azure PowerShell.
+## VNET Whitelisting (uses the "public interface")
+Microsoft does some neat tricks where you can whitelist your vnet/subnet op the SQL server without your sql server having to be inside the vnet itself (public/private address translation).
+This script will whitelist the application subnet so your app can connect to the SQL Server over the public endpoint, while blocking all other traffic (internet traffic for example). Service Endpoints will also be provisioned if needed on the subnet.
+
+## Private Endpoints
+There is an option where it will create private endpoints for you & also disables public access if desired. All the needed components (private endpoint, DNS etc.) will be created too.
+
+IMPORTANT NOTE: If you use the EnableSqlServerAuditing option, make sure to enable the `Access service principal details in script` checkbox in the Azure CLI step in your Azure DevOps pipeline. This is needed for the last few lines of script which are built in Azure PowerShell (Azure PowerShell needs to login separate to the Azure CLI).
 
 # Parameters
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter | Example Value | Description |
-|--|--|--|
-| SqlServerSubscriptionId | `2cf65221-ba2c-42ba-987b-ef8981519431` | The subscription ID (or name) on which the SQL Server should be provisioned. |
-| SqlServerPrivateEndpointVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your SQL Server Private Endpoint, resides in. |
-| SqlServerPrivateEndpointVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the SQL Server Private Endpoint in. |
-| SqlServerPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet you want your sql server's private endpoint to be in |
-| ApplicationVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your appservice, resides in. |
-| ApplicationVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the appservice is in|
-| ApplicationSubnetName | `app-subnet-4` | The name of the subnet the appservice is in |
-| SqlServerPassword | `#$mydatabas**e` | The password for the sqlserverusername |
-| SqlServerUsername | `rob` | The admin username for the sqlserver |
-| SqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
-| SqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your sql server to be created in |
-| DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| SqlServerPrivateDnsZoneName | `privatelink.database.windows.net` | The name of DNS zone where your private endpoint will be created in. If you are unsure use `privatelink.database.windows.net` |
-| LogAnalyticsWorkspaceResourceId | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace to write the auditing logs to for this SQL Server instance |
+| Parameter | Required | Example Value | Description |
+|--|--|--|--|
+| SqlServerSubscriptionId | <input type="checkbox" checked> | `2cf65221-ba2c-42ba-987b-ef8981519431` | The subscription ID (or name) on which the SQL Server should be provisioned. |
+| SqlServerPassword | <input type="checkbox" checked> | `#$mydatabas**e` | The password for the sqlserverusername |
+| SqlServerUsername | <input type="checkbox" checked> | `rob` | The admin username for the sqlserver |
+| SqlServerName | <input type="checkbox" checked> | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
+| SqlServerResourceGroupName | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your sql server to be created in |
+| SqlServerMinimalTlsVersion | <input type="checkbox"> | `1.2` | The minimal TLS version to use. Defaults to `1.2`. Options are `1.0`, `1.1`, `1.2` |
+| SqlServerEnablePublicNetwork | <input type="checkbox"> | `true`/`false` | Enable/disable public access. If you use vnet whitelisting, this should be enabled. If you use private endpoints you can disable this. |
+| SqlServerEnableAuditing | <input type="checkbox"> | `true`/`false` | Enable SQL Server auditing logs to a log analytics workspace. |
+| LogAnalyticsWorkspaceResourceId | <input type="checkbox"> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace to write the auditing logs to for this SQL Server instance |
+| ApplicationVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The ResourceGroup where your VNET, for your appservice, resides in. |
+| ApplicationVnetName | <input type="checkbox">  | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the appservice is in|
+| ApplicationSubnetName | <input type="checkbox"> | `app-subnet-4` | The name of the subnet the appservice is in |
+| SqlServerPrivateEndpointVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The ResourceGroup where your VNET, for your SQL Server Private Endpoint, resides in. |
+| SqlServerPrivateEndpointVnetName | <input type="checkbox"> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the SQL Server Private Endpoint in. |
+| SqlServerPrivateEndpointSubnetName | <input type="checkbox"> | `app-subnet-3` | The name of the subnet you want your sql server's private endpoint to be in |
+| DNSZoneResourceGroupName | <input type="checkbox"> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
+| SqlServerPrivateDnsZoneName | <input type="checkbox"> | `privatelink.database.windows.net` | The name of DNS zone where your private endpoint will be created in. If you are unsure use `privatelink.database.windows.net` |
 
 # Code
 [Click here to download this script](../../../../src/SQL-Server/Create-SQL-Server.ps1)
