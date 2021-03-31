@@ -3,15 +3,15 @@ param (
     [Parameter(Mandatory)][string] $SqlServerResourceGroupName,
     [Parameter(Mandatory)][string] $SqlServerName,
     [Parameter(Mandatory)][string] $SqlDatabaseName,
-    [Parameter(Mandatory, ParameterSetName = 'Provisioned')][string] $SqlDatabaseSkuName,
-    [Parameter(Mandatory, ParameterSetName = 'Serverless')][ValidateSet('Basic', 'Standard', 'Premium', 'GeneralPurpose', 'BusinessCritical', 'Hyperscale')][string] $SqlDatabaseEdition,
-    [Parameter(Mandatory, ParameterSetName = 'Serverless')][ValidateSet('Gen4', 'Gen5')][string] $SqlDatabaseFamily,
-    [Parameter(Mandatory, ParameterSetName = 'Serverless')][ValidateSet('Provisioned', 'Serverless')][string] $SqlDatabaseComputeModel,
-    [Parameter(Mandatory, ParameterSetName = 'Serverless')][int] $SqlDatabaseAutoPauseDelayInMinutes,
-    [Parameter(Mandatory, ParameterSetName = 'Serverless')][int] $SqlDatabaseMinCapacity,
-    [Parameter(Mandatory, ParameterSetName = 'Serverless')][int] $SqlDatabaseMaxCapacity,
-    [Parameter(Mandatory, ParameterSetName = 'Serverless')][ValidateSet('Local', 'Zone', 'Geo')][string] $SqlDatabaseBackupStorageRedundancy,
-    [Parameter(ParameterSetName = 'Serverless')][string] $SqlDatabaseMaxStorageSize,
+    [Parameter()][string] $SqlDatabaseSkuName,
+    [Parameter()][ValidateSet('Basic', 'Standard', 'Premium', 'GeneralPurpose', 'BusinessCritical', 'Hyperscale')][string] $SqlDatabaseEdition,
+    [Parameter()][ValidateSet('Gen4', 'Gen5')][string] $SqlDatabaseFamily,
+    [Parameter()][ValidateSet('Provisioned', 'Serverless')][string] $SqlDatabaseComputeModel,
+    [Parameter()][int] $SqlDatabaseAutoPauseDelayInMinutes,
+    [Parameter()][int] $SqlDatabaseMinCapacity,
+    [Parameter()][int] $SqlDatabaseMaxCapacity,
+    [Parameter()][ValidateSet('Local', 'Zone', 'Geo')][string] $SqlDatabaseBackupStorageRedundancy,
+    [Parameter()][string] $SqlDatabaseMaxStorageSize,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags
 )
 
@@ -22,40 +22,34 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $additionalParameters = @()
-switch ($PSCmdlet.ParameterSetName)
+if ($SqlDatabaseSkuName) {
+    $additionalParameters += '--service-objective', $SqlDatabaseSkuName
+}
+else 
 {
-    'Provisioned'
-    {
-        if ($SqlDatabaseSkuName) {
-            $additionalParameters += '--service-objective', $SqlDatabaseSkuName
-        }
+    if ($SqlDatabaseEdition) {
+        $additionalParameters += '--edition', $SqlDatabaseEdition
     }
-    'Serverless'
-    {
-        if ($SqlDatabaseEdition) {
-            $additionalParameters += '--edition', $SqlDatabaseEdition
-        }
-        if ($SqlDatabaseFamily) {
-            $additionalParameters += '--family', $SqlDatabaseFamily
-        }
-        if ($SqlDatabaseComputeModel) {
-            $additionalParameters += '--compute-model', $SqlDatabaseComputeModel
-        }
-        if ($SqlDatabaseAutoPauseDelayInMinutes) {
-            $additionalParameters += '--auto-pause-delay', $SqlDatabaseAutoPauseDelayInMinutes
-        }
-        if ($SqlDatabaseMinCapacity) {
-            $additionalParameters += '--min-capacity', $SqlDatabaseMinCapacity
-        }
-        if ($SqlDatabaseMaxCapacity) {
-            $additionalParameters += '--capacity', $SqlDatabaseMaxCapacity
-        }
-        if ($SqlDatabaseBackupStorageRedundancy) {
-            $additionalParameters += '--backup-storage-redundancy', $SqlDatabaseBackupStorageRedundancy
-        }
-        if ($SqlDatabaseMaxStorageSize) {
-            $additionalParameters += '--max-size', $SqlDatabaseMaxStorageSize
-        }
+    if ($SqlDatabaseFamily) {
+        $additionalParameters += '--family', $SqlDatabaseFamily
+    }
+    if ($SqlDatabaseComputeModel) {
+        $additionalParameters += '--compute-model', $SqlDatabaseComputeModel
+    }
+    if ($SqlDatabaseAutoPauseDelayInMinutes) {
+        $additionalParameters += '--auto-pause-delay', $SqlDatabaseAutoPauseDelayInMinutes
+    }
+    if ($SqlDatabaseMinCapacity) {
+        $additionalParameters += '--min-capacity', $SqlDatabaseMinCapacity
+    }
+    if ($SqlDatabaseMaxCapacity) {
+        $additionalParameters += '--capacity', $SqlDatabaseMaxCapacity
+    }
+    if ($SqlDatabaseBackupStorageRedundancy) {
+        $additionalParameters += '--backup-storage-redundancy', $SqlDatabaseBackupStorageRedundancy
+    }
+    if ($SqlDatabaseMaxStorageSize) {
+        $additionalParameters += '--max-size', $SqlDatabaseMaxStorageSize
     }
 }
 
