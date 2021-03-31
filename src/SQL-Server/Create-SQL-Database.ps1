@@ -4,13 +4,13 @@ param (
     [Parameter(Mandatory)][string] $SqlServerName,
     [Parameter(Mandatory)][string] $SqlDatabaseName,
     [Parameter()][string] $SqlDatabaseSkuName,
-    [Parameter()][ValidateSet('Basic', 'Standard', 'Premium', 'GeneralPurpose', 'BusinessCritical', 'Hyperscale')][string] $SqlDatabaseEdition,
-    [Parameter()][ValidateSet('Gen4', 'Gen5')][string] $SqlDatabaseFamily,
-    [Parameter()][ValidateSet('Provisioned', 'Serverless')][string] $SqlDatabaseComputeModel,
+    [Parameter()][ValidateSet('Basic', 'Standard', 'Premium', 'GeneralPurpose', 'BusinessCritical', 'Hyperscale','')][string] $SqlDatabaseEdition,
+    [Parameter()][ValidateSet('Gen4', 'Gen5','')][string] $SqlDatabaseFamily,
+    [Parameter()][ValidateSet('Provisioned', 'Serverless','')][string] $SqlDatabaseComputeModel,
     [Parameter()][int] $SqlDatabaseAutoPauseDelayInMinutes,
     [Parameter()][int] $SqlDatabaseMinCapacity,
     [Parameter()][int] $SqlDatabaseMaxCapacity,
-    [Parameter()][ValidateSet('Local', 'Zone', 'Geo')][string] $SqlDatabaseBackupStorageRedundancy,
+    [Parameter()][ValidateSet('Local', 'Zone', 'Geo','')][string] $SqlDatabaseBackupStorageRedundancy,
     [Parameter()][string] $SqlDatabaseMaxStorageSize,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags
 )
