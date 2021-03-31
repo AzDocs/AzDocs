@@ -82,7 +82,7 @@ if($SqlServerEnableAuditing)
     Install-Module PowerShellGet -Force
     Install-Module -Name Az.Sql -Force
     $encryptedPassword = ConvertTo-SecureString -String $env:servicePrincipalKey -AsPlainText
-    $pscredential = New-Object -TypeName System.Management.Automation.PSCredential($env:servicePrincipalId, $encryptedPassword)
+    $pscredential = [PSCredential]::new($env:servicePrincipalId, $encryptedPassword)
     Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $env:tenantId -Subscription $SqlServerSubscriptionId
     Set-AzSqlServerAudit -ResourceGroupName $SqlServerResourceGroupName -ServerName $SqlServerName -LogAnalyticsTargetState Enabled -WorkspaceResourceId $LogAnalyticsWorkspaceResourceId
 }

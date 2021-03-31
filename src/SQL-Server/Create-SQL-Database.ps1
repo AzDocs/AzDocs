@@ -11,7 +11,7 @@ param (
     [Parameter(Mandatory, ParameterSetName = 'Serverless')][int] $SqlDatabaseMinCapacity,
     [Parameter(Mandatory, ParameterSetName = 'Serverless')][int] $SqlDatabaseMaxCapacity,
     [Parameter(Mandatory, ParameterSetName = 'Serverless')][ValidateSet('Local', 'Zone', 'Geo')][string] $SqlDatabaseBackupStorageRedundancy,
-    [Parameter(Mandatory, ParameterSetName = 'Serverless')][string] $SqlDatabaseMaxStorageSize,
+    [Parameter(ParameterSetName = 'Serverless')][string] $SqlDatabaseMaxStorageSize,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags
 )
 
