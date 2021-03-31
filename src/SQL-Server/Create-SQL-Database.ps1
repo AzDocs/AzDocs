@@ -25,32 +25,29 @@ $additionalParameters = @()
 if ($SqlDatabaseSkuName) {
     $additionalParameters += '--service-objective', $SqlDatabaseSkuName
 }
-else 
-{
-    if ($SqlDatabaseEdition) {
-        $additionalParameters += '--edition', $SqlDatabaseEdition
-    }
-    if ($SqlDatabaseFamily) {
-        $additionalParameters += '--family', $SqlDatabaseFamily
-    }
-    if ($SqlDatabaseComputeModel) {
-        $additionalParameters += '--compute-model', $SqlDatabaseComputeModel
-    }
-    if ($SqlDatabaseAutoPauseDelayInMinutes) {
-        $additionalParameters += '--auto-pause-delay', $SqlDatabaseAutoPauseDelayInMinutes
-    }
-    if ($SqlDatabaseMinCapacity) {
-        $additionalParameters += '--min-capacity', $SqlDatabaseMinCapacity
-    }
-    if ($SqlDatabaseMaxCapacity) {
-        $additionalParameters += '--capacity', $SqlDatabaseMaxCapacity
-    }
-    if ($SqlDatabaseBackupStorageRedundancy) {
-        $additionalParameters += '--backup-storage-redundancy', $SqlDatabaseBackupStorageRedundancy
-    }
-    if ($SqlDatabaseMaxStorageSize) {
-        $additionalParameters += '--max-size', $SqlDatabaseMaxStorageSize
-    }
+if ($SqlDatabaseEdition) {
+    $additionalParameters += '--edition', $SqlDatabaseEdition
+}
+if ($SqlDatabaseFamily) {
+    $additionalParameters += '--family', $SqlDatabaseFamily
+}
+if ($SqlDatabaseComputeModel) {
+    $additionalParameters += '--compute-model', $SqlDatabaseComputeModel
+}
+if ($SqlDatabaseAutoPauseDelayInMinutes) {
+    $additionalParameters += '--auto-pause-delay', $SqlDatabaseAutoPauseDelayInMinutes
+}
+if ($SqlDatabaseMinCapacity) {
+    $additionalParameters += '--min-capacity', $SqlDatabaseMinCapacity
+}
+if ($SqlDatabaseMaxCapacity) {
+    $additionalParameters += '--capacity', $SqlDatabaseMaxCapacity
+}
+if ($SqlDatabaseBackupStorageRedundancy) {
+    $additionalParameters += '--backup-storage-redundancy', $SqlDatabaseBackupStorageRedundancy
+}
+if ($SqlDatabaseMaxStorageSize) {
+    $additionalParameters += '--max-size', $SqlDatabaseMaxStorageSize
 }
 
 Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags ${ResourceTags} @additionalParameters
