@@ -57,11 +57,10 @@ if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Application
     # Fetch the Subnet ID where the Application Resides in
     $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
 
-    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET (I think we need Microsoft.Sql? Microsoft.DBforMySQL doesnt seem to be a valid option)
-    #Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.DBforMySQL"
+    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
     Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
 
-    # Allow the Application Subnet to this MySQL Server through a vnet-rule
+    # Allow the Application Subnet to this SQL Server through a vnet-rule
     Invoke-Executable az sql server vnet-rule create --server $SqlServerName --name "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow" --resource-group $SqlServerResourceGroupName --subnet $applicationSubnetId
 }
 
