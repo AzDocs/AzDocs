@@ -122,7 +122,8 @@ if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
     Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointServiceIdentifier "Microsoft.Web"
 
     # Allow the Gateway Subnet to this AppService through a vnet-rule
-    Invoke-Executable az webapp config access-restriction add --resource-group $AppServiceResourceGroupName --name $AppServiceName --rule-name "$($GatewayVnetName)_$($GatewaySubnetName)_allow" --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority
+    $firewallRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
+    Invoke-Executable az webapp config access-restriction add --resource-group $AppServiceResourceGroupName --name $AppServiceName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority
 }
 
 # Add private endpoint & Setup Private DNS
