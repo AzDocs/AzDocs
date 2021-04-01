@@ -1,29 +1,38 @@
 [CmdletBinding(DefaultParameterSetName = 'default')]
 param (
-    [Alias("VnetResourceGroupName")]
-    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
-    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetName,
-    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointSubnetName,
     [Parameter(Mandatory)][string] $AppServicePlanName,
     [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Parameter(Mandatory)][string] $FunctionAppStorageAccountName,
     [Parameter(Mandatory)][string] $FunctionAppDiagnosticsName,
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
-    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $FunctionAppPrivateDnsZoneName = "privatelink.azurewebsites.net",
     [Alias("AlwaysOn")]
     [Parameter(Mandatory)][string] $FunctionAppAlwaysOn,
     [Parameter(Mandatory)][string] $FUNCTIONS_EXTENSION_VERSION,
     [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT, 
+    [Parameter()][string] $FunctionAppNumberOfInstances = 2,
+    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging", 
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true,
-    [Parameter()][string] $FunctionAppNumberOfInstances = 2,
+
+    # VNET Whitelisting Parameters
+    [Parameter()][string] $GatewayVnetResourceGroupName,
+    [Parameter()][string] $GatewayVnetName,
+    [Parameter()][string] $GatewaySubnetName,
+    [Parameter()][string] $GatewayWhitelistRulePriority = 20,
+
+    # Private Endpoint
+    [Alias("VnetResourceGroupName")]
+    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetResourceGroupName,
+    [Alias("VnetName")]
+    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetName,
+    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointSubnetName,
+    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
+    [Alias("PrivateDnsZoneName")]
+    [Parameter()][string] $FunctionAppPrivateDnsZoneName = "privatelink.azurewebsites.net",
 
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Function-App-with-App-Service-Plan-Linux.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
@@ -34,10 +43,6 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
-
-$vnetId = (Invoke-Executable az network vnet show --resource-group $FunctionAppPrivateEndpointVnetResourceGroupName --name $FunctionAppPrivateEndpointVnetName | ConvertFrom-Json).id
-$functionAppPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $FunctionAppPrivateEndpointVnetResourceGroupName --name $FunctionAppPrivateEndpointSubnetName --vnet-name $FunctionAppPrivateEndpointVnetName | ConvertFrom-Json).id
-$functionAppPrivateEndpointName = "$($FunctionAppName)-pvtfunc"
 
 # Fetch AppService Plan ID
 $appServicePlanId = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json).id
@@ -101,7 +106,34 @@ if ($EnableFunctionAppDeploymentSlot)
     }
 }
 
+# VNET Whitelisting
+if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
+{
+    # Fetch the Subnet ID where the Application Resides in
+    $gatewaySubnetId = (Invoke-Executable az network vnet subnet show --resource-group $GatewayVnetResourceGroupName --name $GatewaySubnetName --vnet-name $GatewayVnetName | ConvertFrom-Json).id
+
+    # Make sure the service endpoint is enabled for the subnet (for internal routing)
+    Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointServiceIdentifier "Microsoft.Web"
+
+    # Allow the Gateway Subnet to this AppService through a vnet-rule
+    $firewallRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
+    if (!((az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName | ConvertFrom-Json).ipSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
+    {
+        Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority
+    }
+}
+
 # Add private endpoint & Setup Private DNS
-Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $functionAppPrivateEndpointSubnetId -PrivateEndpointName $functionAppPrivateEndpointName -PrivateEndpointResourceGroupName $FunctionAppResourceGroupName -TargetResourceId $functionAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $FunctionAppPrivateDnsZoneName -PrivateDnsLinkName "$($FunctionAppPrivateEndpointVnetName)-appservice"
+if($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName)
+{
+    # Fetch needed information
+    $vnetId = (Invoke-Executable az network vnet show --resource-group $FunctionAppPrivateEndpointVnetResourceGroupName --name $FunctionAppPrivateEndpointVnetName | ConvertFrom-Json).id
+    $functionAppPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $FunctionAppPrivateEndpointVnetResourceGroupName --name $FunctionAppPrivateEndpointSubnetName --vnet-name $FunctionAppPrivateEndpointVnetName | ConvertFrom-Json).id
+    $functionAppPrivateEndpointName = "$($FunctionAppName)-pvtfunc"
+
+    # Add private endpoint & Setup Private DNS
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $functionAppPrivateEndpointSubnetId -PrivateEndpointName $functionAppPrivateEndpointName -PrivateEndpointResourceGroupName $FunctionAppResourceGroupName -TargetResourceId $functionAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $FunctionAppPrivateDnsZoneName -PrivateDnsLinkName "$($FunctionAppPrivateEndpointVnetName)-appservice"
+}
+
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

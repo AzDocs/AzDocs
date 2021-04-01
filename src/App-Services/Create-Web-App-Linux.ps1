@@ -4,10 +4,10 @@ param (
     [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,    
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
-    [Parameter(Mandatory, ParameterSetName = 'default')][Parameter(Mandatory, ParameterSetName = 'DeploymentSlot')][string] $AppServiceRunTime,
     [Parameter(Mandatory)][string] $AppServiceDiagnosticsName,
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter(Mandatory, ParameterSetName = 'default')][Parameter(Mandatory, ParameterSetName = 'DeploymentSlot')][string] $AppServiceRunTime,
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     
@@ -34,7 +34,6 @@ param (
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
-
 
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Web-App-with-App-Service-Plan-Linux.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
@@ -123,7 +122,10 @@ if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 
     # Allow the Gateway Subnet to this AppService through a vnet-rule
     $firewallRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
-    Invoke-Executable az webapp config access-restriction add --resource-group $AppServiceResourceGroupName --name $AppServiceName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority
+    if (!((az webapp config access-restriction show --resource-group $AppServiceResourceGroupName --name $AppServiceName | ConvertFrom-Json).ipSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
+    {
+        Invoke-Executable az webapp config access-restriction add --resource-group $AppServiceResourceGroupName --name $AppServiceName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority
+    }
 }
 
 # Add private endpoint & Setup Private DNS

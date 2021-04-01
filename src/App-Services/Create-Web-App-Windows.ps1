@@ -1,28 +1,36 @@
 [CmdletBinding(DefaultParameterSetName = 'default')]
 param (
-    [Alias("VnetResourceGroupName")]
-    [Parameter(Mandatory)][string] $AppServicePrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
-    [Parameter(Mandatory)][string] $AppServicePrivateEndpointVnetName,
-    [Alias("ApplicationPrivateEndpointSubnetName")]
-    [Parameter(Mandatory)][string] $AppServicePrivateEndpointSubnetName,
     [Parameter(Mandatory)][string] $AppServicePlanName,
     [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
     [Parameter(Mandatory)][string] $AppServiceDiagnosticsName,
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
-    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
     [Parameter()][string] $AppServiceRunTime,
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
+    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $AppServiceDeploymentSlotName = 'staging',
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForAppServiceDeploymentSlot = $true,
+
+    # VNET Whitelisting Parameters
+    [Parameter()][string] $GatewayVnetResourceGroupName,
+    [Parameter()][string] $GatewayVnetName,
+    [Parameter()][string] $GatewaySubnetName,
+    [Parameter()][string] $GatewayWhitelistRulePriority = 20,
+
+    # Private Endpoint
+    [Alias("VnetResourceGroupName")]
+    [Parameter()][string] $AppServicePrivateEndpointVnetResourceGroupName,
+    [Alias("VnetName")]
+    [Parameter()][string] $AppServicePrivateEndpointVnetName,
+    [Alias("ApplicationPrivateEndpointSubnetName")]
+    [Parameter()][string] $AppServicePrivateEndpointSubnetName,
+    [Parameter()][string] $DNSZoneResourceGroupName,
+    [Alias("PrivateDnsZoneName")]
+    [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
 
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Web-App-with-App-Service-Plan-Windows.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
@@ -33,10 +41,6 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
-
-$vnetId = (Invoke-Executable az network vnet show --resource-group $AppServicePrivateEndpointVnetResourceGroupName --name $AppServicePrivateEndpointVnetName | ConvertFrom-Json).id
-$applicationPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $AppServicePrivateEndpointVnetResourceGroupName --name $AppServicePrivateEndpointSubnetName --vnet-name $AppServicePrivateEndpointVnetName | ConvertFrom-Json).id
-$appServicePrivateEndpointName = "$($AppServiceName)-pvtapp"
 
 # Fetch AppService Plan ID
 $appServicePlanId = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json).id
@@ -98,7 +102,33 @@ if ($EnableAppServiceDeploymentSlot)
     }
 }
 
+# VNET Whitelisting
+if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
+{
+    # Fetch the Subnet ID where the Application Resides in
+    $gatewaySubnetId = (Invoke-Executable az network vnet subnet show --resource-group $GatewayVnetResourceGroupName --name $GatewaySubnetName --vnet-name $GatewayVnetName | ConvertFrom-Json).id
+
+    # Make sure the service endpoint is enabled for the subnet (for internal routing)
+    Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointServiceIdentifier "Microsoft.Web"
+
+    # Allow the Gateway Subnet to this AppService through a vnet-rule
+    $firewallRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
+    if (!((az webapp config access-restriction show --resource-group $AppServiceResourceGroupName --name $AppServiceName | ConvertFrom-Json).ipSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
+    {
+        Invoke-Executable az webapp config access-restriction add --resource-group $AppServiceResourceGroupName --name $AppServiceName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority
+    }
+}
+
 # Add private endpoint & Setup Private DNS
-Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $applicationPrivateEndpointSubnetId -PrivateEndpointName $appServicePrivateEndpointName -PrivateEndpointResourceGroupName $AppServiceResourceGroupName -TargetResourceId $webAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $AppServicePrivateDnsZoneName -PrivateDnsLinkName "$($AppServicePrivateEndpointVnetName)-appservice"
+if($AppServicePrivateEndpointVnetResourceGroupName -and $AppServicePrivateEndpointVnetName -and $AppServicePrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $AppServicePrivateDnsZoneName)
+{
+    # Fetch needed information
+    $vnetId = (Invoke-Executable az network vnet show --resource-group $AppServicePrivateEndpointVnetResourceGroupName --name $AppServicePrivateEndpointVnetName | ConvertFrom-Json).id
+    $applicationPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $AppServicePrivateEndpointVnetResourceGroupName --name $AppServicePrivateEndpointSubnetName --vnet-name $AppServicePrivateEndpointVnetName | ConvertFrom-Json).id
+    $appServicePrivateEndpointName = "$($AppServiceName)-pvtapp"
+
+    # Add private endpoint & Setup Private DNS
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $applicationPrivateEndpointSubnetId -PrivateEndpointName $appServicePrivateEndpointName -PrivateEndpointResourceGroupName $AppServiceResourceGroupName -TargetResourceId $webAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $AppServicePrivateDnsZoneName -PrivateDnsLinkName "$($AppServicePrivateEndpointVnetName)-appservice"
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
