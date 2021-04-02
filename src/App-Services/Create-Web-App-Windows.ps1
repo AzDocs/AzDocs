@@ -11,6 +11,7 @@ param (
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     
+    # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $AppServiceDeploymentSlotName = 'staging',
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForAppServiceDeploymentSlot = $true,

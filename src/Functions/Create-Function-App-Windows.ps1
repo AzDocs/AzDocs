@@ -1,29 +1,39 @@
 [CmdletBinding(DefaultParameterSetName = 'default')]
 param (
-    [Alias("VnetResourceGroupName")]
-    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
-    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetName,
-    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointSubnetName,
     [Parameter(Mandatory)][string] $AppServicePlanName,
     [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Parameter(Mandatory)][string] $FunctionAppStorageAccountName,
     [Parameter(Mandatory)][string] $FunctionAppDiagnosticsName,
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
-    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $FunctionAppPrivateDnsZoneName = "privatelink.azurewebsites.net",
     [Alias("AlwaysOn")]
     [Parameter(Mandatory)][string] $FunctionAppAlwaysOn,
     [Parameter(Mandatory)][string] $FUNCTIONS_EXTENSION_VERSION,
     [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT,
+    [Parameter()][string] $FunctionAppNumberOfInstances = 2,
+    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+
+    # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging", 
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true,
-    [Parameter()][string] $FunctionAppNumberOfInstances = 2,
+
+    # VNET Whitelisting Parameters
+    [Parameter()][string] $GatewayVnetResourceGroupName,
+    [Parameter()][string] $GatewayVnetName,
+    [Parameter()][string] $GatewaySubnetName,
+    [Parameter()][string] $GatewayWhitelistRulePriority = 20,
+
+    # Private Endpoint
+    [Alias("VnetResourceGroupName")]
+    [Parameter()][string] $FunctionAppPrivateEndpointVnetResourceGroupName,
+    [Alias("VnetName")]
+    [Parameter()][string] $FunctionAppPrivateEndpointVnetName,
+    [Parameter()][string] $FunctionAppPrivateEndpointSubnetName,
+    [Parameter()][string] $DNSZoneResourceGroupName,
+    [Alias("PrivateDnsZoneName")]
+    [Parameter()][string] $FunctionAppPrivateDnsZoneName = "privatelink.azurewebsites.net",
 
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Function-App-with-App-Service-Plan-Linux.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining

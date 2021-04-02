@@ -14,6 +14,7 @@ param (
     [Parameter()][string] $FunctionAppNumberOfInstances = 2,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
 
+    # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging", 
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true,
@@ -26,11 +27,11 @@ param (
 
     # Private Endpoint
     [Alias("VnetResourceGroupName")]
-    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetResourceGroupName,
+    [Parameter()][string] $FunctionAppPrivateEndpointVnetResourceGroupName,
     [Alias("VnetName")]
-    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointVnetName,
-    [Parameter(Mandatory)][string] $FunctionAppPrivateEndpointSubnetName,
-    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
+    [Parameter()][string] $FunctionAppPrivateEndpointVnetName,
+    [Parameter()][string] $FunctionAppPrivateEndpointSubnetName,
+    [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $FunctionAppPrivateDnsZoneName = "privatelink.azurewebsites.net",
 
