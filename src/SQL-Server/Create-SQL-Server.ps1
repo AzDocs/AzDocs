@@ -35,7 +35,10 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Create SQL Server
-Invoke-Executable az sql server create --admin-password $SqlServerPassword --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName --enable-public-network $SqlServerEnablePublicNetwork --minimal-tls-version $SqlServerMinimalTlsVersion
+if (!(Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName))
+{
+    Invoke-Executable az sql server create --admin-password $SqlServerPassword --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName --enable-public-network $SqlServerEnablePublicNetwork --minimal-tls-version $SqlServerMinimalTlsVersion
+}
 
 # Fetch the resource id for the just created SQL Server
 $sqlServerId = (Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).id
@@ -57,11 +60,10 @@ if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Application
     # Fetch the Subnet ID where the Application Resides in
     $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
 
-    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET (I think we need Microsoft.Sql? Microsoft.DBforMySQL doesnt seem to be a valid option)
-    #Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.DBforMySQL"
+    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
     Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
 
-    # Allow the Application Subnet to this MySQL Server through a vnet-rule
+    # Allow the Application Subnet to this SQL Server through a vnet-rule
     Invoke-Executable az sql server vnet-rule create --server $SqlServerName --name "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow" --resource-group $SqlServerResourceGroupName --subnet $applicationSubnetId
 }
 

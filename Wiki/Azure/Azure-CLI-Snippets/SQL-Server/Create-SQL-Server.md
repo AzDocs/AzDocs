@@ -1,6 +1,7 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will create a SQL Server if it does not exist. There are two options of connecting your application to this SQL Server.
 
 ## VNET Whitelisting (uses the "public interface")
@@ -8,11 +9,13 @@ Microsoft does some neat tricks where you can whitelist your vnet/subnet op the 
 This script will whitelist the application subnet so your app can connect to the SQL Server over the public endpoint, while blocking all other traffic (internet traffic for example). Service Endpoints will also be provisioned if needed on the subnet.
 
 ## Private Endpoints
+
 There is an option where it will create private endpoints for you & also disables public access if desired. All the needed components (private endpoint, DNS etc.) will be created too.
 
 IMPORTANT NOTE: If you use the EnableSqlServerAuditing option, make sure to enable the `Access service principal details in script` checkbox in the Azure CLI step in your Azure DevOps pipeline. This is needed for the last few lines of script which are built in Azure PowerShell (Azure PowerShell needs to login separate to the Azure CLI).
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 | Parameter | Required | Example Value | Description |
@@ -23,12 +26,24 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | SqlServerName | <input type="checkbox" checked> | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
 | SqlServerResourceGroupName | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your sql server to be created in |
 | SqlServerMinimalTlsVersion | <input type="checkbox"> | `1.2` | The minimal TLS version to use. Defaults to `1.2`. Options are `1.0`, `1.1`, `1.2` |
-| SqlServerEnablePublicNetwork | <input type="checkbox"> | `true`/`false` | Enable/disable public access. If you use vnet whitelisting, this should be enabled. If you use private endpoints you can disable this. |
 | SqlServerEnableAuditing | <input type="checkbox"> | `true`/`false` | Enable SQL Server auditing logs to a log analytics workspace. |
 | LogAnalyticsWorkspaceResourceId | <input type="checkbox"> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace to write the auditing logs to for this SQL Server instance |
+| SqlServerEnablePublicNetwork | <input type="checkbox"> | `true`/`false` | Enable/disable public access. <font color="red">NOTE:</font> If you use vnet whitelisting, this should be enabled. If you use private endpoints you can disable this. |
+
+# VNET Whitelisting Parameters
+
+If you want to use "vnet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
+| Parameter | Required | Example Value | Description |
+|--|--|--|--|
 | ApplicationVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The ResourceGroup where your VNET, for your appservice, resides in. |
 | ApplicationVnetName | <input type="checkbox">  | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the appservice is in|
 | ApplicationSubnetName | <input type="checkbox"> | `app-subnet-4` | The name of the subnet the appservice is in |
+
+# Private Endpoint Parameters
+
+If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises.
+| Parameter | Required | Example Value | Description |
+|--|--|--|--|
 | SqlServerPrivateEndpointVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The ResourceGroup where your VNET, for your SQL Server Private Endpoint, resides in. |
 | SqlServerPrivateEndpointVnetName | <input type="checkbox"> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the SQL Server Private Endpoint in. |
 | SqlServerPrivateEndpointSubnetName | <input type="checkbox"> | `app-subnet-3` | The name of the subnet you want your sql server's private endpoint to be in |
@@ -36,6 +51,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | SqlServerPrivateDnsZoneName | <input type="checkbox"> | `privatelink.database.windows.net` | The name of DNS zone where your private endpoint will be created in. If you are unsure use `privatelink.database.windows.net` |
 
 # Code
+
 [Click here to download this script](../../../../src/SQL-Server/Create-SQL-Server.ps1)
 
 # Links
