@@ -13,6 +13,7 @@ param (
     [Parameter()][int] $BackupRetentionInDays = 7,
     [Alias("SqlServerVersion")]
     [Parameter()][string] $PostgreSqlServerVersion = "11",
+    [Parameter()][ValidateSet('Enabled', 'Disabled')][string] $PostgreSqlServerPublicNetworkAccess = 'Disabled',
 
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetName,
@@ -44,8 +45,13 @@ Write-Host "Found location $($resourceGroupLocation)"
 # Create PSQL Server if it does not exist
 if(!$((Invoke-Executable -AllowToFail az postgres server show --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName | ConvertFrom-Json).Id))
 {
+    # Make sure to enable public network access when we are using VNET Whitelisting
+    if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
+    {
+        $PostgreSqlServerPublicNetworkAccess = 'Enabled'
+    }
     Write-Host "Creating Postgres server"
-    Invoke-Executable az postgres server create --admin-password $PostgreSqlServerPassword --admin-user $PostgreSqlServerUsername --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName --location $resourceGroupLocation --sku-name $PostgreSqlServerSku --backup-retention $BackupRetentionInDays --assign-identity --public-network-access Disabled --version $PostgreSqlServerVersion
+    Invoke-Executable az postgres server create --admin-password $PostgreSqlServerPassword --admin-user $PostgreSqlServerUsername --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName --location $resourceGroupLocation --sku-name $PostgreSqlServerSku --backup-retention $BackupRetentionInDays --assign-identity --public-network-access $PostgreSqlServerPublicNetworkAccess --version $PostgreSqlServerVersion
 }
 
 # VNET Whitelisting
@@ -59,7 +65,7 @@ if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Application
 
     # Create VNET Whitelist rule
     $firewallRuleName = ToMd5Hash -InputString "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow"
-    az postgres server vnet-rule create --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName --name $firewallRuleName --subnet $applicationSubnetId
+    Invoke-Executable az postgres server vnet-rule create --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName --name $firewallRuleName --subnet $applicationSubnetId
 }
 
 # Private Endpoint
