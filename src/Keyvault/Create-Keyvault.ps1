@@ -30,8 +30,8 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Check if keyvault needs to be created. Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/issues/13752
-$keyvault = (Invoke-Executable -AllowToFail az keyvault show --resource-group $KeyvaultResourceGroupName --name $KeyvaultName) | ConvertFrom-Json
-if (!$keyvault) {
+$keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }
+if (!$keyvaultExists) {
     Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku standard --bypass None --tags ${ResourceTags}
 }
 
