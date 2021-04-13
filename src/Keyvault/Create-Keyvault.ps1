@@ -7,17 +7,17 @@ param (
     [Parameter()][string] $LogAnalyticsWorkspaceName,
 
     # VNET Whitelisting
-    [Parameter(Mandatory)][string] $ApplicationVnetResourceGroupName,
-    [Parameter(Mandatory)][string] $ApplicationVnetName,
-    [Parameter(Mandatory)][string] $ApplicationSubnetName,
+    [Parameter()][string] $ApplicationVnetResourceGroupName,
+    [Parameter()][string] $ApplicationVnetName,
+    [Parameter()][string] $ApplicationSubnetName,
 
     # Private Endpoint
     [Alias("VnetResourceGroupName")]
-    [Parameter(Mandatory)][string] $KeyvaultPrivateEndpointVnetResourceGroupName,
+    [Parameter()][string] $KeyvaultPrivateEndpointVnetResourceGroupName,
     [Alias("VnetName")]
-    [Parameter(Mandatory)][string] $KeyvaultPrivateEndpointVnetName,
-    [Parameter(Mandatory)][string] $KeyvaultPrivateEndpointSubnetName,
-    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
+    [Parameter()][string] $KeyvaultPrivateEndpointVnetName,
+    [Parameter()][string] $KeyvaultPrivateEndpointSubnetName,
+    [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $KeyvaultPrivateDnsZoneName = "privatelink.vaultcore.azure.net"
     
@@ -39,7 +39,10 @@ if (!$keyvault) {
 $keyvaultId = (Invoke-Executable az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
 
 # Create diagnostics settings for the Keyvault resource
-Invoke-Executable az monitor diagnostic-settings create --resource $keyvaultId --name $KeyvaultDiagnosticsName --workspace $LogAnalyticsWorkspaceName --logs "[{ 'category': 'AuditEvent', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if($KeyvaultDiagnosticsName -and $LogAnalyticsWorkspaceName)
+{
+    Invoke-Executable az monitor diagnostic-settings create --resource $keyvaultId --name $KeyvaultDiagnosticsName --workspace $LogAnalyticsWorkspaceName --logs "[{ 'category': 'AuditEvent', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+}
 
 # Private Endpoint
 if($KeyvaultPrivateEndpointVnetResourceGroupName -and $KeyvaultPrivateEndpointVnetName -and $KeyvaultPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $KeyvaultPrivateDnsZoneName)
