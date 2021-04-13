@@ -15,18 +15,18 @@ param (
     [Parameter()][string] $PostgreSqlServerVersion = "11",
 
     # VNET Whitelisting
-    [Parameter(Mandatory)][string] $ApplicationVnetName,
-    [Parameter(Mandatory)][string] $ApplicationVnetResourceGroupName,
-    [Parameter(Mandatory)][string] $ApplicationSubnetName,
+    [Parameter()][string] $ApplicationVnetName,
+    [Parameter()][string] $ApplicationVnetResourceGroupName,
+    [Parameter()][string] $ApplicationSubnetName,
 
     # Private Endpoint
     [Alias("VnetResourceGroupName")]
-    [Parameter(Mandatory)][string] $PostgreSqlServerPrivateEndpointVnetResourceGroupName,
+    [Parameter()][string] $PostgreSqlServerPrivateEndpointVnetResourceGroupName,
     [Alias("VnetName")]
-    [Parameter(Mandatory)][string] $PostgreSqlServerPrivateEndpointVnetName,
+    [Parameter()][string] $PostgreSqlServerPrivateEndpointVnetName,
     [Alias("SqlServerPrivateEndpointSubnetName")]
-    [Parameter(Mandatory)][string] $PostgreSqlServerPrivateEndpointSubnetName,
-    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
+    [Parameter()][string] $PostgreSqlServerPrivateEndpointSubnetName,
+    [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $PostgreSqlServerPrivateDnsZoneName = "privatelink.postgres.database.azure.com"
     
