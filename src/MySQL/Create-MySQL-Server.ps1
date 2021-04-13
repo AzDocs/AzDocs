@@ -21,7 +21,7 @@ param (
     [Parameter()][string] $MySqlServerPrivateEndpointVnetResourceGroupName,
     [Parameter()][string] $MySqlServerPrivateEndpointVnetName,
     [Parameter()][string] $MySqlServerPrivateEndpointSubnetName,
-    [Parameter()][string] $MySqlServerPrivateDnsZoneName = 'privatelink.database.windows.net',
+    [Parameter()][string] $MySqlServerPrivateDnsZoneName = 'privatelink.mysql.database.azure.com',
     [Parameter()][string] $DNSZoneResourceGroupName
 )
 
