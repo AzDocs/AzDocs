@@ -30,13 +30,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 # Private Endpoint Parameters
 
 If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises or within the VNet you are using.
-| Parameter | Required | Example Value | Description |
+NOTE: These parameters are only required when you want to use a private endpoint for this resource.
+| Parameter | Required for Pvt Endpoint | Example Value | Description |
 |--|--|--|--|
-| RedisInstancePrivateEndpointVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The ResourceGroup where your VNET, for your RedisCache Instance Private Endpoint, resides in. |
-| RedisInstancePrivateEndpointVnetName | <input type="checkbox"> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the RedisCache Instance Private Endpoint in. |
-| RedisInstancePrivateEndpointSubnetName | <input type="checkbox"> | `app-subnet-3` | The name of the subnet you want your RedisCache Instance's private endpoint to be in. |
-| DNSZoneResourceGroupName | <input type="checkbox"> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| RedisInstancePrivateDnsZoneName | <input type="checkbox"> | `privatelink.redis.cache.windows.net` | The name of DNS zone where your private endpoint will be created in. If you are unsure use `privatelink.redis.cache.windows.net` |
+| RedisInstancePrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your RedisCache Instance Private Endpoint, resides in. |
+| RedisInstancePrivateEndpointVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the RedisCache Instance Private Endpoint in. |
+| RedisInstancePrivateEndpointSubnetName | <input type="checkbox" checked> | `app-subnet-3` | The name of the subnet you want your RedisCache Instance's private endpoint to be in. |
+| DNSZoneResourceGroupName | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
+| RedisInstancePrivateDnsZoneName | <input type="checkbox" checked> | `privatelink.redis.cache.windows.net` | The name of DNS zone where your private endpoint will be created in. If you are unsure use `privatelink.redis.cache.windows.net` |
 
 # Code
 

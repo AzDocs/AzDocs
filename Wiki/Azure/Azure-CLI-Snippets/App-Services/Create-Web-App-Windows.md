@@ -33,24 +33,26 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 # VNET Whitelisting Parameters
 
-If you want to use "vnet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
-| Parameter | Required | Example Value | Description |
+If you want to use "VNet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
+NOTE: These parameters are only required when you want to use the VNet whitelisting feature for this resource.
+| Parameter | Required for VNet whitelisting | Example Value | Description |
 |--|--|--|--|
-| GatewayVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The ResourceGroup where your VNET, for your Gateway, resides in. |
-| GatewayVnetName | <input type="checkbox"> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the Gateway is in|
-| GatewaySubnetName | <input type="checkbox"> | `app-subnet-4` | The name of the subnet the Gateway is in |
-| GatewayWhitelistRulePriority | <input type="checkbox"> | `20` | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
+| GatewayVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your Gateway, resides in. |
+| GatewayVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the Gateway is in|
+| GatewaySubnetName | <input type="checkbox" checked> | `app-subnet-4` | The name of the subnet the Gateway is in |
+| GatewayWhitelistRulePriority | <input type="checkbox" checked> | `20` | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
 
 # Private Endpoint Parameters
 
 If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises.
-| Parameter | Required | Example Value | Description |
+NOTE: These parameters are only required when you want to use a private endpoint for this resource.
+| Parameter | Required for Pvt Endpoint | Example Value | Description |
 |--|--|--|--|
-| AppServicePrivateEndpointSubnetName | <input type="checkbox"> | `app-subnet-3` | The subnet to place the private endpoint for this appservice in
-| DNSZoneResourceGroupName | <input type="checkbox"> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| AppServicePrivateDnsZoneName | <input type="checkbox"> | `privatelink.azurewebsites.net` | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurewebsites.net` as value for AppServices.
-| AppServicePrivateEndpointVnetName | <input type="checkbox"> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the App Service Private Endpoint in. |
-| AppServicePrivateEndpointVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The ResourceGroup where your VNET, for your App Service Private Endpoint, resides in. |
+| AppServicePrivateEndpointSubnetName | <input type="checkbox" checked> | `app-subnet-3` | The subnet to place the private endpoint for this appservice in
+| DNSZoneResourceGroupName | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
+| AppServicePrivateDnsZoneName | <input type="checkbox" checked> | `privatelink.azurewebsites.net` | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurewebsites.net` as value for AppServices.
+| AppServicePrivateEndpointVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the App Service Private Endpoint in. |
+| AppServicePrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your App Service Private Endpoint, resides in. |
 
 # Code
 

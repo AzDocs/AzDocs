@@ -13,20 +13,35 @@ This snippet also managed the following compliancy rules:
 # Parameters
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter | Example Value | Description |
-|--|--|--|
-| KeyvaultPrivateEndpointVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your SQL Server Private Endpoint, resides in. |
-| KeyvaultPrivateEndpointVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the Keyvault Private Endpoint in. |
-| ApplicationVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your appservice, resides in. |
-| ApplicationVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the appservice is in|
-| ApplicationSubnetName | `app-subnet-3` | The subnetname for the subnet whitelist on the keyvault. |
-| DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| KeyvaultPrivateDnsZoneName | `privatelink.vaultcore.azure.net` | Generally this will be `privatelink.vaultcore.azure.net`. This defines which DNS Zone to use for the private keyvault endpoint. |
-| KeyvaultDiagnosticsName | `mykeyvault-$(Release.EnvironmentName)` | This name will be used as an identifier in the log analytics workspace. It is recommended to use your Application Insights name for this parameter. |
-| KeyvaultName | `mykeyvault-$(Release.EnvironmentName)` | This is the keyvault name to use. |
-| KeyvaultPrivateEndpointSubnetName | `app-subnet-3` | The name of the subnet where the keyvault's private endpoint will reside in. |
-| LogAnalyticsWorkspaceName | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The name of the Log Analytics Workspace for the diagnostics settings of the keyvault. |
-| KeyvaultResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your keyvault will reside in. |
+| Parameter | Required | Example Value | Description |
+|--|--|--|--|
+| KeyvaultDiagnosticsName | <input type="checkbox" checked> | `mykeyvault-$(Release.EnvironmentName)` | This name will be used as an identifier in the log analytics workspace. It is recommended to use your Application Insights name for this parameter. |
+| KeyvaultName | <input type="checkbox" checked> | `mykeyvault-$(Release.EnvironmentName)` | This is the keyvault name to use. |
+| LogAnalyticsWorkspaceName | <input type="checkbox"> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The name of the Log Analytics Workspace for the diagnostics settings of the keyvault. |
+| KeyvaultResourceGroupName | <input type="checkbox"> | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your keyvault will reside in. |
+
+# VNET Whitelisting Parameters
+
+If you want to use "vnet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
+NOTE: These parameters are only required when you want to use the VNet whitelisting feature for this resource.
+| Parameter | Required for VNET Whitelisting | Example Value | Description |
+|--|--|--|--|
+| ApplicationVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your appservice, resides in. |
+| ApplicationVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the appservice is in|
+| ApplicationSubnetName | <input type="checkbox" checked> | `app-subnet-3` | The subnetname for the subnet whitelist on the keyvault. |
+
+# Private Endpoint Parameters
+
+If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises.
+NOTE: These parameters are only required when you want to use a private endpoint for this resource.
+| Parameter | Required for Pvt Endpoint | Example Value | Description |
+|--|--|--|--|
+| KeyvaultPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your SQL Server Private Endpoint, resides in. |
+| KeyvaultPrivateEndpointVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the Keyvault Private Endpoint in. |
+| KeyvaultPrivateEndpointSubnetName | <input type="checkbox" checked> | `app-subnet-3` | The name of the subnet where the keyvault's private endpoint will reside in. |
+| DNSZoneResourceGroupName | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
+| KeyvaultPrivateDnsZoneName | <input type="checkbox" checked> | `privatelink.vaultcore.azure.net` | Generally this will be `privatelink.vaultcore.azure.net`. This defines which DNS Zone to use for the private keyvault endpoint. |
+
 
 # Code
 [Click here to download this script](../../../../src/Keyvault/Create-Keyvault.ps1)
