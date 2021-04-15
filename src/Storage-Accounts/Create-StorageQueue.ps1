@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param (
-    [Alias]("ResourceGroupName")]
+    [Alias("ResourceGroupName")]
     [Parameter(Mandatory)][string] $ResourceGroupName,
     [Alias("StorageAccountName")]
     [Parameter(Mandatory)][string] $BlobStorageAccountName,
