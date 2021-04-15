@@ -10,7 +10,6 @@ param (
     [Parameter()][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter()][ValidateSet('1.0', '1.1', '1.2')][string] $SqlServerMinimalTlsVersion = '1.2',
     [Parameter()][bool] $SqlServerEnablePublicNetwork = $true,
-    [Parameter()][bool] $SqlServerEnableAuditing = $false,
 
     # VNET Whitelisting Parameters
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -78,7 +77,7 @@ if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Application
 #      Invoke-Executable az sql server update --name $SqlServerName --resource-group $SqlServerResourceGroupName --set publicNetworkAccess="Disabled"
 # }
 
-if($SqlServerEnableAuditing)
+if($LogAnalyticsWorkspaceResourceId)
 {
     # Set auditing policy on SQL server
     Install-Module PowerShellGet -Force

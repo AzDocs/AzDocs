@@ -26,7 +26,6 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | SqlServerName | <input type="checkbox" checked> | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
 | SqlServerResourceGroupName | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your sql server to be created in |
 | SqlServerMinimalTlsVersion | <input type="checkbox"> | `1.2` | The minimal TLS version to use. Defaults to `1.2`. Options are `1.0`, `1.1`, `1.2` |
-| SqlServerEnableAuditing | <input type="checkbox"> | `true`/`false` | Enable SQL Server auditing logs to a log analytics workspace. |
 | LogAnalyticsWorkspaceResourceId | <input type="checkbox"> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace to write the auditing logs to for this SQL Server instance |
 | SqlServerEnablePublicNetwork | <input type="checkbox"> | `true`/`false` | Enable/disable public access. <font color="red">NOTE:</font> If you use vnet whitelisting, this should be enabled. If you use private endpoints you can disable this. |
 
