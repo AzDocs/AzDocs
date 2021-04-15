@@ -1,10 +1,8 @@
 [CmdletBinding()]
 param (
-    [Alias("ResourceGroupName")]
     [Parameter(Mandatory)][string] $ResourceGroupName,
     [Alias("StorageAccountName")]
     [Parameter(Mandatory)][string] $BlobStorageAccountName,
-    [Alias("QueueName")]
     [Parameter(Mandatory)][string] $QueueName
 )
 
