@@ -23,7 +23,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | RedisInstanceResourceGroupName | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your Redis Cache to be created in |
 | RedisInstanceSkuName | <input type="checkbox" checked> | `Standard` | The skuname for the Redis Instance to use. Options are: `Basic`, `Standard`, `Premium`. More information can be found [here](https://azure.microsoft.com/en-us/pricing/details/cache/). |
 | RedisInstanceVmSize | <input type="checkbox" checked> | `C1` | This says something about the performance of your Redis Cache. Options are: `C0`, `C1`, `C2`, `C3`, `C4`, `C5`, `C6`, `P1`, `P2`, `P3`, `P4`, `P5`. More information can be found [here](https://azure.microsoft.com/en-us/pricing/details/cache/). |
-| RedisInstanceEnableNonSslPort | <input type="checkbox"> | `$true`/`$false` | Enable or disable the non-SSL port. This is by default (and recommended) disabled (`false`). |
+| RedisInstanceEnableNonSslPort | <input type="checkbox"> | `$true`/`$false` | Enable or disable the non-SSL port. This is by default (and recommended) disabled (`$false`). |
 | RedisInstanceMinimalTlsVersion | <input type="checkbox"> | `1.2` | The minimal TLS version to use. Defaults to `1.2`. Options are `1.0`, `1.1`, `1.2` |
 
 
