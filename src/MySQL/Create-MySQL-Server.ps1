@@ -51,7 +51,7 @@ if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEnd
     $sqlServerPrivateEndpointName = "$($MySqlServerName)-pvtmysql"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sqlServerPrivateEndpointSubnetId -PrivateEndpointName $sqlServerPrivateEndpointName -PrivateEndpointResourceGroupName $MySqlServerResourceGroupName -TargetResourceId $mySqlServerResourceId -PrivateEndpointGroupId sqlServer -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $MySqlServerPrivateDnsZoneName -PrivateDnsLinkName "$($MySqlServerPrivateEndpointVnetName)-mysql"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sqlServerPrivateEndpointSubnetId -PrivateEndpointName $sqlServerPrivateEndpointName -PrivateEndpointResourceGroupName $MySqlServerResourceGroupName -TargetResourceId $mySqlServerResourceId -PrivateEndpointGroupId mysqlServer -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $MySqlServerPrivateDnsZoneName -PrivateDnsLinkName "$($MySqlServerPrivateEndpointVnetName)-mysql"
 }
 
 if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
