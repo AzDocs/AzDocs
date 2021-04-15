@@ -34,7 +34,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 # VNET Whitelisting Parameters
 
 If you want to use "VNet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
-NOTE: These parameters are only required when you want to use the VNet whitelisting feature for this resource.
+> NOTE: These parameters are only required when you want to use the VNet whitelisting feature for this resource.
 | Parameter | Required for VNet whitelisting | Example Value | Description |
 |--|--|--|--|
 | GatewayVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your Gateway, resides in. |
@@ -45,7 +45,7 @@ NOTE: These parameters are only required when you want to use the VNet whitelist
 # Private Endpoint Parameters
 
 If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises.
-NOTE: These parameters are only required when you want to use a private endpoint for this resource.
+> NOTE: These parameters are only required when you want to use a private endpoint for this resource.
 | Parameter | Required for Pvt Endpoint | Example Value | Description |
 |--|--|--|--|
 | AppServicePrivateEndpointSubnetName | <input type="checkbox" checked> | `app-subnet-3` | The subnet to place the private endpoint for this appservice in

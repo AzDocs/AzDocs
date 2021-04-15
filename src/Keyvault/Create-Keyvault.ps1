@@ -47,6 +47,7 @@ if($KeyvaultDiagnosticsName -and $LogAnalyticsWorkspaceName)
 # Private Endpoint
 if($KeyvaultPrivateEndpointVnetResourceGroupName -and $KeyvaultPrivateEndpointVnetName -and $KeyvaultPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $KeyvaultPrivateDnsZoneName)
 {
+    Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch information
     $vnetId = (Invoke-Executable az network vnet show --resource-group $KeyvaultPrivateEndpointVnetResourceGroupName --name $KeyvaultPrivateEndpointVnetName | ConvertFrom-Json).id
     $keyvaultPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $KeyvaultPrivateEndpointVnetResourceGroupName --name $KeyvaultPrivateEndpointSubnetName --vnet-name $KeyvaultPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -59,6 +60,7 @@ if($KeyvaultPrivateEndpointVnetResourceGroupName -and $KeyvaultPrivateEndpointVn
 # VNET Whitelisting
 if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
+    Write-Host "VNET Whitelisting is desired. Adding the needed components."
     $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
 
     # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET

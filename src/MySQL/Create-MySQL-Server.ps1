@@ -43,6 +43,7 @@ if(!(Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName
 
 if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEndpointVnetName -and $MySqlServerPrivateEndpointSubnetName -and $MySqlServerPrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {
+    Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
     $mySqlServerResourceId = (Invoke-Executable az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id
     $vnetId = (Invoke-Executable az network vnet show --resource-group $MySqlServerPrivateEndpointVnetResourceGroupName --name $MySqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -55,6 +56,7 @@ if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEnd
 
 if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
+    Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # Fetch the Subnet ID where the Application Resides in
     $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
 

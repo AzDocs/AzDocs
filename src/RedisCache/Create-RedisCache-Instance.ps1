@@ -41,6 +41,7 @@ if(!(Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --re
 
 if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivateEndpointVnetName -and $RedisInstancePrivateEndpointSubnetName -and $RedisInstancePrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {
+    Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
     $redisInstanceResourceId = (Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName | ConvertFrom-Json).id
     $vnetId = (Invoke-Executable az network vnet show --resource-group $RedisInstancePrivateEndpointVnetResourceGroupName --name $RedisInstancePrivateEndpointVnetName | ConvertFrom-Json).id

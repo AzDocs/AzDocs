@@ -30,7 +30,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 # Private Endpoint Parameters
 
 If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises or within the VNet you are using.
-NOTE: These parameters are only required when you want to use a private endpoint for this resource.
+> NOTE: These parameters are only required when you want to use a private endpoint for this resource.
+
 | Parameter | Required for Pvt Endpoint | Example Value | Description |
 |--|--|--|--|
 | RedisInstancePrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your RedisCache Instance Private Endpoint, resides in. |

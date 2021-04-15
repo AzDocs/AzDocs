@@ -110,6 +110,7 @@ if ($EnableFunctionAppDeploymentSlot)
 # VNET Whitelisting
 if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 {
+    Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # Fetch the Subnet ID where the Application Resides in
     $gatewaySubnetId = (Invoke-Executable az network vnet subnet show --resource-group $GatewayVnetResourceGroupName --name $GatewaySubnetName --vnet-name $GatewayVnetName | ConvertFrom-Json).id
 
@@ -127,6 +128,7 @@ if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 # Add private endpoint & Setup Private DNS
 if($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName)
 {
+    Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
     $vnetId = (Invoke-Executable az network vnet show --resource-group $FunctionAppPrivateEndpointVnetResourceGroupName --name $FunctionAppPrivateEndpointVnetName | ConvertFrom-Json).id
     $functionAppPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $FunctionAppPrivateEndpointVnetResourceGroupName --name $FunctionAppPrivateEndpointSubnetName --vnet-name $FunctionAppPrivateEndpointVnetName | ConvertFrom-Json).id

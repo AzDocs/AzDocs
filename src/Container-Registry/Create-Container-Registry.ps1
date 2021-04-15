@@ -31,6 +31,7 @@ Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroup
 # Private Endpoint
 if($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName)
 {
+    Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch basic info for pvt endpoint
     $vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerRegistryPrivateEndpointVnetResourceGroupName --name $ContainerRegistryPrivateEndpointVnetName | ConvertFrom-Json).id
     $containerRegistryPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerRegistryPrivateEndpointVnetResourceGroupName --name $ContainerRegistryPrivateEndpointSubnetName --vnet-name $ContainerRegistryPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -46,6 +47,7 @@ if($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpo
 # VNET Whitelisting
 if($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResourceGroupName)
 {
+    Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # Fetch Subnet ID for the application
     $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
 

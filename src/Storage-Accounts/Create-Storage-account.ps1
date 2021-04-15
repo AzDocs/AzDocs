@@ -34,6 +34,7 @@ Invoke-Executable az storage account create --name $StorageAccountName --resourc
 # VNET Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
+    Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # Fetch the application subnet id to whitelist
     $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
 
@@ -50,6 +51,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
 # Private Endpoint
 if ($StorageAccountPrivateEndpointVnetName -and $StorageAccountPrivateEndpointVnetResourceGroupName -and $StorageAccountPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $StorageAccountPrivateDnsZoneName)
 {
+    Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch the basic information for creating the Private Endpoint
     $storageAccountId = (Invoke-Executable az storage account show --name $StorageAccountName --resource-group $StorageAccountResourceGroupName | ConvertFrom-Json).id
     $vnetId = (Invoke-Executable az network vnet show --resource-group $StorageAccountPrivateEndpointVnetResourceGroupName --name $StorageAccountPrivateEndpointVnetName | ConvertFrom-Json).id

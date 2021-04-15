@@ -46,9 +46,9 @@ Write-Host "Found location $($resourceGroupLocation)"
 if(!$((Invoke-Executable -AllowToFail az postgres server show --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName | ConvertFrom-Json).Id))
 {
     # Make sure to enable public network access when we are using VNET Whitelisting
-    if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
+    if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName -and $PostgreSqlServerPublicNetworkAccess -eq 'Disabled')
     {
-        $PostgreSqlServerPublicNetworkAccess = 'Enabled'
+        throw "You are trying to use VNET whitelisting with public access disabled. This is impossible. Either remove your vnet whitelist or enable public access."
     }
     Write-Host "Creating Postgres server"
     Invoke-Executable az postgres server create --admin-password $PostgreSqlServerPassword --admin-user $PostgreSqlServerUsername --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName --location $resourceGroupLocation --sku-name $PostgreSqlServerSku --backup-retention $BackupRetentionInDays --assign-identity --public-network-access $PostgreSqlServerPublicNetworkAccess --version $PostgreSqlServerVersion
@@ -57,6 +57,7 @@ if(!$((Invoke-Executable -AllowToFail az postgres server show --name $PostgreSql
 # VNET Whitelisting
 if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
+    Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # Fetch the Application's Subnet ID
     $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
 
@@ -71,6 +72,7 @@ if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Application
 # Private Endpoint
 if($PostgreSqlServerPrivateEndpointVnetResourceGroupName -and $PostgreSqlServerPrivateEndpointVnetName -and $PostgreSqlServerPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $PostgreSqlServerPrivateDnsZoneName)
 {
+    Write-Host "A private endpoint is desired. Adding the needed components."
     $vnetId = (Invoke-Executable az network vnet show --resource-group $PostgreSqlServerPrivateEndpointVnetResourceGroupName --name $PostgreSqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
     $sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $PostgreSqlServerPrivateEndpointVnetResourceGroupName --name $PostgreSqlServerPrivateEndpointSubnetName --vnet-name $PostgreSqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
     $sqlServerPrivateEndpointName = "$($PostgreSqlServerName)-pvtpsql"
