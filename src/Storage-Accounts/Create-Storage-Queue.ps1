@@ -12,7 +12,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$connectionString = (Invoke-Executable az storage account show-connection-string -n $BlobStorageAccountName -g $ResourceGroupName --query connectionString -o tsv)
+$connectionString = (Invoke-Executable az storage account show-connection-string -n $BlobStorageAccountName -g $ResourceGroupName --query connectionString --output tsv)
 $env:AZURE_STORAGE_CONNECTION_STRING = $connectionString
 
 Invoke-Executable az storage queue create --name $QueueName
