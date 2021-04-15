@@ -14,8 +14,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-#$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -Name $StorageAccountName
-#$ctx = $storageAccount.Context
-#New-AzStorageQueue –Name $queueName -Context $ctx
+$connectionString = (Invoke-Executable az storage account show-connection-string -n $BlobStorageAccountName -g $ResourceGroupName --query connectionString -o tsv)
+$env:AZURE_STORAGE_CONNECTION_STRING = $connectionString
+
+Invoke-Executable az storage queue create --name $StorageAccountName
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
