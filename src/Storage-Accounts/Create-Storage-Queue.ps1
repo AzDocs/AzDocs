@@ -15,6 +15,6 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 $connectionString = (Invoke-Executable az storage account show-connection-string -n $BlobStorageAccountName -g $ResourceGroupName --query connectionString -o tsv)
 $env:AZURE_STORAGE_CONNECTION_STRING = $connectionString
 
-Invoke-Executable az storage queue create --name $StorageAccountName
+Invoke-Executable az storage queue create --name $QueueName
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
