@@ -10,7 +10,6 @@ param (
     [Parameter()][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter()][ValidateSet('1.0', '1.1', '1.2')][string] $SqlServerMinimalTlsVersion = '1.2',
     [Parameter()][bool] $SqlServerEnablePublicNetwork = $true,
-    [Parameter()][bool] $SqlServerEnableAuditing = $false,
 
     # VNET Whitelisting Parameters
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -45,6 +44,7 @@ $sqlServerId = (Invoke-Executable az sql server show --name $SqlServerName --res
 
 if($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpointVnetName -and $SqlServerPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $SqlServerPrivateDnsZoneName)
 {
+    Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
     $vnetId = (Invoke-Executable az network vnet show --resource-group $SqlServerPrivateEndpointVnetResourceGroupName --name $SqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
     $sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $SqlServerPrivateEndpointVnetResourceGroupName --name $SqlServerPrivateEndpointSubnetName --vnet-name $SqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -57,6 +57,7 @@ if($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpoint
 
 if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
+    Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # Fetch the Subnet ID where the Application Resides in
     $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
 
@@ -78,7 +79,7 @@ if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Application
 #      Invoke-Executable az sql server update --name $SqlServerName --resource-group $SqlServerResourceGroupName --set publicNetworkAccess="Disabled"
 # }
 
-if($SqlServerEnableAuditing)
+if($LogAnalyticsWorkspaceResourceId)
 {
     # Set auditing policy on SQL server
     Install-Module PowerShellGet -Force
