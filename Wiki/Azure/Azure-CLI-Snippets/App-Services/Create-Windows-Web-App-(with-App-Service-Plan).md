@@ -2,6 +2,8 @@
 
 # Description
 
+<font color="red">NOTE: This script is now legacy. Please use `Create-App-Service-Plan-Windows` & `Create-Web-App-Windows` instead of this task.</font>
+
 This snippet will create an Web App if it does not exist & create an app service plan if it does not exist. It also adds the mandatory tags to the resources.
 
 This script will call the following 2 scripts in order (please refer to those scripts for information):

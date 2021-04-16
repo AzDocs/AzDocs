@@ -3,6 +3,8 @@
 # Description
 This snippet will link an App Configuration key to a Keyvault Secret.
 
+<font color="red">NOTE: At the time of writing: If you are using vnet whitelisting or private endpoints on your keyvault, you can not link your app config key to a keyvault secret due to network technical limitations.</font>
+
 # Parameters
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 

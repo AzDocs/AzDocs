@@ -1,7 +1,7 @@
 [[_TOC_]]
 
 # Description
-This snippet will remove an IP range from the whitelist so that the website or SCM-part of the website cannot be accessed by the given ip range. Please note that does not work if the website has a private endpoint. So this should not work for a regular website that is bound to the compliancy rules.
+This snippet will set the appsettings on your appservice. It allows you to set the settings for specific slots or all slots.
 
 # Parameters
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
@@ -9,9 +9,9 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 |--|--|--|
 | AppServiceResourceGroupName | `MyTeam-SomeApi-$(Release.EnvironmentName)` | The resourcegroup where the AppService resides in. |
 | AppServiceName | `App-Service-name` | Name of the app service to set the whitelist on. | 
-| AccessRestrictionRuleName | `Hosted Agent` | Name of the Rule to remove from the whitelist/blacklist  |
+| AppServiceAppSettings | `@("settingname=settingvalue"; "anothersettingname=anothersettingvalue")` and/or `@moreSettings.json` | Powershell string array with settings, Also you can load a file with JSON settings. |
 | AppServiceDeploymentSlotName | `staging` |  Name of the deployment slot to add ip whitelisting to. This is an optional field. |
 | ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving this resource |
 
 # Code
-[Click here to download this script](../../../../src/App-Services/Remove-Ip-Whitelist-For-App_service.ps1)
+[Click here to download this script](../../../../src/App-Services/Set-AppSettings-For-AppService.ps1)

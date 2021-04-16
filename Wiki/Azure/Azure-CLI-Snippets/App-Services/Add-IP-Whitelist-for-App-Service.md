@@ -14,7 +14,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | WhiteListMyIp | Switch to enable whitelisting the machine's ip where you're running the script from |
 | AppServiceDeploymentSlotName | `staging` | Name of the deployment slot to add ip whitelisting to. This is an optional field. |
 | AccessRestrictionAction | `Deny` | The access restriction can be changed here. Value can be 'Allow' or 'Deny'. Default value is 'Allow' (this is an optional field). | 
-| Priority | The priority can be changed here. Default value is '10' (this is an optional field) |
+| Priority | `10` | The priority can be changed here. Default value is '10' (this is an optional field) |
+| ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving this resource |
 
 # Code
 [Click here to download this script](../../../../src/App-Services/Add-IP-Whitelist-for-App-Service.ps1)

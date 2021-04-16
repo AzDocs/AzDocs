@@ -15,6 +15,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | FunctionAppDeploymentSlotName | `staging` | Name of the deployment slot to add ip whitelisting to. This is an optional field. |
 | AccessRestrictionAction | `Deny` | The access restriction can be changed here. Value can be 'Allow' or 'Deny'. Default value is 'Allow' (this is an optional field). | 
 | Priority | `10` | The priority can be changed here. Default value is '10' (this is an optional field) |
+| ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving this resource |
 
 # Code
 [Click here to download this script](../../../../src/Functions/Add-IP-Whitelist-for-Function-App.ps1)

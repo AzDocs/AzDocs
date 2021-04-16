@@ -1,10 +1,8 @@
 [CmdletBinding()]
 param (
-    [Alias("ResourceGroupName")]
     [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
     [Parameter(Mandatory)][string] $FunctionAppName,
-    [Alias("RuleName")]
-    [Parameter(Mandatory)][string] $AccessRestrictionRuleName,
+    [Parameter(Mandatory)][string[]] $FunctionAppAppSettings,
     [Parameter()][string] $FunctionAppDeploymentSlotName,
     [Parameter()][bool] $ApplyToAllSlots = $false
 )
@@ -20,12 +18,17 @@ if ($ApplyToAllSlots)
     $availableSlots = Invoke-Executable -AllowToFail az functionapp deployment slot list --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json
 }
 
-Remove-AccessRestriction -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $AccessRestrictionRuleName -DeploymentSlotName $FunctionAppDeploymentSlotName
+$optionalParameters = @()
+if ($FunctionAppDeploymentSlotName)
+{
+    $optionalParameters += "--slot", "$FunctionAppDeploymentSlotName"
+}
 
-# Apply to all slots if desired
+Invoke-Executable az functionapp config appsettings set --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --settings @FunctionAppAppSettings @optionalParameters
+
 foreach($availableSlot in $availableSlots)
 {
-    Remove-AccessRestriction -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $AccessRestrictionRuleName -DeploymentSlotName $availableSlot.name
+    Invoke-Executable az functionapp config appsettings set --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --settings @FunctionAppAppSettings --slot $availableSlot.name
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
