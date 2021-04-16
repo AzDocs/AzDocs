@@ -55,19 +55,30 @@ function Add-PrivateEndpoint
     Invoke-Executable az network vnet subnet update --ids $PrivateEndpointSubnetId --disable-private-endpoint-network-policies true
 
     # === BEGIN Removal of the old deprecated setup. ===
+    Write-Host "Checking for an old deprecated private endpoint setup"
+    $foundDeprecatedSetup = $false
     $privateEndpointResourceId = ((Invoke-Executable -AllowToFail az resource show --ids $TargetResourceId | ConvertFrom-Json).properties.privateEndpointConnections.properties.privateEndpoint.id) | Select-Object -first 1
-    $privateLinkServiceConnection = (Invoke-Executable -AllowToFail az network private-endpoint show --id $privateEndpointResourceId | ConvertFrom-Json).privateLinkServiceConnections | Select-Object -first 1
-    Write-Host "privateEndpointResourceId: $privateEndpointResourceId"
-    Write-Host "privateLinkServiceConnection: $privateLinkServiceConnection"
-    if ($privateLinkServiceConnection)
+    if($privateEndpointResourceId)
     {
-        Write-Host "privateLinkServiceConnection.name: $($privateLinkServiceConnection.name)"
-        if ($privateLinkServiceConnection.name -like "*-connection")
+        $privateLinkServiceConnection = (Invoke-Executable -AllowToFail az network private-endpoint show --id $privateEndpointResourceId | ConvertFrom-Json).privateLinkServiceConnections | Select-Object -first 1
+        Write-Host "privateEndpointResourceId: $privateEndpointResourceId"
+        Write-Host "privateLinkServiceConnection: $privateLinkServiceConnection"
+        if ($privateLinkServiceConnection)
         {
-            Write-Host "Found old private endpoint. Deleting before recreation."
-            Write-Host "privateLinkServiceConnection.name: $($privateLinkServiceConnection.id)"
-            Invoke-Executable az network private-endpoint delete --id $privateLinkServiceConnection.id
+            Write-Host "privateLinkServiceConnection.name: $($privateLinkServiceConnection.name)"
+            if ($privateLinkServiceConnection.name -like "*-connection")
+            {
+                Write-Host "Old deprecated private endpoint setup found. Removing..."
+                $foundDeprecatedSetup = $true
+                Write-Host "privateLinkServiceConnection.name: $($privateLinkServiceConnection.id)"
+                Invoke-Executable az network private-endpoint delete --id $privateLinkServiceConnection.id
+                Write-Host "Old deprecated private endpoint setup removed"
+            }
         }
+    }
+    if(!$foundDeprecatedSetup)
+    {
+        Write-Host "No old deprecated private endpoint setup found. Continuing..."
     }
     # === END Removal of the old deprecated setup. ===
 

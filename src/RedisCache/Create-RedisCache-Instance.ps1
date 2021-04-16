@@ -37,6 +37,11 @@ if(!(Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --re
         $additionalParameters += '--subnet-id', $RedisInstanceSubnetId
     }
     Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --tags ${ResourceTags} @additionalParameters
+    while(((Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json).provisioningState -eq 'Creating')
+    {
+        Write-Host "Redis still creating... waiting for it to complete..."
+        Start-Sleep -Seconds 60
+    }
 }
 
 if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivateEndpointVnetName -and $RedisInstancePrivateEndpointSubnetName -and $RedisInstancePrivateDnsZoneName -and $DNSZoneResourceGroupName)
