@@ -8,3 +8,54 @@ The goal is to have `powershell`/`cli`/`arm` snippets for creating Azure resourc
 Please note that this is a **Work In Progress** effort
 
 [Azure CLI](/Azure/Azure-CLI-Snippets)
+
+# Why use this boilerplate
+TODO
+
+# Which components are available & when to use them?
+TODO
+
+# Core Concepts
+TODO
+
+## Zero trust architecture
+TODO
+
+## SaaS --> PaaS --> IaaS
+TODO
+
+## Azure CLI unless
+TODO
+
+# Prerequisites
+TODO
+
+# How to use the scripts
+TODO
+
+# Guidelines for creating new scripts
+TODO
+
+## Naming Convention
+TODO
+
+# How to keep your repositories in sync with upstream
+TODO
+
+# Networking
+TODO
+
+## VNet Whitelisting
+TODO
+
+## Private Endpoints
+TODO
+
+### DNS
+TODO
+
+### How to deploy to private resources: Azure DevOps Private Agents
+TODO
+
+### VNET_ROUTE_ALL
+TODO
