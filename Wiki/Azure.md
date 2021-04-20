@@ -59,3 +59,8 @@ TODO
 
 ### VNET_ROUTE_ALL
 TODO
+
+
+
+# TODO
+TLS 1.2 support for App Gateways in older onprem OS's: https://docs.microsoft.com/nl-nl/mem/configmgr/core/plan-design/security/enable-tls-1-2-client
