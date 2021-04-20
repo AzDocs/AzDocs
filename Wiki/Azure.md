@@ -12,10 +12,10 @@ Please note that this is a **Work In Progress** effort
 # Why use this boilerplate
 TODO
 
-# Core Concepts
+# Core Concepts / Architecture
 TODO
 
-# Which components are available & when to use them?
+## Resource naming best practises
 TODO
 
 ## Zero trust architecture
@@ -27,6 +27,15 @@ TODO
 ## Azure CLI unless
 TODO
 
+## Pipelines
+TODO
+
+### Service Principal Setup
+TODO
+
+# Which components are available & when to use them?
+TODO
+
 # Prerequisites
 TODO
 
@@ -36,7 +45,10 @@ TODO
 # Guidelines for creating new scripts
 TODO
 
-## Naming Convention
+## Coding Convention
+TODO
+
+### Naming
 TODO
 
 # How to keep your repositories in sync with upstream
