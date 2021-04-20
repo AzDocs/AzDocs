@@ -12,10 +12,10 @@ Please note that this is a **Work In Progress** effort
 # Why use this boilerplate
 TODO
 
-# Which components are available & when to use them?
+# Core Concepts
 TODO
 
-# Core Concepts
+# Which components are available & when to use them?
 TODO
 
 ## Zero trust architecture
