@@ -13,6 +13,9 @@ Please note that this is a **Work In Progress** effort
 TODO
 
 # Core Concepts / Architecture
+Backwards compatible
+Resource Group per App Stack
+Shared Resource Groups for Shared components
 TODO
 
 ## Resource naming best practises
@@ -69,10 +72,17 @@ TODO
 ### How to deploy to private resources: Azure DevOps Private Agents
 TODO
 
-### VNET_ROUTE_ALL
+### VNET_ROUTE_ALL / DNS SERVER REFERENCE
 TODO
 
+## On-premises networks
+TODO
 
+# Logging
+TODO
+
+# Monitoring
+TODO
 
 # TODO
 TLS 1.2 support for App Gateways in older onprem OS's: https://docs.microsoft.com/nl-nl/mem/configmgr/core/plan-design/security/enable-tls-1-2-client
