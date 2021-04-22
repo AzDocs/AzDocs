@@ -59,7 +59,7 @@ Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlan
 # Fetch the ID from the AppService
 $webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
 
-# Disable HTTPS
+# Enforce HTTPS
 Invoke-Executable az webapp update --ids $webAppId --https-only true
 
 # Disable FTPS
