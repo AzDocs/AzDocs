@@ -60,7 +60,7 @@ if (!$functionAppId)
     $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 }
 
-# Disable HTTPS
+# Enforce HTTPS
 Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=true
 
 # Disable FTPS
@@ -122,7 +122,12 @@ if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
     $firewallRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
     if (!((az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName | ConvertFrom-Json).ipSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
     {
-        Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority
+        Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority --scm-site $false
+    }
+
+    if (!((az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName | ConvertFrom-Json).scmIpSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
+    {
+        Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority --scm-site $true
     }
 }
 
