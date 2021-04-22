@@ -12,11 +12,12 @@ param (
     [Parameter(Mandatory)][string] $FUNCTIONS_EXTENSION_VERSION,
     [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT,
     [Parameter()][string] $FunctionAppNumberOfInstances = 2,
+    [Parameter()][ValidateSet("dotnet-isolated", "dotnet", "node", "custom", "java", "powershell")][string] $FunctionAppRuntime = "dotnet",
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
 
     # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
-    [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging", 
+    [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging",
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true,
 
     # VNET Whitelisting Parameters
@@ -51,11 +52,11 @@ $appServicePlanId = (Invoke-Executable az appservice plan show --resource-group 
 # Fetch the ID from the FunctionApp
 $functionAppId = (Invoke-Executable -AllowToFail az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 
-#TODO: az functionapp create is not idempotent, therefore the following fix. For more information, see https://github.com/Azure/azure-cli/issues/11863 
+#TODO: az functionapp create is not idempotent, therefore the following fix. For more information, see https://github.com/Azure/azure-cli/issues/11863
 if (!$functionAppId)
 {
     # Create FunctionApp
-    Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlanId --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime dotnet --functions-version 3 --disable-app-insights --tags ${ResourceTags}
+    Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlanId --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime $FunctionAppRuntime --functions-version 3 --disable-app-insights --tags ${ResourceTags}
     $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 }
 
@@ -94,7 +95,7 @@ if ($EnableFunctionAppDeploymentSlot)
     {
         $accessRestrictionRuleName = 'DisablePublicAccess'
         $restrictions = Invoke-Executable az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json
-        
+
         if (!($restrictions.scmIpSecurityRestrictions | Where-Object { $_.Name -eq $accessRestrictionRuleName }))
         {
             Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --action Deny --priority 100000 --description $FunctionAppName --rule-name $accessRestrictionRuleName --ip-address '0.0.0.0/0' --scm-site $true --slot $FunctionAppDeploymentSlotName
@@ -121,7 +122,12 @@ if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
     $firewallRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
     if (!((az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName | ConvertFrom-Json).ipSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
     {
-        Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority
+        Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority --scm-site $false
+    }
+
+    if (!((az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName | ConvertFrom-Json).scmIpSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
+    {
+        Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority --scm-site $true
     }
 }
 
