@@ -123,21 +123,40 @@ We recommend creating an `Azure Documentation` teamproject in your Azure DevOps 
 ## Mirroring the upstream repo to your own Azure DevOps instance
 First of all you need to mirror [the upstream github repo](https://github.com/RobHofmann/Azure.PlatformProvisioning) to your own Azure DevOps instance as a working repo. To do this, follow these steps:
 
- 1. Go to the `Repos` section of your TeamProject (in our case we created the teamproject Azure Documentation according to the [Create a new Azure DevOps Project](#create-a-new-azure-devops-project) section of this document).
+1. Go to the `Repos` section of your TeamProject (in our case we created the teamproject Azure Documentation according to the [Create a new Azure DevOps Project](#create-a-new-azure-devops-project) section of this document).
 
- ![Repos main page](../wiki_images/azdo_create_new_teamproject_3.png)
+![Mirror repo](../wiki_images/azdo_create_new_teamproject_3.png)
 
- 2. Import the `upstream` git repo from GitHub (Enter: https://github.com/RobHofmann/Azure.PlatformProvisioning.git).
+2. Import the `upstream` git repo from GitHub (Enter: https://github.com/RobHofmann/Azure.PlatformProvisioning.git).
 
- ![Repos main page](../wiki_images/azdo_create_new_teamproject_4.png)
+![Mirror repo](../wiki_images/azdo_create_new_teamproject_4.png)
 
- 3. Give it a second to import the repo.
+3. Give it a second to import the repo.
 
- ![Repos main page](../wiki_images/azdo_create_new_teamproject_5.png)
+![Mirror repo](../wiki_images/azdo_create_new_teamproject_5.png)
 
- 4. You will now have an imported repository.
+4. You will now have an imported repository.
 
- ![Repos main page](../wiki_images/azdo_create_new_teamproject_6.png)
+![Mirror repo](../wiki_images/azdo_create_new_teamproject_6.png)
+
+## Expose the docs as a wiki in your DevOps project
+This project also includes documentation next to the scripts. Even better: the document you are reading right now is inside the documentation :). You can publish these docs as a Wiki inside your own Azure DevOps teamproject. Here's how to do it:
+
+1. Go to your teamproject and navigate to `Overview` --> `Wiki`.
+
+![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_1.png)
+
+2. Next, click the `Publish code as Wiki` button.
+
+![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_2.png)
+
+3. Fill in the wiki information as shown on the screenshot below and hit the `Publish` button.
+
+![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_3.png)
+
+4. You will be redirected to your freshly exposed Wiki which you can now navigate!
+
+![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_4.png)
 
 ## Recommended GIT structure
 TODO
