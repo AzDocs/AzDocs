@@ -55,16 +55,41 @@ TODO
 TODO
 
 # Which components are available & when to use them?
-TODO
+Currently we've focussed on the following:
+ - Some basic network components
+ - Edge layer --> Application Gateway
+ - App Layer --> App Services, Function Apps & RedisCache
+ - Data layer --> Storage Accounts, Multiple relational databases & Keyvault.
+ - Supporting tools --> Application Insights, Azure Monitor & Azure Log Analytics Workspace
+ - Some experimental components --> App Configuration & Contianer Instances
 
 # Prerequisites
-TODO
+ - An Azure DevOps environment (you are probably reading this inside one right now).
+ - One or more azure subscriptions
 
 # How to use the scripts
-TODO
+To use these scripts you simply add a Azure CLI step to your pipeline. Make sure to fill in the right subscription you want to use in the step and select the script from this repo you want to execute. If you are using classic release pipelines, we recommend making a taskgroup per script so you can re-use them easily.
 
 # Guidelines for creating new scripts
-TODO
+If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
+
+The start of every script should look something like this:
+```powershell
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory)][string] $FictionalParameter,    
+)
+
+#region ===BEGIN IMPORTS===
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
+#endregion ===END IMPORTS===
+
+Write-Header -ScopedPSCmdlet $PSCmdlet
+```
+and the end should look something like this:
+```powershell
+Write-Footer -ScopedPSCmdlet $PSCmdlet
+```
 
 ## Coding Convention
 TODO
@@ -307,7 +332,6 @@ sudo service bind9 restart
 
 sudo apt-get upgrade -y
 ```
-
 
 # Logging
 TODO
