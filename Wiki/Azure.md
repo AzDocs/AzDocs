@@ -131,7 +131,8 @@ After doing this you enter the freshly created repo folder and use this command 
 Doing so will give you two remotes: `origin` & `upstream`.
 
 ### Pulling new changes from upstream (Github) to your origin repo
-*Make sure you followed the information from [How to keep your repositories in sync with upstream](how-to-keep-your-repositories-in-sync-with-upstream) first.*
+*Make sure you followed the information from [How to keep your repositories in sync with upstream](#how-to-keep-your-repositories-in-sync-with-upstream) first.*
+
 For this example lets assume that some work has been done by other companies and you want the latest & greatest changes for your company. Since our philosophy is that `upstream` should always be able to merge to `origin` we pull directly into our `origin/main` branch to avoid squash commits over and over between `upstream` & `origin`. Follow these steps to get the latest from `upstream` to your `origin`:
 
 ```cmd
@@ -147,7 +148,8 @@ git push origin main
 Your repository is now up to date.
 
 ### Commit the work you've done to the upstream (GitHub) repo
-*Make sure you followed the information from [How to keep your repositories in sync with upstream](how-to-keep-your-repositories-in-sync-with-upstream) first.*
+*Make sure you followed the information from [How to keep your repositories in sync with upstream](#how-to-keep-your-repositories-in-sync-with-upstream) first.*
+
 Let's assume you've done some work on your `origin` and at some point in time you want to sync this back to the `upstream`. We do this by creating a new branch and pushing it to the upstream. We need to make sure we use the latest version of main to create our PR Branch from:
 
 ```cmd
