@@ -92,7 +92,7 @@ Write-Footer -ScopedPSCmdlet $PSCmdlet
 ```
 
 ## Coding Convention
-TODO
+We use the `Allman` code formatting preset from VSCode. Also we disable the `openBraceOnSameLine` setting in powershell. In theory your VSCode should already do this for you, since we've checked in our [settings.json](../.vscode/settings.json) to the repository.
 
 ### Naming
 TODO
@@ -147,7 +147,7 @@ We use two flavours of connecting from on-premises resources to Azure:
 Whenever you use an on-premises DNS server in combination with private endpoints there is a challenge to overcome: When do you resolve DNS entries from onpremises and when from the private endpoint DNS server from Azure itself?
 The solution we found that worked best is to create a recursive dns server (a DNS proxy which does the querying for you instead of redirecting your DNS query to the target server). The reason why you want the DNS proxy to do the query itself is because if your resource lives on-premises and you do the DNS request from there, the Azure Private DNS Server will return the public IP, since it sees you are NOT within the VNet. This will result in connection not being able to be made.
 The technical implementation we have been using is to use bind9 as a DNS server with the following script:
-```
+```sh
 #!/bin/sh
 #
 #  only doing all the sudos as cloud-init doesn't run as root, likely better to use Azure VM Extensions
