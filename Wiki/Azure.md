@@ -102,15 +102,46 @@ We use the `Allman` code formatting preset from VSCode. Also we disable the `ope
  - Names should be logical, recognizable and should avoid confusion
  - We try to follow the [Noun-verb](https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7.1) naming for functions
 
-# GIT
+# Setup Azure DevOps & GIT
 We are using a more-or-less complex GIT setup to fulfil our needs. The generic library you are watching right now should be sharable between companies at all times. This means that no company related data/rules should be implemented in this boilerplate. However, you probably have scripts & documentation which actually does contain logics or information of/for your company. To deal with this, we've created a 2-tier GIT repo. We created a company specific repo with this generic repo, in it, as a GIT submodule. This implies that commiting, pulling & pushing gets a little more complicated. To help you out, this paragraph should tell you how the workflow should work.
 
-First of all you need to mirror [the upstream github repo](https://github.com/RobHofmann/Azure.PlatformProvisioning) to your own Azure DevOps instance as a working repo.
+## Create a new Azure DevOps Project
+We recommend creating an `Azure Documentation` teamproject in your Azure DevOps instance.
+
+ 1. On the main page click the New Project button in the top right corner.
+
+ ![Main page](../wiki_images/azdo_create_new_teamproject_1.png)
+
+ 2. Fill in the name of the new project. We use `Azure Documentation` for this.
+
+ ![Creating the team project](../wiki_images/azdo_create_new_teamproject_2.png)
+
+ 3. Create the project and you will be sent to it's landing page.
+
+ ![Created the team project](../wiki_images/azdo_create_new_teamproject_7.png)
 
 ## Mirroring the upstream repo to your own Azure DevOps instance
-TODO
+First of all you need to mirror [the upstream github repo](https://github.com/RobHofmann/Azure.PlatformProvisioning) to your own Azure DevOps instance as a working repo. To do this, follow these steps:
+
+ 1. Go to the `Repos` section of your TeamProject (in our case we created the teamproject Azure Documentation according to the [Create a new Azure DevOps Project](#create-a-new-azure-devops-project) section of this document).
+
+ ![Repos main page](../wiki_images/azdo_create_new_teamproject_3.png)
+
+ 2. Import the `upstream` git repo from GitHub (Enter: https://github.com/RobHofmann/Azure.PlatformProvisioning.git).
+
+ ![Repos main page](../wiki_images/azdo_create_new_teamproject_4.png)
+
+ 3. Give it a second to import the repo.
+
+ ![Repos main page](../wiki_images/azdo_create_new_teamproject_5.png)
+
+ 4. You will now have an imported repository.
+
+ ![Repos main page](../wiki_images/azdo_create_new_teamproject_6.png)
 
 ## Recommended GIT structure
+TODO
+
 ![Repository structure](../wiki_images/git_howto_repo_structure.png)
 
 ## How to keep your repositories in sync with upstream
