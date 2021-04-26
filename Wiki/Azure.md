@@ -24,23 +24,29 @@ There are a few core concept in this boilerplate which are essential for a succe
  - There is one or more shared resourcegroups for shared components
     - For example if you use an application gateway to expose multiple application stacks to the internet, this will be in a shared RG with for example the VNET which is shared between your platforms.
     - Those shared resources are mainly done for cost reductions. You dont want to host an Application Gateway for each application because it's simply unnecessary.
+ - Any HTTPS service exposed outside of Azure is exposed through an Azure Application Gateway. Also services which are being exposed to your on-premises network. The reason is that the Application Gateway has some extra security measures in place which reduces your attack surface. This complies with the [Zero trust architecture](Azure?anchor=zero-trust-architecture).
 
 ## Resource naming best practises
 Make sure that when you start using this boilerplate you come up with a good naming convention for your implementation. There are a few general rules of thumb which you can follow to get a good naming scheme.
  - Use the same naming structure for all of your resourcegroups. For example `<Teamname>-<ApplicationStackName>-<EnvironmentName>` or simply ` <ApplicationStackName>-<EnvironmentName>`.
- - It's extremely recommended to use the Environment name in your resource names for easy understanding & easy automation.
+ - It's extremely recommended to use the Environment name in your resource names for easy understanding & easy automation. This allows you to name all environments you create the same, except for the environment name. For example; a webapp will be called `myteam-myapp-dev` in dev and `myteam-myapp-prd` in production.
     - In Azure DevOps Release pipelines you can use the `$(Release.EnvironmentName)` to use the current stage name for spinning up resources in your Azure platform. This means that if you name your stages `dev`, `acc` and `prd` that you can use `$(Release.EnvironmentName)` in your resources names which will cause the resources to include those `dev`, `acc` and `prd` references.
  - If you have only 1 instance of a specific resourcetype (now and in the future) in each resourcegroup, its recommended to just simply name the resource the same as your resourcegroup.
     - For example: you want 1 application insights resource per application stack. Just give the same name to the appinsights and the resourcegroup for simplicity sake.
 
 ## Zero trust architecture
-TODO
+We follow the [zero trust architecture](https://en.wikipedia.org/wiki/Zero_trust_security_model) principle. We recommend you doing the same thing. The biggest reason we are mentioning this is because we see in the field that a lot of companies think that IP whitelisting is enough security. In short: Do not IP whitelist a calling service and think this is plenty of security. Always check the requests on multiple levels.
 
 ## SaaS --> PaaS --> IaaS
-TODO
+The ideology we follow is that we'd rather have SaaS, then PaaS and last IaaS. Simply because of the lack of maintenance in SaaS and the heaviest maintenance in IaaS.
+For the same reason we try to avoid containers, since we still need to update our runtimes in these (JRE/.NET versions etc).
 
 ## Azure CLI unless
-TODO
+In this boilerplate we investigated ARM templates, Azure PowerShell & Azure CLI. We choose to have the following order:
+ 1. Azure CLI
+ 2. Azure PowerShell
+ 3. ARM Templates
+The reason for this is that Azure CLI is extremely simple to learn for new developers. This has currently been battle tested at multiple companies who all said CLI was the easiest to learn. We try to avoid ARM Templates because of 2 main reasons: it's the most complex & fiddly to work with and also the reusability of arm templates is suboptimal (yes we tried linked & nested templates but they don't suit our needs). Also ARM templates doesn't give us the freedom in making choices based on the user input.
 
 ## Pipelines
 TODO
@@ -109,6 +115,199 @@ When connecting your Azure platform to your onpremises network, make sure that y
 We use two flavours of connecting from on-premises resources to Azure:
  - HTTPS traffic --> We make sure to put an Application Gateway in front of the HTTP resource and connect the onprem resources via this Application Gateway.
  - Other resources like SQL databases, storage account, redis cache etc --> You will need to create a private endpoint for your Azure Resource which will be used to connect to from on-premises. This means that your on-premises datacenter has to understand that the DNS entry for those resources don't resolve to the public ip of the azure resource, but the private ip of the private endpoint.
+
+### DNS
+> NOTE: This part of the documentation is still under construction. We want to offer a 1-click-solution for the DNS servers.
+
+Whenever you use an on-premises DNS server in combination with private endpoints there is a challenge to overcome: When do you resolve DNS entries from onpremises and when from the private endpoint DNS server from Azure itself?
+The solution we found that worked best is to create a recursive dns server (a DNS proxy which does the querying for you instead of redirecting your DNS query to the target server). The reason why you want the DNS proxy to do the query itself is because if your resource lives on-premises and you do the DNS request from there, the Azure Private DNS Server will return the public IP, since it sees you are NOT within the VNet. This will result in connection not being able to be made.
+The technical implementation we have been using is to use bind9 as a DNS server with the following script:
+```
+#!/bin/sh
+#
+#  only doing all the sudos as cloud-init doesn't run as root, likely better to use Azure VM Extensions
+#
+#  $1 is the forwarder, $2 is the vnet IP range, $3 is the first dns, $4 is the second dns
+#
+
+touch /tmp/forwarderSetup_start
+echo "$@" > /tmp/forwarderSetup_params
+
+#  Install Bind9
+#  https://www.digitalocean.com/community/tutorials/how-to-configure-bind-as-a-caching-or-forwarding-dns-server-on-ubuntu-14-04
+echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
+sudo apt-get update -y
+sudo apt-get install bind9 -y
+
+# configure Bind9 for forwarding
+sudo cat > named.conf.options << EndOFNamedConfOptions
+acl goodclients {
+    $2;
+    localhost;
+    localnets;
+};
+
+
+options {
+        directory "/var/cache/bind";
+
+        recursion yes;
+
+        allow-query { goodclients; };
+
+        forwarders {
+            $3;
+            $4;
+        };
+        forward only;
+
+        #dnssec-validation auto;
+
+        auth-nxdomain no;    # conform to RFC1035
+        listen-on { any; };
+};
+
+zone "azconfig.io" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azmk8s.io" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azure.com" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azure.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azure-api.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azure-automation.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azurecontainer.io" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azurecr.io" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azure-devices.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azureedge.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azurefd.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azureml.ms" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azure-mobile.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "azurewebsites.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "cloudapp.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "msecnd.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "onmicrosoft.com" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "signalr.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "trafficmanager.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "visualstudio.com" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "windows.net" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+zone "windowsazure.com" IN {
+    type forward;
+    forwarders {
+        $1;
+    };
+};
+
+EndOFNamedConfOptions
+
+sudo cp named.conf.options /etc/bind
+sudo service bind9 restart
+
+sudo apt-get upgrade -y
+```
+
 
 # Logging
 TODO
