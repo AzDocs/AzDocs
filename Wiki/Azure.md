@@ -46,6 +46,7 @@ In this boilerplate we investigated ARM templates, Azure PowerShell & Azure CLI.
  1. Azure CLI
  2. Azure PowerShell
  3. ARM Templates
+
 The reason for this is that Azure CLI is extremely simple to learn for new developers. This has currently been battle tested at multiple companies who all said CLI was the easiest to learn. We try to avoid ARM Templates because of 2 main reasons: it's the most complex & fiddly to work with and also the reusability of arm templates is suboptimal (yes we tried linked & nested templates but they don't suit our needs). Also ARM templates doesn't give us the freedom in making choices based on the user input.
 
 ## Pipelines
@@ -143,6 +144,7 @@ There are several ways of connecting your resources in azure from & to on-premis
  - Azure ExpressRoute
  - Site-to-site VPN using the Virtual Network Gateway
  - Hybrid connections
+ 
 Currently this stack has been tested using the ExpressRoute & the Virtual Network Gateway.
 
 When connecting your Azure platform to your onpremises network, make sure that you DO NOT have any overlapping IP's.
