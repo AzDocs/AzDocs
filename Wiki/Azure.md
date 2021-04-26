@@ -158,10 +158,51 @@ This project also includes documentation next to the scripts. Even better: the d
 
 ![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_4.png)
 
-## Recommended GIT structure
-TODO
+## Recommended GIT structure / Company specific repository
+As explained in [Setup Azure DevOps & GIT](#set-azure-devops-&-git) we have a setup with a company repo which holds this generic repo. We've done this to create 1 starting point for you and your colleagues to work with both company specific wiki's & scripts aswell as the generic wiki & scripts. This is how the repository looks:
 
 ![Repository structure](../wiki_images/git_howto_repo_structure.png)
+
+To create this repository the same way, follow these steps:
+
+1. Create the new company specific repository next to the generic repo you already made in [Mirroring the upstream repo to your own Azure DevOps instance](#mirroring-the-upstream-repo-to-your-own-azure-devops-instance).
+
+![Create company repo](../wiki_images/git_create_company_repo_1.png)
+
+2. Fill in the information of your company repo (the name in the screenshot is fictional) and click on the `Create` button.
+
+![Create company repo](../wiki_images/git_create_company_repo_2.png)
+
+3. Get the company cloning address by clicking the `Clone` button in your freshly created repository.
+
+![Create company repo](../wiki_images/git_create_company_repo_3.png)
+
+4. Copy the clone address by clicking the copy button.
+
+![Create company repo](../wiki_images/git_create_company_repo_4.png)
+
+5. Open the terminal of your choice (We recommend using Windows Terminal) and navigate to the folder where you want to checkout this repo. Now clone the repo, CD into it, add the submodule & commit & push it back to the server using these commando's (make sure to substitute the variables before running the commands):
+
+```batch
+git clone <repo url>
+cd <repo folder>
+git submodule add <upstream repo url> Generic.Azure.Documentation
+git commit -a -m "Added sub repo"
+git push origin main
+```
+
+Congratulations. You now have created a company specific repository with the Generic repository as its submodule!
+
+## Checking out the company specific repository
+Since your company specific repository has a submodule to the generic AzDocs, you need to do something special to check the whole structure out. You need to tell GIT to also clone the submodules on cloning your company specific repo. So instead of the usual:
+
+`git clone <company specific repo url>`
+
+you need to do:
+
+`git clone --recurse-submodules <company specific repo url>`
+
+Et voila! your full repository (or actually repositories) is/are now cloned!
 
 ## How to keep your repositories in sync with upstream
 *For the next procedure you will need an account at GitHub. Make sure to have this before continuing. You can create a GitHub account [here](https://github.com/join).*
@@ -185,7 +226,7 @@ Doing so will give you two remotes: `origin` & `upstream`.
 
 For this example lets assume that some work has been done by other companies and you want the latest & greatest changes for your company. Since our philosophy is that `upstream` should always be able to merge to `origin` we pull directly into our `origin/main` branch to avoid squash commits over and over between `upstream` & `origin`. Follow these steps to get the latest from `upstream` to your `origin`:
 
-```cmd
+```batch
 git checkout main
 git pull upstream main
 git push origin main
@@ -200,7 +241,7 @@ Your repository is now up to date.
 
 Let's assume you've done some work on your `origin` and at some point in time you want to sync this back to the `upstream`. We do this by creating a new branch and pushing it to the upstream. We need to make sure we use the latest version of main to create our PR Branch from:
 
-```cmd
+```batch
 git checkout main
 git pull origin main
 git checkout -b 20210426
