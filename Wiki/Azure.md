@@ -105,7 +105,7 @@ We use the `Allman` code formatting preset from VSCode. Also we disable the `ope
 We are using a more-or-less complex GIT setup to fulfil our needs. The generic library you are watching right now should be sharable between companies at all times. This means that no company related data/rules should be implemented in this boilerplate. However, you probably have scripts & documentation which actually does contain logics or information of/for your company. To deal with this, we've created a 2-tier GIT repo. We created a company specific repo with this generic repo, in it, as a GIT submodule. This implies that commiting, pulling & pushing gets a little more complicated. To help you out, this paragraph should tell you how the workflow should work.
 
 ## Recommended GIT structure
-![Repository structure](images/git_howto_repo_structure.png)
+![Repository structure](../wiki_images/git_howto_repo_structure.png)
 
 ## How to keep your repositories in sync with upstream
 TODO
