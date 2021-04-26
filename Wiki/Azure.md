@@ -142,7 +142,6 @@ git push origin main
 ```
 
 ![Updated main branch](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_5.png)
-
 *Updated main branch*
 
 Your repository is now up to date.
