@@ -28,9 +28,10 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | FUNCTIONS_EXTENSION_VERSION | <input type="checkbox" checked> | `~3` | Choose `~2` voor v2 and `~3` for v3 of Function Apps (if you are unsure, use `~3`) |
 | ASPNETCORE_ENVIRONMENT | <input type="checkbox" checked> | `Development` | Use either `Development`, `Acceptance` or `Production`. NOTE: `Development` and `Production` have features which are provided by the framework. [Read more here](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments) |
 | FunctionAppNumberOfInstances | <input type="checkbox"> | `2` | OPTIONAL: You can define how much instances of your functions will be ran (use 2 or more for HA. use 1 if you have server side sessions/stateful apps). The default value (if you don't pass any value) will be 2. |
-| EnableFunctionAppDeploymentSlot | <input type="checkbox"> | If you pass this switch (without value), a deployment slot will be created. | 
+| EnableFunctionAppDeploymentSlot | <input type="checkbox"> | If you pass this switch (without value), a deployment slot will be created. |
 | FunctionAppDeploymentSlotName | <input type="checkbox"> | `staging` | Name of the slot to create additional to the production slot. Has the default value of "staging". |
-| DisablePublicAccessForFunctionAppDeploymentSlot | <input type="checkbox"> | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |  
+| FunctionAppRuntime | <input type="checkbox"> | `dotnet` | The runtime you want your code to run in. By default this has a value of "dotnet". |
+| DisablePublicAccessForFunctionAppDeploymentSlot | <input type="checkbox"> | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |
 
 # VNET Whitelisting Parameters
 
