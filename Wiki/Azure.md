@@ -111,6 +111,16 @@ We are using a more-or-less complex GIT setup to fulfil our needs. The generic l
 ## How to keep your repositories in sync with upstream
 TODO
 
+# Application Gateway
+When we started this documentation, we promised eachother to not write anything about individual components. However, since we've chosen to only use the Application Gateway (AppGw) as our edge layer component, we decided it is a good idea to say something revolving this component and it's complexity (and our automation in this). Creating an AppGw is easy, but mastering one is a little harder. We've chosen to create our own SSL Policies for our AppGw's and to automate the hell out of this component due to its complexity (see [the create entrypoint script](../src/AzDocs.Common/public/AppGateway-Helper-Functions.ps1) if you want to know what i'm talking about).
+
+## Creating an Application Gateway
+Creating an application gateway is easy. Simply use the [Create Application Gateway](/Azure/Azure-CLI-Snippets/Application-Gateway/Create-Application-Gateway) script to create the App Gateway.
+
+## SSL Policy
+
+## Creating Entrypoints
+
 # Networking
 There are different ways of doing networking within Azure. By default resources will either be public or have an IP Whitelist. By design we don't want to use public resources or use IP whitelists because of the potential insecurities in this. We made the choice to use two different ways of supporting connectivity; VNet whitelisting & Private Endpoint.
 The general rule of thumb should be to use VNet whitelisting where applicable. If thats not possible we use private endpoints. If that is unavailable aswell, we fallback to public access with plain IP whitelists.
@@ -144,7 +154,7 @@ There are several ways of connecting your resources in azure from & to on-premis
  - Azure ExpressRoute
  - Site-to-site VPN using the Virtual Network Gateway
  - Hybrid connections
- 
+
 Currently this stack has been tested using the ExpressRoute & the Virtual Network Gateway.
 
 When connecting your Azure platform to your onpremises network, make sure that you DO NOT have any overlapping IP's.
@@ -346,7 +356,7 @@ sudo apt-get upgrade -y
 ```
 
 # Logging
-TODO
+We are using Log Analytics Workspace (LAW) as our main logging solution. We strive to send all the logs we have to a central LAW instance (one LAW for each `DTAP` stage). You will see `az monitor diagnostic-settings create` commands in several scripts to send diagnostics to the LAW's aswell. Next to that we use [Serilog](https://serilog.net/) in our .NET Stacks with the [Serilog Azure Analytics sink](https://github.com/saleem-mirza/serilog-sinks-azure-analytics) for logging our application logs to the LAW.
 
 # Monitoring
 TODO
