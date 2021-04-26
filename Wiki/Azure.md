@@ -173,6 +173,8 @@ Done! From here multiple people will review this PR. Eventually the PR will be a
 
 ![Accepted & Merged PR](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_4.png)
 
+*A merged pullrequest in the `upstream/main` branch*
+
 # Application Gateway
 When we started this documentation, we promised eachother to not write anything about individual components. However, since we've chosen to only use the Application Gateway (AppGw) as our edge layer component, we decided it is a good idea to say something revolving this component and it's complexity (and our automation in this). Creating an AppGw is easy, but mastering one is a little harder. We've chosen to create our own SSL Policies for our AppGw's and to automate the hell out of this component due to its complexity (see [the create entrypoint script](../src/AzDocs.Common/public/AppGateway-Helper-Functions.ps1) if you want to know what i'm talking about).
 
