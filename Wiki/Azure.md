@@ -142,7 +142,6 @@ git push origin main
 ```
 
 ![Updated main branch](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_5.png)
-*Updated main branch*
 
 Your repository is now up to date.
 
@@ -162,25 +161,17 @@ This will create a new branch in the upstream repo. After this you can [create a
 
 ![Select the compare branch](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_1.png)
 
-*Select the compare branch*
-
 Now confirm the selected branch by clicking the green `Create pull request` button.
 
 ![Confirm the branch selection](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_2.png)
-
-*Confirm the branch selection*
 
 Finally enter the name of your PR (I recommend naming it the same as the branch you created).
 
 ![Create a PR on GitHub](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_3.png)
 
-*Create a PR on GitHub*
-
 Done! From here multiple people will review this PR. Eventually the PR will be accepted or rejected based on the feedback & discussion. Make sure to reply to questions being asked & actively participate in the discussion revolving your PR.
 
 ![Accepted & Merged PR](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_4.png)
-
-*Accepted & Merged PR*
 
 # Application Gateway
 When we started this documentation, we promised eachother to not write anything about individual components. However, since we've chosen to only use the Application Gateway (AppGw) as our edge layer component, we decided it is a good idea to say something revolving this component and it's complexity (and our automation in this). Creating an AppGw is easy, but mastering one is a little harder. We've chosen to create our own SSL Policies for our AppGw's and to automate the hell out of this component due to its complexity (see [the create entrypoint script](../src/AzDocs.Common/public/AppGateway-Helper-Functions.ps1) if you want to know what i'm talking about).
