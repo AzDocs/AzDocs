@@ -121,7 +121,9 @@ Creating an application gateway is easy. Simply use the [Create Application Gate
 
 ## SSL Policy
 The next thing you want to do is setup secure SSL policies. By default the Gateway will support TLS 1.2 with a set of ciphers (predefined profile AppGwSslPolicy20170401S). We've found that this default set of ciphers isn't the strongest option available. We've set our Gateway to the following:
-`Minimal TLS Version: 1.2`
+
+Minimal TLS Version: `1.2`
+
 Ciphers in order:
  - `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384` <-- Strong
  - `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256` <-- Strong
