@@ -105,11 +105,79 @@ We use the `Allman` code formatting preset from VSCode. Also we disable the `ope
 # GIT
 We are using a more-or-less complex GIT setup to fulfil our needs. The generic library you are watching right now should be sharable between companies at all times. This means that no company related data/rules should be implemented in this boilerplate. However, you probably have scripts & documentation which actually does contain logics or information of/for your company. To deal with this, we've created a 2-tier GIT repo. We created a company specific repo with this generic repo, in it, as a GIT submodule. This implies that commiting, pulling & pushing gets a little more complicated. To help you out, this paragraph should tell you how the workflow should work.
 
+First of all you need to mirror [the upstream github repo](https://github.com/RobHofmann/Azure.PlatformProvisioning) to your own Azure DevOps instance as a working repo.
+
+## Mirroring the upstream repo to your own Azure DevOps instance
+TODO
+
 ## Recommended GIT structure
 ![Repository structure](../wiki_images/git_howto_repo_structure.png)
 
 ## How to keep your repositories in sync with upstream
-TODO
+*For the next procedure you will need an account at GitHub. Make sure to have this before continuing. You can create a GitHub account [here](https://github.com/join).*
+
+The generic repo will have 2 remote's if you also want to contribute to this project or get new updates from this project. So after mirroring [the upstream github repo](https://github.com/RobHofmann/Azure.PlatformProvisioning) to your own Azure DevOps instance, you want to clone the repository to your local machine.
+
+> NOTE: Next to the working company repository with the generic repository inside (as explained in [the GIT paragraph](#git)) you daily use, we tend to keep the upstream in a separate folder on our computer aswell for syncing our origin with the upstream repo.
+
+First clone the repo to your local disk with:
+
+`git clone <repo url>`
+
+After doing this you enter the freshly created repo folder and use this command to add the upstream remote to your local repo:
+
+`git remote add upstream https://github.com/RobHofmann/Azure.PlatformProvisioning.git`
+
+Doing so will give you two remotes: `origin` & `upstream`.
+
+### Pulling new changes from upstream (Github) to your origin repo
+For this example lets assume that some work has been done by other companies and you want the latest & greatest changes for your company. Since our philosophy is that `upstream` should always be able to merge to `origin` we pull directly into our `origin/main` branch to avoid squash commits over and over between `upstream` & `origin`. Follow these steps to get the latest from `upstream` to your `origin`:
+
+```cmd
+git checkout main
+git pull upstream main
+git push origin main
+```
+
+![Updated main branch](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_5.png)
+
+*Updated main branch*
+
+Your repository is now up to date.
+
+### Commit the work you've done to the upstream (GitHub) repo
+Let's assume you've done some work on your `origin` and at some point in time you want to sync this back to the `upstream`. We do this by creating a new branch and pushing it to the upstream. We need to make sure we use the latest version of main to create our PR Branch from:
+
+```cmd
+git checkout main
+git pull origin main
+git checkout -b 20210426
+git push upstream 20210426
+```
+
+This will create a new branch in the upstream repo. After this you can [create a PR](https://github.com/RobHofmann/Azure.PlatformProvisioning/compare) on github. Select the branch you just created from the "compare" list.
+
+![Select the compare branch](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_1.png)
+
+*Select the compare branch*
+
+Now confirm the selected branch by clicking the green `Create pull request` button.
+
+![Confirm the branch selection](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_2.png)
+
+*Confirm the branch selection*
+
+Finally enter the name of your PR (I recommend naming it the same as the branch you created).
+
+![Create a PR on GitHub](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_3.png)
+
+*Create a PR on GitHub*
+
+Done! From here multiple people will review this PR. Eventually the PR will be accepted or rejected based on the feedback & discussion. Make sure to reply to questions being asked & actively participate in the discussion revolving your PR.
+
+![Accepted & Merged PR](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_4.png)
+
+*Accepted & Merged PR*
 
 # Application Gateway
 When we started this documentation, we promised eachother to not write anything about individual components. However, since we've chosen to only use the Application Gateway (AppGw) as our edge layer component, we decided it is a good idea to say something revolving this component and it's complexity (and our automation in this). Creating an AppGw is easy, but mastering one is a little harder. We've chosen to create our own SSL Policies for our AppGw's and to automate the hell out of this component due to its complexity (see [the create entrypoint script](../src/AzDocs.Common/public/AppGateway-Helper-Functions.ps1) if you want to know what i'm talking about).
