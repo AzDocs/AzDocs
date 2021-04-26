@@ -159,7 +159,7 @@ This project also includes documentation next to the scripts. Even better: the d
 ![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_4.png)
 
 ## Recommended GIT structure / Company specific repository
-As explained in [Setup Azure DevOps & GIT](#set-azure-devops-&-git) we have a setup with a company repo which holds this generic repo. We've done this to create 1 starting point for you and your colleagues to work with both company specific wiki's & scripts aswell as the generic wiki & scripts. This is how the repository looks:
+As explained in [Setup Azure DevOps & GIT](#setup-azure-devops-%26-git) we have a setup with a company repo which holds this generic repo. We've done this to create 1 starting point for you and your colleagues to work with both company specific wiki's & scripts aswell as the generic wiki & scripts. This is how the repository looks:
 
 ![Repository structure](../wiki_images/git_howto_repo_structure.png)
 
