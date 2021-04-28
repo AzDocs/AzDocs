@@ -278,7 +278,7 @@ First of all you will need to "build" the scripts. This means you will need a bu
 To deploy resources in Azure, you need to tell Azure DevOps how to reach the Azure subscription. [Click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops) to go to the official microsoft documentation on this to add this connection. We strongly recommend to name the connection identical to the subscription name.
 
 ## Classic Pipelines
-*Make sure to have followed the steps in [AzDocs Build](#azdocs-build)*
+*Make sure to have followed the steps in [AzDocs Build](#azdocs-build) and [Adding the subscriptions to your teamproject](#adding-the-subscriptions-to-your-teamproject)*
 
 To create a release pipeline for your app where you can use this boilerplate, there are a few steps you have to do and a few steps which are recommended but not required. Here will be described how to create such a pipeline.
 1. Go to the releases page in your teamproject and create a new release pipeline definition.
