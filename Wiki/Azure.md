@@ -50,10 +50,11 @@ In this boilerplate we investigated ARM templates, Azure PowerShell & Azure CLI.
 The reason for this is that Azure CLI is extremely simple to learn for new developers. This has currently been battle tested at multiple companies who all said CLI was the easiest to learn. We try to avoid ARM Templates because of 2 main reasons: it's the most complex & fiddly to work with and also the reusability of arm templates is suboptimal (yes we tried linked & nested templates but they don't suit our needs). Also ARM templates doesn't give us the freedom in making choices based on the user input.
 
 ## Pipelines
-TODO
+The idea is that one or more of the scripts from this library will form your pipeline which actually spins up the infra for your software. Please refer to [How to use the scripts](#how-to-use-the-scripts) for more information.
 
 ### Service Principal Setup
-TODO
+To deploy from Azure DevOps you need a service principal. We recommend creating this first in Azure and assigning it the `Owner` for your subscription (make at least one service principal per subscription).
+Find the documentation on how to create service principals & assign roles [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#register-an-application-with-azure-ad-and-create-a-service-principal).
 
 # Recommended Architecture
 Of course you are free to do things as you see fit. However, this boilerplate has been tested in the following architecture. That is why we will recommend it this way.
@@ -83,40 +84,6 @@ Currently we've focussed on the following:
 # Prerequisites
 - An Azure DevOps environment (you are probably reading this inside one right now).
 - One or more azure subscriptions
-
-# How to use the scripts
-To use these scripts you simply add a Azure CLI step to your pipeline. Make sure to fill in the right subscription you want to use in the step and select the script from this repo you want to execute. If you are using classic release pipelines, we recommend making a taskgroup per script so you can re-use them easily.
-
-# Guidelines for creating new scripts
-If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
-
-The start of every script should look something like this:
-```powershell
-[CmdletBinding()]
-param (
-    [Parameter(Mandatory)][string] $FictionalParameter,    
-)
-
-#region ===BEGIN IMPORTS===
-Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
-#endregion ===END IMPORTS===
-
-Write-Header -ScopedPSCmdlet $PSCmdlet
-```
-and the end should look something like this:
-```powershell
-Write-Footer -ScopedPSCmdlet $PSCmdlet
-```
-
-## Coding Convention
-We use the `Allman` code formatting preset from VSCode. Also we disable the `openBraceOnSameLine` setting in powershell. In theory your VSCode should already do this for you, since we've checked in our [settings.json](../.vscode/settings.json) to the repository.
-
-### Naming
-- Our script & function parameters are written CamelCase
-- Local variables are all lowercase
-- Functionnames are written CamelCase
-- Names should be logical, recognizable and should avoid confusion
-- We try to follow the [Noun-verb](https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7.1) naming for functions
 
 # Setup Azure DevOps & GIT
 We are using a more-or-less complex GIT setup to fulfil our needs. The generic library you are watching right now should be sharable between companies at all times. This means that no company related data/rules should be implemented in this boilerplate. However, you probably have scripts & documentation which actually does contain logics or information of/for your company. To deal with this, we've created a 2-tier GIT repo. We created a company specific repo with this generic repo, in it, as a GIT submodule. This implies that commiting, pulling & pushing gets a little more complicated. To help you out, this paragraph should tell you how the workflow should work.
@@ -281,6 +248,107 @@ Done! From here multiple people will review this PR. Eventually the PR will be a
 ![Accepted & Merged PR](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_4.png)
 
 *A merged pullrequest in the `upstream/main` branch*
+
+# How to use the scripts
+To use these scripts you simply add a Azure CLI step to your pipeline. Make sure to fill in the right subscription you want to use in the step and select the script from this repo you want to execute. If you are using classic release pipelines, we recommend making a taskgroup per script so you can re-use them easily.
+
+## AzDocs Build
+First of all you will need to "build" the scripts. This means you will need a build which gets the repo & submodule, copies the scripts to the `$(Build.ArtifactStagingDirectory)` and publishes the artifact to the internal Azure DevOps repo, so you can use it in your releases.
+
+1. Generate a new [Peronal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page#create-a-pat).
+2. [Base64 encode](https://www.base64encode.org/) the text `pat:<enterthePATfromstepone>`. For example: `pat:le5jjn4yskffufljovntjjjrtfzqyffvhec2b774a3zqauokbp4a` will give `cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`.
+3. Create a new build pipeline in the [Azure Documentations team project](#setup-azure-devops-%26-git).
+4.  Use ubuntu-20.04 or later as the agent specification (hosted agent).
+5. Under the `Get sources` section, select the company repo.
+6. Make sure you are using an agent job (`Run on agent`).
+7. Under Variables, add the `GIT_AUTH_HEADER` variable with with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`).
+8. Get the generic repo url. example: https://mycompany@dev.azure.com/mycompany/Azure%20Documentation/_git/Generic.Azure.Documentation
+9. Add a `Bash` step with this `Inline` script (replace the URL with the url from step 8): `git -c http.https://mycompany@dev.azure.com/mycompany/Azure%20Documentation/_git/Generic.Azure.Documentation.extraheader="AUTHORIZATION: basic $(GIT_AUTH_HEADER)" submodule update --init --recursive`
+10. Add a Copy step with the following parameters:
+    - Source Folder (replace the `Generic.Azure.Documentation` with the name you gave to the generic repo): `Generic.Azure.Documentation/src`
+    - Contents: `**`
+    - Target Folder: `$(Build.ArtifactStagingDirectory)`
+11. Add a `Publish build artifacts` step with the following parameters:
+    - Path to publish: `$(Build.ArtifactStagingDirectory)`
+    - Artifact name: `drop`
+    - Artifact publish location: `Azure Pipelines`
+12. Save & run the pipeline. Everything should turn green and you will have a build artifact!
+
+## Adding the subscriptions to your teamproject
+To deploy resources in Azure, you need to tell Azure DevOps how to reach the Azure subscription. [Click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops) to go to the official microsoft documentation on this to add this connection. We strongly recommend to name the connection identical to the subscription name.
+
+## Classic Pipelines
+*Make sure to have followed the steps in [AzDocs Build](#azdocs-build)*
+
+To create a release pipeline for your app where you can use this boilerplate, there are a few steps you have to do and a few steps which are recommended but not required. Here will be described how to create such a pipeline.
+1. Go to the releases page in your teamproject and create a new release pipeline definition.
+2. In the `Pipeline` tab, under `Artifacts`, add a new artifact and select the [AzDocs Build](#azdocs-build) (make sure to select the right Project first). It's recommended to assign the Source alias: `Azure.Documentation` to avoid weird characters in the file paths.
+3. Add the optional build artifact for your own software.
+4. Rename the `Stage 1` *stage*. Let't call it `dev` (later *stages* can be made, reproducing these steps but with `acc` or `prd` as the *Stage*-name.
+
+![Classic pipeline](../wiki_images/classic_pipeline_howto_3.png)
+
+5. Click the `0 jobs, 0 tasks` link in the `dev` *stage*.
+6. In the left column, click the `+` in the top right and search for the *Azure CLI* step.
+
+![Azure CLI Step](../wiki_images/classic_pipeline_howto_1.png)
+
+7. Enter these parameters in the *Azure CLI* step
+    - Azure Resource Manager connection: *select the connection created in the [Adding the subscriptions to your teamproject](#adding-the-subscriptions-to-your-teamproject) step
+    - Script Type: *PowerShell Core*
+    - Script Location: *Script Path*
+    - Script Path (replace with real values): `$(System.DefaultWorkingDirectory)/Azure.Documentation/drop/<ResourceType>/<Script>.ps1` (you can use the file browser to select your script)
+    - Script Arguments: `<insert the needed script arguments from the script you are calling>`
+    - Access service principal details in script: <input type="checkbox" checked> (Required in rare cases for some scripts).
+
+![Classic pipeline](../wiki_images/classic_pipeline_howto_2.png)
+
+Congratulations, you can now run your pipeline and spin up secure & compliant Azure resources. However, there are a few more tips & tricks we found useful. The following paragraphs containing tips & tricks are optional:
+
+### Taskgroup all the things
+TODO
+
+> NOTE: Known limitation: Taskgroups can not have output parameters. So for anything that uses output parameters, the step needs to be added to the pipline directly and cannot be in any taskgroup.
+
+### Taskgroup the pipeline itself
+TODO
+
+### Variable groups
+TODO
+
+### Variable nesting
+TODO
+
+# Guidelines for creating new scripts
+If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
+
+The start of every script should look something like this:
+```powershell
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory)][string] $FictionalParameter,    
+)
+
+#region ===BEGIN IMPORTS===
+Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
+#endregion ===END IMPORTS===
+
+Write-Header -ScopedPSCmdlet $PSCmdlet
+```
+and the end should look something like this:
+```powershell
+Write-Footer -ScopedPSCmdlet $PSCmdlet
+```
+
+## Coding Convention
+We use the `Allman` code formatting preset from VSCode. Also we disable the `openBraceOnSameLine` setting in powershell. In theory your VSCode should already do this for you, since we've checked in our [settings.json](../.vscode/settings.json) to the repository.
+
+### Naming
+- Our script & function parameters are written CamelCase
+- Local variables are all lowercase
+- Functionnames are written CamelCase
+- Names should be logical, recognizable and should avoid confusion
+- We try to follow the [Noun-verb](https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7.1) naming for functions
 
 # Application Gateway
 When we started this documentation, we promised eachother to not write anything about individual components. However, since we've chosen to only use the Application Gateway (AppGw) as our edge layer component, we decided it is a good idea to say something revolving this component and it's complexity (and our automation in this). Creating an AppGw is easy, but mastering one is a little harder. We've chosen to create our own SSL Policies for our AppGw's and to automate the hell out of this component due to its complexity (see [the create entrypoint script](../src/AzDocs.Common/public/AppGateway-Helper-Functions.ps1) if you want to know what i'm talking about).
