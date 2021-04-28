@@ -303,7 +303,9 @@ To create a release pipeline for your app where you can use this boilerplate, th
 
 ![Classic pipeline](../wiki_images/classic_pipeline_howto_2.png)
 
-Congratulations, you can now run your pipeline and spin up secure & compliant Azure resources. However, there are a few more tips & tricks we found useful. The following paragraphs containing tips & tricks are optional:
+8. *Save* & *Create Release*. Congratulations, you can now run your pipeline and spin up secure & compliant Azure resources.
+
+> NOTE: However, there are a few more tips & tricks we found useful. The following paragraphs containing tips & tricks are optional:
 
 ### Taskgroup all the things
 TODO
