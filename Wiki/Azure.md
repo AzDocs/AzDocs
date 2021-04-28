@@ -1,20 +1,20 @@
 [[_TOC_]]
 
 # Introduction
-Welcome on the azure documentation site of the Azure Platform Provisioning scripts (AzDocs).
+Welcome on the Azure Documentation (AzDocs) Wiki.
 
-The goal is to have snippets for creating Azure resources that are secure & compliant to the highest level of requirements.
+The AzDocs are a boilerplate to get you and your team started with Azure in no time in a secure & compliant way. The goal is to have snippets for creating Azure resources that are secure & compliant to the highest level of requirements.
 
-Please note that this is a **Work In Progress** effort. Multiple companies are currently backing, contributing & using this for their production environments.
+> NOTE: This is a **Work In Progress** effort. Multiple companies are currently backing, contributing & using this for their production environments.
 
-[Azure CLI](/Azure/Azure-CLI-Snippets)
+Go straight to the scripts: [Azure CLI](/Azure/Azure-CLI-Snippets)
 
 # Why use this boilerplate
 The idea behind this boilerplate is that everyone wants a secure stack without having to do the whole compliancy & security setup yourself. A good example is that in 2021 it's not acceptable that you use non SSL HTTP connections. This means that, in all the scripts we write, HTTPS will be enforced. You get these general sense choices for free in your application stack. Another good example is that we strive to enable full logging for all components to a central Log Analytics Workspace, so that if you need logging at some point, you will have it.
 
-> TLDR; you don't want to figure out everything by yourself :).
+> TLDR; you don't want to figure out everything by yourself and build secure & compliant platforms :).
 
-# Core Concepts / Architecture
+# Core Concepts
 There are a few core concept in this boilerplate which are essential for a successful implementation. In this chapter those core concepts are described.
  - CICD is leading --> Your platform should be able to burn and we should be good to go.
     - This means your resources, variables & secrets etc. are provisioned from your CICD pipelines towards the Azure platform.
@@ -54,6 +54,21 @@ TODO
 
 ### Service Principal Setup
 TODO
+
+# Recommended Architecture
+Of course you are free to do things as you see fit. However, this boilerplate has been tested in the following architecture. That is why we will recommend it this way.
+
+![Recommended architecture](../wiki_images/Recommended_Architecture.png)
+
+Key takeaways are:
+ - Always use an application gateway to reach resources in Azure. This also goes for on-premises to Azure connections. This component has [DDoS mitigation](https://en.wikipedia.org/wiki/DDoS_mitigation) and a [web application firewall](https://en.wikipedia.org/wiki/Web_application_firewall).
+ - Always use managed identities (if possible. if not: use another way of auth) to handle authentication & authorization between layers & apps. This avoids apps calling the wrong data componenents etc.
+ - Always use VNet integration in combination with [VNet whitelisting](#vnet-whitelisting) if possible. This is the recommended way of connecting apps within Azure. If this is not possible, use private endpoints and only if both the former are unavailable, start IP whitelisting.
+ 
+This example architecture has a few extra's which you might not want or need:
+ - We added a DNS proxy. This is needed whenever you want to use private endpoints in Azure but already have an on-premises DNS server which you dont have control over. In case you have control over your on-premises DNS server, you want to configure it to having the Azure Private DNS Server as it's upstream DNS server. There is however a limitation for this Azure Private Endpoint DNS server; You will need a (recursive) DNS proxy which redirects every DNS request to the azure private endpoint dns server from inside your VNet. This is due to the fact that the Azure Private Endpoint DNS Server only accepts DNS requests from inside the VNet itself.
+ - We added an Azure DevOps private agent which does the deploying to your resources for you. This is to eliminate the necessary whitelist- & dewhitelist-actions actions in your pipeline before you can deploy from a hosted agent. If you dont use this private agent, make sure you whitelist the hosted agent before deploying to the resources (deploy your app or files to storage for example), and remove them after you are done.
+ - Next to the public gateway (which is shown in gateway-subnet-1 in the image above), we also added a private facing gateway which will be used to leverage the applications from on-premises. We decided we always want to have an application gateway in front of our app layer, which is compliant with the [zero trust architecture](#zero-trust-architecture).
 
 # Which components are available & when to use them?
 Currently we've focussed on the following:
@@ -540,4 +555,7 @@ sudo apt-get upgrade -y
 We are using Log Analytics Workspace (LAW) as our main logging solution. We strive to send all the logs we have to a central LAW instance (one LAW for each `DTAP` stage). You will see `az monitor diagnostic-settings create` commands in several scripts to send diagnostics to the LAW's aswell. Next to that we use [Serilog](https://serilog.net/) in our .NET Stacks with the [Serilog Azure Analytics sink](https://github.com/saleem-mirza/serilog-sinks-azure-analytics) for logging our application logs to the LAW.
 
 # Monitoring
+TODO
+
+# Deprovisioning & clearing unintended whitelists
 TODO
