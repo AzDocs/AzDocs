@@ -16,23 +16,23 @@ The idea behind this boilerplate is that everyone wants a secure stack without h
 
 # Core Concepts
 There are a few core concept in this boilerplate which are essential for a successful implementation. In this chapter those core concepts are described.
- - CICD is leading --> Your platform should be able to burn and we should be good to go.
-    - This means your resources, variables & secrets etc. are provisioned from your CICD pipelines towards the Azure platform.
- - Backwards compatible; scripts which are created should not break previous versions unless it's absolutely not possible to create backwards compatibility.
- - You want to create a resourcegroup per application stack
-    - This means your API, portal, database etc. which are needed for running your application are all in the same resourcegroup, but another application stack is in it's own resource group.
- - There is one or more shared resourcegroups for shared components
-    - For example if you use an application gateway to expose multiple application stacks to the internet, this will be in a shared RG with for example the VNET which is shared between your platforms.
-    - Those shared resources are mainly done for cost reductions. You dont want to host an Application Gateway for each application because it's simply unnecessary.
- - Any HTTPS service exposed outside of Azure is exposed through an Azure Application Gateway. Also services which are being exposed to your on-premises network. The reason is that the Application Gateway has some extra security measures in place which reduces your attack surface. This complies with the [Zero trust architecture](#zero-trust-architecture).
+- CICD is leading --> Your platform should be able to burn and we should be good to go.
+  - This means your resources, variables & secrets etc. are provisioned from your CICD pipelines towards the Azure platform.
+- Backwards compatible; scripts which are created should not break previous versions unless it's absolutely not possible to create backwards compatibility.
+- You want to create a resourcegroup per application stack
+  - This means your API, portal, database etc. which are needed for running your application are all in the same resourcegroup, but another application stack is in it's own resource group.
+- There is one or more shared resourcegroups for shared components
+  - For example if you use an application gateway to expose multiple application stacks to the internet, this will be in a shared RG with for example the VNET which is shared between your platforms.
+  - Those shared resources are mainly done for cost reductions. You dont want to host an Application Gateway for each application because it's simply unnecessary.
+- Any HTTPS service exposed outside of Azure is exposed through an Azure Application Gateway. Also services which are being exposed to your on-premises network. The reason is that the Application Gateway has some extra security measures in place which reduces your attack surface. This complies with the [Zero trust architecture](#zero-trust-architecture).
 
 ## Resource naming best practises
 Make sure that when you start using this boilerplate you come up with a good naming convention for your implementation. There are a few general rules of thumb which you can follow to get a good naming scheme.
- - Use the same naming structure for all of your resourcegroups. For example `<Teamname>-<ApplicationStackName>-<EnvironmentName>` or simply ` <ApplicationStackName>-<EnvironmentName>`.
- - It's extremely recommended to use the Environment name in your resource names for easy understanding & easy automation. This allows you to name all environments you create the same, except for the environment name. For example; a webapp will be called `myteam-myapp-dev` in dev and `myteam-myapp-prd` in production.
-    - In Azure DevOps Release pipelines you can use the `$(Release.EnvironmentName)` to use the current stage name for spinning up resources in your Azure platform. This means that if you name your stages `dev`, `acc` and `prd` that you can use `$(Release.EnvironmentName)` in your resources names which will cause the resources to include those `dev`, `acc` and `prd` references.
- - If you have only 1 instance of a specific resourcetype (now and in the future) in each resourcegroup, its recommended to just simply name the resource the same as your resourcegroup.
-    - For example: you want 1 application insights resource per application stack. Just give the same name to the appinsights and the resourcegroup for simplicity sake.
+- Use the same naming structure for all of your resourcegroups. For example `<Teamname>-<ApplicationStackName>-<EnvironmentName>` or simply ` <ApplicationStackName>-<EnvironmentName>`.
+- It's extremely recommended to use the Environment name in your resource names for easy understanding & easy automation. This allows you to name all environments you create the same, except for the environment name. For example; a webapp will be called `myteam-myapp-dev` in dev and `myteam-myapp-prd` in production.
+  - In Azure DevOps Release pipelines you can use the `$(Release.EnvironmentName)` to use the current stage name for spinning up resources in your Azure platform. This means that if you name your stages `dev`, `acc` and `prd` that you can use `$(Release.EnvironmentName)` in your resources names which will cause the resources to include those `dev`, `acc` and `prd` references.
+- If you have only 1 instance of a specific resourcetype (now and in the future) in each resourcegroup, its recommended to just simply name the resource the same as your resourcegroup.
+  - For example: you want 1 application insights resource per application stack. Just give the same name to the appinsights and the resourcegroup for simplicity sake.
 
 ## Zero trust architecture
 We follow the [zero trust architecture](https://en.wikipedia.org/wiki/Zero_trust_security_model) principle. We recommend you doing the same thing. The biggest reason we are mentioning this is because we see in the field that a lot of companies think that IP whitelisting is enough security. In short: Do not IP whitelist a calling service and think this is plenty of security. Always check the requests on multiple levels.
@@ -73,16 +73,16 @@ This example architecture has a few extra's which you might not want or need:
 
 # Which components are available & when to use them?
 Currently we've focussed on the following:
- - Some basic network components
- - Edge layer --> Application Gateway
- - App Layer --> App Services, Function Apps & RedisCache
- - Data layer --> Storage Accounts, Multiple relational databases & Keyvault.
- - Supporting tools --> Application Insights, Azure Monitor & Azure Log Analytics Workspace
- - Some experimental components --> App Configuration & Contianer Instances
+- Some basic network components
+- Edge layer --> Application Gateway
+- App Layer --> App Services, Function Apps & RedisCache
+- Data layer --> Storage Accounts, Multiple relational databases & Keyvault.
+- Supporting tools --> Application Insights, Azure Monitor & Azure Log Analytics Workspace
+- Some experimental components --> App Configuration & Contianer Instances
 
 # Prerequisites
- - An Azure DevOps environment (you are probably reading this inside one right now).
- - One or more azure subscriptions
+- An Azure DevOps environment (you are probably reading this inside one right now).
+- One or more azure subscriptions
 
 # How to use the scripts
 To use these scripts you simply add a Azure CLI step to your pipeline. Make sure to fill in the right subscription you want to use in the step and select the script from this repo you want to execute. If you are using classic release pipelines, we recommend making a taskgroup per script so you can re-use them easily.
@@ -112,11 +112,11 @@ Write-Footer -ScopedPSCmdlet $PSCmdlet
 We use the `Allman` code formatting preset from VSCode. Also we disable the `openBraceOnSameLine` setting in powershell. In theory your VSCode should already do this for you, since we've checked in our [settings.json](../.vscode/settings.json) to the repository.
 
 ### Naming
- - Our script & function parameters are written CamelCase
- - Local variables are all lowercase
- - Functionnames are written CamelCase
- - Names should be logical, recognizable and should avoid confusion
- - We try to follow the [Noun-verb](https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7.1) naming for functions
+- Our script & function parameters are written CamelCase
+- Local variables are all lowercase
+- Functionnames are written CamelCase
+- Names should be logical, recognizable and should avoid confusion
+- We try to follow the [Noun-verb](https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7.1) naming for functions
 
 # Setup Azure DevOps & GIT
 We are using a more-or-less complex GIT setup to fulfil our needs. The generic library you are watching right now should be sharable between companies at all times. This means that no company related data/rules should be implemented in this boilerplate. However, you probably have scripts & documentation which actually does contain logics or information of/for your company. To deal with this, we've created a 2-tier GIT repo. We created a company specific repo with this generic repo, in it, as a GIT submodule. This implies that commiting, pulling & pushing gets a little more complicated. To help you out, this paragraph should tell you how the workflow should work.
@@ -124,17 +124,17 @@ We are using a more-or-less complex GIT setup to fulfil our needs. The generic l
 ## Create a new Azure DevOps Project
 We recommend creating an `Azure Documentation` teamproject in your Azure DevOps instance.
 
- 1. On the main page click the New Project button in the top right corner.
+1. On the main page click the New Project button in the top right corner.
 
- ![Main page](../wiki_images/azdo_create_new_teamproject_1.png)
+![Main page](../wiki_images/azdo_create_new_teamproject_1.png)
 
- 2. Fill in the name of the new project. We use `Azure Documentation` for this.
+2. Fill in the name of the new project. We use `Azure Documentation` for this.
 
- ![Creating the team project](../wiki_images/azdo_create_new_teamproject_2.png)
+![Creating the team project](../wiki_images/azdo_create_new_teamproject_2.png)
 
- 3. Create the project and you will be sent to it's landing page.
+3. Create the project and you will be sent to it's landing page.
 
- ![Created the team project](../wiki_images/azdo_create_new_teamproject_7.png)
+![Created the team project](../wiki_images/azdo_create_new_teamproject_7.png)
 
 ## Mirroring the upstream repo to your own Azure DevOps instance
 First of all you need to mirror [the upstream github repo](https://github.com/RobHofmann/Azure.PlatformProvisioning) to your own Azure DevOps instance as a working repo. To do this, follow these steps:
@@ -296,14 +296,14 @@ The next thing you want to do is setup secure SSL policies. By default the Gatew
 Minimal TLS Version: `1.2`
 
 Ciphers in order:
- - `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384` <-- Strong
- - `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256` <-- Strong
- - `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384` <-- Strong
- - `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` <-- Strong
- - `TLS_DHE_RSA_WITH_AES_256_GCM_SHA384` <-- Strong
- - `TLS_DHE_RSA_WITH_AES_128_GCM_SHA256` <-- Strong
- - `TLS_RSA_WITH_AES_256_GCM_SHA384` <-- Fallback. Strong enough, but mainly for backwards compatibility
- - `TLS_RSA_WITH_AES_128_GCM_SHA256` <-- Fallback. Strong enough, but mainly for backwards compatibility
+- `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384` <-- Strong
+- `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256` <-- Strong
+- `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384` <-- Strong
+- `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` <-- Strong
+- `TLS_DHE_RSA_WITH_AES_256_GCM_SHA384` <-- Strong
+- `TLS_DHE_RSA_WITH_AES_128_GCM_SHA256` <-- Strong
+- `TLS_RSA_WITH_AES_256_GCM_SHA384` <-- Fallback. Strong enough, but mainly for backwards compatibility
+- `TLS_RSA_WITH_AES_128_GCM_SHA256` <-- Fallback. Strong enough, but mainly for backwards compatibility
 
 The strong ciphers are supported by mainly all devices since 2014.
 
@@ -311,12 +311,12 @@ If you are still using Windows Server 2012 R2 machines, follow [this link](https
 
 ## Creating Entrypoints
 Creating entrypoints can be done using [Create Application Gateway Entrypoint for ContainerInstance](/Azure/Azure-CLI-Snippets/Application-Gateway/Create-Application-Gateway-Entrypoint-for-ContainerInstance) (Azure Container Instances) or [Create Application Gateway Entrypoint for DomainName](/Azure/Azure-CLI-Snippets/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName) (AppServices, FunctionApps). These scripts will more or less do the following for you:
- - Handle naming for you based on the ingress domain name you are using
- - Handle permissions, identities, authentication & authorization between the Application Gateway & Keyvault
- - Handle the certificate (uploading in keyvault,  linking to the application gateway & setting it in your HTTPS listener)
- - Update the certificate if you pass a renewed certificate in the keyvault, AppGw & HTTPS listener
- - Create the following components for you (again automatically named based on the ingress domainname): Backendpool, Healthprobe, HTTP Setting, HTTPS Listener, routing rules a HTTP listener with autoredirect to HTTPS.
- - The script will make sure everything is setup correctly & that your backend is reachable with a healthcheck. Your pipeline will fail if the backend is not reachable.
+- Handle naming for you based on the ingress domain name you are using
+- Handle permissions, identities, authentication & authorization between the Application Gateway & Keyvault
+- Handle the certificate (uploading in keyvault,  linking to the application gateway & setting it in your HTTPS listener)
+- Update the certificate if you pass a renewed certificate in the keyvault, AppGw & HTTPS listener
+- Create the following components for you (again automatically named based on the ingress domainname): Backendpool, Healthprobe, HTTP Setting, HTTPS Listener, routing rules a HTTP listener with autoredirect to HTTPS.
+- The script will make sure everything is setup correctly & that your backend is reachable with a healthcheck. Your pipeline will fail if the backend is not reachable.
 
 # Networking
 There are different ways of doing networking within Azure. By default resources will either be public or have an IP Whitelist. By design we don't want to use public resources or use IP whitelists because of the potential insecurities in this. We made the choice to use two different ways of supporting connectivity; VNet whitelisting & Private Endpoint.
@@ -348,9 +348,9 @@ A challenge you will be facing when you use private endpoints, is that your Azur
 
 ## On-premises networks
 There are several ways of connecting your resources in azure from & to on-premises resources:
- - Azure ExpressRoute
- - Site-to-site VPN using the Virtual Network Gateway
- - Hybrid connections
+- Azure ExpressRoute
+- Site-to-site VPN using the Virtual Network Gateway
+- Hybrid connections
 
 Currently this stack has been tested using the ExpressRoute & the Virtual Network Gateway.
 
