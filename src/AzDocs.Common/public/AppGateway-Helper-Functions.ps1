@@ -360,7 +360,7 @@ function Test-ApplicationGatewayBackendIsHealthy
 
     # Check if backend is healthy
     $backendHealthy = $backend.health -eq "Healthy"
-    Write-Output $backendHealthy
+    Write-Output @{ BackendIsHealthy = $backendHealthy; HealthProbeLog = $backend.healthProbeLog }
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
@@ -859,14 +859,15 @@ function New-ApplicationGatewayEntrypoint
 
     # ======= Check if our backend is healthy =======
     Write-Host "Checking if backend is healthy..."
-    if (Test-ApplicationGatewayBackendIsHealthy -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -BackendDomainName $BackendDomainName)
+    $backendStatus = Test-ApplicationGatewayBackendIsHealthy -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -BackendDomainName $BackendDomainName
+    if ($backendStatus.BackendIsHealthy)
     {
         Write-Host "$BackendDomainName online!"
     }
     else
     {
         Write-Footer -ScopedPSCmdlet $PSCmdlet
-        throw "$BackendDomainName offline!"
+        throw "Backend $BackendDomainName seems to be unhealthy! Please verify your backend & healthprobe settings. Healthprobelog: $($backendStatus.HealthProbeLog)"
     }
     # ======= End Check if our backend is healthy =======
 
