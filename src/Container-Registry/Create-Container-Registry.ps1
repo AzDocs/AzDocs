@@ -28,7 +28,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$scriptArguments = ""
+$scriptArguments = @()
 if ($ContainerRegistryEnableAdminUser)
 {
     $scriptArguments += "--admin-enabled", "true"
