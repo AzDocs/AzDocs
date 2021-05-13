@@ -3,6 +3,7 @@ param (
     [Parameter(Mandatory)][string] $ContainerRegistryName,
     [Parameter(Mandatory)][string] $ContainerRegistryResourceGroupName,
     [Parameter(Mandatory)][ValidateSet('', 'Basic', 'Standard', 'Premium')][string] $ContainerRegistrySku = 'Premium',
+    [Parameter(Mandatory)][bool] $ContainerRegistryEnableAdminUser = $false,
     
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -26,6 +27,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+$scriptArguments = ""
+if ($ContainerRegistryEnableAdminUser)
+{
+    $scriptArguments += "--admin-enabled", "true"
+}
 
 Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku $ContainerRegistrySku
 
