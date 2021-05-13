@@ -11,6 +11,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 |--|--|--|--|
 | ContainerRegistryName | <input type="checkbox" checked> | `customershared$(Release.EnvironmentName)` | The name of the container registry. |
 | ContainerRegistryResourceGroupName | <input type="checkbox" checked> | `Customer-Shared-$(Release.EnvironmentName)` | The resourcegroup where the container registry should be. |
+| ContainerRegistrySku | <input type="checkbox"> | `Premium` | The sku for this registry. Note that for networking options other than "public" you will need the `Premium` sku. Options are `Basic`, `Standar` or `Premium`. |
 
 
 # VNET Whitelisting Parameters
