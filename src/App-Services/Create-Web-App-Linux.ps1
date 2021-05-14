@@ -10,6 +10,8 @@ param (
     [Parameter(Mandatory, ParameterSetName = 'default')][Parameter(Mandatory, ParameterSetName = 'DeploymentSlot')][string] $AppServiceRunTime,
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][bool] $StopAppServiceImmediatelyAfterCreation = $false,
+    [Parameter()][bool] $StopAppServiceSlotImmediatelyAfterCreation = $false,
     
     # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
@@ -65,6 +67,12 @@ if ($AppServiceRunTime)
 # Create AppService
 Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters
 
+# Stop immediately if desired
+if($StopAppServiceImmediatelyAfterCreation)
+{
+    Invoke-Executable az webapp stop --name $AppServiceName --resource-group $AppServiceResourceGroupName
+}
+
 # Fetch the ID from the AppService
 $webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
 
@@ -89,6 +97,13 @@ Invoke-Executable az webapp identity assign --ids $webAppId
 if ($EnableAppServiceDeploymentSlot)
 {
     Invoke-Executable az webapp deployment slot create --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceDeploymentSlotName
+
+    # Stop immediately if desired
+    if($StopAppServiceSlotImmediatelyAfterCreation)
+    {
+        Invoke-Executable az webapp stop --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName
+    }
+
     $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json).id
     Invoke-Executable az webapp config set --ids $webAppStagingId --ftps-state Disabled --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --slot $AppServiceDeploymentSlotName
