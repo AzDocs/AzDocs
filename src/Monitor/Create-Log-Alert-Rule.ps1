@@ -28,10 +28,10 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-# set source for the log alert
+# Set source for the log alert
 $source = New-AzScheduledQueryRuleSource -Query $MonitorAlertQuery -DataSourceId $LogAnalyticsWorkspaceResourceId -WarningAction Ignore
 
-# set a schedule for the log alert
+# Set a schedule for the log alert
 $schedule = New-AzScheduledQueryRuleSchedule -FrequencyInMinutes $MonitorAlertFrequencyInMinutes -TimeWindowInMinutes $MonitorAlertTimeWindowInMinutes -WarningAction Ignore
 
 # Optional: add a metric trigger
