@@ -51,6 +51,7 @@ The reason for this is that Azure CLI is extremely simple to learn for new devel
 
 ## Pipelines
 The idea is that one or more of the scripts from this library will form your pipeline which actually spins up the infra for your software. Please refer to [How to use the scripts](#how-to-use-the-scripts) for more information.
+> NOTE: Currently the documentation revolves around Classic Pipelines. We are currently working to transition to YAML pipelines. The docs will be updated accordingly.
 
 ### Service Principal Setup
 To deploy from Azure DevOps you need a service principal. We recommend creating this first in Azure and assigning it the `Owner` for your subscription (make at least one service principal per subscription).
