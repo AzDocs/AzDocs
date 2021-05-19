@@ -54,7 +54,7 @@ The idea is that one or more of the scripts from this library will form your pip
 > NOTE: Currently the documentation revolves around Classic Pipelines. We are currently working to transition to YAML pipelines. The docs will be updated accordingly.
 
 ### Service Principal Setup
-To deploy from Azure DevOps you need a service principal. We recommend creating this first in Azure and assigning it the `Owner` for your subscription (make at least one service principal per subscription).
+To deploy from Azure DevOps you need a service connection to your Azure environment. There are multiple authentication/authorization options. We created this using a service principal (manual). We recommend creating this first in Azure and assigning it the `Owner` for your subscription (make at least one service principal per subscription).
 Find the documentation on how to create service principals & assign roles [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#register-an-application-with-azure-ad-and-create-a-service-principal).
 
 # Recommended Architecture
