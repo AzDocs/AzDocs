@@ -63,7 +63,7 @@ Of course you are free to do things as you see fit. However, this boilerplate ha
 ![Recommended architecture](../wiki_images/Recommended_Architecture.png)
 
 Key takeaways are:
- - Always use an application gateway to reach resources in Azure. This also goes for on-premises to Azure connections. This component has [DDoS mitigation](https://en.wikipedia.org/wiki/DDoS_mitigation) and a [web application firewall](https://en.wikipedia.org/wiki/Web_application_firewall).
+ - Always use an application gateway to reach HTTPS resources in Azure. This also goes for on-premises to Azure connections. This component has [DDoS mitigation](https://en.wikipedia.org/wiki/DDoS_mitigation) and a [web application firewall](https://en.wikipedia.org/wiki/Web_application_firewall).
  - Always use managed identities (if possible. if not: use another way of auth) to handle authentication & authorization between layers & apps. This avoids apps calling the wrong data componenents etc.
  - Always use VNet integration in combination with [VNet whitelisting](#vnet-whitelisting) if possible. This is the recommended way of connecting apps within Azure. If this is not possible, use private endpoints and only if both the former are unavailable, start IP whitelisting.
  - Split your networklayers at least into the edge (gateway) layer, app layer & data layer. Feel free to add more layers where you see fit. This more or less still counts for the resources you use VNet whitelisting for. You dont want to place something in your gateway subnet which you whitelist on your database directly.
