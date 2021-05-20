@@ -174,6 +174,7 @@ git submodule add <upstream repo url> Generic.Azure.Documentation
 git commit -a -m "Added sub repo"
 git push origin main
 ```
+> The upstream repo url is the URL made in the [Mirroring the upstream repo to your own Azure DevOps instance](#mirroring-the-upstream-repo-to-your-own-azure-devops-instance) step.
 
 Congratulations. You now have created a company specific repository with the Generic repository as its submodule!
 
