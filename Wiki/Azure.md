@@ -451,7 +451,7 @@ We use two flavours of connecting from on-premises resources to Azure:
 ### DNS
 > NOTE: This part of the documentation is still under construction. We want to offer a 1-click-solution for the DNS servers.
 
-<font color="red">TODO: Dit stukje klopt nog niet</font>
+<font color="red">TODO: Dit stukje klopt nog niet. Je hebt meerdere DNS servers dus je kunt niet verwijzen vanuit onprem</font>
 
 Whenever you use an on-premises DNS server in combination with private endpoints there is a challenge to overcome: When do you resolve DNS entries from onpremises and when from the private endpoint DNS server from Azure itself?
 The solution we found that worked best is to create a recursive dns server (a DNS proxy which does the querying for you instead of redirecting your DNS query to the target server). The reason why you want the DNS proxy to do the query itself is because if your resource lives on-premises and you do the DNS request from there, the Azure Private DNS Server will return the public IP, since it sees you are NOT within the VNet. This will result in connection not being able to be made.
