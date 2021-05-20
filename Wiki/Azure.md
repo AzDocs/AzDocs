@@ -314,6 +314,7 @@ To create a release pipeline for your app where you can use this boilerplate, th
     - Script Arguments: `<insert the needed script arguments from the script you are calling>`
     - Access service principal details in script: <input type="checkbox" checked> (Required in rare cases for some scripts).
 
+TODO: Remove reference to subscription
 ![Classic pipeline](../wiki_images/classic_pipeline_howto_2.png)
 
 8. *Save* & *Create Release*. Congratulations, you can now run your pipeline and spin up secure & compliant Azure resources.
