@@ -80,7 +80,7 @@ Currently we've focussed on the following:
 - App Layer --> App Services, Function Apps & RedisCache
 - Data layer --> Storage Accounts, Multiple relational databases & Keyvault.
 - Supporting tools --> Application Insights, Azure Monitor & Azure Log Analytics Workspace
-- Some experimental components --> App Configuration & Contianer Instances
+- Some experimental components --> App Configuration & Container Instances
 
 # Prerequisites
 - An Azure DevOps environment (you are probably reading this inside one right now).
