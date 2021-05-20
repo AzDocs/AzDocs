@@ -178,7 +178,7 @@ git push origin main
 
 Congratulations. You now have created a company specific repository with the Generic repository as its submodule!
 
-## Checking out the company specific repository
+## Checking out the company specific repository on a new computer
 Since your company specific repository has a submodule to the generic AzDocs, you need to do something special to check the whole structure out. You need to tell GIT to also clone the submodules on cloning your company specific repo. So instead of the usual:
 
 `git clone <company specific repo url>`
@@ -186,6 +186,8 @@ Since your company specific repository has a submodule to the generic AzDocs, yo
 you need to do:
 
 `git clone --recurse-submodules <company specific repo url>`
+
+> The URL of this repo is the URL to the repo created in this step: [Recommended GIT structure / Company specific repository](#recommended-git-structure-%2F-company-specific-repository)
 
 Et voila! your full repository (or actually repositories) is/are now cloned!
 
@@ -198,7 +200,9 @@ The generic repo will have 2 remote's if you also want to contribute to this pro
 
 First clone the repo to your local disk with:
 
-`git clone <repo url>`
+`git clone <upstream repo url>`
+
+> The upstream repo url is the URL made in the [Mirroring the upstream repo to your own Azure DevOps instance](#mirroring-the-upstream-repo-to-your-own-azure-devops-instance) step.
 
 After doing this you enter the freshly created repo folder and use this command to add the upstream remote to your local repo:
 
