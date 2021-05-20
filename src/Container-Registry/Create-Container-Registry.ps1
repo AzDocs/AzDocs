@@ -26,7 +26,8 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku Premium
+# For now --admin-enabled true is needed because managed identities are not supported yet from, for example, App Services
+Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku Premium --admin-enabled true
 
 # Private Endpoint
 if($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName)

@@ -88,16 +88,7 @@ function Add-PrivateEndpoint
     Invoke-Executable az network private-endpoint create --name $PrivateEndpointName --resource-group $PrivateEndpointResourceGroupName --subnet $PrivateEndpointSubnetId --connection-name "$($PrivateEndpointName)-$($vnetName)-$($privateEndpointSubnetName)" --private-connection-resource-id $TargetResourceId --group-id $PrivateEndpointGroupId
 
     # Create Private DNS zone & set it up
-    if (!$(Invoke-Executable -AllowToFail az network private-dns zone show --resource-group $DNSZoneResourceGroupName --name $PrivateDnsZoneName))
-    {
-        Invoke-Executable az network private-dns zone create --resource-group $DNSZoneResourceGroupName --name $PrivateDnsZoneName
-    }
-
-    # Link the newly created DNS Zone to the VNET (to make sure our VNET can resolve this private DNS zone)
-    if (!$(Invoke-Executable -AllowToFail az network private-dns link vnet show --name $PrivateDnsLinkName --resource-group $DNSZoneResourceGroupName --zone-name $PrivateDnsZoneName))
-    {
-        Invoke-Executable az network private-dns link vnet create --resource-group $DNSZoneResourceGroupName --zone-name $PrivateDnsZoneName --name $PrivateDnsLinkName --virtual-network $PrivateEndpointVnetId --registration-enabled false
-    }
+    Add-DnsZone -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $PrivateDnsZoneName -PrivateDnsLinkName $PrivateDnsLinkName -PrivateEndpointVnetId $PrivateEndpointVnetId
 
     # === BEGIN Removal of the old deprecated setup. ===
     $dashedPrivateDnsZoneName = Get-DashedDomainname -DomainName $PrivateDnsZoneName
@@ -128,4 +119,40 @@ function Add-PrivateEndpoint
     Write-Host "Creating private-endpoint dns-zone-group with dnsZoneId: $dnsZoneId"
     Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $PrivateEndpointResourceGroupName --endpoint-name $PrivateEndpointName --name "dnsgroupname" --private-dns-zone $dnsZoneId --zone-name $dashedPrivateDnsZoneName
     Write-Host "Created private-endpoint dns-zone-group with dnsZoneId: $dnsZoneId"
+}
+
+function Add-DnsZone
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] $PrivateEndpointVnetId,
+        [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
+        [Parameter(Mandatory)][string] $PrivateDnsZoneName,
+        [Parameter(Mandatory)][string] $PrivateDnsLinkName
+    )
+
+    # Create Private DNS zone & set it up
+    if (!$(Invoke-Executable -AllowToFail az network private-dns zone show --resource-group $DNSZoneResourceGroupName --name $PrivateDnsZoneName))
+    {
+        Invoke-Executable az network private-dns zone create --resource-group $DNSZoneResourceGroupName --name $PrivateDnsZoneName
+    }
+
+    # Link the newly created DNS Zone to the VNET (to make sure our VNET can resolve this private DNS zone)
+    if (!$(Invoke-Executable -AllowToFail az network private-dns link vnet show --name $PrivateDnsLinkName --resource-group $DNSZoneResourceGroupName --zone-name $PrivateDnsZoneName))
+    {
+        Invoke-Executable az network private-dns link vnet create --resource-group $DNSZoneResourceGroupName --zone-name $PrivateDnsZoneName --name $PrivateDnsLinkName --virtual-network $PrivateEndpointVnetId --registration-enabled false
+    }
+}
+
+function Add-ADnsRecord
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
+        [Parameter(Mandatory)][string] $PrivateDnsZoneName,
+        [Parameter(Mandatory)][string] $RecordName,
+        [Parameter(Mandatory)][string] $Ipv4Address
+    )
+
+    Invoke-Executable az network private-dns record-set a add-record --resource-group $DNSZoneResourceGroupName --zone-name $PrivateDnsZoneName --record-set-name $RecordName --ipv4-address $Ipv4Address
 }
