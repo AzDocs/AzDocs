@@ -191,6 +191,9 @@ you need to do:
 
 Et voila! your full repository (or actually repositories) is/are now cloned!
 
+## Working with this setup & GIT
+<TODO: updating the companyspecific repo with the reference to the new version of the upstream repo>
+
 ## How to keep your repositories in sync with upstream
 *For the next procedure you will need an account at GitHub. Make sure to have this before continuing. You can create a GitHub account [here](https://github.com/join).*
 
