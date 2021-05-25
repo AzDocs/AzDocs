@@ -20,7 +20,7 @@ if(!$CIDRToRemoveFromWhitelist)
 
 # Preparation
 $sqlServerLowerCase = $SqlServerName.ToLower()
-$ruleName = ($CIDRToRemoveFromWhitelist -replace ".", "-") -replace "/", "-"
+$ruleName = ($CIDRToRemoveFromWhitelist -replace "\.", "-") -replace "/", "-"
 
 # Execute whitelist
 Invoke-Executable az sql server firewall-rule delete --resource-group $SqlServerResourceGroupName --server $sqlServerLowerCase --name $ruleName

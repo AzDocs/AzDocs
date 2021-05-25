@@ -22,7 +22,7 @@ if(!$CIDRToWhitelist)
 $sqlServerLowerCase = $SqlServerName.ToLower()
 $startIpAddress = Get-StartIpInIpv4Network -SubnetCidr $CIDRToWhitelist
 $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDRToWhitelist
-$ruleName = ($CIDRToWhitelist -replace ".", "-") -replace "/", "-"
+$ruleName = ($CIDRToWhitelist -replace "\.", "-") -replace "/", "-"
 
 # Execute whitelist
 Invoke-Executable az sql server firewall-rule create --resource-group $SqlServerResourceGroupName --server $sqlServerLowerCase --name $ruleName --start-ip-address $startIpAddress --end-ip-address $endIpAddress

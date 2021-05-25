@@ -11,7 +11,7 @@ This snippet will whitelist the specified IP Range from the Azure SQL Server. If
 | CIDRToWhitelist | `52.43.65.123/32` | The IP range to whitelist in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation). Leave this field empty to use the outgoing IP from where you execute this script. |
 
 # Code
-[Click here to download this script](../../../../src/SQL-Server/Whitelist-IP-on-Sql-Server.ps1)
+[Click here to download this script](../../../../src/SQL-Server/Add-IP-Whitelist-to-Sql-Server.ps1)
 
 # Links
 
