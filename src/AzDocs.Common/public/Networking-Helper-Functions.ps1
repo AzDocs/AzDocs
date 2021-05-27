@@ -12,12 +12,12 @@ function Get-StartIpInIpv4Network
     $BinarySubnetMask = ""
     if($splittedIpAddress[1] -ne "32")
     {
-        $BinarySubnetMask = (Convert-SubnetMask-To-Binary $subnetMask).replace(".", "")
+        $BinarySubnetMask = (Convert-SubnetMaskToBinary $subnetMask).replace(".", "")
     }
     $BinaryNetworkAddressSection = $BinarySubnetMask.replace("1", "")
     $BinaryNetworkAddressLength = $BinaryNetworkAddressSection.length
     $CIDR = 32 - $BinaryNetworkAddressLength
-    $BinaryIP = (Convert-IP-To-Binary $splittedIpAddress[0]).Replace(".", "")
+    $BinaryIP = (Convert-IPToBinary $splittedIpAddress[0]).Replace(".", "")
     $BinaryIPNetworkSection = $BinaryIP.substring(0, $CIDR)
     
     #Starting IP
@@ -41,12 +41,12 @@ function Get-EndIpInIpv4Network
     $BinarySubnetMask = ""
     if($splittedIpAddress[1] -ne "32")
     {
-        $BinarySubnetMask = (Convert-SubnetMask-To-Binary $subnetMask).replace(".", "")
+        $BinarySubnetMask = (Convert-SubnetMaskToBinary $subnetMask).replace(".", "")
     }
     $BinaryNetworkAddressSection = $BinarySubnetMask.replace("1", "")
     $BinaryNetworkAddressLength = $BinaryNetworkAddressSection.length
     $CIDR = 32 - $BinaryNetworkAddressLength
-    $BinaryIP = (Convert-IP-To-Binary $splittedIpAddress[0]).Replace(".", "")
+    $BinaryIP = (Convert-IPToBinary $splittedIpAddress[0]).Replace(".", "")
     $BinaryIPNetworkSection = $BinaryIP.substring(0, $CIDR)
        
     #End IP
@@ -163,7 +163,8 @@ function ConvertTo-Binary ($strDecimal)
 	}
 	Return $strBinary
 }
-function Convert-IP-To-Binary ($strIP)
+
+function Convert-IPToBinary ($strIP)
 {
 	$strBinaryIP = $null
 	if (Test-IP $strIP)
@@ -182,7 +183,7 @@ function Convert-IP-To-Binary ($strIP)
 	Return $strBinaryIP
 }
 
-Function Convert-SubnetMask-To-Binary ($strSubnetMask)
+Function Convert-SubnetMaskToBinary ($strSubnetMask)
 {
 		$strBinarySubnetMask = $null
 	if (Test-SubnetMask $strSubnetMask)
