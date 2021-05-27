@@ -19,7 +19,9 @@ function Add-AccessRestriction
         [Parameter()][string] $AccessRestrictionAction = "Allow",
         [Parameter()][string] $Priority = 10,
         [Parameter(ParameterSetName = 'cidr', Mandatory)][string] $CIDRToWhitelist,
-        [Parameter(ParameterSetName = 'myIp', Mandatory)][switch] $WhiteListMyIp
+        [Parameter(ParameterSetName = 'myIp', Mandatory)][switch] $WhiteListMyIp,
+        [Parameter()][bool] $ApplyToMainEntrypoint = $true,
+        [Parameter()][bool] $ApplyToScmEntrypoint = $true
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -36,19 +38,25 @@ function Add-AccessRestriction
 
     }
 
-    # call is not idempotent
-    if (Confirm-AccessRestriction -AppType $AppType -ResourceGroupName $ResourceGroupName -ResourceName $ResourceName -AccessRestrictionRuleName $AccessRestrictionRuleName -SecurityRestrictionObjectName "scmIpSecurityRestrictions" -DeploymentSlotName $DeploymentSlotName)
+    # SCM
+    if($ApplyToScmEntrypoint)
     {
-        Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $true @optionalParameters
+        if (Confirm-AccessRestriction -AppType $AppType -ResourceGroupName $ResourceGroupName -ResourceName $ResourceName -AccessRestrictionRuleName $AccessRestrictionRuleName -SecurityRestrictionObjectName "scmIpSecurityRestrictions" -DeploymentSlotName $DeploymentSlotName)
+        {
+            Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $true @optionalParameters
+        }
+        Invoke-Executable az $AppType config access-restriction add --resource-group $ResourceGroupName --name $ResourceName --action $AccessRestrictionAction --priority $Priority --rule-name $AccessRestrictionRuleName --ip-address $CIDRToWhitelist --scm-site $true @optionalParameters
     }
-    Invoke-Executable az $AppType config access-restriction add --resource-group $ResourceGroupName --name $ResourceName --action $AccessRestrictionAction --priority $Priority --rule-name $AccessRestrictionRuleName --ip-address $CIDRToWhitelist --scm-site $true @optionalParameters
- 
-    if (Confirm-AccessRestriction -AppType $AppType -ResourceGroupName $ResourceGroupName -ResourceName $ResourceName -AccessRestrictionRuleName $AccessRestrictionRuleName -SecurityRestrictionObjectName "ipSecurityRestrictions" -DeploymentSlotName $DeploymentSlotName)
-    {
-        Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $false @optionalParameters
-    }
-    Invoke-Executable az $AppType config access-restriction add --resource-group $ResourceGroupName --name $ResourceName --action $AccessRestrictionAction --priority $Priority --rule-name $AccessRestrictionRuleName --ip-address $CIDRToWhitelist --scm-site $false @optionalParameters
 
+    # Normal WebApp
+    if($ApplyToMainEntrypoint)
+    {
+        if (Confirm-AccessRestriction -AppType $AppType -ResourceGroupName $ResourceGroupName -ResourceName $ResourceName -AccessRestrictionRuleName $AccessRestrictionRuleName -SecurityRestrictionObjectName "ipSecurityRestrictions" -DeploymentSlotName $DeploymentSlotName)
+        {
+            Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $false @optionalParameters
+        }
+        Invoke-Executable az $AppType config access-restriction add --resource-group $ResourceGroupName --name $ResourceName --action $AccessRestrictionAction --priority $Priority --rule-name $AccessRestrictionRuleName --ip-address $CIDRToWhitelist --scm-site $false @optionalParameters
+    }
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
@@ -65,8 +73,11 @@ function Remove-AccessRestriction
         [Parameter(Mandatory)][string] [ValidateSet('functionapp', 'webapp')]$AppType,
         [Parameter(Mandatory)][string] $ResourceGroupName,
         [Parameter(Mandatory)][string] $ResourceName,
-        [Parameter(Mandatory)][string] $AccessRestrictionRuleName,
-        [Parameter()][string] $DeploymentSlotName
+        [Parameter()][string] $AccessRestrictionRuleName,
+        [Parameter()][string] $CIDRToRemove,
+        [Parameter()][string] $DeploymentSlotName,
+        [Parameter()][bool] $ApplyToMainEntrypoint = $true,
+        [Parameter()][bool] $ApplyToScmEntrypoint = $true
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -77,8 +88,24 @@ function Remove-AccessRestriction
         $optionalParameters += "--slot", "$DeploymentSlotName"
     }
  
-    Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $true @optionalParameters 
-    Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $false @optionalParameters
+    if($AccessRestrictionRuleName)
+    {
+        $optionalParameters += "--rule-name", "$AccessRestrictionRuleName"
+    }
+    else
+    {
+        $optionalParameters += "--ip-address", "$CIDRToRemove"
+    }
+
+    if($ApplyToScmEntrypoint)
+    {
+        Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --scm-site $true @optionalParameters 
+    }
+    
+    if($ApplyToMainEntrypoint)
+    {
+        Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --scm-site $false @optionalParameters
+    }
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
