@@ -2,6 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $SqlServerName,
     [Parameter(Mandatory)][string] $SqlServerResourceGroupName,
+    [Parameter()][string] $AccessRuleName,
     [Parameter()][string] $CIDRToWhitelist
 )
 
@@ -22,9 +23,13 @@ if(!$CIDRToWhitelist)
 $sqlServerLowerCase = $SqlServerName.ToLower()
 $startIpAddress = Get-StartIpInIpv4Network -SubnetCidr $CIDRToWhitelist
 $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDRToWhitelist
-$ruleName = ($CIDRToWhitelist -replace "\.", "-") -replace "/", "-"
+
+if(!$AccessRuleName)
+{
+    $AccessRuleName = ($CIDRToWhitelist -replace "\.", "-") -replace "/", "-"
+}
 
 # Execute whitelist
-Invoke-Executable az sql server firewall-rule create --resource-group $SqlServerResourceGroupName --server $sqlServerLowerCase --name $ruleName --start-ip-address $startIpAddress --end-ip-address $endIpAddress
+Invoke-Executable az sql server firewall-rule create --resource-group $SqlServerResourceGroupName --server $sqlServerLowerCase --name $AccessRuleName --start-ip-address $startIpAddress --end-ip-address $endIpAddress
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

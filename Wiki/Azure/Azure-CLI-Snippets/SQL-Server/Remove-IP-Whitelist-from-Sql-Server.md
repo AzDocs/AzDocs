@@ -6,11 +6,12 @@ This snippet will remove the specified IP Range from the Azure SQL Server. If yo
 > NOTE: It is strongly suggested to set the condition, of this task in the pipeline, to always run. Even if your previous steps have failed. This is to avoid unintended whitelists whenever pipelines crash in the middle of something.
 
 # Parameters
-| Parameter | Example Value | Description |
-|--|--|--|
-| SqlServerResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resource group the SQL Server is in|
-| SqlServerName | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc. |
-| CIDRToRemoveFromWhitelist | `52.43.65.123/32` | The IP range, to remove the whitelist for, in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation). Leave this field empty to use the outgoing IP from where you execute this script. |
+| Parameter | Required  | Example Value | Description |
+|--|--|--|--|
+| SqlServerResourceGroupName | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resource group the SQL Server is in|
+| SqlServerName | <input type="checkbox" checked> | `somesqlserver$(Release.EnvironmentName)` | The name for the SQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc. |
+| AccessRuleName | <input type="checkbox"> | `company hq` | You can delete an accessrule based on it's rulename. If you leave this empty, it will take the `CIDRToRemoveFromWhitelist` to delete the IP address/range. |
+| CIDRToRemoveFromWhitelist | <input type="checkbox"> | `52.43.65.123/32` | IP range in [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) notation that should be removed from the whitelist. If you leave this value empty, it will use the machine's outbound `/32` ip (the machine where you are running this script from). |
 
 # Code
 [Click here to download this script](../../../../src/SQL-Server/Remove-IP-Whitelist-from-Sql-Server.ps1)
