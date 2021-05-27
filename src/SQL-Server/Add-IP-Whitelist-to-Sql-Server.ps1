@@ -15,8 +15,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 if(!$CIDRToWhitelist)
 {
     $response  = Invoke-WebRequest 'https://ipinfo.io/ip'
-    $CIDRToWhitelist = $response.Content.Trim()
-    $CIDRToWhitelist += '/32'
+    $CIDRToWhitelist = $response.Content.Trim() + '/32'
 }
 
 # Preparation
