@@ -70,7 +70,7 @@ function ConvertTo-IPv4MaskString {
 }
 
 
-function Validate-IP ($strIP)
+function Test-IP ($strIP)
 {
 	$bValidIP = $true
 	$arrSections = @()
@@ -100,7 +100,7 @@ function Validate-IP ($strIP)
 	Return $bValidIP
 }
 
-function Validate-SubnetMask ($strSubnetMask)
+function Test-SubnetMask ($strSubnetMask)
 {
 	$bValidMask = $true
 	$arrSections = @()
@@ -166,18 +166,17 @@ function ConvertTo-Binary ($strDecimal)
 function Convert-IP-To-Binary ($strIP)
 {
 	$strBinaryIP = $null
-	if (Validate-IP $strIP)
+	if (Test-IP $strIP)
 	{
 		$arrSections = @()
 		$arrSections += $strIP.split(".")
 		foreach ($section in $arrSections)
 		{
-			if ($strBinaryIP -ne $null)
+			if ($null -ne $strBinaryIP)
 			{
 				$strBinaryIP = $strBinaryIP+"."
 			}
-				$strBinaryIP = $strBinaryIP+(ConvertTo-Binary $section)
-			
+			$strBinaryIP = $strBinaryIP+(ConvertTo-Binary $section)
 		}
 	}
 	Return $strBinaryIP
@@ -186,18 +185,17 @@ function Convert-IP-To-Binary ($strIP)
 Function Convert-SubnetMask-To-Binary ($strSubnetMask)
 {
 		$strBinarySubnetMask = $null
-	if (Validate-SubnetMask $strSubnetMask)
+	if (Test-SubnetMask $strSubnetMask)
 	{
 		$arrSections = @()
 		$arrSections += $strSubnetMask.split(".")
 		foreach ($section in $arrSections)
 		{
-			if ($strBinarySubnetMask -ne $null)
+			if ($null -ne $strBinarySubnetMask)
 			{
 				$strBinarySubnetMask = $strBinarySubnetMask+"."
 			}
-				$strBinarySubnetMask = $strBinarySubnetMask+(ConvertTo-Binary $section)
-			
+			$strBinarySubnetMask = $strBinarySubnetMask+(ConvertTo-Binary $section)
 		}
 	}
 	Return $strBinarySubnetMask
