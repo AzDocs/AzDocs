@@ -32,31 +32,39 @@ function Add-AccessRestriction
         $optionalParameters += "--slot", "$DeploymentSlotName"
     }
 
+    ### CHECKING AND REMOVING EXISTING RULES
+    # SCM entrypoint
+    if ($ApplyToScmEntrypoint -and (Confirm-AccessRestriction -AppType $AppType -ResourceGroupName $ResourceGroupName -ResourceName $ResourceName -AccessRestrictionRuleName $AccessRestrictionRuleName -SecurityRestrictionObjectName "scmIpSecurityRestrictions" -DeploymentSlotName $DeploymentSlotName))
+    {
+        Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $true @optionalParameters
+    }
+
+    # Main entrypoint
+    if ($ApplyToMainEntrypoint -and (Confirm-AccessRestriction -AppType $AppType -ResourceGroupName $ResourceGroupName -ResourceName $ResourceName -AccessRestrictionRuleName $AccessRestrictionRuleName -SecurityRestrictionObjectName "ipSecurityRestrictions" -DeploymentSlotName $DeploymentSlotName))
+    {
+        Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $false @optionalParameters
+    }
+    ### END CHECKING AND REMOVING EXISTING RULES
+    
+    ### ADDING NEW RULES
     if($AccessRestrictionRuleDescription)
     {
         $optionalParameters += "--description", "$AccessRestrictionRuleDescription"
-
     }
 
-    # SCM
-    if($ApplyToScmEntrypoint)
+    # SCM entrypoint
+    if ($ApplyToScmEntrypoint)
     {
-        if (Confirm-AccessRestriction -AppType $AppType -ResourceGroupName $ResourceGroupName -ResourceName $ResourceName -AccessRestrictionRuleName $AccessRestrictionRuleName -SecurityRestrictionObjectName "scmIpSecurityRestrictions" -DeploymentSlotName $DeploymentSlotName)
-        {
-            Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $true @optionalParameters
-        }
         Invoke-Executable az $AppType config access-restriction add --resource-group $ResourceGroupName --name $ResourceName --action $AccessRestrictionAction --priority $Priority --rule-name $AccessRestrictionRuleName --ip-address $CIDRToWhitelist --scm-site $true @optionalParameters
     }
 
-    # Normal WebApp
-    if($ApplyToMainEntrypoint)
+    # Main entrypoint
+    if ($ApplyToMainEntrypoint)
     {
-        if (Confirm-AccessRestriction -AppType $AppType -ResourceGroupName $ResourceGroupName -ResourceName $ResourceName -AccessRestrictionRuleName $AccessRestrictionRuleName -SecurityRestrictionObjectName "ipSecurityRestrictions" -DeploymentSlotName $DeploymentSlotName)
-        {
-            Invoke-Executable az $AppType config access-restriction remove --resource-group $ResourceGroupName --name $ResourceName --rule-name $AccessRestrictionRuleName --scm-site $false @optionalParameters
-        }
         Invoke-Executable az $AppType config access-restriction add --resource-group $ResourceGroupName --name $ResourceName --action $AccessRestrictionAction --priority $Priority --rule-name $AccessRestrictionRuleName --ip-address $CIDRToWhitelist --scm-site $false @optionalParameters
     }
+    ### END ADDING NEW RULES
+
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
