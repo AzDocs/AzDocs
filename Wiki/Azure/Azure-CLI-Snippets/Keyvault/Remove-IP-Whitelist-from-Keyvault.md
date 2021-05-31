@@ -13,7 +13,7 @@ This snippet will remove the specified IP Range from the Azure Keyvault. If you 
 | CIDRToRemoveFromWhitelist | `52.43.65.123/32` | The IP range, to remove the whitelist for, in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation). Leave this field empty to use the outgoing IP from where you execute this script. |
 
 # Code
-[Click here to download this script](../../../../src/Container-Registry/Remove-IP-Whitelist-from-Keyvault.ps1)
+[Click here to download this script](../../../../src/Keyvault/Remove-IP-Whitelist-from-Keyvault.ps1)
 
 # Links
 
