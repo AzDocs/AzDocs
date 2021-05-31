@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $ContainerRegistryName,
     [Parameter(Mandatory)][string] $ContainerRegistryResourceGroupName,
-    [Parameter()][string] $CIDRToWhitelist
+    [Parameter()][ValidatePattern('^$|^(?:(?:\d{1,3}.){3}\d{1,3})\/(?:\d{1,2})$', ErrorMessage = "The text '{0}' does not match with the CIDR notation, like '1.2.3.4/32'")][string] $CIDRToWhitelist
 )
 
 #region ===BEGIN IMPORTS===
