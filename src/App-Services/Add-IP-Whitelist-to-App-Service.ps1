@@ -30,6 +30,10 @@ if(!$CIDRToWhitelist)
 if ($ApplyToAllSlots)
 {
     $availableSlots = Invoke-Executable -AllowToFail az webapp deployment slot list --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json
+    if($AppServiceDeploymentSlotName)
+    {
+        $availableSlots = $availableSlots | Where-Object { $_.name -ne $AppServiceDeploymentSlotName }
+    }
 }
 
 if(!$AccessRestrictionRuleName)

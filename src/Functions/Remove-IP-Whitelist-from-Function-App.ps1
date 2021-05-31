@@ -27,6 +27,10 @@ if(!$CIDRToRemoveFromWhitelist -and !$AccessRestrictionRuleName)
 if ($ApplyToAllSlots)
 {
     $availableSlots = Invoke-Executable -AllowToFail az functionapp deployment slot list --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json
+    if($FunctionAppDeploymentSlotName)
+    {
+        $availableSlots = $availableSlots | Where-Object { $_.name -ne $FunctionAppDeploymentSlotName }
+    }
 }
 
 Remove-AccessRestriction -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $AccessRestrictionRuleName -CIDRToRemove $CIDRToRemoveFromWhitelist -DeploymentSlotName $FunctionAppDeploymentSlotName -ApplyToMainEntrypoint $ApplyToMainEntrypoint -ApplyToScmEntrypoint $ApplyToScmEntrypoint

@@ -27,6 +27,10 @@ if(!$CIDRToRemoveFromWhitelist -and !$AccessRestrictionRuleName)
 if ($ApplyToAllSlots)
 {
     $availableSlots = Invoke-Executable -AllowToFail az webapp deployment slot list --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json
+    if($AppServiceDeploymentSlotName)
+    {
+        $availableSlots = $availableSlots | Where-Object { $_.name -ne $AppServiceDeploymentSlotName }
+    }
 }
 
 Remove-AccessRestriction -AppType webapp -ResourceGroupName $AppServiceResourceGroupName -ResourceName $AppServiceName -AccessRestrictionRuleName $AccessRestrictionRuleName -CIDRToRemove $CIDRToRemoveFromWhitelist -DeploymentSlotName $AppServiceDeploymentSlotName -ApplyToMainEntrypoint $ApplyToMainEntrypoint -ApplyToScmEntrypoint $ApplyToScmEntrypoint
