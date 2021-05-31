@@ -14,8 +14,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 if(!$CIDRToRemoveFromWhitelist)
 {
     $response  = Invoke-WebRequest 'https://ipinfo.io/ip'
-    $CIDRToRemoveFromWhitelist = $response.Content.Trim()
-    $CIDRToRemoveFromWhitelist += '/32'
+    $CIDRToRemoveFromWhitelist = $response.Content.Trim() + '/32'
 }
 
 Invoke-Executable az acr network-rule remove --name $ContainerRegistryName --resource-group $ContainerRegistryResourceGroupName --ip-address $CIDRToRemoveFromWhitelist
