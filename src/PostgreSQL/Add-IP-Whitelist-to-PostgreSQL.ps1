@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)][string] $PosgreSqlServerName,
-    [Parameter(Mandatory)][string] $PosgreSqlServerResourceGroupName,
+    [Parameter(Mandatory)][string] $PostgreSqlServerName,
+    [Parameter(Mandatory)][string] $PostgreSqlServerResourceGroupName,
     [Parameter()][string] $AccessRuleName,
     [Parameter()][ValidatePattern('^$|^(?:(?:\d{1,3}.){3}\d{1,3})\/(?:\d{1,2})$', ErrorMessage = "The text '{0}' does not match with the CIDR notation, like '1.2.3.4/32'")][string] $CIDRToWhitelist
 )
@@ -28,6 +28,6 @@ if(!$AccessRuleName)
 }
 
 # Execute whitelist
-Invoke-Executable az postgres server firewall-rule create --resource-group $PosgreSqlServerResourceGroupName --server-name $PosgreSqlServerName --name $AccessRuleName --start-ip-address $startIpAddress --end-ip-address $endIpAddress
+Invoke-Executable az postgres server firewall-rule create --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName --name $AccessRuleName --start-ip-address $startIpAddress --end-ip-address $endIpAddress
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

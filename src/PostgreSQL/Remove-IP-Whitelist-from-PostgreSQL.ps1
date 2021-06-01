@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)][string] $PosgreSqlServerName,
-    [Parameter(Mandatory)][string] $PosgreSqlServerResourceGroupName,
+    [Parameter(Mandatory)][string] $PostgreSqlServerName,
+    [Parameter(Mandatory)][string] $PostgreSqlServerResourceGroupName,
     [Parameter()][string] $AccessRuleName,
     [Parameter()][ValidatePattern('^$|^(?:(?:\d{1,3}.){3}\d{1,3})\/(?:\d{1,2})$', ErrorMessage = "The text '{0}' does not match with the CIDR notation, like '1.2.3.4/32'")][string] $CIDRToRemoveFromWhitelist
 )
@@ -22,7 +22,7 @@ if(!$AccessRuleName)
 {
     $startIpAddress = Get-StartIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist
     $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist
-    $firewallRules = Invoke-Executable az postgres server firewall-rule list --resource-group $PosgreSqlServerResourceGroupName --server-name $PosgreSqlServerName | ConvertFrom-Json
+    $firewallRules = Invoke-Executable az postgres server firewall-rule list --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName | ConvertFrom-Json
     $matchingFirewallRule = $firewallRules | Where-Object { $_.startIpAddress -eq $startIpAddress -and $_.endIpAddress -eq $endIpAddress }
     if($matchingFirewallRule)
     {
@@ -35,6 +35,6 @@ if(!$AccessRuleName)
 }
 
 # Execute whitelist
-Invoke-Executable az postgres server firewall-rule delete --resource-group $PosgreSqlServerResourceGroupName --server-name $PosgreSqlServerName --name $AccessRuleName --yes
+Invoke-Executable az postgres server firewall-rule delete --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName --name $AccessRuleName --yes
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
