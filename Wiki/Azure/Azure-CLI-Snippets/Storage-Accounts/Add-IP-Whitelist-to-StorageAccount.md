@@ -8,7 +8,7 @@ This snippet will whitelist the specified IP Range from the Azure Storage Accoun
 |--|--|--|
 | StorageAccountResourceGroupName | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resource group the Storage Account is in. |
 | StorageAccountName | `somestorageaccount$(Release.EnvironmentName)` | The name for the Storage Account resource. This name is restricted to alphanumerical characters without hyphens etc. |
-| CIDRToWhitelist | `52.43.65.123/32` | The IP range to whitelist in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation). Leave this field empty to use the outgoing IP from where you execute this script. |
+| CIDRToWhitelist | `52.43.65.123/24` | The IP range to whitelist in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation). Leave this field empty to use the outgoing IP from where you execute this script. NOTE: if you want to add a `/32`, make sure to omit the `/32` (for example: `123.123.123.123` instead of `123.123.123.123/32`). |
 
 # Code
 [Click here to download this script](../../../../src/Storage-Accounts/Add-IP-Whitelist-to-StorageAccount)
