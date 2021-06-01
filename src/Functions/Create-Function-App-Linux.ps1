@@ -70,7 +70,7 @@ Invoke-Executable az functionapp config set --ids $functionAppId --ftps-state Di
 Invoke-Executable az functionapp config set --ids $functionAppId --number-of-workers $FunctionAppNumberOfInstances
 
 # Set Always On
-Invoke-Executable az functionapp config set --always-on $AlwaysOn --ids $functionAppId
+Invoke-Executable az functionapp config set --always-on $FunctionAppAlwaysOn --ids $functionAppId
 
 # Set some basic configs (including vnet route all)
 Invoke-Executable az functionapp config appsettings set --ids $functionAppId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
@@ -88,6 +88,7 @@ if ($EnableFunctionAppDeploymentSlot)
     $functionAppStagingId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json).id
     Invoke-Executable az functionapp config set --ids $functionAppStagingId --ftps-state Disabled --slot $FunctionAppDeploymentSlotName
     Invoke-Executable az functionapp config set --ids $functionAppStagingId --number-of-workers $FunctionAppNumberOfInstances --slot $FunctionAppDeploymentSlotName
+    Invoke-Executable az functionapp config set --ids $functionAppStagingId --always-on $FunctionAppAlwaysOn  --slot $FunctionAppDeploymentSlotName
     Invoke-Executable az functionapp config appsettings set --ids $functionAppStagingId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
     Invoke-Executable az functionapp identity assign --ids $functionAppStagingId --slot $FunctionAppDeploymentSlotName
 
@@ -109,7 +110,7 @@ if ($EnableFunctionAppDeploymentSlot)
 }
 
 # VNET Whitelisting
-if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
+if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 {
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # Fetch the Subnet ID where the Application Resides in
@@ -132,7 +133,7 @@ if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 }
 
 # Add private endpoint & Setup Private DNS
-if($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName)
+if ($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName)
 {
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information

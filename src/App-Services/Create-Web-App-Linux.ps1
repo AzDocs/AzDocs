@@ -10,6 +10,7 @@ param (
     [Parameter(Mandatory, ParameterSetName = 'default')][Parameter(Mandatory, ParameterSetName = 'DeploymentSlot')][string] $AppServiceRunTime,
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][bool] $AppServiceAlwaysOn = $true,
     
     # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
@@ -77,6 +78,9 @@ Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled
 # Set number of instances
 Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppServiceNumberOfInstances
 
+# Set Always On
+Invoke-Executable az webapp config set --ids $webAppId --always-on $AppServiceAlwaysOn
+
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
 
@@ -92,6 +96,7 @@ if ($EnableAppServiceDeploymentSlot)
     $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json).id
     Invoke-Executable az webapp config set --ids $webAppStagingId --ftps-state Disabled --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --slot $AppServiceDeploymentSlotName
+    Invoke-Executable az webapp config set --ids $webAppStagingId --always-on $AppServiceAlwaysOn --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceDeploymentSlotName
     
@@ -113,7 +118,7 @@ if ($EnableAppServiceDeploymentSlot)
 }
 
 # VNET Whitelisting
-if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
+if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 {
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # Fetch the Subnet ID where the Application Resides in
@@ -136,7 +141,7 @@ if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 }
 
 # Add private endpoint & Setup Private DNS
-if($AppServicePrivateEndpointVnetResourceGroupName -and $AppServicePrivateEndpointVnetName -and $AppServicePrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $AppServicePrivateDnsZoneName)
+if ($AppServicePrivateEndpointVnetResourceGroupName -and $AppServicePrivateEndpointVnetName -and $AppServicePrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $AppServicePrivateDnsZoneName)
 {
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
