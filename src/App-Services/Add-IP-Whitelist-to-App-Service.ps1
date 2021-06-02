@@ -1,4 +1,4 @@
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName='cidr')]
 param (
     [Alias("ResourceGroupName")]
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
@@ -6,7 +6,10 @@ param (
     [Parameter()][string] $AccessRestrictionRuleName,
     [Parameter()][string] $AccessRestrictionRuleDescription,
     [Alias("IpRangeToWhitelist")]
-    [Parameter()][ValidatePattern('^$|^(?:(?:\d{1,3}.){3}\d{1,3})\/(?:\d{1,2})$', ErrorMessage = "The text '{0}' does not match with the CIDR notation, like '1.2.3.4/32'")][string] $CIDRToWhitelist,
+    [Parameter(ParameterSetName = 'cidr', Mandatory)][ValidatePattern('^$|^(?:(?:\d{1,3}.){3}\d{1,3})(?:\/(?:\d{1,2}))?$', ErrorMessage = "The text '{0}' does not match with the CIDR notation, like '1.2.3.4/32'")][string] $CIDRToWhitelist,
+    [Parameter(ParameterSetName = 'subnet', Mandatory)][string] $SubnetName,
+    [Parameter(ParameterSetName = 'subnet', Mandatory)][string] $VnetName,
+    [Parameter(ParameterSetName = 'subnet', Mandatory)][string] $VnetResourceGroupName,
     [Parameter()][string] $AppServiceDeploymentSlotName,
     [Parameter()][string] $AccessRestrictionAction = "Allow",
     [Parameter()][string] $Priority = 10,
