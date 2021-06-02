@@ -35,8 +35,9 @@ if (!$AccessRuleName)
 }
 
 # Execute whitelist
-foreach ($ruleName in $AccessRuleName) 
+foreach ($ruleName in -split $AccessRuleName) 
 {
+    Write-Host "Removing whitelist for $ruleName."
     Invoke-Executable az mysql server firewall-rule delete --resource-group $MySqlServerResourceGroupName --server-name $MySqlServerName --name $ruleName --yes
 }
 

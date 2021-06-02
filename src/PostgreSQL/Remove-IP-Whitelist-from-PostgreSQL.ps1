@@ -35,8 +35,9 @@ if (!$AccessRuleName)
 }
 
 # Execute whitelist
-foreach ($ruleName in $AccessRuleName) 
+foreach ($ruleName in -split $AccessRuleName) 
 {
+    Write-Host "Removing whitelist for $ruleName."
     Invoke-Executable az postgres server firewall-rule delete --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName --name $ruleName --yes
 }
 
