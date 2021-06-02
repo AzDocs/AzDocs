@@ -12,19 +12,19 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if(!$CIDRToRemoveFromWhitelist -and !$AccessRuleName)
+if (!$CIDRToRemoveFromWhitelist -and !$AccessRuleName)
 {
-    $response  = Invoke-WebRequest 'https://ipinfo.io/ip'
+    $response = Invoke-WebRequest 'https://ipinfo.io/ip'
     $CIDRToRemoveFromWhitelist = $response.Content.Trim() + '/32'
 }
 
-if(!$AccessRuleName)
+if (!$AccessRuleName)
 {
     $startIpAddress = Get-StartIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist
     $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist
     $firewallRules = Invoke-Executable az mysql server firewall-rule list --resource-group $MySqlServerResourceGroupName --server-name $MySqlServerName | ConvertFrom-Json
     $matchingFirewallRule = $firewallRules | Where-Object { $_.startIpAddress -eq $startIpAddress -and $_.endIpAddress -eq $endIpAddress }
-    if($matchingFirewallRule)
+    if ($matchingFirewallRule)
     {
         $AccessRuleName = $matchingFirewallRule.name
     }
@@ -35,6 +35,9 @@ if(!$AccessRuleName)
 }
 
 # Execute whitelist
-Invoke-Executable az mysql server firewall-rule delete --resource-group $MySqlServerResourceGroupName --server-name $MySqlServerName --name $AccessRuleName --yes
+foreach ($ruleName in $AccessRuleName) 
+{
+    Invoke-Executable az mysql server firewall-rule delete --resource-group $MySqlServerResourceGroupName --server-name $MySqlServerName --name $ruleName --yes
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
