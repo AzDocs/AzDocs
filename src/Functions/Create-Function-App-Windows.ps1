@@ -93,6 +93,7 @@ if ($EnableFunctionAppDeploymentSlot)
 
     if ($DisablePublicAccessForFunctionAppDeploymentSlot)
     {
+        #todo: fix this with common function
         $accessRestrictionRuleName = 'DisablePublicAccess'
         $restrictions = Invoke-Executable az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json
 
@@ -109,7 +110,7 @@ if ($EnableFunctionAppDeploymentSlot)
 }
 
 # VNET Whitelisting
-if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
+if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 {
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # Fetch the Subnet ID where the Application Resides in
@@ -132,7 +133,7 @@ if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 }
 
 # Add private endpoint & Setup Private DNS
-if($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName)
+if ($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName)
 {
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
