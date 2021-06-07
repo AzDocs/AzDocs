@@ -9,8 +9,7 @@ param (
 )
 
 # TODO: REMOVE => Container registry kan geen dubbele ip addressen opslaan. Update niet de waarden.
-# TODO: REMOVe => Bestaande waarden eerst removen en dan opnieuw opslaan.
-# TODO: REMOVE => Checking if it exists goes on IPaddress without port, adding/removing has to have the port available
+# TODO: REMOVE => Bestaande waarden eerst removen en dan opnieuw opslaan.
 
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
@@ -36,8 +35,6 @@ if ($SubnetName -and $VnetName -and $VnetResourceGroupName)
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $VnetResourceGroupName --name $SubnetName --vnet-name $VnetName | ConvertFrom-Json).id
 }
 
-# TODO: NOT ABLE TO REMOVE BASED ON IP-ADDRESS, NOTHING HAPPENS???? 
-
 # Check if the rule already exists, then remove it and add it again
 $optionalParameters = @()
 $existingRules = Invoke-Executable az acr network-rule list --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName | ConvertFrom-Json
@@ -47,7 +44,7 @@ if ($CIDRToWhitelist)
     $ipRule = $existingRules.ipRules | Where-Object { $_.ipAddressOrRange -eq $CIDRToWhitelist.split('/')[0] }
     if ($ipRule)
     {
-        Invoke-Executable az acr network-rule remove --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --ip-address $CIDRToWhitelist
+        Invoke-Executable az acr network-rule remove --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --ip-address $ipRule.ipAddressOrRange
     }
 }
 elseif ($subnetResourceId)
