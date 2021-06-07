@@ -11,9 +11,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if(!$CIDRToWhitelist)
+if (!$CIDRToWhitelist)
 {
-    $response  = Invoke-WebRequest 'https://ipinfo.io/ip'
+    $response = Invoke-WebRequest 'https://ipinfo.io/ip'
     $CIDRToWhitelist = $response.Content.Trim()
 }
 
