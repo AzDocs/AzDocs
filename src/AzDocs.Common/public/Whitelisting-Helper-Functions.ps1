@@ -256,3 +256,123 @@ function Confirm-AccessRestriction
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 #endregion
+
+#region Whitelist helper functions MySql/PostgreSql/SqlServer 
+
+function Remove-FirewallRulesIfExists
+{    
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] [ValidateSet('mysql', 'postgres', 'sql')]$ServiceType,
+        [Parameter(Mandatory)][string] $ResourceGroupName,
+        [Parameter(Mandatory)][string] $ResourceName,
+        [Parameter()][string] $AccessRuleName, 
+        [Parameter()][ValidatePattern('^$|^(?:(?:\d{1,3}.){3}\d{1,3})(?:\/(?:\d{1,2}))?$', ErrorMessage = "The text '{0}' does not match with the CIDR notation, like '1.2.3.4/32'")][string] $CIDR
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $parameters = @()
+    if ($ServiceType -eq 'sql')
+    {
+        $parameters += '--server', "$ResourceName"
+    }
+    else
+    {
+        $parameters += '--server-name', "$ResourceName"
+    }
+
+    $matchedFirewallRules = [Collections.Generic.List[string]]::new()
+    $firewallRules = Invoke-Executable az $ServiceType server firewall-rule list --resource-group $ResourceGroupName @parameters | ConvertFrom-Json
+    if ($AccessRuleName)
+    {
+        $matchingFirewallRules = $firewallRules | Where-Object { $_.name -eq $AccessRuleName }
+        if ($matchingFirewallRules)
+        {
+            $matchedFirewallRules.Add($AccessRuleName)
+        }
+    }
+    else
+    {
+        $startIpAddress = Get-StartIpInIpv4Network -SubnetCidr $CIDR
+        $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDR
+        $matchingFirewallRules = $firewallRules | Where-Object { $_.startIpAddress -eq $startIpAddress -and $_.endIpAddress -eq $endIpAddress }
+        if ($matchingFirewallRules)
+        {
+            foreach ($matchingFirewallRule in $matchingFirewallRules)
+            {
+                $matchedFirewallRules.Add($matchingFirewallRule.name)
+            }
+        }
+    }
+
+    if (!($ServiceType -eq 'sql'))
+    {
+        $parameters += '--yes'
+    }
+
+    # Remove firewall rules
+    foreach ($ruleName in $matchedFirewallRules) 
+    {
+        Write-Host "Removing whitelist for $ruleName."
+        Invoke-Executable az $ServiceType server firewall-rule delete --resource-group $ResourceGroupName --name $ruleName @parameters
+    }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+function Remove-VnetRulesIfExists
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] [ValidateSet('mysql', 'postgres', 'sql')]$ServiceType,
+        [Parameter(Mandatory)][string] $ResourceGroupName,
+        [Parameter(Mandatory)][string] $ResourceName,
+        [Parameter()][string] $SubnetResourceId,
+        [Parameter()][string] $AccessRuleName 
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $parameters = @()
+    if ($ServiceType -eq 'sql')
+    {
+        $parameters += '--server', "$ResourceName"
+    }
+    else
+    {
+        $parameters += '--server-name', "$ResourceName"
+    }
+
+    $matchedVnetRules = [Collections.Generic.List[string]]::new()
+    $vnetRules = Invoke-Executable az $ServiceType server vnet-rule list --resource-group $ResourceGroupName @parameters | ConvertFrom-Json
+    if ($AccessRuleName)
+    {
+        $matchingVnetRules = $vnetRules | Where-Object { $_.name -eq $AccessRuleName }
+        if ($matchingVnetRules)
+        {
+            $matchedVnetRules.Add($AccessRuleName)
+        }
+    }
+    else
+    {
+        $matchingVnetRules = $vnetRules | Where-Object { $_.virtualNetworkSubnetId -eq $SubnetResourceId }
+        if ($matchingVnetRules)
+        {
+            foreach ($matchingVnetRule in $matchingVnetRules)
+            {
+                $matchedVnetRules.Add($matchingVnetRule.name)
+            }
+        }
+    }
+
+    # Remove vnet rules
+    foreach ($ruleName in $matchedVnetRules) 
+    {
+        Write-Host "Removing whitelist for $ruleName."
+        Invoke-Executable az mysql server vnet-rule delete --resource-group $ResourceGroupName @parameters --name $ruleName
+    }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+#endregion

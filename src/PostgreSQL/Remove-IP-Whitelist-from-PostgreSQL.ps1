@@ -35,70 +35,13 @@ if ($SubnetName -and $VnetName -and $VnetResourceGroupName)
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $VnetResourceGroupName --name $SubnetName --vnet-name $VnetName | ConvertFrom-Json).id
 }
 
-# Check if rules exist and if so, remove.
-$matchedFirewallRules = [Collections.Generic.List[string]]::new()
-$matchedVnetRules = [Collections.Generic.List[string]]::new()
 if (!$subnetResourceId)
 {
-    $firewallRules = Invoke-Executable az postgres server firewall-rule list --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName | ConvertFrom-Json
-    if ($AccessRuleName)
-    {
-        $matchingFirewallRules = $firewallRules | Where-Object { $_.name -eq $AccessRuleName }
-        if ($matchingFirewallRules)
-        {
-            $matchedFirewallRules.Add($AccessRuleName)
-        }
-    }
-    else
-    {
-        $startIpAddress = Get-StartIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist
-        $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist
-        $matchingFirewallRules = $firewallRules | Where-Object { $_.startIpAddress -eq $startIpAddress -and $_.endIpAddress -eq $endIpAddress }
-        if ($matchingFirewallRules)
-        {
-            foreach ($matchingFirewallRule in $matchingFirewallRules)
-            {
-                $matchedFirewallRules.Add($matchingFirewallRule.name)
-            }
-        }
-    }
+    Remove-FirewallRulesIfExists -ServiceType 'postgres' -ResourceGroupName $PostgreSqlServerResourceGroupName -ResourceName $PostgreSqlServerName -AccessRuleName:$AccessRuleName -CIDR:$CIDRToRemoveFromWhitelist
 }
 else
 {
-    $vnetRules = Invoke-Executable az postgres server vnet-rule list --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName | ConvertFrom-Json
-    if ($AccessRuleName)
-    {
-        $matchingVnetRules = $vnetRules | Where-Object { $_.name -eq $AccessRuleName }
-        if ($matchingVnetRules)
-        {
-            $matchedVnetRules.Add($AccessRuleName)
-        }
-    }
-    else
-    {
-        $matchingVnetRules = $vnetRules | Where-Object { $_.virtualNetworkSubnetId -eq $subnetResourceId }
-        if ($matchingVnetRules)
-        {
-            foreach ($matchingVnetRule in $matchingVnetRules)
-            {
-                $matchedVnetRules.Add($matchingVnetRule.name)
-            }
-        }
-    }
-}
-
-# Remove firewall rules
-foreach ($ruleName in $matchedFirewallRules) 
-{
-    Write-Host "Removing whitelist for $ruleName."
-    Invoke-Executable az postgres server firewall-rule delete --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName --name $ruleName --yes
-}
-
-# Remove vnet rules
-foreach ($ruleName in $matchedVnetRules) 
-{
-    Write-Host "Removing whitelist for $ruleName."
-    Invoke-Executable az postgres server vnet-rule delete --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName --name $ruleName
+    Remove-VnetRulesIfExists -ServiceType 'postgres' -ResourceGroupName $PostgreSqlServerResourceGroupName -ResourceName $PostgreSqlServerName -AccessRuleName:$AccessRuleName -SubnetResourceId:$subnetResourceId
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
