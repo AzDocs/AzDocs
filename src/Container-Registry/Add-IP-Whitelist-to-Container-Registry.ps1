@@ -9,7 +9,6 @@ param (
 )
 
 # TODO: REMOVE => Container registry kan geen dubbele ip addressen opslaan. Update niet de waarden.
-# TODO: REMOVE => Bestaande waarden eerst removen en dan opnieuw opslaan.
 
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
@@ -17,17 +16,11 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if ($CIDRToWhitelist -and $SubnetName -and $VnetName -and $VnetResourceGroupName)
-{
-    throw "You can not enter a CIDRToWhitelist (CIDR whitelisting) in combination with SubnetName, VnetName, VnetResourceGroupName (Subnet whitelisting). Choose one of the two options."
-}
+# Confirm if the correct parameters are passed
+Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName
 
 # Autogenerate CIDR if no CIDR or Subnet is passed
-if (!$CIDRToWhitelist -and (!$SubnetName -or !$VnetName -or !$VnetResourceGroupName))
-{
-    $response = Invoke-WebRequest 'https://ipinfo.io/ip'
-    $CIDRToWhitelist = $response.Content.Trim() + '/32'
-}
+$CIDRToWhiteList = New-CIDR -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName 
 
 # Fetch Subnet ID when subnet option is given.
 if ($SubnetName -and $VnetName -and $VnetResourceGroupName)
@@ -44,7 +37,7 @@ if ($CIDRToWhitelist)
     $ipRule = $existingRules.ipRules | Where-Object { $_.ipAddressOrRange -eq $CIDRToWhitelist.split('/')[0] }
     if ($ipRule)
     {
-        Invoke-Executable az acr network-rule remove --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --ip-address $ipRule.ipAddressOrRange
+        throw 'This CIDR is already added. Please correct this.'
     }
 }
 elseif ($subnetResourceId)
@@ -53,7 +46,7 @@ elseif ($subnetResourceId)
     $virtualNetworkRule = $existingRules.virtualNetworkRules | Where-Object { $_.virtualNetworkResourceId -eq $subnetResourceId }
     if ($virtualNetworkRule)
     {
-        Invoke-Executable az acr network-rule remove --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --subnet $virtualNetworkRule.virtualNetworkResourceId
+        throw 'This subnet is already added. Please correct this.'
     }
 }
 

@@ -9,24 +9,19 @@ param (
     [Parameter()][string] $VnetResourceGroupName
 )
 
-# TODO - Create a common function for checking the matched firewall/vnet rules
-
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if ($CIDRToRemoveFromWhitelist -and $SubnetName -and $VnetName -and $VnetResourceGroupName)
-{
-    throw "You can not enter a CIDRToWhitelist (CIDR whitelisting) in combination with SubnetName, VnetName, VnetResourceGroupName (Subnet whitelisting). Choose one of the two options."
-}
+# Confirm if the correct parameters are passed
+Confirm-ParametersForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName
 
 # Autogenerate CIDR if no CIDR or Subnet is passed
-if (!$CIDRToRemoveFromWhitelist -and !$AccessRuleName -and (!$SubnetName -or !$VnetName -or !$VnetResourceGroupName))
+if (!$AccessRuleName)
 {
-    $response = Invoke-WebRequest 'https://ipinfo.io/ip'
-    $CIDRToRemoveFromWhitelist = $response.Content.Trim() + '/32'
+    $CIDRToRemoveFromWhitelist = New-CIDR -CIDR:$CIDRToRemoveFromWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName 
 }
 
 # Fetch Subnet ID when subnet option is given.

@@ -12,24 +12,20 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if($AccessRuleName)
+if ($AccessRuleName)
 {
     Invoke-Executable az redis firewall-rules delete --rule-name $AccessRuleName --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName
 }
 else
 {
     # Autogenerate CIDR if no CIDR or Subnet is passed
-    if (!$CIDRToRemoveFromWhitelist)
-    {
-        $response = Invoke-WebRequest 'https://ipinfo.io/ip'
-        $CIDRToRemoveFromWhitelist = $response.Content.Trim() + '/32'
-    }
+    $CIDRToRemoveFromWhitelist = New-CIDR -CIDR:$CIDRToRemoveFromWhitelist -CIDRSuffix '/32'
 
     $startIpAddress = Get-StartIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist
     $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist
 
     $firewallRules = ((Invoke-Executable az redis firewall-rules list --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.startIp -eq $startIpAddress -and $_.endIp -eq $endIpAddress }
-    foreach($firewallRule in $firewallRules)
+    foreach ($firewallRule in $firewallRules)
     {
         Invoke-Executable az redis firewall-rules delete --rule-name ($firewallRule.name -split '/')[1] --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName
     }

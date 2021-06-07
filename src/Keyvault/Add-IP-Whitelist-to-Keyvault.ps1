@@ -10,23 +10,18 @@ param (
 
 # TODO: REMOVE => Keyvault update de waarden. Geen dubbele waarden aanwezig. Geen issues met bestaat al.
 
+
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if ($CIDRToWhitelist -and $SubnetName -and $VnetName -and $VnetResourceGroupName)
-{
-    throw "You can not enter a CIDRToWhitelist (CIDR whitelisting) in combination with SubnetName, VnetName, VnetResourceGroupName (Subnet whitelisting). Choose one of the two options."
-}
+# Confirm if the correct parameters are passed
+Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName
 
 # Autogenerate CIDR if no CIDR or Subnet is passed
-if (!$CIDRToWhitelist -and (!$SubnetName -or !$VnetName -or !$VnetResourceGroupName))
-{
-    $response = Invoke-WebRequest 'https://ipinfo.io/ip'
-    $CIDRToWhitelist = $response.Content.Trim() + '/32'
-}
+$CIDRToWhiteList = New-CIDR -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName 
 
 # Fetch Subnet ID when subnet option is given.
 if ($SubnetName -and $VnetName -and $VnetResourceGroupName)
