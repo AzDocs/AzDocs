@@ -181,6 +181,7 @@ function Confirm-AccessRestriction
     {
         if ($CIDR)
         {
+            Write-Host "Checking for CIDR $CIDR"
             $matchingCIDR = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object { $_.ip_address -eq $CIDR }
             if ($matchingCIDR.Length -gt 0)
             {
@@ -197,6 +198,7 @@ function Confirm-AccessRestriction
         }
         elseif ($SubnetResourceId)
         {
+            Write-Host "Checking for subnet with $SubnetResourceId"
             $matchingSubnet = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object { $_.vnet_subnet_resource_id -eq $SubnetResourceId }
             if ($matchingSubnet.Length -gt 0)
             {
