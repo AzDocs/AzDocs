@@ -112,7 +112,7 @@ if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
 
     # Whitelist VNET
-    & "$PSScriptRoot\Add-Network-Whitelist-to-Function-App.ps1" -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName -AccessRestrictionRuleDescription:$FunctionAppName -Priority $GatewayWhitelistRulePriority -ApplyToMainEntrypoint $true -ApplyToScmEntryPoint $true -SubnetToWhitelistName $GatewaySubnetName -SubnetToWhitelistVnetName $GatewayVnetName -SubnetToWhitelistVnetResourceGroupName $GatewayVnetResourceGroupName
+    & "$PSScriptRoot\Add-Network-Whitelist-to-Function-App.ps1" -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName -AccessRestrictionRuleDescription:$FunctionAppName -Priority $GatewayWhitelistRulePriority -ApplyToMainEntrypoint $true -ApplyToScmEntryPoint $true -SubnetToWhitelistSubnetName $GatewaySubnetName -SubnetToWhitelistVnetName $GatewayVnetName -SubnetToWhitelistVnetResourceGroupName $GatewayVnetResourceGroupName
 }
 
 # Add private endpoint & Setup Private DNS

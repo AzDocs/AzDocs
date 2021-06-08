@@ -65,7 +65,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
     
     # Whitelist VNET
-    & "$PSScriptRoot\Add-Network-Whitelist-to-MySQL.ps1" -MySqlServerName $MySqlServerName -MySqlServerResourceGroupName $MySqlServerResourceGroupName -SubnetToWhitelistName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
+    & "$PSScriptRoot\Add-Network-Whitelist-to-MySQL.ps1" -MySqlServerName $MySqlServerName -MySqlServerResourceGroupName $MySqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 
     # Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # # Fetch the Subnet ID where the Application Resides in

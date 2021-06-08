@@ -65,7 +65,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
     
     # Whitelist VNET
-    & "$PSScriptRoot\Add-Network-Whitelist-to-Sql-Server.ps1" -SqlServerName $SqlServerName -SqlServerResourceGroupName $SqlServerResourceGroupName -SubnetTowhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
+    & "$PSScriptRoot\Add-Network-Whitelist-to-Sql-Server.ps1" -SqlServerName $SqlServerName -SqlServerResourceGroupName $SqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 
     # Write-Host "VNET Whitelisting is desired. Adding the needed components."
     # # Fetch the Subnet ID where the Application Resides in
