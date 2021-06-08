@@ -9,6 +9,7 @@ param (
 )
 
 # TODO: REMOVE => Storage account update de waarden. Geen dubbele waarden aanwezig. Geen issues met bestaat al.
+# TODO: NO CIDRSuffix
 
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
@@ -20,7 +21,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName
 
 # Autogenerate CIDR if no CIDR or Subnet is passed
-$CIDRToWhiteList = New-CIDR -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName 
+$CIDRToWhiteList = New-CIDR -CIDR:$CIDRToWhitelist -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName 
 
 # Fetch Subnet ID when subnet option is given.
 if ($SubnetName -and $VnetName -and $VnetResourceGroupName)
