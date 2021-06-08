@@ -254,7 +254,7 @@ function Confirm-AccessRestriction
         if ($matchingName.Length -gt 0)
         {
             Write-Host "Access restriction for type $SecurityRestrictionObjectName exists for $AccessRestrictionRuleName witch action "$matchingName.action", continueing"
-            $result = @{exists = $true; action = $matchingSubnet.action }
+            $result = @{exists = $true; action = $matchingName.action }
             return $result
         }
         else
