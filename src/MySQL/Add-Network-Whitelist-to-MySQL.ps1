@@ -28,6 +28,7 @@ $AccessRuleName = Get-AccessRestrictionRuleName -AccessRestrictionRuleName:$Acce
 if ($SubnetToWhitelistName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
 {
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
+    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
 }
 
 if (!$subnetResourceId)

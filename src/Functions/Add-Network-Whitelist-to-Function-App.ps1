@@ -45,6 +45,9 @@ $AccessRestrictionRuleName = Get-AccessRestrictionRuleName -AccessRestrictionRul
 if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
 {
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
+    
+    # Make sure the service endpoint is enabled for the subnet (for internal routing)
+    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.Web"
 }
 
 if ($ApplyToAllSlots)

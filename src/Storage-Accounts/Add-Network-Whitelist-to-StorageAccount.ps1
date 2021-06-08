@@ -24,6 +24,8 @@ $CIDRToWhiteList = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$Subn
 if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
 {
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
+    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
+    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.Storage"
 }
 
 $optionalParameters = @()
