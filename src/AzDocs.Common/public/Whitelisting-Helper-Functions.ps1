@@ -235,7 +235,7 @@ function Confirm-AccessRestriction
     elseif ($SubnetResourceId)
     {
         $matchingSubnet = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object { $_.Name -eq $AccessRestrictionRuleName -and $_.vnet_subnet_resource_id -eq $SubnetResourceId }
-        if ($matchingSubnet -gt 0)
+        if ($matchingSubnet.Length -gt 0)
         {
             Write-Host "Access restriction for type $SecurityRestrictionObjectName exists for $AccessRestrictionRuleName and $SubnetResourceId with action "$matchingSubnet.action", continueing"
             $result = @{exists = $true; action = $matchingSubnet.action }
@@ -251,7 +251,7 @@ function Confirm-AccessRestriction
     else
     {
         $matchingName = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object { $_.Name -eq $AccessRestrictionRuleName }
-        if ($matchingName -gt 0)
+        if ($matchingName.Length -gt 0)
         {
             Write-Host "Access restriction for type $SecurityRestrictionObjectName exists for $AccessRestrictionRuleName witch action "$matchingName.action", continueing"
             $result = @{exists = $true; action = $matchingSubnet.action }
