@@ -19,9 +19,9 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ApplyToAllSlots | <input type="checkbox"> | `$true`/`$false` | Applies the current script to all slots revolving this resource |
 | ApplyToMainEntrypoint | <input type="checkbox"> | `$true`/`$false` | Allows you to enable/disable applying this rule to the main entrypoint of this webapp. Defaults to `$true` |
 | ApplyToScmEntrypoint | <input type="checkbox"> | `$true`/`$false` | Allows you to enable/disable applying this rule to the scm entrypoint of this webapp. Defaults to `$true` |
-| SubnetName | <input type="checkbox"> | `gateway2-subnet` | The name of the subnet you want to remove from the whitelist.|
-| VnetName | <input type="checkbox"> | `sp-dc-dev-001-vnet` | The vnetname of the subnet you want to remove from the whitelist. |
-| VnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The VnetResourceGroupName your Vnet resides in. |
+| SubnetToRemoveSubnetName | <input type="checkbox"> | `gateway2-subnet` | The name of the subnet you want to remove from the whitelist.|
+| SubnetToRemoveVnetName | <input type="checkbox"> | `sp-dc-dev-001-vnet` | The vnetname of the subnet you want to remove from the whitelist. |
+| SubnetToRemoveVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The VnetResourceGroupName your Vnet resides in. |
 
 # Code
 
