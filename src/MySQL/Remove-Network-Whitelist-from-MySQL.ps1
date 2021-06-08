@@ -9,9 +9,6 @@ param (
     [Parameter()][string] $SubnetToRemoveVnetResourceGroupName
 )
 
-# TODO: REMOVE => MySQL klapt op het moment dat de rules niet existen maar wel worden gedelete.
-# TODO: REMOVE => Sinds MySQL op AccessRuleName als identifier werkt, kan het zo zijn dat er op CIDR / Subnet meerdere firewallrules/vnet rules teruggegeven worden.
-
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===

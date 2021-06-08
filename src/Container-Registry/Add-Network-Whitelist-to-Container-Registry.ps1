@@ -8,8 +8,6 @@ param (
     [Parameter()][string] $SubnetToWhitelistVnetResourceGroupName
 )
 
-# TODO: REMOVE => Container registry kan geen dubbele ip addressen opslaan. Update niet de waarden.
-
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===

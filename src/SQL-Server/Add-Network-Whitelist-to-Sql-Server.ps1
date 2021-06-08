@@ -9,9 +9,6 @@ param (
     [Parameter()][string] $SubnetToWhitelistVnetResourceGroupName
 )
 
-# TODO: REMOVE => SQL update firewall waarden IF ze dezelfde AccessRulename hebben. Een andere AccessRuleName, maar hetzelfde IP wordt geaccepteerd.
-# TODO: REMOVE => SQL update vnet rules als ze dezelfde AccessRulename hebben. Een andere AccessRulename, maar hetzelfde vnet wordt geaccepteerd.
-
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===

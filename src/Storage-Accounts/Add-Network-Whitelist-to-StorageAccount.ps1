@@ -8,7 +8,6 @@ param (
     [Parameter()][string] $SubnetToWhitelistVnetResourceGroupName
 )
 
-# TODO: REMOVE => Storage account update de waarden. Geen dubbele waarden aanwezig. Geen issues met bestaat al.
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
