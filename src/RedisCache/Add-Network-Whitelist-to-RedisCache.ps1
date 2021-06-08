@@ -6,8 +6,6 @@ param (
     [Parameter()][ValidatePattern('^$|^(?:(?:\d{1,3}.){3}\d{1,3})(?:\/(?:\d{1,2}))?$', ErrorMessage = "The text '{0}' does not match with the CIDR notation, like '1.2.3.4/32'")][string] $CIDRToWhitelist
 )
 
-# TODO > REMOVE > AccessRuleName is identifier 
-
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
@@ -15,10 +13,10 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Autogenerate CIDR if no CIDR is passed
-$CIDRToWhiteList = New-CIDR -CIDR:$CIDRToWhitelist -CIDRSuffix '/32'
+$CIDRToWhiteList = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32'
 
 # Autogenerate name if no name is given
-$AccessRuleName = New-AccessRestrictionRuleName -AccessRestrictionRuleName:$AccessRuleName -CIDR:$CIDRToWhitelist -SubnetName:$SubnetName -VnetName:$VnetName -VnetResourceGroupName:$VnetResourceGroupName -CharacterToReplaceWith '_'
+$AccessRuleName = Get-AccessRestrictionRuleName -AccessRestrictionRuleName:$AccessRuleName -CIDR:$CIDRToWhitelist -CharacterToReplaceWith '_'
 
 $startIpAddress = Get-StartIpInIpv4Network -SubnetCidr $CIDRToWhitelist
 $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDRToWhitelist
