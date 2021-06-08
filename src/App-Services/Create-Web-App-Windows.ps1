@@ -99,7 +99,6 @@ if ($EnableAppServiceDeploymentSlot)
 # VNET Whitelisting
 if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 {
-
     # REMOVE OLD NAMES
     # naam gaat genereren, check of oude naam bestaat zo ja, delete
     $oldAccessRestrictionRuleName = ToMd5Hash -InputString "$($VnetName)_$($SubnetName)_allow"
@@ -109,7 +108,7 @@ if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
 
     # Whitelist VNET
-    & "$PSScriptRoot\Add-Network-Whitelist-to-App-Service.ps1" -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AccessRestrictionRuleDescription:$AppServiceName -Priority $GatewayWhitelistRulePriority -ApplyToMainEntrypoint $true -ApplyToScmEntryPoint $true -SubnetToWhiteListName $GatewaySubnetName -SubnetToWhitelistVnetName $GatewayVnetName -SubnetToWhitelistVnetResourceGroupName $GatewayVnetResourceGroupName
+    & "$PSScriptRoot\Add-Network-Whitelist-to-App-Service.ps1" -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AccessRestrictionRuleDescription:$AppServiceName -Priority $GatewayWhitelistRulePriority -ApplyToMainEntrypoint $true -ApplyToScmEntryPoint $true -SubnetToWhitelistName $GatewaySubnetName -SubnetToWhitelistVnetName $GatewayVnetName -SubnetToWhitelistVnetResourceGroupName $GatewayVnetResourceGroupName
 }
 
 # Add private endpoint & Setup Private DNS
