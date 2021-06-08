@@ -392,7 +392,7 @@ function Remove-VnetRulesIfExists
     foreach ($ruleName in $matchedVnetRules) 
     {
         Write-Host "Removing whitelist for $ruleName."
-        Invoke-Executable az mysql server vnet-rule delete --resource-group $ResourceGroupName @parameters --name $ruleName
+        Invoke-Executable az $ServiceType server vnet-rule delete --resource-group $ResourceGroupName @parameters --name $ruleName
     }
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
@@ -417,7 +417,7 @@ function Confirm-CIDRorSubnetResourceIdOrAccessRuleNameNotEmpty
 
     if (!$CIDR -and !$SubnetResourceId -and !$AccessRestrictionRuleName)
     {
-        throw "CIDR not found & Subnet resource not found & AccessRestrictionRuleName not found. Something went horribly wrong."
+        throw "CIDR not found & Subnet resource not found & AccessRestrictionRuleName not found. Something went wrong."
     }
 }
 
@@ -456,7 +456,7 @@ function Confirm-ParametersForWhitelist
 .DESCRIPTION
     Generate the CIDR if no CIDR/SubnetName/VnetName/VnetResourceGroupName is passed
 #>
-function New-CIDR
+function Get-CIDRForWhitelist
 {
     [CmdletBinding()]
     param (
@@ -483,9 +483,8 @@ function New-CIDR
 .DESCRIPTION
     Generate the AccessRestrictionRuleName if no AccessRestrictionRuleName is passed
 #>
-function New-AccessRestrictionRuleName
+function Get-AccessRestrictionRuleName
 {
-    # todo: naamgeving CharacterToReplaceWith
     [CmdletBinding()]
     param (
         [Parameter()][string] $AccessRestrictionRuleName,
