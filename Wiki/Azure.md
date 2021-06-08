@@ -109,19 +109,29 @@ First of all you need to mirror [the upstream github repo](https://github.com/Ro
 
 1. Go to the `Repos` section of your TeamProject (in our case we created the teamproject Azure Documentation according to the [Create a new Azure DevOps Project](#create-a-new-azure-devops-project) section of this document).
 
-![Mirror repo](../wiki_images/azdo_create_new_teamproject_3.png)
+2. Create a new repository.
 
-2. Import the `upstream` git repo from GitHub (Enter: https://github.com/RobHofmann/Azure.PlatformProvisioning.git).
+![Create new repository](../wiki_images/azdo_create_new_teamproject_3.png)
+
+3. For the name fill in `Upstream.Azure.PlatformProvisioning`. Make sure to disable the `Add a README` option and put `Add a .gitignore` to `none`. Hit the `Create` button.
+
+![Create new repository](../wiki_images/azdo_create_new_teamproject_6.png)
+
+4. In the repo screen, make sure to have your `Upstream.Azure.PlatformProvisioning` repo selected. Hit the `Import` button
+
+![Mirror repo](../wiki_images/azdo_create_new_teamproject_8.png)
+
+5. Import the `upstream` git repo from GitHub (Enter: https://github.com/RobHofmann/Azure.PlatformProvisioning.git).
 
 ![Mirror repo](../wiki_images/azdo_create_new_teamproject_4.png)
 
-3. Give it a second to import the repo.
+6. Give it a second to import the repo.
 
 ![Mirror repo](../wiki_images/azdo_create_new_teamproject_5.png)
 
-4. You will now have an imported repository.
+7. You will now have an imported repository.
 
-![Mirror repo](../wiki_images/azdo_create_new_teamproject_6.png)
+![Mirror repo](../wiki_images/azdo_create_new_teamproject_9.png)
 
 ## Expose the docs as a wiki in your DevOps project
 This project also includes documentation next to the scripts. Even better: the document you are reading right now is inside the documentation :). You can publish these docs as a Wiki inside your own Azure DevOps teamproject. Here's how to do it:
@@ -170,7 +180,7 @@ To create this repository the same way, follow these steps:
 ```batch
 git clone <repo url>
 cd <repo folder>
-git submodule add <upstream repo url> Generic.Azure.Documentation
+git submodule add <upstream repo url> Azure.PlatformProvisioning
 git commit -a -m "Added sub repo"
 git push origin main
 ```
@@ -275,10 +285,10 @@ First of all you will need to "build" the scripts. This means you will need a bu
 5. Under the `Get sources` section, select the company repo.
 6. Make sure you are using an agent job (`Run on agent`).
 7. Under Variables, add the `GIT_AUTH_HEADER` variable with with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`).
-8. Get the generic repo url. example: https://mycompany@dev.azure.com/mycompany/Azure%20Documentation/_git/Generic.Azure.Documentation
-9. Add a `Bash` step with this `Inline` script (replace the URL with the url from step 8): `git -c http.https://mycompany@dev.azure.com/mycompany/Azure%20Documentation/_git/Generic.Azure.Documentation.extraheader="AUTHORIZATION: basic $(GIT_AUTH_HEADER)" submodule update --init --recursive`
+8. Get the generic repo url. example: https://mycompany@dev.azure.com/mycompany/Azure%20Documentation/_git/Upstream.Azure.PlatformProvisioning
+9. Add a `Bash` step with this `Inline` script (replace the URL with the url from step 8): `git -c http.https://mycompany@dev.azure.com/mycompany/Azure%20Documentation/_git/Upstream.Azure.PlatformProvisioning.extraheader="AUTHORIZATION: basic $(GIT_AUTH_HEADER)" submodule update --init --recursive`
 10. Add a Copy step with the following parameters:
-    - Source Folder (replace the `Generic.Azure.Documentation` with the name you gave to the generic repo): `Generic.Azure.Documentation/src`
+    - Source Folder (replace the `Upstream.Azure.PlatformProvisioning` with the name you gave to the generic repo): `Upstream.Azure.PlatformProvisioning/src`
     - Contents: `**`
     - Target Folder: `$(Build.ArtifactStagingDirectory)`
 11. Add a `Publish build artifacts` step with the following parameters:
