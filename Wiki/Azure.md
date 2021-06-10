@@ -38,9 +38,9 @@ Make sure that when you start using this boilerplate you come up with a good nam
 ## Zero trust architecture
 We follow the [zero trust architecture](https://en.wikipedia.org/wiki/Zero_trust_security_model) principle. We recommend you doing the same thing. The biggest reason we are mentioning this is because we see in the field that a lot of companies think that IP whitelisting is enough security. In short: Do not IP whitelist a calling service and think this is plenty of security. Always check the requests on multiple levels.
 
-## SaaS --> PaaS --> IaaS
-The ideology we follow is that we'd rather have SaaS, then PaaS and last IaaS. Simply because of the lack of maintenance in SaaS and the heaviest maintenance in IaaS.
-For the same reason we try to avoid containers, since we still need to update our runtimes in these (JRE/.NET versions etc).
+## SaaS --> PaaS --> Containers --> IaaS
+The ideology we follow is that we'd rather have SaaS, then PaaS, then Containers and last IaaS. Simply because of the lack of maintenance in SaaS and the heaviest maintenance in IaaS.
+For the same reason we try to avoid containers, since we still need to update our runtimes in these (JRE/.NET/other base-image versions etc).
 
 ## Azure CLI unless
 In this boilerplate we investigated ARM templates, Azure PowerShell & Azure CLI. We choose to have the following order:
@@ -203,6 +203,20 @@ you need to do:
 Et voila! your full repository (or actually repositories) is/are now cloned!
 
 ## Working with this setup & GIT
+Whenever you work with submodules and you edit something in these submodules (in this case the upstream repo), you need to update the reference in the company specific repo to the new commit of this generic (your copy of the upstream) repo. This is a pretty straightforward process, but it can be a little hard to figure out on your own.
+
+First of all, lets assume you are using Visual Studio Code. This example will make use of VsCode so that we can make it visual:
+
+1. Make your change in the generic repo. Let's assume you already have done this. In this example we changed the `Azure.md` file.
+
+2. In VsCode when you opened the company specific repo with the submodule as a folder (File --> Open Folder), 
+
+![Commit changes](../wiki_images/commit_changes_1.png)
+
+3. Under the `Source Control` tab you will see two repositories. Commit the generic repo content (in our case the `Azure.md` file.). This is the bottom one in the following screenshot.
+
+![Commit changes](../wiki_images/commit_changes_2.png)
+
 <TODO: updating the companyspecific repo with the reference to the new version of the upstream repo>
 
 ## How to keep your repositories in sync with upstream
