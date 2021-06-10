@@ -38,7 +38,8 @@ if ($CIDRToWhitelist)
     $ipRule = $existingRules.ipRules | Where-Object { $_.ipAddressOrRange -eq $CIDRToWhitelist.split('/')[0] }
     if ($ipRule)
     {
-        throw 'This CIDR is already added. Please correct this.'
+        Write-Host "This CIDR is already added. Please correct this."
+        return
     }
 }
 elseif ($subnetResourceId)
@@ -47,7 +48,8 @@ elseif ($subnetResourceId)
     $virtualNetworkRule = $existingRules.virtualNetworkRules | Where-Object { $_.virtualNetworkResourceId -eq $subnetResourceId }
     if ($virtualNetworkRule)
     {
-        throw 'This subnet is already added. Please correct this.'
+        Write-Host "This subnet is already added. Please correct this."
+        return
     }
 }
 
