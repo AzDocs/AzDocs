@@ -213,9 +213,11 @@ First of all, lets assume you are using Visual Studio Code. This example will ma
 
 ![Commit changes](../wiki_images/commit_changes_1.png)
 
-3. Under the `Source Control` tab you will see two repositories. Commit the generic repo content (in our case the `Azure.md` file.). This is the bottom one in the following screenshot.
+3. Under the `Source Control` tab you will see two repositories. Commit & Push the generic repo content (in our case the `Azure.md` file.). This is the bottom one in the following screenshot.
 
 ![Commit changes](../wiki_images/commit_changes_2.png)
+
+4. In the top repo you will see that the submodule file was changed (in the screenshot the file is called `Azure.PlatformProvisioning`). If you click on this change, you will see the following:
 
 <TODO: updating the companyspecific repo with the reference to the new version of the upstream repo>
 
