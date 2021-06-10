@@ -219,7 +219,11 @@ First of all, lets assume you are using Visual Studio Code. This example will ma
 
 4. In the top repo you will see that the submodule file was changed (in the screenshot the file is called `Azure.PlatformProvisioning`). If you click on this change, you will see the following:
 
-<TODO: updating the companyspecific repo with the reference to the new version of the upstream repo>
+![Commit changes](../wiki_images/commit_changes_3.png)
+
+5. In the screenshot you see that the subproject commit id has changed. This is to reference the new version (commit) of your generic repository. Commit & Push this file to update your company specific repo. At this point, your automatic build-pipeline will start to run.
+
+6. After the build-pipeline is done, you will have the new version of the AzDocs at your disposal.
 
 ## How to keep your repositories in sync with upstream
 *For the next procedure you will need an account at GitHub. Make sure to have this before continuing. You can create a GitHub account [here](https://github.com/join).*
@@ -341,7 +345,6 @@ To create a release pipeline for your app where you can use this boilerplate, th
     - Script Arguments: `<insert the needed script arguments from the script you are calling>`
     - Access service principal details in script: <input type="checkbox" checked> (Required in rare cases for some scripts).
 
-TODO: Remove reference to subscription
 ![Classic pipeline](../wiki_images/classic_pipeline_howto_2.png)
 
 8. *Save* & *Create Release*. Congratulations, you can now run your pipeline and spin up secure & compliant Azure resources.
@@ -399,7 +402,7 @@ When we started this documentation, we promised eachother to not write anything 
 ## Creating an Application Gateway
 Creating an application gateway is easy. Simply use the [Create Application Gateway](/Azure/Azure-CLI-Snippets/Application-Gateway/Create-Application-Gateway) script to create the App Gateway.
 
-> TODO: Currently there is no DDOS Protection & WAF setup done in here yet.
+> TODO: Currently there is no DDoS Protection & WAF setup done in the AzDocs yet.
 
 ## SSL Policy
 The next thing you want to do is setup secure SSL policies. By default the Gateway will support TLS 1.2 with a set of ciphers (predefined profile AppGwSslPolicy20170401S). We've found that this default set of ciphers isn't the strongest option available. We've set our Gateway to the following:
