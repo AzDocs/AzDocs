@@ -512,6 +512,7 @@ function Get-AccessRestrictionRuleName
         $AccessRestrictionRuleName = ToMd5Hash -InputString "$($VnetResourceGroupName)_$($VnetName)_$($SubnetName)_allow"
     }
 
+    Write-Host "AccessRestrictionRulename is: $AccessRestrictionRuleName"
     return $AccessRestrictionRuleName
 }
 
