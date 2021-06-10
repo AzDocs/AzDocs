@@ -66,17 +66,6 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-PostgreSQL.ps1" -PostgreSqlServerName $PostgreSqlServerName -PostgreSqlServerResourceGroupName $PostgreSqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
-
-    # Write-Host "VNET Whitelisting is desired. Adding the needed components."
-    # # Fetch the Application's Subnet ID
-    # $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
-
-    # # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-    # Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
-
-    # # Create VNET Whitelist rule
-    # $firewallRuleName = ToMd5Hash -InputString "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow"
-    # Invoke-Executable az postgres server vnet-rule create --resource-group $PostgreSqlServerResourceGroupName --server-name $PostgreSqlServerName --name $firewallRuleName --subnet $applicationSubnetId
 }
 
 # Private Endpoint

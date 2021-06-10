@@ -66,16 +66,6 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-Sql-Server.ps1" -SqlServerName $SqlServerName -SqlServerResourceGroupName $SqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
-
-    # Write-Host "VNET Whitelisting is desired. Adding the needed components."
-    # # Fetch the Subnet ID where the Application Resides in
-    # $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
-
-    # # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-    # Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
-
-    # # Allow the Application Subnet to this SQL Server through a vnet-rule
-    # Invoke-Executable az sql server vnet-rule create --server $SqlServerName --name "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow" --resource-group $SqlServerResourceGroupName --subnet $applicationSubnetId
 }
 
 #TODO: Issue created. You currently seem to have to enable public access before whitelisting subnets is allowed. Issue: https://github.com/Azure/azure-cli/issues/16771

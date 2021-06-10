@@ -66,17 +66,6 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-MySQL.ps1" -MySqlServerName $MySqlServerName -MySqlServerResourceGroupName $MySqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
-
-    # Write-Host "VNET Whitelisting is desired. Adding the needed components."
-    # # Fetch the Subnet ID where the Application Resides in
-    # $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
-
-    # # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET (I think we need Microsoft.Sql? Microsoft.DBforMySQL doesnt seem to be a valid option)
-    # #Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.DBforMySQL"
-    # Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
-
-    # # Allow the Application Subnet to this MySQL Server through a vnet-rule
-    # Invoke-Executable az mysql server vnet-rule create --server-name $MySqlServerName --name "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow" --resource-group $MySqlServerResourceGroupName --subnet $applicationSubnetId
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

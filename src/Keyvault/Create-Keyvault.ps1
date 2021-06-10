@@ -65,14 +65,6 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-Keyvault.ps1" -KeyvaultName $KeyvaultName -KeyvaultResourceGroupName $KeyvaultResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
-
-    # $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
-
-    # # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-    # Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.KeyVault"
-
-    # # Whitelist our App's subnet in the keyvault so we can connect
-    # Invoke-Executable az keyvault network-rule add --resource-group $KeyvaultResourceGroupName --name $KeyvaultName --subnet $applicationSubnetId
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
