@@ -20,6 +20,7 @@ else
 {
     # Autogenerate CIDR if no CIDR or Subnet is passed
     $CIDRToRemoveFromWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -CIDRSuffix '/32'
+    $CIDRToRemoveFromWhitelist = Confirm-CIDRForWhitelist -ServiceType 'redis' -CIDR:$CIDRToRemoveFromWhitelist
 
     $startIpAddress = Get-StartIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist
     $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDRToRemoveFromWhitelist

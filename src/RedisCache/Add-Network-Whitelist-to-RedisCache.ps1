@@ -13,7 +13,8 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Autogenerate CIDR if no CIDR is passed
-$CIDRToWhiteList = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32'
+$CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32'
+$CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'redis' -CIDR:$CIDRToWhitelist
 
 # Autogenerate name if no name is given
 $AccessRuleName = Get-AccessRestrictionRuleName -AccessRestrictionRuleName:$AccessRuleName -CIDR:$CIDRToWhitelist -CharacterToReplaceWith '_'

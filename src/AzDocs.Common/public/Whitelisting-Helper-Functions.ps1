@@ -475,8 +475,58 @@ function Get-CIDRForWhitelist
         $response = Invoke-WebRequest 'https://ipinfo.io/ip'
         return $response.Content.Trim() + $CIDRSuffix
     }
-
     return $CIDR
+}
+
+<#
+.SYNOPSIS
+    Confirm if the CIDR needs a suffix yes or no
+.DESCRIPTION
+    Confirm if the CIDR needs a suffix yes or no
+#>
+function Confirm-CIDRForWhitelist
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] [ValidateSet('storage', 'sql', 'redis', 'mysql')]$ServiceType,
+        [Parameter()][string] $CIDR
+    )
+
+    Write-Host "Started confirming CIDR"
+    if (!$CIDR)
+    {
+        Write-Host "No CIDR to check. Continueing."
+        return
+    }
+
+    $serviceTypesWithRequiredSuffix = @('sql', 'redis', 'mysql')
+    if ($serviceTypesWithRequiredSuffix -contains $ServiceType)
+    {
+        $CIDRToSplit = $CIDR.Split('/')[1]
+        if (!$CIDRToSplit)
+        {
+            throw "Found no CIDR suffix for $CIDR. Please add the CIDR suffix, e.g. /32"
+        }
+        else
+        {
+            return $CIDR
+        }
+    }
+
+    $serviceTypesWithNoSuffix = @('storage')
+    if ($ServiceType -contains $serviceTypesWithNoSuffix)
+    {
+        $CIDRToSplit = $CIDR.Split('/')[1]
+        if ($CIDRToSplit)
+        {
+            Write-Host "Removing CIDR suffix $CIDRToSplit for $ServiceType CIDR: $CIDR"
+            return $CIDR.Replace("/$CIDRToSplit", '')
+        }
+        else
+        {
+            return $CIDR
+        }
+    }
 }
 
 <#

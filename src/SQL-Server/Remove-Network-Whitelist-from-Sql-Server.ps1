@@ -23,7 +23,8 @@ Confirm-ParametersForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -SubnetName:$Sub
 # Autogenerate CIDR if no CIDR or Subnet or AcccessRulenName is passed
 if (!$AccessRuleName)
 {
-    $CIDRToRemoveFromWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToRemoveSubnetName -VnetName:$SubnetToRemoveVnetName -VnetResourceGroupName:$SubnetToRemoveVnetResourceGroupName 
+    $CIDRToRemoveFromWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToRemoveSubnetName -VnetName:$SubnetToRemoveVnetName -VnetResourceGroupName:$SubnetToRemoveVnetResourceGroupName
+    $CIDRToRemoveFromWhitelist = Confirm-CIDRForWhitelist -ServiceType 'sql' -CIDR:$CIDRToRemoveFromWhitelist 
 }
 
 # Fetch Subnet ID when subnet option is given.

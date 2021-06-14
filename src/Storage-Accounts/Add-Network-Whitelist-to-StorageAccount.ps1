@@ -18,7 +18,8 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
 
 # Autogenerate CIDR if no CIDR or Subnet is passed
-$CIDRToWhiteList = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName 
+$CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName 
+$CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'storage' -CIDR:$CIDRToWhitelist
 
 # Fetch Subnet ID when subnet option is given.
 if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)

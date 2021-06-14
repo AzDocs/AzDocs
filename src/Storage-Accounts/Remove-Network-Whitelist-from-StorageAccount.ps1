@@ -19,6 +19,7 @@ Confirm-ParametersForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -SubnetName:$Sub
 
 # Autogenerate CIDR if no CIDR or Subnet is passed
 $CIDRToRemoveFromWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -SubnetName:$SubnetToRemoveSubnetName -VnetName:$SubnetToRemoveVnetName -VnetResourceGroupName:$SubnetToRemoveVnetResourceGroupName 
+$CIDRToRemoveFromWhitelist = Confirm-CIDRForWhitelist -ServiceType 'storage' -CIDR:$CIDRToRemoveFromWhitelist
 
 # Fetch Subnet ID when subnet option is given.
 if ($SubnetToRemoveSubnetName -and $SubnetToRemoveVnetName -and $SubnetToRemoveVnetResourceGroupName)
