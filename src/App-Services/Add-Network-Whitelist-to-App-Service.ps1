@@ -44,8 +44,9 @@ $AccessRestrictionRuleName = Get-AccessRestrictionRuleName -AccessRestrictionRul
 # Fetch Subnet ID when subnet option is given.
 if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
 {
+    Write-Host "Finding subnet to whitelist"
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
-    
+    Write-Host "Found subnet to whitelist"
     # Make sure the service endpoint is enabled for the subnet (for internal routing)
     Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.Web"
 }
@@ -53,6 +54,7 @@ if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToW
 # Check apply to all slots
 if ($ApplyToAllSlots)
 {
+    Write-Host "Applying the whitelist to all slots"
     $availableSlots = Invoke-Executable -AllowToFail az webapp deployment slot list --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json
     if ($AppServiceDeploymentSlotName)
     {
