@@ -25,7 +25,8 @@ $endIpAddress = Get-EndIpInIpv4Network -SubnetCidr $CIDRToWhitelist
 $firewallRules = ((Invoke-Executable az redis firewall-rules list --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.startIp -eq $startIpAddress -and $_.endIp -eq $endIpAddress -and $_.name -notlike "*/$AccessRuleName" }
 if ($firewallRules.Length -gt 0)
 {
-    throw "This CIDR already exists with a different name. Please correct this."
+    Write-Warning "This CIDR already exists with a different name. Please correct this."
+    return
 }
 
 Invoke-Executable az redis firewall-rules create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --rule-name $AccessRuleName --start-ip $startIpAddress --end-ip $endIpAddress
