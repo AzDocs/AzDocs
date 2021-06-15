@@ -486,7 +486,7 @@ function Confirm-CIDRForWhitelist
 {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)][string] [ValidateSet('storage', 'sql', 'redis', 'mysql', 'keyvault')]$ServiceType,
+        [Parameter(Mandatory)][string] [ValidateSet('storage', 'sql', 'redis', 'mysql', 'keyvault', 'webapp', 'functionapp')]$ServiceType,
         [Parameter()][string] $CIDR
     )
 
@@ -497,7 +497,7 @@ function Confirm-CIDRForWhitelist
         return
     }
 
-    $serviceTypesWithRequiredSuffix = @('sql', 'redis', 'mysql', 'keyvault')
+    $serviceTypesWithRequiredSuffix = @('sql', 'redis', 'mysql', 'keyvault', 'webapp', 'functionapp')
     if ($serviceTypesWithRequiredSuffix -contains $ServiceType)
     {
         $CIDRToSplit = $CIDR.Split('/')[1]
