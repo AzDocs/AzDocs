@@ -35,15 +35,10 @@ Invoke-Executable az storage account create --name $StorageAccountName --resourc
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
-    # Fetch the application subnet id to whitelist
-    $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
 
-    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-    Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.Storage"
-
-    # Whitelist our App's subnet in the storage account so we can connect
-    Invoke-Executable az storage account network-rule add --resource-group $StorageAccountResourceGroupName --account-name $StorageAccountName --subnet $applicationSubnetId
-
+    # Whitelist VNET
+    & "$PSScriptRoot\Add-Network-Whitelist-to-StorageAccount.ps1" -StorageAccountName $StorageAccountName -StorageAccountResourceGroupName $StorageAccountResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
+    
     # Make sure the default action is "deny" which causes public traffic to be dropped (like is defined in the KSP)
     Invoke-Executable az storage account update --resource-group $StorageAccountResourceGroupName --name $StorageAccountName --default-action Deny
 }

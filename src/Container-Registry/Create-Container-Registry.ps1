@@ -26,10 +26,11 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku Premium
+# For now --admin-enabled true is needed because managed identities are not supported yet from, for example, App Services
+Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku Premium --admin-enabled true
 
 # Private Endpoint
-if($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName)
+if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName)
 {
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch basic info for pvt endpoint
@@ -45,17 +46,10 @@ if($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpo
 }
 
 # VNET Whitelisting
-if($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResourceGroupName)
+if ($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResourceGroupName)
 {
-    Write-Host "VNET Whitelisting is desired. Adding the needed components."
-    # Fetch Subnet ID for the application
-    $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
-
-    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-    Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier 'Microsoft.ContainerRegistry'
-
-    # Whitelist our App's subnet in the Azure Container Registry so we can connect
-    Invoke-Executable az acr network-rule add --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --subnet $applicationSubnetId
+    # Whitelist VNET
+    & "$PSScriptRoot\Add-Network-Whitelist-to-Container-Registry.ps1" -ContainerRegistryName $ContainerRegistryName -ContainerRegistryResourceGroupName $ContainerRegistryResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 
     # Make sure the default action is "deny" which causes public traffic to be dropped (like is defined in the KSP)
     Invoke-Executable az acr update --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --default-action Deny
