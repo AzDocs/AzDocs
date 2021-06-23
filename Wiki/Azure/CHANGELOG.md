@@ -21,4 +21,4 @@ All notable changes to this project will be documented in this file.
 - Added network whitelist scripts for Keyvault.
 - Added network whitelist scripts for MySql.
 - Added network whitelist scripts for PostgreSql.
-- Added network whitelists scripts for StorageAccou
+- Added network whitelists scripts for StorageAccount
