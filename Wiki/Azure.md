@@ -352,9 +352,26 @@ To create a release pipeline for your app where you can use this boilerplate, th
 > NOTE: However, there are a few more tips & tricks we found useful. The following paragraphs containing tips & tricks are optional:
 
 ### Taskgroup all the things
-TODO
+For reusability purposes, it is wide to create a taskgroup for each script you use. This means you can add this taskgroup (even multiple times) to every pipeline you like without having to define the script location & parameters again. To create a taskgroup per script, follow the following tutorial:
 
-> NOTE: Known limitation: Taskgroups can not have output parameters. So for anything that uses output parameters, the step needs to be added to the pipline directly and cannot be in any taskgroup.
+1. Whenever you added the CLI step the first time, right click it and click on `Create task group`.
+
+![Create Taskgroup](../wiki_images/classic_pipeline_taskgroup_1.png)
+
+2. Give your taskgroup a fitting name (we choose to name the taskgroups identical to the scripts).
+
+![Create Taskgroup](../wiki_images/classic_pipeline_taskgroup_2.png)
+
+3. After creating the taskgroup, you can add a new step to your pipeline and search for your taskgroup (make sure to hit the `Refresh` button if you don't see your taskgroup in the list).
+
+![Add Taskgroup](../wiki_images/classic_pipeline_taskgroup_3.png)
+
+4. After you've added the taskgroup, you can fill in the variables with your desired values and run the pipeline.
+
+![Add Taskgroup](../wiki_images/classic_pipeline_taskgroup_4.png)
+
+
+> NOTE: Known limitation: Taskgroups can not have output parameters. So for anything that uses output parameters, the step needs to be added to the pipeline directly and cannot be in any taskgroup. We strongly recommend to use YAML pipelines to not run into these issues.
 
 ### Taskgroup the pipeline itself
 TODO
