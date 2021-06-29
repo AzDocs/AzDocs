@@ -3,7 +3,7 @@
 # Introduction
 Welcome on the Azure Documentation (AzDocs) Wiki.
 
-The AzDocs are a boilerplate to get you and your team started with Azure in no time in a secure & compliant way. The goal is to have snippets for creating Azure resources that are secure & compliant to the highest level of requirements.
+The AzDocs are a boilerplate to get you and your team started with Azure in no time in a secure & compliant way. The goal is to have snippets for creating Azure resources that are secure & compliant to the highest level of requirements along with examples and best practices. This library does have a bias about certain things which, in our experience, gets your team started faster.
 
 > NOTE: This is a **Work In Progress** effort. Multiple companies are currently backing, contributing & using this for their production environments.
 
