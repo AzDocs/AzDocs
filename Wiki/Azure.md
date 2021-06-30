@@ -378,7 +378,7 @@ Classic Pipelines have the downside that you have to create your pipeline per en
 
 1. Go to your classic pipeline & edit it and go to your first environments pipeline (in this example it is `dev`).
 
-![Edit pipeline](../wiki_images/classic_pipeline_taskgroup_the_pipeline_1.png =)
+![Edit pipeline](../wiki_images/classic_pipeline_taskgroup_the_pipeline_1.png)
 
 2. Select all your tasks in the pipeline and rightclick --> `Create task group`
 
