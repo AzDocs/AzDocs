@@ -378,23 +378,23 @@ Classic Pipelines have the downside that you have to create your pipeline per en
 
 1. Go to your classic pipeline & edit it and go to your first environments pipeline (in this example it is `dev`).
 
-![Edit pipeline](../wiki_images/classic_pipeline_taskgroup_the_pipeline_1.png)
+![Edit pipeline](../wiki_images/classic_pipeline_taskgroup_the_pipeline_1.png =500x)
 
 2. Select all your tasks in the pipeline and rightclick --> `Create task group`
 
-![Select all the tasks](../wiki_images/classic_pipeline_taskgroup_the_pipeline_2.png)
+![Select all the tasks](../wiki_images/classic_pipeline_taskgroup_the_pipeline_2.png =500x)
 
 3. A new window will popup. We chose to name these taskgroups `[PIPELINE] <projectname>`. Now fill in the parameters. It is very likely that you can simply copy the parameter name and paste it as a variable (see screenshot below). This will just proxy your variables to the taskgroup.
 
-![Create the new taskgroup](../wiki_images/classic_pipeline_taskgroup_the_pipeline_3.png)
+![Create the new taskgroup](../wiki_images/classic_pipeline_taskgroup_the_pipeline_3.png =500x)
 
 4. You will now have a single taskgroup in your pipeline.
 
-![Single pipeline taskgroup](../wiki_images/classic_pipeline_taskgroup_the_pipeline_4.png)
+![Single pipeline taskgroup](../wiki_images/classic_pipeline_taskgroup_the_pipeline_4.png =500x)
 
 5. Switch to your other environment (in this example this is `acc`). Add the same taskgroup you just created to your pipeline.
 
-![Add pipeline taskgroup to your 2nd environment](../wiki_images/classic_pipeline_taskgroup_the_pipeline_5.png)
+![Add pipeline taskgroup to your 2nd environment](../wiki_images/classic_pipeline_taskgroup_the_pipeline_5.png =500x)
 
 From now on. Whenever you change something inside your `[PIPELINE]` taskgroup, it will effect all your environments without having to keep track of all the pipeline changes between environments. This will force you into keeping your environments identical (which in our opinion is required for realistic testability).
 
