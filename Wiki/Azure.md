@@ -374,7 +374,27 @@ For reusability purposes, it is wide to create a taskgroup for each script you u
 > NOTE: Known limitation: Taskgroups can not have output parameters. So for anything that uses output parameters, the step needs to be added to the pipeline directly and cannot be in any taskgroup. We strongly recommend to use YAML pipelines to not run into these issues.
 
 ### Taskgroup the pipeline itself
-TODO
+Classic Pipelines have the downside that you have to create your pipeline per environment. This can get nasty whenever you have a lot of environments or do a lot of changes on your pipeline. This is why we chose to "taskgroup the pipeline". The result is that you have 1 pipeline taskgroup which is added to each environment. Whenever you change your pipeline taskgroup, this goes for all your environments at once.
+
+1. Go to your classic pipeline & edit it and go to your first environments pipeline (in this example it is `dev`).
+
+![Edit pipeline](../wiki_images/classic_pipeline_taskgroup_the_pipeline_1.png)
+
+2. Select all your tasks in the pipeline and rightclick --> `Create task group`
+
+![Select all the tasks](../wiki_images/classic_pipeline_taskgroup_the_pipeline_2.png)
+
+3. A new window will popup. We chose to name these taskgroups `[PIPELINE] <projectname>`. Now fill in the parameters. It is very likely that you can simply copy the parameter name and paste it as a variable (see screenshot below). This will just proxy your variables to the taskgroup.
+
+![Create the new taskgroup](../wiki_images/classic_pipeline_taskgroup_the_pipeline_3.png)
+
+4. You will now have a single taskgroup in your pipeline.
+
+![Single pipeline taskgroup](../wiki_images/classic_pipeline_taskgroup_the_pipeline_4.png)
+
+5. Switch to your other environment (in this example this is `acc`). Add the same taskgroup you just created to your pipeline.
+
+![Add pipeline taskgroup to your 2nd environment](../wiki_images/classic_pipeline_taskgroup_the_pipeline_5.png)
 
 ### Variable groups
 TODO
