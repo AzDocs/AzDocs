@@ -399,10 +399,19 @@ Classic Pipelines have the downside that you have to create your pipeline per en
 From now on. Whenever you change something inside your `[PIPELINE]` taskgroup, it will effect all your environments without having to keep track of all the pipeline changes between environments. This will force you into keeping your environments identical (which in our opinion is required for realistic testability).
 
 ### Variable groups
-TODO
+In contrast to YAML pipelines, we recommend using variable groups when using classic pipelines. This is so you can organize your variables between pipelines. For example if you have one central Log Analytics Workspace, you don't want 100 references to this resource. You can use a variable group to define the resource id and attach that variable group to all of your pipelines.
+
+In YAML we recommend NOT doing this simply because of the "Infrastructure as Code" principle. This means that all the information needed for your pipeline should be in your repository & under sourcecontrol. Next to that; with YAML pipelines can you actually create pipelines per branch. In this case you can change/add/remove variables in that specific branch. This would not be possible if you use a variable group.
+
+The only exception we make for using variable groups in YAML pipelines is when we are storing secrets. You dont want these in your repository due to security concerns :).
 
 ### Variable nesting
-TODO
+We recommend nesting variables and leveraging system variables. This means you will have a more standarized/consistent platform across your environments.
+Below you can find an example where we define our Teamname & Projectname and re-use those, along with the `Release.EnvironmentName` systemvariable, to create our resourcegroup name. Note that in the example below the result for your `dev`, `acc`, and `prd` environments will be respectively: `AwesomeTeam-MyFirstProject-dev`, `AwesomeTeam-MyFirstProject-acc` and `AwesomeTeam-MyFirstProject-prd`.
+
+This means you don't have to redefine the resourcegroupname for each environment and that if you, in a later stadium, choose to create a new environment, you dont have to go through your variables again. You can simply clone the environment & rename it and roll out the release.
+
+![Variable nesting](../wiki_images/variable_group_variable_nesting_1.png)
 
 # Guidelines for creating new scripts
 If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
