@@ -396,6 +396,8 @@ Classic Pipelines have the downside that you have to create your pipeline per en
 
 ![Add pipeline taskgroup to your 2nd environment](../wiki_images/classic_pipeline_taskgroup_the_pipeline_5.png)
 
+From now on. Whenever you change something inside your `[PIPELINE]` taskgroup, it will effect all your environments without having to keep track of all the pipeline changes between environments. This will force you into keeping your environments identical (which in our opinion is required for realistic testability).
+
 ### Variable groups
 TODO
 
