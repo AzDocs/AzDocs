@@ -204,7 +204,7 @@ function Confirm-AccessRestriction
                 Write-Host "Access restriction for type $SecurityRestrictionObjectName does not exist for $CIDR."
                 $resultObject = [PSCustomObject]@{
                     Exists = $false
-                    Action = ""
+                    Action = $null
                 }
                 $result.Add($resultObject)
                 return $result
@@ -232,7 +232,7 @@ function Confirm-AccessRestriction
                 Write-Host "Access restriction for type $SecurityRestrictionObjectName does not exist for $SubnetResourceId."
                 $resultObject = [PSCustomObject]@{
                     Exists = $false
-                    Action = ""
+                    Action = $null
                 }
                 $result.Add($resultObject)
                 return $result
@@ -259,7 +259,7 @@ function Confirm-AccessRestriction
             Write-Host "Access restriction for type $SecurityRestrictionObjectName does not exist for $AccessRestrictionRuleName and $CIDR."
             $resultObject = [PSCustomObject]@{
                 Exists = $false
-                Action = ""
+                Action = $null
             }
             $result.Add($resultObject)
             return $result
@@ -286,7 +286,7 @@ function Confirm-AccessRestriction
             Write-Host "Access restriction for type $SecurityRestrictionObjectName does not exist for $AccessRestrictionRuleName and $SubnetResourceId."
             $resultObject = [PSCustomObject]@{
                 Exists = $false
-                Action = ""
+                Action = $null
             }
             $result.Add($resultObject)
             return $result
@@ -314,7 +314,7 @@ function Confirm-AccessRestriction
             Write-Host "Access restriction for type $SecurityRestrictionObjectName does not exist for $AccessRestrictionRuleName."
             $resultObject = [PSCustomObject]@{
                 Exists = $false
-                Action = ""
+                Action = $null
             }
             $result.Add($resultObject)
             return $result
