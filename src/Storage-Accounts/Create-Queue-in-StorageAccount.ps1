@@ -10,6 +10,6 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-Invoke-Executable az storage queue create --name $QueueName --account-name $StorageAccountName --auth-mode login
+Invoke-Executable az storage queue create --name $QueueName --account-name $StorageAccountName
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
