@@ -450,7 +450,7 @@ When we started this documentation, we promised eachother to not write anything 
 ## Creating an Application Gateway
 Creating an application gateway is easy. Simply use the [Create Application Gateway](/Azure/Azure-CLI-Snippets/Application-Gateway/Create-Application-Gateway) script to create the App Gateway.
 
-> TODO: Currently there is no DDoS Protection & WAF setup done in the AzDocs yet.
+> TODO: Currently there is no WAF setup done in the AzDocs yet.
 
 ## SSL Policy
 The next thing you want to do is setup secure SSL policies. By default the Gateway will support TLS 1.2 with a set of ciphers (predefined profile AppGwSslPolicy20170401S). We've found that this default set of ciphers isn't the strongest option available. We've set our Gateway to the following:
