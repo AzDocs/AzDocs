@@ -17,6 +17,9 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | CertificateKeyvaultResourceGroupName | `myshared-resourcegroup` | The resourcegroup where the keyvault resides in. |
 | ApplicationGatewayVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place your Application Gateway in. |
 | ApplicationGatewayVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where the VNET for your Application Gateway lives in. |
+| EnableWafPreventionMode | `$true`/`$false` | Enable prevention mode for your WAF. NOTE: This parameter is only applicable to application gateways with an SKU type of WAF |
+| WafRuleSetType | `OWASP` | Choose the WAF RuleSet Type. Get possible values from `az network application-gateway waf-config list-rule-sets`. NOTE: This parameter is only applicable to application gateways with an SKU type of WAF |
+| WafRuleSetVersion | `3.0` | Choose the WAF RuleSet Version. Get possible values from `az network application-gateway waf-config list-rule-sets`. NOTE: This parameter is only applicable to application gateways with an SKU type of WAF |
 
 # Code
 [Click here to download this script](../../../../src/Application-Gateway/Create-Application-Gateway.ps1)

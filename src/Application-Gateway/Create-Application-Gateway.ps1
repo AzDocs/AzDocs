@@ -11,7 +11,11 @@ param (
     [Parameter(Mandatory)][string] $ApplicationGatewayCapacity,
     [Parameter(Mandatory)][string] $ApplicationGatewaySku,
     [Parameter(Mandatory)][string] $CertificateKeyvaultName,
-    [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName
+    [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName,
+    [Parameter()][bool] $EnableWafPreventionMode = $false,
+    [Parameter()][string] $WafRuleSetType = "OWASP",
+    [Parameter()][string] $WafRuleSetVersion = "3.0"
+
 )
 
 #region ===BEGIN IMPORTS===
@@ -30,6 +34,17 @@ $publicIpId = (Invoke-Executable az network public-ip show --resource-group $App
 Write-Host "PublicIp: $publicIpId"
 
 Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId
+
+if($ApplicationGatewaySku -contains "WAF")
+{
+    $wafMode = "Detection"
+    if($EnableWafPreventionMode)
+    {
+        $wafMode = "Prevention"
+    }
+
+    Invoke-Executable az network application-gateway waf-config set --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --enabled true --firewall-mode $wafMode --rule-set-type $WafRuleSetType --rule-set-version $WafRuleSetVersion
+}
 
 Invoke-Executable az identity create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName
 
