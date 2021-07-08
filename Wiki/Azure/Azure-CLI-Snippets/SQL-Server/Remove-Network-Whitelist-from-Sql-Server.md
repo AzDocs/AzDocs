@@ -18,6 +18,19 @@ This snippet will remove the specified IP Range from the Azure SQL Server. If yo
 | SubnetToRemoveVnetName              | <input type="checkbox">         | `sp-dc-dev-001-vnet`                        | The vnetname of the subnet you want to remove from the whitelist.                                                                                                                                                                                                     |
 | SubnetToRemoveVnetResourceGroupName | <input type="checkbox">         | `sharedservices-rg`                         | The VnetResourceGroupName your Vnet resides in.                                                                                                                                                                                                                       |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Remove Network Whitelist from Sql Server'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/SQL-Server/Remove-Network-Whitelist-from-Sql-Server.ps1'
+               arguments: "-SqlServerName '$(SqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -AccessRuleName '$(AccessRuleName)' -CIDRToRemoveFromWhitelist '$(CIDRToRemoveFromWhitelist)' -SubnetToRemoveSubnetName '$(SubnetToRemoveSubnetName)' -SubnetToRemoveVnetName '$(SubnetToRemoveVnetName)' -SubnetToRemoveVnetResourceGroupName '$(SubnetToRemoveVnetResourceGroupName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/SQL-Server/Remove-IP-Whitelist-from-Sql-Server.ps1)

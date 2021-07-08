@@ -1,17 +1,33 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will create a queue inside a specified (pre-existing) storageaccount.
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter | Example Value | Description |
-|--|--|--|
+| Parameter          | Example Value                                | Description                                       |
+| ------------------ | -------------------------------------------- | ------------------------------------------------- |
 | StorageAccountName | `myteststgaccount$(Release.EnvironmentName)` | The name of the storageaccount which will be used |
-| QueueName | `images` | The name of the queue to create |
+| QueueName          | `images`                                     | The name of the queue to create                   |
+
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create Queue in StorageAccount'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Queue-in-StorageAccount.ps1'
+               arguments: "-StorageAccountName '$(StorageAccountName)' -QueueName '$(QueueName)'"
+```
 
 # Code
+
 [Click here to download this script](../../../../src/Storage-Accounts/Create-Queue-in-Storageaccount.ps1)
 
 # Links

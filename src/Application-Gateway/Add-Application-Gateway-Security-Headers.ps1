@@ -1,23 +1,11 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [string]
-    $ApplicationGatewayResourceGroupName,
-
-    [Parameter(Mandatory)]
-    [string]
-    $ApplicationGatewayName,
-
-    [Parameter(Mandatory)]
-    [string] 
-    $IngressDomainName,
-
-    [Parameter()]
-    [string]
-    $ContentSecurityPolicyValue = "default-src 'self'"
-
-
+    [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
+    [Parameter(Mandatory)][string] $ApplicationGatewayName,
+    [Parameter(Mandatory)][string] $IngressDomainName,
+    [Parameter()][string] $ContentSecurityPolicyValue = "default-src 'self'"
 )
+
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===

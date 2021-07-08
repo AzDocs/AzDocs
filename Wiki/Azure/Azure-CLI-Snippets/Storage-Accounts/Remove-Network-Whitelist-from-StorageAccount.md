@@ -17,6 +17,19 @@ This snippet will remove the specified IP Range from the Azure Storage Account. 
 | SubnetToRemoveVnetName              | <input type="checkbox">                        | `sp-dc-dev-001-vnet`                                                                                                                                                                                                                                                                                                                                         | The vnetname of the subnet you want to remove from the whitelist. |
 | SubnetToRemoveVnetResourceGroupName | <input type="checkbox">                        | `sharedservices-rg`                                                                                                                                                                                                                                                                                                                                          | The VnetResourceGroupName your Vnet resides in.                   |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Remove Network Whitelist from StorageAccount'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Remove-Network-Whitelist-from-StorageAccount.ps1'
+               arguments: "-StorageAccountName '$(StorageAccountName)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -CIDRToRemoveFromWhitelist '$(CIDRToRemoveFromWhitelist)' -SubnetToRemoveSubnetName '$(SubnetToRemoveSubnetName)' -SubnetToRemoveVnetName '$(SubnetToRemoveVnetName)' -SubnetToRemoveVnetResourceGroupName '$(SubnetToRemoveVnetResourceGroupName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/Storage-Accounts/Remove-IP-Whitelist-from-StorageAccount.ps1)

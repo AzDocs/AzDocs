@@ -24,6 +24,19 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | SubnetToWhitelistVnetName | <input type="checkbox"> | `sp-dc-dev-001-vnet` | The vnetname of the subnet you want to get whitelisted. |
 | SubnetToWhitelistVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The VnetResourceGroupName your Vnet resides in. |
 
+# YAML
+
+```yaml
+     - task: AzureCLI@2
+           displayName: 'Add Network Whitelist to Function App'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-Network-Whitelist-to-Function-App.ps1'
+               arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -AccessRestrictionRuleDescription '$(AccessRestrictionRuleDescription)' -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -AccessRestrictionAction '$(AccessRestrictionAction)' -Priority '$(Priority)' -ApplyToAllSlots $(ApplyToAllSlots) -ApplyToMainEntrypoint '$(ApplyToMainEntrypoint)' -ApplyToScmEntrypoint '$(ApplyToScmEntrypoint)' -AccessRestrictionRuleName '$(AccessRestrictionRuleName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -SubnetToWhitelistSubnetName '$(SubnetToWhitelistSubnetName)' -SubnetToWhitelistVnetName '$(SubnetToWhitelistVnetName)' -SubnetToWhitelistVnetResourceGroupName '$(SubnetToWhitelistVnetResourceGroupName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/Functions/Add-IP-Whitelist-to-Function-App.ps1)

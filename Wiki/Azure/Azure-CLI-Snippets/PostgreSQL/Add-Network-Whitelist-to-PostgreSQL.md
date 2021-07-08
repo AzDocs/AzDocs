@@ -16,6 +16,19 @@ This snippet will whitelist the specified IP Range from the Azure Database for P
 | SubnetToWhitelistVnetName              | <input type="checkbox">         | `sp-dc-dev-001-vnet`                             | The vnetname of the subnet you want to get whitelisted.                                                                                                                                                                                   |
 | SubnetToWhitelistVnetResourceGroupName | <input type="checkbox">         | `sharedservices-rg`                              | The VnetResourceGroupName your Vnet resides in.                                                                                                                                                                                           |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Add Network Whitelist to PostgreSQL'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/PostgreSQL/Add-Network-Whitelist-to-PostgreSQL.ps1'
+               arguments: "-PostgreSqlServerName '$(PostgreSqlServerName)' -PostgreSqlServerResourceGroupName '$(PostgreSqlServerResourceGroupName)' -AccessRuleName '$(AccessRuleName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -SubnetToWhitelistSubnetName '$(SubnetToWhitelistSubnetName)' -SubnetToWhitelistVnetName '$(SubnetToWhitelistVnetName)' -SubnetToWhitelistVnetResourceGroupName '$(SubnetToWhitelistVnetResourceGroupName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/PostgreSQL/Add-IP-Whitelist-to-PostgreSQL.ps1)
