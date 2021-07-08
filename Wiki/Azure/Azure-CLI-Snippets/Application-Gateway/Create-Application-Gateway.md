@@ -1,27 +1,43 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will create an application gateway.
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter | Example Value | Description |
-|--|--|--|
-| ApplicationGatewayName | `customer-appgw-$(Release.EnvironmentName)` | The name to use for this application gateway |
-| ApplicationGatewayResourceGroupName | `myshared-resourcegroup` | The name of the resourcegroup to place this application gateway in. |
-| ApplicationGatewaySubnetName | `gateway-subnet` | The subnet where you want to place this Application Gateway in. |
-| ApplicationGatewayCapacity | `2` | The number of instances to use for this appgw |
-| ApplicationGatewaySku | `Standard_v2` | The SKU name for the AppGw. Advised value: Standard_v2. List of accepted values: Standard_Large, Standard_Medium, Standard_Small, Standard_v2, WAF_Large, WAF_Medium, WAF_v2. |
-| CertificateKeyvaultName | `my-shared-keyvault` | The keyvault where you want to save your SSL certificates to for this AppGw. This is usually 1 tenant-wide shared keyvault dedicated to these SSL certificates. |
-| CertificateKeyvaultResourceGroupName | `myshared-resourcegroup` | The resourcegroup where the keyvault resides in. |
-| ApplicationGatewayVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place your Application Gateway in. |
-| ApplicationGatewayVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where the VNET for your Application Gateway lives in. |
-| EnableWafPreventionMode | `$true`/`$false` | Enable prevention mode for your WAF. NOTE: This parameter is only applicable to application gateways with an SKU type of WAF |
-| WafRuleSetType | `OWASP` | Choose the WAF RuleSet Type. Get possible values from `az network application-gateway waf-config list-rule-sets`. NOTE: This parameter is only applicable to application gateways with an SKU type of WAF |
-| WafRuleSetVersion | `3.0` | Choose the WAF RuleSet Version. Get possible values from `az network application-gateway waf-config list-rule-sets`. NOTE: This parameter is only applicable to application gateways with an SKU type of WAF |
+| Parameter                               | Example Value                               | Description                                                                                                                                                                                                   |
+| --------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ApplicationGatewayName                  | `customer-appgw-$(Release.EnvironmentName)` | The name to use for this application gateway                                                                                                                                                                  |
+| ApplicationGatewayResourceGroupName     | `myshared-resourcegroup`                    | The name of the resourcegroup to place this application gateway in.                                                                                                                                           |
+| ApplicationGatewaySubnetName            | `gateway-subnet`                            | The subnet where you want to place this Application Gateway in.                                                                                                                                               |
+| ApplicationGatewayCapacity              | `2`                                         | The number of instances to use for this appgw                                                                                                                                                                 |
+| ApplicationGatewaySku                   | `Standard_v2`                               | The SKU name for the AppGw. Advised value: Standard_v2. List of accepted values: Standard_Large, Standard_Medium, Standard_Small, Standard_v2, WAF_Large, WAF_Medium, WAF_v2.                                 |
+| CertificateKeyvaultName                 | `my-shared-keyvault`                        | The keyvault where you want to save your SSL certificates to for this AppGw. This is usually 1 tenant-wide shared keyvault dedicated to these SSL certificates.                                               |
+| CertificateKeyvaultResourceGroupName    | `myshared-resourcegroup`                    | The resourcegroup where the keyvault resides in.                                                                                                                                                              |
+| ApplicationGatewayVnetName              | `my-vnet-$(Release.EnvironmentName)`        | The name of the VNET to place your Application Gateway in.                                                                                                                                                    |
+| ApplicationGatewayVnetResourceGroupName | `sharedservices-rg`                         | The ResourceGroup where the VNET for your Application Gateway lives in.                                                                                                                                       |
+| EnableWafPreventionMode                 | `$true`/`$false`                            | Enable prevention mode for your WAF. NOTE: This parameter is only applicable to application gateways with an SKU type of WAF.                                                                                 |
+| WafRuleSetType                          | `OWASP`                                     | Choose the WAF RuleSet Type. Get possible values from `az network application-gateway waf-config list-rule-sets`. NOTE: This parameter is only applicable to application gateways with an SKU type of WAF.    |
+| WafRuleSetVersion                       | `3.0`                                       | Choose the WAF RuleSet Version. Get possible values from `az network application-gateway waf-config list-rule-sets`. NOTE: This parameter is only applicable to application gateways with an SKU type of WAF. |
+
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create Application Gateway'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway.ps1'
+               arguments: "-ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayVnetName '$(ApplicationGatewayVnetName)' -ApplicationGatewayVnetResourceGroupName '$(ApplicationGatewayVnetResourceGroupName)' -ApplicationGatewaySubnetName '$(ApplicationGatewaySubnetName)' -ApplicationGatewayCapacity '$(ApplicationGatewayCapacity)' -ApplicationGatewaySku '$(ApplicationGatewaySku)' -CertificateKeyvaultName '$(CertificateKeyvaultName)' -CertificateKeyvaultResourceGroupName '$(CertificateKeyvaultResourceGroupName)'"
+```
 
 # Code
+
 [Click here to download this script](../../../../src/Application-Gateway/Create-Application-Gateway.ps1)
 
 # Links

@@ -26,6 +26,19 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ApplicationGatewayRequestRoutingRuleName | `rule-information-httpsrule` | The name of the request routing rule in the Application Gateway |
 | ApplicationGatewayHealthProbeName | `health-probe-name` | The name of the health probe to update the status codes to |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Remove AD Authentication for App Service'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Authentication/Remove-AD-Authentication-for-App-Service.ps1'
+               arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppRegistrationName '$(AppRegistrationName)' -AppRegistrationRedirectUri '$(AppRegistrationRedirectUri)' -ApplicationGatewayRewriteRuleSetName '$(ApplicationGatewayRewriteRuleSetName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayRequestRoutingRuleName '$(ApplicationGatewayRequestRoutingRuleName)' -ApplicationGatewayHealthProbeName '$(ApplicationGatewayHealthProbeName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/App-Services/Authentication/Remove-AD-Authentication-for-App-Service.ps1)

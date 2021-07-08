@@ -32,10 +32,11 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Create MySQL Server.
-if(!(Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName))
+if (!(Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName))
 {
     $additionalParameters = @()
-    if ($MySqlServerMinimalTlsVersion) {
+    if ($MySqlServerMinimalTlsVersion)
+    {
         $additionalParameters += '--minimal-tls-version', $MySqlServerMinimalTlsVersion
     }
     Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags ${ResourceTags} @additionalParameters
@@ -54,18 +55,17 @@ if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEnd
     Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sqlServerPrivateEndpointSubnetId -PrivateEndpointName $sqlServerPrivateEndpointName -PrivateEndpointResourceGroupName $MySqlServerResourceGroupName -TargetResourceId $mySqlServerResourceId -PrivateEndpointGroupId mysqlServer -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $MySqlServerPrivateDnsZoneName -PrivateDnsLinkName "$($MySqlServerPrivateEndpointVnetName)-mysql"
 }
 
-if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
+if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
+    # REMOVE OLD NAMES
+    $oldAccessRuleName = "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow"
+    Remove-VnetRulesIfExists -ServiceType 'mysql' -ResourceGroupName $MySqlServerResourceGroupName -ResourceName $MySqlServerName -AccessRuleName $oldAccessRuleName
+    # END REMOVE OLD NAMES
+
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
-    # Fetch the Subnet ID where the Application Resides in
-    $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
-
-    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET (I think we need Microsoft.Sql? Microsoft.DBforMySQL doesnt seem to be a valid option)
-    #Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.DBforMySQL"
-    Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
-
-    # Allow the Application Subnet to this MySQL Server through a vnet-rule
-    Invoke-Executable az mysql server vnet-rule create --server-name $MySqlServerName --name "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow" --resource-group $MySqlServerResourceGroupName --subnet $applicationSubnetId
+    
+    # Whitelist VNET
+    & "$PSScriptRoot\Add-Network-Whitelist-to-MySQL.ps1" -MySqlServerName $MySqlServerName -MySqlServerResourceGroupName $MySqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

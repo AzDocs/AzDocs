@@ -2,31 +2,12 @@
 
 [CmdletBinding(DefaultParameterSetName = 'LowPriority')]
 param (
-    #Name of the domain to whitelist
-    [Parameter(Mandatory)]
-    [string] $IngressDomainName,
-
-    # Multiple ipranges in CIDR notation for the whitelist (ranges that should be able to access the host). See examples for how to use in the Wiki
-    [Parameter(Mandatory)]
-    [string[]] $CIDRToWhitelist,
-
-    # Name of the Resource group of the Application Gateway/Waf
-    [Parameter(Mandatory)]
-    [string] $ApplicationGatewayResourceGroupName,
-
-    # Name of the Application Gateway WAF Policy
-    [Parameter(Mandatory)]
-    [string] $ApplicationGatewayWafName,
-
-    # If this custom rule should have a high priority (below 50)
-    [Parameter(Mandatory, ParameterSetName = 'HighPriority')]
-    [switch]
-    $HighPriority,
-
-    # Use specific defined Priority setting
-    [Parameter(Mandatory, ParameterSetName = 'DefinedPriority')]
-    [ValidateRange(1, 100)]
-    [int] $Priority
+    [Parameter(Mandatory)][string] $IngressDomainName,
+    [Parameter(Mandatory)][string[]] $CIDRToWhitelist,
+    [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
+    [Parameter(Mandatory)][string] $ApplicationGatewayWafName,
+    [Parameter(Mandatory, ParameterSetName = 'HighPriority')][switch] $HighPriority,
+    [Parameter(Mandatory, ParameterSetName = 'DefinedPriority')][ValidateRange(1, 100)][int] $Priority
 )
 
 #region ===BEGIN IMPORTS===
