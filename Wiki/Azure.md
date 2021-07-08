@@ -523,9 +523,9 @@ Next to this we've also made a few examples on how to create a pipeline with two
       - [Generic/Bare Release template](../templates/Examples/General/pipeline-release.yml)
  - Examples for specific "often used" resources
    - [FunctionApp Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/FunctionApp/pipeline-orchestrator.yml)
-      - [FunctionApp Build template](../templates/Examples/FunctionApp/pipeline-build.yml)
-      - [FunctionApp Release template](../templates/Examples/FunctionApp/pipeline-release.yml)
-   - [WebApp Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/WebApp/pipeline-orchestrator.yml)
+      - [FunctionApp Build template](../../templates/Examples/FunctionApp/pipeline-build.yml)
+      - [FunctionApp Release template](../../../templates/Examples/FunctionApp/pipeline-release.yml)
+   - [WebApp Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](templates/Examples/WebApp/pipeline-orchestrator.yml)
       - [WebApp Build template](../templates/Examples/WebApp/pipeline-build.yml)
       - [WebApp Release template](../templates/Examples/WebApp/pipeline-release.yml)
 
