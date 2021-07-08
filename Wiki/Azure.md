@@ -519,7 +519,7 @@ First of all, and most important, in each wiki page for the scripts we've added 
 Next to this we've also made a few examples on how to create a pipeline with two goals in mind:
  - Examples how to setup a pipeline in general which supports multiple environments without having to redefine your pipeline for each environment (to guarantee reproducibility in your platform across environments).
    - [Generic/Bare Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/General/pipeline-orchestrator.yml)
-      - [Generic/Bare Build template](../templates/Examples/General/pipeline-build.yml)
+      - [Generic/Bare Build template](../templates/General/pipeline-build.yml)
       - [Generic/Bare Release template](../templates/Examples/General/pipeline-release.yml)
       - [Click here to download this script](../src/App-Configuration/Import-Json-Configuration-File.ps1)
  - Examples for specific "often used" resources
