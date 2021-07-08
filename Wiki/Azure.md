@@ -518,16 +518,16 @@ First of all, and most important, in each wiki page for the scripts we've added 
 
 Next to this we've also made a few examples on how to create a pipeline with two goals in mind:
  - Examples how to setup a pipeline in general which supports multiple environments without having to redefine your pipeline for each environment (to guarantee reproducibility in your platform across environments).
-   - [Generic/Bare Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/General/pipeline-orchestrator.yaml)
-      - [Generic/Bare Build template](../templates/Examples/General/pipeline-build.yaml)
-      - [Generic/Bare Release template](../templates/Examples/General/pipeline-release.yaml)
+   - [Generic/Bare Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/General/pipeline-orchestrator.yml)
+      - [Generic/Bare Build template](../templates/Examples/General/pipeline-build.yml)
+      - [Generic/Bare Release template](../templates/Examples/General/pipeline-release.yml)
  - Examples for specific "often used" resources
-   - [FunctionApp Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/FunctionApp/pipeline-orchestrator.yaml)
-      - [FunctionApp Build template](../templates/Examples/FunctionApp/pipeline-build.yaml)
-      - [FunctionApp Release template](../templates/Examples/FunctionApp/pipeline-release.yaml)
-   - [WebApp Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/WebApp/pipeline-orchestrator.yaml)
-      - [WebApp Build template](../templates/Examples/WebApp/pipeline-build.yaml)
-      - [WebApp Release template](../templates/Examples/WebApp/pipeline-release.yaml)
+   - [FunctionApp Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/FunctionApp/pipeline-orchestrator.yml)
+      - [FunctionApp Build template](../templates/Examples/FunctionApp/pipeline-build.yml)
+      - [FunctionApp Release template](../templates/Examples/FunctionApp/pipeline-release.yml)
+   - [WebApp Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/WebApp/pipeline-orchestrator.yml)
+      - [WebApp Build template](../templates/Examples/WebApp/pipeline-build.yml)
+      - [WebApp Release template](../templates/Examples/WebApp/pipeline-release.yml)
 
 # Guidelines for creating new scripts
 If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
