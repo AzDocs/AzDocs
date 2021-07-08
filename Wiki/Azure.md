@@ -517,11 +517,11 @@ The recommended way of building pipelines is using YAML pipelines. To make using
 First of all, and most important, in each wiki page for the scripts we've added a piece of YAML code which you can conveniently copy & paste into your own YAML pipelines. This means that adding resources to your pipeline is as simple as just copy & paste and fill in the variables!
 
 Next to this we've also made a few examples on how to create a pipeline with two goals in mind:
-[Click here to download this script](../src/App-Configuration/Import-Json-Configuration-File.ps1)
  - Examples how to setup a pipeline in general which supports multiple environments without having to redefine your pipeline for each environment (to guarantee reproducibility in your platform across environments).
    - [Generic/Bare Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/General/pipeline-orchestrator.yml)
       - [Generic/Bare Build template](../templates/Examples/General/pipeline-build.yml)
       - [Generic/Bare Release template](../templates/Examples/General/pipeline-release.yml)
+      - [Click here to download this script](../src/App-Configuration/Import-Json-Configuration-File.ps1)
  - Examples for specific "often used" resources
    - [FunctionApp Orchestrator Pipeline (this is the root file which is being imported in your pipelines)](../templates/Examples/FunctionApp/pipeline-orchestrator.yml)
       - [FunctionApp Build template](../../templates/Examples/FunctionApp/pipeline-build.yml)
