@@ -297,26 +297,122 @@ Done! From here multiple people will review this PR. Eventually the PR will be a
 To use these scripts you simply add a Azure CLI step to your pipeline. Make sure to fill in the right subscription you want to use in the step and select the script from this repo you want to execute. If you are using classic release pipelines, we recommend making a taskgroup per script so you can re-use them easily.
 
 ## AzDocs Build
-First of all you will need to "build" the scripts. This means you will need a build which gets the repo & submodule, copies the scripts to the `$(Build.ArtifactStagingDirectory)` and publishes the artifact to the internal Azure DevOps repo, so you can use it in your releases.
+First of all you will need to "build" the scripts. This means you will need a build which gets the repo & submodule, copies the scripts to the `$(Build.ArtifactStagingDirectory)` and publishes the artifact to the internal Azure DevOps repo, so you can use it in your releases. We've provided the following YAML build to get this done.
 
 1. Generate a new [Peronal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page#create-a-pat).
 2. [Base64 encode](https://www.base64encode.org/) the text `pat:<enterthePATfromstepone>`. For example: `pat:le5jjn4yskffufljovntjjjrtfzqyffvhec2b774a3zqauokbp4a` will give `cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`.
-3. Create a new build pipeline in the [Azure Documentations team project](#setup-azure-devops-%26-git).
-4.  Use ubuntu-20.04 or later as the agent specification (hosted agent).
-5. Under the `Get sources` section, select the company repo.
-6. Make sure you are using an agent job (`Run on agent`).
-7. Under Variables, add the `GIT_AUTH_HEADER` variable with with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`).
-8. Get the generic repo url. example: https://mycompany@dev.azure.com/mycompany/Azure%20Documentation/_git/Upstream.Azure.PlatformProvisioning
-9. Add a `Bash` step with this `Inline` script (replace the URL with the url from step 8): `git -c http.https://mycompany@dev.azure.com/mycompany/Azure%20Documentation/_git/Upstream.Azure.PlatformProvisioning.extraheader="AUTHORIZATION: basic $(GIT_AUTH_HEADER)" submodule update --init --recursive`
-10. Add a Copy step with the following parameters:
-    - Source Folder (replace the `Upstream.Azure.PlatformProvisioning` with the name you gave to the generic repo): `Upstream.Azure.PlatformProvisioning/src`
-    - Contents: `**`
-    - Target Folder: `$(Build.ArtifactStagingDirectory)`
-11. Add a `Publish build artifacts` step with the following parameters:
-    - Path to publish: `$(Build.ArtifactStagingDirectory)`
-    - Artifact name: `drop`
-    - Artifact publish location: `Azure Pipelines`
-12. Save & run the pipeline. Everything should turn green and you will have a build artifact!
+3. Find the repo url for your generic repository.
+
+![Find the generic repo url](../wiki_images/azdocs_build_find_generic_repo_url.png)
+
+4. Go to pipelines and create a `New Pipeline` in the [Azure Documentations team project](#setup-azure-devops-%26-git).
+
+![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_1.png)
+
+5. For your source, select `Azure Repos Git`.
+
+![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_2.png)
+
+6. Select your company specific repository (in the example our company repo is called `Azure.Documentation`).
+
+![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_3.png)
+
+7. Select Started Pipeline (this doesn't really matter, but you need to choose something).
+
+![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_4.png)
+
+8. Replace the default YAML with following YAML in the pipeline:
+```yaml
+name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    - azure-pipelines.yml
+
+resources:
+- repo: self
+
+variables:
+  # PLEASE ADD GIT_AUTH_HEADER TO YOUR PIPELINE VARIABLES AS A SECRET (SEE THE DOCS FOR MORE INFO)
+  - name: UPSTREAM_REPO_URL
+    value: <enter the generic repository url here>
+  - name: DECODE_PERCENTS
+    value: false
+
+stages:
+- stage: Build
+  displayName: Create AzDocs Pipeline Artifact
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Bash@3
+      displayName: 'Get Submodule'
+      inputs:
+        targetType: 'inline'
+        script: 'git -c http.$(UPSTREAM_REPO_URL).extraheader="AUTHORIZATION: basic $(GIT_AUTH_HEADER)" submodule update --init --recursive'
+    # Generic Wiki
+    - task: CopyFiles@2
+      displayName: 'Copy Generic Wiki'
+      inputs:
+        SourceFolder: 'Azure.PlatformProvisioning/Wiki'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/Wiki'
+    # Company Specific Wiki
+    - task: CopyFiles@2
+      displayName: 'Copy Company Wiki'
+      inputs:
+        SourceFolder: 'Wiki'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/Wiki'
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish AzDocs Artifact'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/Wiki'
+        ArtifactName: 'azdocs-wiki'
+        publishLocation: 'Container'
+    # Generic src
+    - task: CopyFiles@2
+      displayName: 'Copy Generic src'
+      inputs:
+        SourceFolder: 'Azure.PlatformProvisioning/src'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/src'
+    # Company Specific src
+    - task: CopyFiles@2
+      displayName: 'Copy Company src'
+      inputs:
+        SourceFolder: 'src'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/src'
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish AzDocs Artifact'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/src'
+        ArtifactName: 'azdocs-src'
+        publishLocation: 'Container'
+```
+
+![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_5.png)
+
+9. Click on `Variables` and add the `GIT_AUTH_HEADER` variable with with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`.
+
+![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_6.png)
+
+10. Click `New Variable`.
+
+![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_7.png)
+
+11. Enter `GIT_AUTH_HEADER` under the name and fill the value with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`. Click `Ok`.
+
+![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_8.png)
+
+12. Replace the `<enter the generic repository url here>` placeholder in the above YAML with the generic repo url from step 3.
+
+13. Save & run the pipeline. Everything should turn green and you will have a build artifact!
+
+![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_9.png)
 
 ## Adding the subscriptions to your teamproject
 To deploy resources in Azure, you need to tell Azure DevOps how to reach the Azure subscription. [Click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops) to go to the official microsoft documentation on this to add this connection. We strongly recommend to name the connection identical to the subscription name.
