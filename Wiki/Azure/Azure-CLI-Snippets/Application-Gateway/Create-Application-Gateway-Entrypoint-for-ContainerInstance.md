@@ -1,11 +1,13 @@
 [[_TOC_]]
 
 # Description
+
 This code will do a full configuration of the Application Gateway for directing SSL traffic to an container instance, including uploading a certificate (pfx) to a Keyvault and Application Gateway.
 
 Also it will update certificates if your source certificate (the certificate in Azure DevOps Secure Files) is newer than the one currently in use.
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Example Value | Description |
 |--|--|--|
@@ -22,7 +24,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | HealthProbeNumberOfTriesBeforeMarkedDown | `2` | Probe retry count |
 | HealthProbeTimeoutInSeconds | `20` | Probe timeout in seconds |
 | HealthProbeProtocol | `HTTPS` | Over which protocol the probe should check |
-| HttpsSettingsRequestToBackendProtocol  | `HTTPS` | Protocol for the backend |
+| HttpsSettingsRequestToBackendProtocol | `HTTPS` | Protocol for the backend |
 | HttpsSettingsRequestToBackendPort | `443` | Port for the backend |
 | HttpsSettingsCookieAffinity | `Disabled` | If the Application Gateway needs cookies to keep user on the same server |
 | HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds | `0` (disabled) | The timeout to gracefully remove backend members during maintenance |
@@ -32,8 +34,21 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ApplicationGatewayResourceGroupName | `sharedservices-rg` | The name of the Resource Group where the application gateway lives. |
 | CertificateKeyvaultResourceGroupName | `sharedservices-rg` | The name of the Resource Group where the Keyvault with certificates lives. |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create Application Gateway Entrypoint for ContainerInstance'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-ContainerInstance.ps1'
+               arguments: "-CertificatePath '$(CertificatePath)' -CertificatePassword '$(CertificatePassword)' -IngressDomainName '$(IngressDomainName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayFacingType '$(ApplicationGatewayFacingType)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -CertificateKeyvaultResourceGroupName '$(CertificateKeyvaultResourceGroupName)' -CertificateKeyvaultName '$(CertificateKeyvaultName)' -ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -HealthProbeUrlPath '$(HealthProbeUrlPath)' -HealthProbeIntervalInSeconds '$(HealthProbeIntervalInSeconds)' -HealthProbeNumberOfTriesBeforeMarkedDown '$(HealthProbeNumberOfTriesBeforeMarkedDown)' -HealthProbeTimeoutInSeconds '$(HealthProbeTimeoutInSeconds)' -HealthProbeProtocol '$(HealthProbeProtocol)' -HttpsSettingsRequestToBackendProtocol '$(HttpsSettingsRequestToBackendProtocol)' -HttpsSettingsRequestToBackendPort '$(HttpsSettingsRequestToBackendPort)' -HttpsSettingsRequestToBackendCookieAffinity '$(HttpsSettingsRequestToBackendCookieAffinity)' -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds '$(HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds)' -HttpsSettingsRequestToBackendTimeoutInSeconds '$(HttpsSettingsRequestToBackendTimeoutInSeconds)' -HealthProbeMatchStatusCodes '$(HealthProbeMatchStatusCodes)' -ApplicationGatewayRuleType '$(ApplicationGatewayRuleType)'"
+```
 
 # Code
+
 [Click here to download this script](../../../../src/Application-Gateway/Create-Application-Gateway-Entrypoint-for-ContainerInstance.ps1)
 
 # Links

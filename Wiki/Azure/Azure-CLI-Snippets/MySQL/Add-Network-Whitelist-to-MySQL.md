@@ -16,6 +16,19 @@ This snippet will whitelist the specified IP Range from the Azure Database for M
 | SubnetToWhitelistVnetName              | <input type="checkbox">         | `sp-dc-dev-001-vnet`                        | The vnetname of the subnet you want to get whitelisted.                                                                                                                                                                                   |
 | SubnetToWhitelistVnetResourceGroupName | <input type="checkbox">         | `sharedservices-rg`                         | The VnetResourceGroupName your Vnet resides in.                                                                                                                                                                                           |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Add Network Whitelist to MySQL'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/MySQL/Add-Network-Whitelist-to-MySQL.ps1'
+               arguments: "-MySqlServerName '$(MySqlServerName)' -MySqlServerResourceGroupName '$(MySqlServerResourceGroupName)' -AccessRuleName '$(AccessRuleName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -SubnetToWhitelistSubnetName '$(SubnetToWhitelistSubnetName)' -SubnetToWhitelistVnetName '$(SubnetToWhitelistVnetName)' -SubnetToWhitelistVnetResourceGroupName '$(SubnetToWhitelistVnetResourceGroupName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/MySQL/Add-IP-Whitelist-to-MySQL.ps1)

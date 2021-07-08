@@ -15,6 +15,19 @@ This snippet will whitelist the specified IP Range from the Azure Keyvault. If y
 | SubnetToWhitelistVnetName              | <input type="checkbox">         | `sp-dc-dev-001-vnet`                        | The vnetname of the subnet you want to get whitelisted.                                                                                                                                                                                                                          |
 | SubnetToWhitelistVnetResourceGroupName | <input type="checkbox">         | `sharedservices-rg`                         | The VnetResourceGroupName your Vnet resides in.                                                                                                                                                                                                                                  |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Add Network Whitelist to Keyvault'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Add-Network-Whitelist-to-Keyvault.ps1'
+               arguments: "-KeyvaultName '$(KeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -SubnetToWhitelistSubnetName '$(SubnetToWhitelistSubnetName)' -SubnetToWhitelistVnetName '$(SubnetToWhitelistVnetName)' -SubnetToWhitelistVnetResourceGroupName '$(SubnetToWhitelistVnetResourceGroupName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/Keyvault/Add-IP-Whitelist-to-Keyvault.ps1)

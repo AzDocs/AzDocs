@@ -1,19 +1,35 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will set the connectionstring of the specified App Configuration for the specified App Service.
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter | Example Value | Description |
-|--|--|--|
-| AppConfigName | `myappconfig-$(Release.EnvironmentName)` | The name of the app configuration resource. |
-| AppConfigResourceGroup | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your app configuration resides in. |
-| AppServiceName | `myteamtestapi$(Release.EnvironmentName)` | The name of the app service. It's recommended to stick to lowercase alphanumeric characters. |
-| AppServiceResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The resourcegroup where the app service resides in |
+| Parameter                   | Example Value                               | Description                                                                                  |
+| --------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| AppConfigName               | `myappconfig-$(Release.EnvironmentName)`    | The name of the app configuration resource.                                                  |
+| AppConfigResourceGroup      | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your app configuration resides in.                                   |
+| AppServiceName              | `myteamtestapi$(Release.EnvironmentName)`   | The name of the app service. It's recommended to stick to lowercase alphanumeric characters. |
+| AppServiceResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The resourcegroup where the app service resides in                                           |
+
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Set App Configuration Connectionstring For AppService'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Set-App-Configuration-Connectionstring-For-AppService.ps1'
+               arguments: "-AppConfigName '$(AppConfigName)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceSlotName '$(AppServiceSlotName)' -ReadOnlyConnectionString '$(ReadOnlyConnectionString)'"
+```
 
 # Code
+
 [Click here to download this script](../../../../src/App-Configuration/Set-App-Configuration-Connectionstring-For-AppService.ps1)
 
 # Links

@@ -1,46 +1,60 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will create an Azure Container Instances instance for you. It will be integrated into the given subnet.
 
-
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter | Required | Example Value | Description |
-|--|--|--|--|
-| ContainerRegistryName | <input type="checkbox" checked> | `customershared$(Release.EnvironmentName)` | The name of the container registry. |
+| Parameter                          | Required                        | Example Value                                | Description                                               |
+| ---------------------------------- | ------------------------------- | -------------------------------------------- | --------------------------------------------------------- |
+| ContainerRegistryName              | <input type="checkbox" checked> | `customershared$(Release.EnvironmentName)`   | The name of the container registry.                       |
 | ContainerRegistryResourceGroupName | <input type="checkbox" checked> | `Customer-Shared-$(Release.EnvironmentName)` | The resourcegroup where the container registry should be. |
-
 
 # VNET Whitelisting Parameters
 
 If you want to use "VNet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
+
 > NOTE: These parameters are only required when you want to use the VNet whitelisting feature for this resource.
 
-| Parameter | Required for VNet whitelisting | Example Value | Description |
-|--|--|--|--|
-| ApplicationVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your container, resides in. |
-| ApplicationVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the container is in|
-| ApplicationSubnetName | <input type="checkbox" checked> | `app-subnet-1` | The name of the subnet where the containers will be spun up (This subnet will get access to the container registry). |
-
+| Parameter                        | Required for VNet whitelisting  | Example Value                        | Description                                                                                                          |
+| -------------------------------- | ------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| ApplicationVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                  | The ResourceGroup where your VNET, for your container, resides in.                                                   |
+| ApplicationVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the container is in                                                                             |
+| ApplicationSubnetName            | <input type="checkbox" checked> | `app-subnet-1`                       | The name of the subnet where the containers will be spun up (This subnet will get access to the container registry). |
 
 # Private Endpoint Parameters
 
 If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises.
+
 > NOTE: These parameters are only required when you want to use a private endpoint for this resource.
 
-| Parameter | Required for Pvt Endpoint | Example Value | Description |
-|--|--|--|--|
-| ContainerRegistryPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your Container Registry Private Endpoint, resides in. |
-| ContainerRegistryPrivateEndpointVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the Container Registry Private Endpoint in. |
-| ContainerRegistryPrivateEndpointSubnetName | <input type="checkbox" checked> | `app-subnet-3` | The subnetname where the private endpoint for this container registry should be created. |
-| PrivateEndpointGroupId | <input type="checkbox" checked> | `registry` | The Group ID for the  registry. You can safely use `registry` here. |
-| DNSZoneResourceGroupName | <input type="checkbox" checked> | `Customer-DNSZones-$(Release.EnvironmentName)` | The resourcegroup where the DNS Zones reside in. This is generally a tenant-wide shared resourcegroup. |
-| ContainerRegistryPrivateDnsZoneName | <input type="checkbox" checked> | `privatelink.azurecr.io` | The privatelink DNS Zone to use. `privatelink.azurecr.io` can be safely used here. |
+| Parameter                                             | Required for Pvt Endpoint       | Example Value                                  | Description                                                                                            |
+| ----------------------------------------------------- | ------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| ContainerRegistryPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                            | The ResourceGroup where your VNET, for your Container Registry Private Endpoint, resides in.           |
+| ContainerRegistryPrivateEndpointVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`           | The name of the VNET to place the Container Registry Private Endpoint in.                              |
+| ContainerRegistryPrivateEndpointSubnetName            | <input type="checkbox" checked> | `app-subnet-3`                                 | The subnetname where the private endpoint for this container registry should be created.               |
+| PrivateEndpointGroupId                                | <input type="checkbox" checked> | `registry`                                     | The Group ID for the registry. You can safely use `registry` here.                                     |
+| DNSZoneResourceGroupName                              | <input type="checkbox" checked> | `Customer-DNSZones-$(Release.EnvironmentName)` | The resourcegroup where the DNS Zones reside in. This is generally a tenant-wide shared resourcegroup. |
+| ContainerRegistryPrivateDnsZoneName                   | <input type="checkbox" checked> | `privatelink.azurecr.io`                       | The privatelink DNS Zone to use. `privatelink.azurecr.io` can be safely used here.                     |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create Container Registry'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Registry/Create-Container-Registry.ps1'
+               arguments: "-ContainerRegistryName '$(ContainerRegistryName)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -ContainerRegistryPrivateEndpointVnetName '$(ContainerRegistryPrivateEndpointVnetName)' -ContainerRegistryPrivateEndpointVnetResourceGroupName '$(ContainerRegistryPrivateEndpointVnetResourceGroupName)' -ContainerRegistryPrivateEndpointSubnetName '$(ContainerRegistryPrivateEndpointSubnetName)' -PrivateEndpointGroupId '$(PrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -ContainerRegistryPrivateDnsZoneName '$(ContainerRegistryPrivateDnsZoneName)'"
+```
 
 # Code
+
 [Click here to download this script](../../../../src/Container-Registry/Create-Container-Registry.ps1)
 
 # Links

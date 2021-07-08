@@ -44,6 +44,19 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 | DNSZoneResourceGroupName                           | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription).                        |
 | StorageAccountPrivateDnsZoneName                   | <input type="checkbox" checked> | `privatelink.blob.core.windows.net`     | Generally this will be `privatelink.blob.core.windows.net`. This defines which DNS Zone to use for the private storage endpoint. |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create Storage account'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1'
+               arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(StorageAccountName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -StorageAccountPrivateEndpointVnetName '$(StorageAccountPrivateEndpointVnetName)' -StorageAccountPrivateEndpointVnetResourceGroupName '$(StorageAccountPrivateEndpointVnetResourceGroupName)' -StorageAccountPrivateEndpointSubnetName '$(StorageAccountPrivateEndpointSubnetName)' -PrivateEndpointGroupId '$(PrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -StorageAccountPrivateDnsZoneName '$(StorageAccountPrivateDnsZoneName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/Storage-Accounts/Create-Storage-account.ps1)

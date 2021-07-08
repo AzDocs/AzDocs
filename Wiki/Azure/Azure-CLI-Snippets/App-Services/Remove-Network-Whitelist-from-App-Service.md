@@ -23,6 +23,19 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | SubnetToRemoveVnetName | <input type="checkbox"> | `sp-dc-dev-001-vnet` | The vnetname of the subnet you want to remove from the whitelist. |
 | SubnetToRemoveVnetResourceGroupName | <input type="checkbox"> | `sharedservices-rg` | The VnetResourceGroupName your Vnet resides in. |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Remove Network Whitelist from App Service'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1'
+               arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -ApplyToAllSlots $(ApplyToAllSlots) -ApplyToMainEntrypoint '$(ApplyToMainEntrypoint)' -ApplyToScmEntrypoint '$(ApplyToScmEntrypoint)' -AccessRestrictionRuleName '$(AccessRestrictionRuleName)' -CIDRToRemoveFromWhitelist '$(CIDRToRemoveFromWhitelist)' -SubnetToRemoveSubnetName '$(SubnetToRemoveSubnetName)' -SubnetToRemoveVnetName '$(SubnetToRemoveVnetName)' -SubnetToRemoveVnetResourceGroupName '$(SubnetToRemoveVnetResourceGroupName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/App-Services/Remove-Ip-Whitelist-For-App_service.ps1)

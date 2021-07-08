@@ -18,6 +18,19 @@ This snippet will remove the specified IP Range from the Azure Database for MySQ
 | SubnetToRemoveVnetName              | <input type="checkbox">         | `sp-dc-dev-001-vnet`                        | The vnetname of the subnet you want to remove from the whitelist.                                                                                                                                                                                                     |
 | SubnetToRemoveVnetResourceGroupName | <input type="checkbox">         | `sharedservices-rg`                         | The VnetResourceGroupName your Vnet resides in.                                                                                                                                                                                                                       |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Remove Network Whitelist from MySQL'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/MySQL/Remove-Network-Whitelist-from-MySQL.ps1'
+               arguments: "-MySqlServerName '$(MySqlServerName)' -MySqlServerResourceGroupName '$(MySqlServerResourceGroupName)' -AccessRuleName '$(AccessRuleName)' -CIDRToRemoveFromWhitelist '$(CIDRToRemoveFromWhitelist)' -SubnetToRemoveSubnetName '$(SubnetToRemoveSubnetName)' -SubnetToRemoveVnetName '$(SubnetToRemoveVnetName)' -SubnetToRemoveVnetResourceGroupName '$(SubnetToRemoveVnetResourceGroupName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/MySQL/Remove-IP-Whitelist-from-MySQL.ps1)

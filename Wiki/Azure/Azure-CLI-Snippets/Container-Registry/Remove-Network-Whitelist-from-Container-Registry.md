@@ -17,6 +17,19 @@ This snippet will remove the specified IP Range from the Azure Container Registr
 | SubnetToRemoveVnetName              | <input type="checkbox">         | `sp-dc-dev-001-vnet`                              | The vnetname of the subnet you want to remove from the whitelist.                                                                                                                                                            |
 | SubnetToRemoveVnetResourceGroupName | <input type="checkbox">         | `sharedservices-rg`                               | The VnetResourceGroupName your Vnet resides in.                                                                                                                                                                              |
 
+# YAML
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Remove Network Whitelist from Container Registry'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Registry/Remove-Network-Whitelist-from-Container-Registry.ps1'
+               arguments: "-ContainerRegistryName '$(ContainerRegistryName)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -CIDRToRemoveFromWhitelist '$(CIDRToRemoveFromWhitelist)' -SubnetToRemoveSubnetName '$(SubnetToRemoveSubnetName)' -SubnetToRemoveVnetName '$(SubnetToRemoveVnetName)' -SubnetToRemoveVnetResourceGroupName '$(SubnetToRemoveVnetResourceGroupName)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/Container-Registry/Remove-IP-Whitelist-from-Container-Registry.ps1)
