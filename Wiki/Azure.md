@@ -531,6 +531,22 @@ Next to this we've also made a few examples on how to create a pipeline with two
 
 PS. Sorry for not providing links, but the Azure DevOps wiki doesn't allow links to .yml files :(.
 
+TODO:
+ - Pipeline structure (orchestrator/build/release)
+     - Architecture image
+ - Variables
+     - No variable groups
+     - Variables in pipeline --> under source control
+ - Pipelines per branch
+ - Secrets
+ - Onpremises servers
+     - How to onboard machines in environments
+     - Machine Tags
+ - Default variables
+     - ResourceGroupName
+     - SubscriptionName
+     - etc
+
 # Guidelines for creating new scripts
 If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
 
