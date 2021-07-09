@@ -188,7 +188,7 @@ jobs:
             - task: DownloadPipelineArtifact@2
               inputs:
                 buildType: specific
-                project: 1234
+                project: projectguid
                 definition: "594"
                 buildVersionToDownload: latestFromBranch
                 branchName: refs/heads/master
