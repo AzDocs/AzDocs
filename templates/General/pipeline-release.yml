@@ -48,9 +48,9 @@ jobs:
       - name: AppInsightsResourceGroupName
         value: $(ResourceGroup.Name)
       - name: AppInsightsLocation
-        value: $(Location)
+        value: ${{ parameters.Location }}
       - name: LogAnalyticsWorkspaceResourceId
-        value: "/subscriptions/7cd65020-ab2c-46ba-956b-fe8351506430/resourcegroups/kpcshared-monitoring-dev/providers/microsoft.operationalinsights/workspaces/kpcshared-law-dev"
+        value: "loganalyticsworkspaceresourceid"
 
     strategy:
       runOnce:
@@ -60,7 +60,7 @@ jobs:
             - task: DownloadPipelineArtifact@2
               inputs:
                 buildType: "specific"
-                project: "project"
+                project: "projectguid"
                 definition: "594"
                 buildVersionToDownload: "latestFromBranch"
                 branchName: "refs/heads/master"
