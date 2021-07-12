@@ -325,9 +325,6 @@ First of all you will need to "build" the scripts. This means you will need a bu
 ```yaml
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
-  branches:
-    include:
-    - master
   paths:
     exclude:
     - azure-pipelines.yml
