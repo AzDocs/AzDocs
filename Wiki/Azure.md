@@ -411,6 +411,37 @@ stages:
 
 ![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_9.png)
 
+## Disable "Limit job authorization scope" settings
+*Make sure to have followed the steps in [AzDocs Build](#azdocs-build)*
+
+In order to use the [AzDocs Build](#azdocs-build), you will need to disable some security settings in Azure DevOps. By default you cannot use builds from different teamprojects. In our case, we do want to do this on purpose. To correct this, we need to set the setting on 3 places:
+ 1. The organization level.
+ 2. The AzDocs TeamProject (you can find how to setup under [Setup Azure DevOps & GIT](#setup-azure-devops-%26-git)).
+ 3. Your own project's [Azure DevOps TeamProject](https://docs.microsoft.com/en-us/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page).
+
+### Disable "Limit job authorization scope" on organization level
+First of all you need to make sure you disable multiple "limit job authorization scope" toggles on your organization level. To do this follow these steps:
+
+1. Go to the main Azure DevOps overview page & click `Organization settings` in the left bottom.
+
+![Organization settings](../wiki_images/limit_job_scope_organization_1.png)
+
+1. Go to `Settings` under `Pipelines` & Disable the following 3 toggles: `Limit job authorization scope to current project for non-release pipelines`, `Limit job authorization scope to current project for release pipelines`, `Limit job authorization scope to referenced Azure DevOps repositories`.
+
+![Limit job on org lvl](../wiki_images/limit_job_scope_organization_2.png)
+
+### Disable "Limit job authorization scope" on teamproject level
+Next you need to make sure you disable multiple "limit job authorization scope" toggles on your TeamProject level. You need to do this for your AzDocs Teamproject & your own teamproject. So make sure to follow these steps for both (or even more of your own) teamprojects:
+
+1. Go to your Azure DevOps Teamproject (or the Azure Documentation teamproject) & click `Project settings` in the left bottom.
+
+![Project settings](../wiki_images/limit_job_scope_teamproject_1.png)
+
+1. Go to `Settings` under `Pipelines` & Disable the following 3 toggles: `Limit job authorization scope to current project for non-release pipelines`, `Limit job authorization scope to current project for release pipelines`, `Limit job authorization scope to referenced Azure DevOps repositories`.
+
+![Limit job on project lvl](../wiki_images/limit_job_scope_teamproject_2.png)
+
+
 ## Adding the subscriptions to your teamproject
 To deploy resources in Azure, you need to tell Azure DevOps how to reach the Azure subscription. [Click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops) to go to the official microsoft documentation on this to add this connection. We strongly recommend to name the connection identical to the subscription name.
 
