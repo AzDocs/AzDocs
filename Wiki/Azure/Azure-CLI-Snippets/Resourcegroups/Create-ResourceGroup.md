@@ -13,6 +13,8 @@ This snippet will create a Resource Group if it does not exist. It also adds the
 
 # YAML task
 
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
 ```yaml
         - task: AzureCLI@2
            displayName: 'Create ResourceGroup'

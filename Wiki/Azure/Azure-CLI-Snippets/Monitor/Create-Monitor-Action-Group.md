@@ -16,6 +16,8 @@ NOTE: An action group belongs to a resourcegroup. It is not bound to a specific 
 
 # YAML
 
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
 ```yaml
         - task: AzureCLI@2
            displayName: 'Create Monitor Action Group'

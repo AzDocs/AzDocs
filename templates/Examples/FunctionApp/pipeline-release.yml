@@ -75,7 +75,7 @@ jobs:
       - name: FunctionAppDiagnosticsName
         value: "${{ parameters.ProjectName }}-${{ parameters.EnvironmentName }}"
       - name: LogAnalyticsWorkspaceName
-        value: $(LogAnalyticsWorkspaceResourceId)
+        value: "${{ parameters.LogAnalyticsWorkspaceResourceId }}"
       - name: AlwaysOn
         value: True
       - name: FUNCTIONS_EXTENSION_VERSION
@@ -210,7 +210,7 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App-Linux.ps1"
-                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppDiagnosticsName '$(FunctionAppDiagnosticsName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)'"
+                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppDiagnosticsName '$(FunctionAppDiagnosticsName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -EnableFunctionAppDeploymentSlot"
             - task: AzureCLI@2
               displayName: "Create AppInsights Resource"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -270,8 +270,19 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 appType: "functionAppLinux"
                 appName: "$(FunctionAppName)"
+                deployToSlotOrASE: true
+                resourceGroupName: "$(FunctionAppResourceGroupName)"
+                slotName: "$(FunctionAppDeploymentSlotName)"
                 package: "$(System.ArtifactsDirectory)/functionapp_zip/functionapp.zip"
                 runtimeStack: "DOTNET|3.1"
+            - task: AzureAppServiceManage@0
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                Action: "Swap Slots"
+                WebAppName: "$(FunctionAppName)"
+                ResourceGroupName: "$(FunctionAppResourceGroupName)"
+                SourceSlot: "$(FunctionAppDeploymentSlotName)"
+                PreserveVnet: true
             - task: AzureCLI@2
               displayName: "Remove Network Whitelist from Function App"
               condition: always()

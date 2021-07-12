@@ -20,10 +20,12 @@ This snippet will remove the specified IP Range from the Azure SQL Server. If yo
 
 # YAML
 
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
 ```yaml
         - task: AzureCLI@2
            displayName: 'Remove Network Whitelist from Sql Server'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           condition: always()
            inputs:
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore

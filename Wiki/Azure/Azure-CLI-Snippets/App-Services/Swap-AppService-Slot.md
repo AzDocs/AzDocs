@@ -2,7 +2,7 @@
 
 # Description
 
-This snippet Will swap the Web Applications slots
+This snippet will swap the Web Applications slots
 
 # Parameters
 
@@ -16,10 +16,11 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 # YAML
 
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
 ```yaml
         - task: AzureCLI@2
            displayName: 'Swap AppService Slot'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
            inputs:
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore

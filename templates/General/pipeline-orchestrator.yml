@@ -1,4 +1,5 @@
 # Example template for the orchestrator
+name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
     include:
@@ -68,6 +69,7 @@ stages:
           # if you are targetting an on-premise server, use the following parameters:
           EnvironmentResourceType: "VirtualMachine"
           EnvironmentTags: "Tag"
+          LogAnalyticsWorkspaceResourceId: "loganalyticsworkspaceresourceid"
 
   - stage: "acc"
     displayName: "Deploy to acc"
@@ -80,3 +82,4 @@ stages:
           EnvironmentName: acc
           TeamName: $(TeamName)
           ProjectName: $(ProjectName)
+          LogAnalyticsWorkspaceResourceId: "loganalyticsworkspaceresourceid"

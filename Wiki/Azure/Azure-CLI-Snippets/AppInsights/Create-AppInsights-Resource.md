@@ -16,6 +16,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
 # YAML
 
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
 ```yaml
         - task: AzureCLI@2
            displayName: 'Create AppInsights Resource'
