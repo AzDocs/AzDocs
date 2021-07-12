@@ -614,11 +614,33 @@ Creating entrypoints can be done using [Create Application Gateway Entrypoint fo
 - Create the following components for you (again automatically named based on the ingress domainname): Backendpool, Healthprobe, HTTP Setting, HTTPS Listener, routing rules a HTTP listener with autoredirect to HTTPS.
 - The script will make sure everything is setup correctly & that your backend is reachable with a healthcheck. Your pipeline will fail if the backend is not reachable.
 
-## Content Security Policy Automation
+## Security Headers Automation
 *Make sure you followed the information from [Creating Entrypoints](#creating-entrypoints) first.*
-By default the Application Gateway will not modify anything about the Content Security Policy (CSP). However, to create a secure environment for your end-users, you want to make sure no unwanted content gets loaded into the users browser (you don't want attackers to inject something). To enforce this we've created a script which adds the CSP headers to each response by the application gateway. This means what if, for whatever reason, the developer forgets or omits to add the CSP header to his page, the gateway will act as a backup and set a sensible, yet strict CSP header. If the developer does add the CSP headers himself, the gateway will leave those untouched and pass the applications CSP headers to the browser.
 
-Use the [Add-Application-Gateway-Security-Headers.ps1](../src/Application-Gateway/Add-Application-Gateway-Security-Headers.ps1) script to add the CSP to your ingresses.
+By default the Application Gateway will not modify any headers. However, to create a secure environment for your end-users, you want to make sure a few security headers are in place. We've created a script which sets some sensible yet strict security headers in the Application Gateway. With this you can always count on a set of basic, yet important, backup headers from the Application Gateway. This means what if, for whatever reason, the developer forgets or omits to add one of the security headers, included in this script, to his page, the gateway will act as a backup and set a sensible, yet strict version of this header. If the developer does add the security header himself, the gateway will leave it untouched and pass the applications security header to the browser. You can choose to override each security header individually, where the ones you don't override will stay in place by the Application Gateway.
+
+After using the script, the following headers will be set by the Application Gateway:
+
+| Action                                             | Header name                        | Default Value                          |
+|----------------------------------------------------|------------------------------------|----------------------------------------|
+| Set CSP Policy if missing;                         | Content-Security-Policy;           | "default-src 'self'"          |
+| Set X-Frame-Options if missing;                    | X-Frame-Options;                   | "DENY"                                 |
+| Set X-Content-Type-Options if missing;             | X-Content-Type-Options;            | "nosniff"                              |
+| Set X-Permitted-Cross-Domain-Policies if missing;  | X-Permitted-Cross-Domain-Policies; | "none"                                 |
+| Set Referrer-Policy if missing;                    | Referrer-Policy;                   | "no-referrer"                          |
+| Set Strict-Transport-Security if missing;          | Strict-Transport-Security;         | "max-age=31536000 ; includeSubDomains" |
+| Set Permissions-Policy if missing;                 | Permissions-Policy;                | "microphone=(), camera=()"             |
+
+The following headers will be removed automatically by the Application Gateway:
+
+| Action                                             | Header name                        |
+|----------------------------------------------------|------------------------------------|
+| Remove Server header;                              | Server                             |
+| Remove X-Powered-By header;                        | X-Powered-By                       |
+| Remove X-AspNet-Version header;                    | X-AspNet-Version                   |
+
+
+Use the [Add-Application-Gateway-Security-Headers.ps1](../src/Application-Gateway/Add-Application-Gateway-Security-Headers.ps1) script to add the security headers to your ingresses.
 
 # Networking
 There are different ways of doing networking within Azure. By default resources will either be public or have an IP Whitelist. By design we don't want to use public resources or use IP whitelists because of the potential insecurities in this. We made the choice to use two different ways of supporting connectivity; VNet whitelisting & Private Endpoint.
