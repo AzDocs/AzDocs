@@ -617,9 +617,11 @@ Creating entrypoints can be done using [Create Application Gateway Entrypoint fo
 ## Security Headers Automation
 *Make sure you followed the information from [Creating Entrypoints](#creating-entrypoints) first.*
 
-By default the Application Gateway will not modify any headers. However, to create a secure environment for your end-users, you want to make sure a few security headers are in place. We've created a script which sets some sensible yet strict security headers in the Application Gateway. With this you can always count on a set of basic, yet important, backup headers from the Application Gateway. This means what if, for whatever reason, the developer forgets or omits to add one of the security headers, included in this script, to his page, the gateway will act as a backup and set a sensible, yet strict version of this header. If the developer does add the security header himself, the gateway will leave it untouched and pass the applications security header to the browser. You can choose to override each security header individually, where the ones you don't override will stay in place by the Application Gateway.
+By default the Application Gateway will not modify any headers. However, to create a secure environment for your end-users, you want to make sure a few security headers are in place. We've created a script which sets some sensible yet strict security headers in the Application Gateway. With this you can always count on a set of basic, yet important, backup headers from the Application Gateway. This means what if, for whatever reason, the developer forgets or omits to add one of the security headers, included in this script, to his page, the gateway will act as a backup and will override this header. If the developer does add the security header himself, the gateway will leave it untouched and pass the applications security header to the browser. You can choose to override each security header individually, where the ones you don't override will stay in place by the Application Gateway.
 
 After using the script, the following headers will be set by the Application Gateway:
+
+> NOTE: The Content-Security-Policy can be overriden with your own default value through the script.
 
 | Action                                             | Header name                        | Default Value                          |
 |----------------------------------------------------|------------------------------------|----------------------------------------|
