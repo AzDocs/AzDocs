@@ -50,6 +50,11 @@ In this boilerplate we investigated ARM templates, Azure PowerShell & Azure CLI.
 
 The reason for this is that Azure CLI is extremely simple to learn for new developers. This has currently been battle tested at multiple companies who all said CLI was the easiest to learn. We try to avoid ARM Templates because of 2 main reasons: it's the most complex & fiddly to work with and also the reusability of arm templates is suboptimal (yes we tried linked & nested templates but they don't suit our needs). Also ARM templates doesn't give us the freedom in making choices based on the user input.
 
+## Identity Management within Azure
+To avoid registering secrets & maintaining usernames & passwords ourselves, we chose to use managed identities (MI's) as much as possible. This basically means that if a resource supports using a MI, we will automatically enable this in the AzDocs. This also means, for example, you can grant your appservice MI permissions on your underlying data layer (storage accounts etc.). We recommend avoiding storing secrets & user information as much as possible.
+
+There is a generic role assignment script which can assign roles on resources to your managed identity. You can find the script here: [Grant-Permissions-to-ManagedIdentity-on-Resource.ps1](../src/Roles/Grant-Permissions-to-ManagedIdentity-on-Resource.ps1)
+
 ## Pipelines
 The idea is that one or more of the scripts from this library will form your pipeline which actually spins up the infra for your software. Please refer to [How to use the scripts](#how-to-use-the-scripts) for more information.
 > NOTE: Currently the documentation revolves around Classic Pipelines. We are currently working to transition to YAML pipelines. The docs will be updated accordingly.
@@ -927,7 +932,4 @@ TODO
 TODO
 
 # Deprovisioning & clearing unintended whitelists
-TODO
-
-# Identities (Managed)
 TODO
