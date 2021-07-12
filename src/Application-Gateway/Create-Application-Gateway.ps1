@@ -46,7 +46,7 @@ if($ApplicationGatewaySku -contains "WAF")
     Invoke-Executable az network application-gateway waf-config set --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --enabled true --firewall-mode $wafMode --rule-set-type $WafRuleSetType --rule-set-version $WafRuleSetVersion
 }
 
-Invoke-Executable az identity create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName
+Invoke-Executable az identity create --name "useridentity-$ApplicationGatewayName" --resource-group $ApplicationGatewayResourceGroupName
 
 $identityId = (Invoke-Executable az identity show --name "useridentity-$ApplicationGatewayName" --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
 

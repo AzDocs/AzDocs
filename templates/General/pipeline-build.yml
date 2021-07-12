@@ -19,7 +19,7 @@ steps:
       command: "restore"
       projects: "$(ProjectName)"
       feedsToUse: "select"
-      vstsFeed: "11abb7ea-e18b-4b92-a65d-556b1eb795a4"
+      vstsFeed: "vstsfeedid"
   - task: DotNetCoreCLI@2
     inputs:
       command: "publish"
