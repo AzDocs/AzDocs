@@ -1082,6 +1082,7 @@ sudo apt-get upgrade -y
 ```
 
 # Logging & Monitoring
+- This isnt a final version of this Docs yet. It's however on the roadmap
 - Conceptual level --> centralize all logging
 - Azure Monitor
 - We use Log Analytics Workspace as a centralized logging resource within our Azure subscriptions.
@@ -1107,4 +1108,5 @@ To provision the logging settings from your pipeline, use these appsettings for 
 TODO
 
 # Deprovisioning & clearing unintended whitelists
-TODO
+- This isnt a final version of this Docs yet. It's however on the roadmap
+- Conceptual writeup
