@@ -450,6 +450,22 @@ Next you need to make sure you disable multiple "limit job authorization scope" 
 ## Adding the subscriptions to your teamproject
 To deploy resources in Azure, you need to tell Azure DevOps how to reach the Azure subscription. [Click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops) to go to the official microsoft documentation on this to add this connection. We strongly recommend to name the connection identical to the subscription name.
 
+## Default variables
+To standarize some of the often used variables, we've created a list of these variables. An overview can be found at [Azure CLI Snippets](/Azure/Azure-CLI-Snippets). In a lot of cases you will also see a lot of derrived parameter names. For example for the $(ResourceGroupName) variable you will see the `AppServiceResourceGroupName` parameter inside App Service scripts. And in Keyvault scripts you will see `KeyvaultResourceGroupName`. This is purposely done to make it absolutely clear which resource we are talking about. There are scripts which accept multiple ResourceGroupNames for multiple resources. A good example is the `Create-Web-App-Linux.ps1` script which accepts `AppServiceResourceGroupName` and `AppServicePlanResourceGroupName`. They can both be filled with the $(ResourceGroupName) variable.
+
+Another option is to create variables for each resourcegroupname which defaults to $(ResourceGroupName). In the case of a YAML pipeline this would look something like this:
+
+```yaml
+variables:
+  # Basic
+  - name: AppServiceResourceGroupName
+    value: $(ResourceGroupName)
+  - name: AppServicePlanResourceGroupName
+    value: $(ResourceGroupName)
+```
+
+The result is that you have a little more variables, but you can control your whole pipeline solely through variables without having to doubt which resources will be affected.
+
 ## Classic Pipelines
 *Make sure to have followed the steps in [AzDocs Build](#azdocs-build) and [Adding the subscriptions to your teamproject](#adding-the-subscriptions-to-your-teamproject)*
 
@@ -681,14 +697,29 @@ PROTIP: If you want to make your own scripts, you will need to define the AzDocs
 
 ![Override AzDocs branch](../wiki_images/pipelines_override_azdocs_artifact_branch.png)
 
-TODO:
- - Onpremises servers
-     - How to onboard machines in environments
-     - Machine Tags
- - Default variables
-     - ResourceGroupName
-     - SubscriptionName
-     - etc
+
+### Deploying to Virtual Machines
+Sometimes we still need to work with virtual machines (IaaS). Some of us are unlucky enough to work in a hybrid situation where they have Azure on one side, and an on-premises environment on the other side. Sometimes you also want to deploy software from your CICD pipelines to these on-premises machines or Azure VM's. In this case you need to know how to onboard those machines into Azure DevOps. Today is your lucky day, here is a crash course & provided script on how to do this. For YAML pipelines you need to onboard your machines into `Environments`. This is a little different from the old `Deployment Groups` with classic pipelines. 
+
+For windows you can use this oneliner to onboard your machine:
+
+```powershell
+$AzureDevOpsOrganizationName='myorganization';$AgentDisk='D';$AzureDevOpsProjectName='MyProject';$EnvironmentName='dev';$VirtualMachineResourceTags='MyApplication,AnotherApplication';$ServiceAccountUserName='MYDOMAIN\svc_SomeUser';$ServiceAccountPassword='MyServicePassword';$PersonalAccessToken='ThisIsMyPersonalAccessToken';$ProxyUrl='';$AgentVersion='2.189.0'; $ErrorActionPreference="Stop";If(-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent() ).IsInRole( [Security.Principal.WindowsBuiltInRole] "Administrator")){ throw "Run command in an administrator PowerShell prompt"};If($PSVersionTable.PSVersion -lt (New-Object System.Version("3.0"))){ throw "The minimum version of Windows PowerShell that is required by the script (3.0) does not match the currently running version of Windows PowerShell." };If(-NOT (Test-Path $AgentDisk':\yamlagent')){mkdir $AgentDisk':\yamlagent'}; cd $AgentDisk':\yamlagent'; for($i=1; $i -lt 100; $i++){$destFolder="A"+$i.ToString();if(-NOT (Test-Path ($destFolder))){mkdir $destFolder;cd $destFolder;break;}};Write-Host "Dest folder: $destFolder"; $agentZip="$PWD\agent.zip"; $DefaultProxy=[System.Net.WebRequest]::DefaultWebProxy;$securityProtocol=@();$securityProtocol+=[Net.ServicePointManager]::SecurityProtocol;$securityProtocol+=[Net.SecurityProtocolType]::Tls12;[Net.ServicePointManager]::SecurityProtocol=$securityProtocol;$WebClient=New-Object Net.WebClient; $Uri="https://vstsagentpackage.azureedge.net/agent/$($AgentVersion)/vsts-agent-win-x64-$($AgentVersion).zip";if($ProxyUrl){$WebClient.Proxy=New-Object Net.WebProxy($ProxyUrl, $True);} $WebClient.DownloadFile($Uri, $agentZip);Add-Type -AssemblyName System.IO.Compression.FileSystem;[System.IO.Compression.ZipFile]::ExtractToDirectory($agentZip, "$PWD"); $optionalParameters = @(); if ($ProxyUrl) { $optionalParameters += '--proxyurl', "$ProxyUrl" } ;.\config.cmd --environment --environmentname $EnvironmentName --addvirtualmachineresourcetags --virtualmachineresourcetags $VirtualMachineResourceTags --agent "$($env:COMPUTERNAME)-YAML-$destFolder" --runasservice --windowsLogonAccount $ServiceAccountUserName --work '_work' --url "https://dev.azure.com/$($AzureDevOpsOrganizationName)/" --projectname $AzureDevOpsProjectName --auth PAT --token $PersonalAccessToken --windowsLogonPassword $ServiceAccountPassword @optionalParameters; Remove-Item $agentZip;
+```
+
+These variables at the start of this script can be edited:
+
+| Variable | Description |
+|---|---|
+| $AzureDevOpsOrganizationName | The name of your Azure DevOps organization. This is the name in the URL behind `https://dev.azure.com/`. So in the case of `https://dev.azure.com/myorg` the value will be `myorg` |
+| $AgentDisk | Which disk do you want to put the AzDo agent. |
+| $AzureDevOpsProjectName | The TeamProject name where you want to onboard these machines. |
+| $EnvironmentName | The name of the environment to onboard your machine into. It's likely that you would use `dev`, `acc`, or `prd` here. Make sure you've created the environment before running this script. |
+| $VirtualMachineResourceTags | Which tags should the machine get. These tags can be used to select machines while you deploy. For example add the tag `MyApplication`. Later in your release you can simply say: Deploy my software to all machines with the tag `MyApplication`. The expectation is that those tags are identical between environments. `NOTE: this value is comm separated (e.g. MyApplication,AnotherApplication,AnotherTag)`. |
+| $ServiceAccountUserName | The user under which the Azure DevOps agent should run. You can also pass `NT AUTHORITY\SYSTEM` and pass a fake password to the `ServiceAccountPassword` parameter (e.g. `somethingsomething`). Make sure this user has the right permissions to do the stuff you want to do in your pipeline. |
+| $PersonalAccessToken | The PAT which you can create under your account in Azure DevOps |
+| $ProxyUrl | The Proxy URL. This has been tested with using a HTTP proxy. Can be left blank in order to NOT use a proxy at all. |
+| $AgentVersion | The version of the agent. Check [Github](https://github.com/microsoft/azure-pipelines-agent/releases) for the latest version. |
 
 # Guidelines for creating new scripts
 If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
