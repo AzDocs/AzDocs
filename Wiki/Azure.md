@@ -631,6 +631,51 @@ In opposition to normal variables, the only exception we make is for secrets. Si
 
 The same also counts for secure files (we use this for certificates for example). Those will NOT be in your repository due to the sensitive nature of those files. You can store them under the `Secure files` tab under the `Libary` tab inside the `Pipelines` module. [For more information aboute `Secure files`, please click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files?view=azure-devops).
 
+### Getting the AzDocs Build Information (ID)
+For using the AzDocs Scripts in your YAML pipeline, you will need to include the following step in your pipeline:
+```yaml
+    - task: DownloadPipelineArtifact@2
+      displayName: Download AzDocs Artifact
+      inputs:
+        buildType: "specific"
+        project: "<TeamProjectGuid>"
+        definition: "<BuilddefinitionId>"
+        buildVersionToDownload: "latestFromBranch"
+        branchName: "refs/heads/master"
+        artifactName: "azdocs-src"
+        targetPath: "$(Pipeline.Workspace)/AzDocs"
+```
+
+For this you will need the `TeamProjectGuid` and the `BuilddefinitionId` for the AzDocs build. The easiest way to fetch the `BuilddefinitionId` id is to go to your pipelines overview and get the builddefinition id from your URL bar (see screenshot below).
+
+![Get builddefinition ID](../wiki_images/pipelines_get_builddefinition_id.png)
+
+Next you will need to fetch the `TeamProjectGuid`. The easiest way to do this is to go to the following URL in the same browser where you are logged in to Azure DevOps (this omits you having to fiddle with authentication in a rest call):
+
+`https://dev.azure.com/<organization>/_apis/projects/<projectname>?api-version=6.0`
+
+This pretty much boils down to something like this:
+
+`https://dev.azure.com/mycompany/_apis/projects/Azure%20Documentation?api-version=6.0`
+
+The first part of the response will be something like: `{"id":"57548766-4c42-4526-afb0-86b6aa17ee9c",`. In this case the GUID `57548766-4c42-4526-afb0-86b6aa17ee9c` is your `TeamProjectGuid`.
+
+The final YAML for downloading the AzDocs artifact in this case will look like this:
+
+```yaml
+    - task: DownloadPipelineArtifact@2
+      displayName: Download AzDocs Artifact
+      inputs:
+        buildType: "specific"
+        project: "57548766-4c42-4526-afb0-86b6aa17ee9c"
+        definition: "853"
+        buildVersionToDownload: "latestFromBranch"
+        branchName: "refs/heads/master"
+        artifactName: "azdocs-src"
+        targetPath: "$(Pipeline.Workspace)/AzDocs"
+```
+
+The scripts will be available like described on the wiki (For example: your `Create-ResourceGroup.ps1` script will be available under `$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1`).
 
 TODO:
  - Onpremises servers
@@ -640,7 +685,6 @@ TODO:
      - ResourceGroupName
      - SubscriptionName
      - etc
- - How to fetch project guid & build definition id for AzDocs build
 
 # Guidelines for creating new scripts
 If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
