@@ -1081,7 +1081,22 @@ sudo service bind9 restart
 sudo apt-get upgrade -y
 ```
 
-# Logging
+# Logging & Monitoring
+- Conceptual level --> centralize all logging
+- Azure Monitor
+- We use Log Analytics Workspace as a centralized logging resource within our Azure subscriptions.
+   - LAW per subscription
+- We use application insights for apm and also link this to our LAW in order to keep also this logging centralized.
+- We also added several solution types for IaaS solutions where we can also push our IaaS logging to the central log analytics workspace.
+- We've also made it possible to send the SQL auditing logging to the Log Analytics Workspace as well. This is to give you the insights into who's connecting to your databases and doing what.
+- Alerting
+- Azure Sentinel
+- AppInsights per Application stack
+- LAW IaaS Agent installation (https://docs.microsoft.com/en-us/azure/azure-monitor/agents/log-analytics-agent)
+
+TODO
+
+## Application logging to Log Analytics Workspace using Serilog
 We are using Log Analytics Workspace (LAW) as our main logging solution. We strive to send all the logs we have to a central LAW instance (one LAW for each `DTAP` stage). You will see `az monitor diagnostic-settings create` commands in several scripts to send diagnostics to the LAW's aswell. Next to that we use [Serilog](https://serilog.net/) in our .NET Stacks with the [Serilog Azure Analytics sink](https://github.com/saleem-mirza/serilog-sinks-azure-analytics) for logging our application logs to the LAW.
 
 To provision the logging settings from your pipeline, use these appsettings for your function/appservice (make sure to replace the values accordingly):
@@ -1089,9 +1104,6 @@ To provision the logging settings from your pipeline, use these appsettings for 
 "Serilog__MinimumLevel=Debug"; "Serilog__WriteTo__1__Name=AzureAnalytics"; "Serilog__WriteTo__1__Args__logName=TheNameOfTheLogYouWant"; "Serilog__WriteTo__1__Args__workspaceId=LogAnalyticsWorkspaceGuid"; "Serilog__WriteTo__1__Args__authenticationId=LogAnalyticsPrimaryKey"; "Serilog__WriteTo__2__Args__restrictedToMinimumLevel=Information"; "Serilog__WriteTo__2__Args__telemetryConverter=Serilog.Sinks.ApplicationInsights.Sinks.ApplicationInsights.TelemetryConverters.TraceTelemetryConverter, Serilog.Sinks.ApplicationInsights"; "Serilog__WriteTo__2__Name=ApplicationInsights"; "Serilog__Using__2=Serilog.Sinks.ApplicationInsights"; "Serilog__Using__1=Serilog.Sinks.AzureAnalytics";
 ```
 
-TODO
-
-# Monitoring
 TODO
 
 # Deprovisioning & clearing unintended whitelists
