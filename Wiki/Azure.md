@@ -617,17 +617,22 @@ As you can see, we call the `pipeline-release.yml` twice. Once for `dev` and onc
 
 For the `dev` environment this will be `TeamRocket-TestApi-dev` and for `acc` it will be `TeamRocket-TestApi-acc`. This will also result in a very consistent naming scheme across your environments.
 
+### Unique pipeline for each branch
+A good thing to realise is, that since your pipeline is now part of your code, you also have a pipeline per branch. This means that with YAML pipelines (in opposition to classic pipelines) you can have a pipeline for each branch you create. It is perfectly sane to have a new API introduced in your project inside a branch which you want to test on Azure. For this you can, inside your branch, edit your release pipeline and deploy this new API. After testing it all inside your branch, you can pull-request the software & accompanying pipeline to master alltogether, under quality control through your PR!
+
 ### Variablemanagement
-In YAML pipelines we take a slightly different approach to manage our variables. In opposition to classic pipelines, we consciously choose not to use `variable groups`. We put our variables inside our YAML pipelines itself. This has two major reasons. The first reason is that we want our variables under sourcecontrol, which means pipelines, including variables, will be merged to master using pull-requests. This means that your pipelines are under quality control as well! The second reason is that with YAML pipelines (again in opposition to classic pipelines) you can have a pipeline per branch. It is perfectly sane to have a new API introduced in your project inside a branch which you want to test on Azure. For this you can, inside your branch, edit your release pipeline and deploy this new API. After testing it all inside your branch, you can pull-request the software & accompanying pipeline to master alltogether, again under quality control through your PR!
+In YAML pipelines we take a slightly different approach to manage our variables. In opposition to classic pipelines, we consciously choose not to use `variable groups`. We put our variables inside our YAML pipelines itself. This has two major reasons. The first reason is that we want our variables under sourcecontrol, which means pipelines, including variables, will be merged to master using pull-requests. This means that your pipelines are under quality control as well! The second reason is that with YAML pipelines (again in opposition to classic pipelines) you can have a pipeline per branch like described in [Unique pipeline for each branch](#unique-pipeline-for-each-branch).
 
 The only downside to this approach is that you don't have any shared variables between pipelines and that you can get some duplicate variables accross pipelines. This however does have the upside that if you need to change a "shared" variable, it will in this case not affect all pipelines at the same time (so you don't break all of your pipelines at the same time by changing one variable).
 
-The only exception we make is for secrets. Since you don't want your secrets under sourcecontrol or, for that matter, plaintext at all, we need another solution for this. In this case you are pretty much free to use the variable groups in the library or use the variables inside the pipeline itself. Make sure to mark the variables as secret in both those options.
+### Secretsmanagement
+*Make sure you read the information from [Variablemanagement](#variablemanagement) first.*
+In opposition to normal variables, the only exception we make is for secrets. Since you don't want your secrets under sourcecontrol or, for that matter, plaintext at all, we need another solution for this. In this case you are pretty much free to use the variable groups in the library or use the variables inside the pipeline itself. Make sure to mark the variables as secret in both those options.
+
+The same also counts for secure files (we use this for certificates for example). Those will NOT be in your repository due to the sensitive nature of those files. You can store them under the `Secure files` tab under the `Libary` tab inside the `Pipelines` module. [For more information aboute `Secure files`, please click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files?view=azure-devops).
 
 
 TODO:
- - Pipelines per branch
- - Secrets
  - Onpremises servers
      - How to onboard machines in environments
      - Machine Tags
