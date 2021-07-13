@@ -677,6 +677,10 @@ The final YAML for downloading the AzDocs artifact in this case will look like t
 
 The scripts will be available like described on the wiki (For example: your `Create-ResourceGroup.ps1` script will be available under `$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1`).
 
+PROTIP: If you want to make your own scripts, you will need to define the AzDocs branch you are working in. You can make this configurable at runtime by changing `branchName: "refs/heads/master"` to `branchName: "refs/heads/$(AzDocsBranchName)"` and while editing your pipeline going to `Variables`, adding the `AzDocsBranchName` with value `master` and enabling the `Let users override this value when running this pipeline` option (See screenshot below):
+
+![Override AzDocs branch](../wiki_images/pipelines_override_azdocs_artifact_branch.png)
+
 TODO:
  - Onpremises servers
      - How to onboard machines in environments
