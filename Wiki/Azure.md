@@ -547,7 +547,7 @@ This means you don't have to redefine the resourcegroupname for each environment
 
 The recommended way of building pipelines is using YAML pipelines. To make using this boilerplate convenient for you, we've added a few ways of using it in your projects.
 
-First of all, and most important, in each wiki page for the scripts we've added a piece of YAML code which you can conveniently copy & paste into your own YAML pipelines. This means that adding resources to your pipeline is as simple as just copy & paste and fill in the variables!
+First of all, and most important, in each wiki page for the scripts we've added a piece of YAML code which you can conveniently copy & paste into your own YAML pipelines. The only thing you need to do is strip the parameters you don't need from this. This means that adding resources to your pipeline is as simple as just copy & paste and manage the parameters!
 
 Next to this we've also made a few examples on how to create a pipeline with two goals in mind:
  - Examples how to setup a pipeline in general which supports multiple environments without having to redefine your pipeline for each environment (to guarantee reproducibility in your platform across environments).
@@ -564,9 +564,62 @@ Next to this we've also made a few examples on how to create a pipeline with two
 
 PS. Sorry for not providing links, but the Azure DevOps wiki doesn't allow links to .yml files :(.
 
+### Pipeline structure
+As with Classic Pipelines, by default you need to create a pipeline per stage in a YAML pipeline. In our vision you only have one single truth for your platform, which should be reproducable on each environment. This means that you will only need one release pipeline and one build pipeline. To get this done, we've created a setup where we have a so called "orchestrator pipeline" which executes the build & release pipeline on the right moments. The build & release pipeline are written inside a separate yaml file. This way you can simply load the pipelines at the right moment. The pipeline architecture looks like this:
+
+![YAML Pipeline structure](../wiki_images/yaml-pipeline-architecture.png)
+
+To achieve this, your stages in your ochestrator file will look something like this:
+
+```yaml
+variables:
+  # Basic
+  - name: TeamName
+    value: TeamRocket
+  - name: ProjectName
+    value: TestApi
+
+stages:
+  - stage: "Build"
+    jobs:
+      - job: Build
+        displayName: "Build"
+        steps:
+          - template: pipeline-build.yml
+
+  - stage: "dev"
+    displayName: "Deploy to dev"
+    jobs:
+      - template: pipeline-release.yml
+        parameters:
+          SubscriptionName: "MY DEV SUBSCRIPTION"
+          EnvironmentName: dev
+          TeamName: $(TeamName)
+          ProjectName: $(ProjectName)
+
+  - stage: "acc"
+    displayName: "Deploy to acc"
+    jobs:
+      - template: pipeline-release.yml
+        parameters:
+          SubscriptionName: "MY ACC SUBSCRIPTION"
+          EnvironmentName: acc
+          TeamName: $(TeamName)
+          ProjectName: $(ProjectName)
+```
+
+As you can see, we call the `pipeline-release.yml` twice. Once for `dev` and once for `acc`. This means that you will have identical environments. Inside the `pipeline-release.yml` you can use the parameters to generate the correct naming for your environment. For example, you can generate your resourcegroupname as following:
+```yaml
+    variables:
+      - name: ResourceGroupName
+        value: ${{ parameters.TeamName }}-${{ parameters.ProjectName }}-${{ parameters.EnvironmentName }}
+```
+
+For the `dev` environment this will be `TeamRocket-TestApi-dev` and for `acc` it will be `TeamRocket-TestApi-acc`. This will also result in a very consistent naming scheme across your environments.
+
+
+
 TODO:
- - Pipeline structure (orchestrator/build/release)
-     - Architecture image
  - Variables
      - No variable groups
      - Variables in pipeline --> under source control
