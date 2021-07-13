@@ -701,6 +701,8 @@ PROTIP: If you want to make your own scripts, you will need to define the AzDocs
 ### Deploying to Virtual Machines
 Sometimes we still need to work with virtual machines (IaaS). Some of us are unlucky enough to work in a hybrid situation where they have Azure on one side, and an on-premises environment on the other side. Sometimes you also want to deploy software from your CICD pipelines to these on-premises machines or Azure VM's. In this case you need to know how to onboard those machines into Azure DevOps. Today is your lucky day, here is a crash course & provided script on how to do this. For YAML pipelines you need to onboard your machines into `Environments`. This is a little different from the old `Deployment Groups` with classic pipelines. 
 
+First of all you will need to onboard your machines into Azure DevOps Environments. Currently we've only documented this for Windows machines. For linux you will need to do something similar to the following procedure:
+
 For windows you can use this oneliner to onboard your machine:
 
 ```powershell
@@ -720,6 +722,27 @@ These variables at the start of this script can be edited:
 | $PersonalAccessToken | The PAT which you can create under your account in Azure DevOps |
 | $ProxyUrl | The Proxy URL. This has been tested with using a HTTP proxy. Can be left blank in order to NOT use a proxy at all. |
 | $AgentVersion | The version of the agent. Check [Github](https://github.com/microsoft/azure-pipelines-agent/releases) for the latest version. |
+
+After onboarding your machine you can use this machine from your YAML pipeline. You can run a stage on the onboarded machine using the following YAML:
+
+```yaml
+- stage: dev
+  jobs:
+  - deployment: 'Deploy_dev'
+    environment: 
+      name: dev
+      resourceType: VirtualMachine
+      tags: MyMachineTag
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: pipeline-release.yml
+            parameters:
+              SomeParameter: myvalue
+```
+
+Voilà! You can now deploy to your virtual machines the same way as you deploy to Azure PaaS resources!
 
 # Guidelines for creating new scripts
 If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
