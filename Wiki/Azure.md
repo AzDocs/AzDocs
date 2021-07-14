@@ -1082,7 +1082,7 @@ sudo apt-get upgrade -y
 ```
 
 # Logging & Monitoring
-*NOTE: This is not the final version of Logging & Monitoring. Our roadmap contains epics to straighten this out.*
+*NOTE: This is not the final version of Logging & Monitoring. Several basic measures are in place, but it is not feature complete yet. Our roadmap contains epics to straighten this out.*
 
 To run a platform in production, you will need to have eyes & ears everwhere inside and around your platform. We know this and we try to solve this for you as painlessly as possible. We are using Log Analytics Workspace (LAW) as our main logging solution. On a conceptual level, we strive to send all the logs we have to a central LAW instance (one LAW for each `DTAP` stage). For example: you will see `az monitor diagnostic-settings create` commands in "create resource" scripts to send diagnostics to the LAW's as well. At the moment of writing, we attached the following "things" to the centralized LAW:
  - Application Insights (Application Performance Monitoring & insights for your software stack & dependencies. This means that all your APM information is also sent to the centralized LAW)
