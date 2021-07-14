@@ -1,11 +1,11 @@
 [[_TOC_]]
 
-# Introduction
-Welcome on the Azure Documentation (AzDocs) Wiki.
+# Introduction to AzDocs
+Welcome on the AzDocs (Azure Documentation) Wiki.
 
-The AzDocs are a boilerplate to get you and your team started with Azure in no time in a secure & compliant way. The goal is to have snippets for creating Azure resources that are secure & compliant to the highest level of requirements along with examples and best practices. This library does have a bias about certain things which, in our experience, gets your team started faster.
+The AzDocs are a boilerplate & knowledgebase to get you and your team started with Azure in no time while keeping Security & Compliancy in place. The goal is to have snippets for creating Azure resources that are secure & compliant to the highest level of requirements along with examples and best practices. This library does have a bias about certain things which, in our experience, gets your team started faster.
 
-> NOTE: This is a **Work In Progress** effort. Multiple companies are currently backing, contributing & using this for their production environments.
+> NOTE: This is a **Work In Progress** effort. Multiple (larger and smaller) companies are currently backing, contributing & using this for their business critical production environments.
 
 Go straight to the scripts: [Azure CLI](/Azure/Azure-CLI-Snippets)
 
@@ -1109,7 +1109,7 @@ The above will make sure that your application logging will also be sent to the 
 # Deprovisioning
 *NOTE: This is not the final version of Deprovisioning. Our roadmap contains epics to straighten this out.*
 
-From a conceptual point of view, you want to keep your costs as low as possible. This means that somehow we need to make sure we don't run resources which we simply don't need. An easy way to do this, is to deprovision non-prod resource(s/groups) whenever you don't need them. At the point of writing we don't have anything in our toolbox yet to do this, but we've created some deprovisioning pipelines which throw away resourcegroups at the end of the workday whenever they have been spun up.
+From a conceptual point of view, you want to keep your costs as low as possible. This means that somehow we need to make sure we don't run resources which we simply don't need. An easy way to do this, is to deprovision non-prod resource(s/groups) whenever you don't need them. At the point of writing we don't have anything in the AzDocs yet to do this, but we've created some deprovisioning pipelines which throw away resourcegroups at the end of the workday whenever they have been spun up.
 
 # Clearing unintended whitelists
 *NOTE: This is not the final version of Clearing unintended whitelists. Our roadmap contains epics to straighten this out.*
