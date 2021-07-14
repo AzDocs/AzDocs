@@ -752,7 +752,7 @@ The start of every script should look something like this:
 ```powershell
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)][string] $FictionalParameter,    
+    [Parameter(Mandatory)][string] $FictionalParameter    
 )
 
 #region ===BEGIN IMPORTS===
