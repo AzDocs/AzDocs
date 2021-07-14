@@ -53,8 +53,12 @@ jobs:
         value: $(ResourceGroupName)
       - name: AppInsightsLocation
         value: ${{ parameters.Location }}
-      - name: LogAnalyticsWorkspaceResourceId
-        value: "${{ parameters.LogAnalyticsWorkspaceResourceId }}"
+
+      # Log Analytics Workspace
+      - name: LogAnalyticsWorkspaceResourceGroupName
+        value: "loganalyticsworkspaceresourcegroupname"
+      - name: LogAnalyticsWorkspaceName
+        value: "loganalyticsworkspacename"
 
     strategy:
       runOnce:
@@ -70,7 +74,16 @@ jobs:
                 branchName: "refs/heads/master"
                 artifactName: "azdocs-src"
                 targetPath: "$(Pipeline.Workspace)/AzDocs"
-            # Call the different tasks you need to be able to deploy your resources
+              # Call the different tasks you need to be able to deploy your resources
+              # Get your log analytics workspace id, output variable is $(LogAnalyticsWorkspaceResourceId)
+            - task: AzureCLI@2
+              displayName: "Get Log Analytics Workspace Id"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Id-for-Pipeline.ps1"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)'"
             - task: AzureCLI@2
               displayName: "Create ResourceGroup"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))

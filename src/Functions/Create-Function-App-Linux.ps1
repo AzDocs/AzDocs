@@ -6,7 +6,8 @@ param (
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Parameter(Mandatory)][string] $FunctionAppStorageAccountName,
     [Parameter(Mandatory)][string] $FunctionAppDiagnosticsName,
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
+    [Alias("LogAnalyticsWorkspaceName")]
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Alias("AlwaysOn")]
     [Parameter(Mandatory)][string] $FunctionAppAlwaysOn,
     [Parameter(Mandatory)][string] $FUNCTIONS_EXTENSION_VERSION,
@@ -70,7 +71,14 @@ Invoke-Executable az functionapp config set --ids $functionAppId --always-on $Fu
 Invoke-Executable az functionapp config appsettings set --ids $functionAppId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
 
 #  Create diagnostics settings
-Invoke-Executable az monitor diagnostic-settings create --resource $functionAppId --name $FunctionAppDiagnosticsName --workspace $LogAnalyticsWorkspaceName --logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+Write-Host 'Checking if the provider is registered'
+
+# Get root path and make sure the right provider is registered
+$RootPath = Split-Path $PSScriptRoot -Parent
+& "$RootPath\Resource-Provider\Register-Provider.ps1" -ResourceProviderNamespace 'Microsoft.Insights'
+
+Write-Host 'Adding diagnostic settings'
+Invoke-Executable az monitor diagnostic-settings create --resource $functionAppId --name $FunctionAppDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az functionapp identity assign --ids $functionAppId
@@ -83,6 +91,7 @@ if ($EnableFunctionAppDeploymentSlot)
     Invoke-Executable az functionapp config set --ids $functionAppStagingId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled
     Invoke-Executable az functionapp config appsettings set --ids $functionAppStagingId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
     Invoke-Executable az functionapp identity assign --ids $functionAppStagingId --slot $FunctionAppDeploymentSlotName
+    Invoke-Executable az monitor diagnostic-settings create --resource $functionAppStagingId --name $FunctionAppDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
     if ($DisablePublicAccessForFunctionAppDeploymentSlot)
     {

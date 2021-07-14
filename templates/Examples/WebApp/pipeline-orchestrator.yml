@@ -65,8 +65,7 @@ stages:
           TeamName: $(TeamName)
           ProjectName: $(ProjectName)
           GatewayCertificate: "certificate-name"
-          LogAnalyticsWorkspaceResourceId: "loganalyticsworkspaceresourceid"
-          # if you are targetting an on-premise server, use the following parameters:
+          # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
           # EnvironmentResourceType:
           # EnvironmentTags:
 
@@ -82,7 +81,6 @@ stages:
           TeamName: $(TeamName)
           ProjectName: $(ProjectName)
           GatewayCertificate: "certificate-name"
-          LogAnalyticsWorkspaceResourceId: ""
-          # if you are targetting an on-premise server, use the following parameters:
+          # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
           # EnvironmentResourceType:
           # EnvironmentTags:

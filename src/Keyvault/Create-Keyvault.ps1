@@ -4,7 +4,8 @@ param (
     [Parameter(Mandatory)][string] $KeyvaultResourceGroupName,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     [Parameter()][string] $KeyvaultDiagnosticsName,
-    [Parameter()][string] $LogAnalyticsWorkspaceName,
+    [Alias("LogAnalyticsWorkspaceName")]
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
 
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -40,9 +41,13 @@ if (!$keyvaultExists)
 $keyvaultId = (Invoke-Executable az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
 
 # Create diagnostics settings for the Keyvault resource
-if ($KeyvaultDiagnosticsName -and $LogAnalyticsWorkspaceName)
+if ($KeyvaultDiagnosticsName -and $LogAnalyticsWorkspaceResourceId)
 {
-    Invoke-Executable az monitor diagnostic-settings create --resource $keyvaultId --name $KeyvaultDiagnosticsName --workspace $LogAnalyticsWorkspaceName --logs "[{ 'category': 'AuditEvent', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+    # Get root path and make sure the right provider is registered
+    $RootPath = Split-Path $PSScriptRoot -Parent
+    & "$RootPath\Resource-Provider\Register-Provider.ps1" -ResourceProviderNamespace 'Microsoft.Insights'
+
+    Invoke-Executable az monitor diagnostic-settings create --resource $keyvaultId --name $KeyvaultDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'AuditEvent', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 }
 
 # Private Endpoint

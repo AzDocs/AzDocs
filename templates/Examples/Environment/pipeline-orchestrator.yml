@@ -1,4 +1,4 @@
-# Example template for the orchestrator
+# Template example for the pipeline-orchestrator
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
@@ -7,7 +7,6 @@ trigger:
   paths:
     exclude:
       - pipeline-orchestrator.yml
-      - pipeline-build.yml
       - pipeline-release.yml
 
 # it is important to pick a specific version so that you have the possibility to run a version with the exact same version agent.
@@ -17,25 +16,23 @@ pool:
 variables:
   # Basic
   - name: TeamName
-    value: Curiosity
+    value: Team
   - name: ProjectName
-    value: TestApi
-  - name: EnvironmentName
-    value: dev
+    value: ProjectName
 
   # Tags
   - name: Tag.ApplicationId
     value: 1234
   - name: Tag.ApplicationName
-    value: ApplicationName
+    value: applicationname
   - name: Tag.ApplicationOwner
-    value: ApplicationOwner
+    value: owner
   - name: Tag.AppTechOwner
-    value: AppTechOwner
+    value: owner
   - name: Tag.BillingIdentifier
-    value: BillingIdentifier
+    value: 1234
   - name: Tag.BusinessUnit
-    value: BusinessUnit
+    value: businessunit
   - name: Tag.CostType
     value: Application
   - name: Tag.Tier
@@ -46,15 +43,7 @@ variables:
     value: "ubuntu-20.04"
 
 stages:
-  - stage: "Build"
-    jobs:
-      - job: Build
-        displayName: "Build"
-        steps:
-          - template: pipeline-build.yml
-            parameters:
-              ProjectName: "TestApi.Functions/TestApi.Functions.csproj"
-
+  # General dev environment
   - stage: "dev"
     displayName: "Deploy to dev"
     pool:
@@ -62,14 +51,14 @@ stages:
     jobs:
       - template: pipeline-release.yml
         parameters:
-          SubscriptionName: "SubscriptionName"
+          SubscriptionName: "subscriptionName"
           EnvironmentName: dev
-          TeamName: $(TeamName)
           ProjectName: $(ProjectName)
           # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
-          # EnvironmentResourceType: "VirtualMachine"
-          # EnvironmentTags: "Tag"
+          # EnvironmentResourceType:
+          # EnvironmentTags:
 
+  # General acc environment
   - stage: "acc"
     displayName: "Deploy to acc"
     pool:
@@ -77,10 +66,24 @@ stages:
     jobs:
       - template: pipeline-release.yml
         parameters:
-          SubscriptionName: "SubscriptionName"
+          SubscriptionName: "subscriptionName"
           EnvironmentName: acc
-          TeamName: $(TeamName)
           ProjectName: $(ProjectName)
           # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
-          # EnvironmentResourceType: "VirtualMachine"
-          # EnvironmentTags: "Tag"
+          # EnvironmentResourceType:
+          # EnvironmentTags:
+
+  # General prod environment
+  - stage: "prd"
+    displayName: "Deploy to prd"
+    pool:
+      vmImage: $(Stage.Pool)
+    jobs:
+      - template: pipeline-release.yml
+        parameters:
+          SubscriptionName: "subscriptionName"
+          EnvironmentName: prd
+          ProjectName: $(ProjectName)
+          # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
+          # EnvironmentResourceType:
+          # EnvironmentTags:
