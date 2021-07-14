@@ -87,7 +87,7 @@ Currently we've focussed on the following:
 - Supporting tools --> Application Insights, Azure Monitor & Azure Log Analytics Workspace
 - Some experimental components --> App Configuration & Container Instances
 
-For the most up to date list, please refer to [Azure CLI Snippets](/Azure/Azure-CLI-Snippets)
+For the most up to date list, please refer to the wikipages under [Azure CLI Snippets](/Azure/Azure-CLI-Snippets)
 
 # Prerequisites
 - An Azure DevOps instance (you are probably reading this inside one right now).
