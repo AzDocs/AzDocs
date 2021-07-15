@@ -18,6 +18,8 @@ Another major reason/benefit to use this boilerplate is because we fixed Azure C
 
 ![AzDocs - Invoke Executable](../wiki_images/azdocs_invoke_executable.png)
 
+As you can see, all parameters get printed (secrets will be hidden ofcourse!) and and all actual CLI statements that are being done by the scripts are printed as well. This allows you to quickly debug & fix things going wrong in your pipelines!
+
 And last but certainly not least: we've unified the way to enable debug information in your pipeline & Azure CLI. It's as simple as setting the default `System.Debug` to `true` in your pipeline variables. The `Invoke-Executable` wrapper will make sure the CLI statements will be appended with `--debug`!
 
 # Core Concepts
