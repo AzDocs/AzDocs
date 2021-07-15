@@ -14,6 +14,12 @@ The idea behind this boilerplate is that everyone wants a secure stack without h
 
 > TLDR; you don't want to figure out everything by yourself and build secure & compliant platforms :).
 
+Another major reason/benefit to use this boilerplate is because we fixed Azure CLI in Azure DevOps Pipelines. By default, whenever a CLI statement crashes, your pipeline does not always break. We've wrapped all of our statements into the so called `Invoke-Executable` statement. Next this this huge benefit, it adds another huge benefit: logging. Don't you hate the way of logging within our pipelines? We do too! So we've improved the logging when using this boilerplate. Let me simply show you by a screenshot:
+
+![AzDocs - Invoke Executable](../wiki_images/azdocs_invoke_executable.png)
+
+And last but certainly not least: we've unified the way to enable debug information in your pipeline & Azure CLI. It's as simple as setting the default `System.Debug` to `true` in your pipeline variables. The `Invoke-Executable` wrapper will make sure the CLI statements will be appended with `--debug`!
+
 # Core Concepts
 There are a few core concept in this boilerplate which are essential for a successful implementation. In this chapter those core concepts are described.
 - CICD is leading --> The platform in Azure should be able to get deleted at all times and you should still be good to go (this counts for everything except persistent data ofcourse).
