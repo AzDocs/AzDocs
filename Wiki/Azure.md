@@ -503,7 +503,7 @@ To create a release pipeline for your app where you can use this boilerplate, th
 
 8. *Save* & *Create Release*. Congratulations, you can now run your pipeline and spin up secure & compliant Azure resources.
 
-> NOTE: However, there are a few more tips & tricks we found useful. The following paragraphs containing tips & tricks are optional:
+> NOTE: However, there are a few more tips & tricks we found useful. The following paragraphs containing tips & tricks are optional.
 
 ### Taskgroup all the things
 For reusability purposes, it is wise to create a taskgroup for each script you use. This means you can add this taskgroup (even multiple times) to every pipeline you like without having to define the script location & parameters again. To create a taskgroup per script, follow the following tutorial:
