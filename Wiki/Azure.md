@@ -563,7 +563,7 @@ The only exception we make for using variable groups in YAML pipelines is when w
 We recommend nesting variables and leveraging system variables. This means you will have a more standarized/consistent platform across your environments.
 Below you can find an example where we define our Teamname & Projectname and re-use those, along with the `Release.EnvironmentName` systemvariable, to create our resourcegroup name. Note that in the example below the result for your `dev`, `acc`, and `prd` environments will be respectively: `AwesomeTeam-MyFirstProject-dev`, `AwesomeTeam-MyFirstProject-acc` and `AwesomeTeam-MyFirstProject-prd`.
 
-This means you don't have to redefine the resourcegroupname for each environment and that if you, in a later stadium, choose to create a new environment, you dont have to go through your variables again. You can simply clone the environment, rename it & roll out the release.
+This means you don't have to redefine the resourcegroupname for each environment and that if you, in a later stadium, choose to create a new environment, you don't have to go through your variables again. You can simply clone the environment, rename it & roll out the release.
 
 ![Variable nesting](../wiki_images/variable_group_variable_nesting_1.png)
 
