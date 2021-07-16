@@ -557,7 +557,7 @@ In contrast to YAML pipelines, we recommend using variable groups when using cla
 
 In YAML we recommend NOT doing this simply because of the "Infrastructure as Code" principle. This means that all the information needed for your pipeline should be in your repository & under sourcecontrol. Next to that; with YAML pipelines can you actually create pipelines per branch. In this case you can change/add/remove variables in that specific branch. This would not be possible if you use a variable group.
 
-The only exception we make for using variable groups in YAML pipelines is when we are storing secrets. You dont want these in your repository due to security concerns :).
+The only exception we make for using variable groups in YAML pipelines is when we are storing secrets. You don't want these in your repository due to security concerns :).
 
 ### Variable nesting
 We recommend nesting variables and leveraging system variables. This means you will have a more standarized/consistent platform across your environments.
