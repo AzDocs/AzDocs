@@ -854,7 +854,7 @@ Use the [Add-Application-Gateway-Security-Headers.ps1](../src/Application-Gatewa
 
 # Networking
 There are different ways of doing networking within Azure. By default resources will either be public or have an IP Whitelist. By design we don't want to use public resources or use IP whitelists because of the potential insecurities in this. We made the choice to use two different ways of supporting connectivity; VNet whitelisting & Private Endpoint.
-The general rule of thumb should be to use VNet whitelisting where applicable. If thats not possible we use private endpoints. If that is unavailable aswell, we fallback to public access with plain IP whitelists.
+The general rule of thumb should be to use VNet whitelisting where applicable. If that's not possible we use private endpoints. If that is unavailable as well, we fallback to public access with plain IP whitelists.
 Another rule of thumb is to keep in mind that we don't want to use methods of vnet connectivity where we have to sacrifice a whole subnet due to a delegation (vnet integration for appservices have this problem) unless there is no other way. The reason for this is that this costs a lot of private IP's. If you have a tight private IP space, don't waste them on delegations :).
 
 ## VNet whitelisting
