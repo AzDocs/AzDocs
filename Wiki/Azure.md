@@ -506,7 +506,7 @@ To create a release pipeline for your app where you can use this boilerplate, th
 > NOTE: However, there are a few more tips & tricks we found useful. The following paragraphs containing tips & tricks are optional:
 
 ### Taskgroup all the things
-For reusability purposes, it is wide to create a taskgroup for each script you use. This means you can add this taskgroup (even multiple times) to every pipeline you like without having to define the script location & parameters again. To create a taskgroup per script, follow the following tutorial:
+For reusability purposes, it is wise to create a taskgroup for each script you use. This means you can add this taskgroup (even multiple times) to every pipeline you like without having to define the script location & parameters again. To create a taskgroup per script, follow the following tutorial:
 
 1. Whenever you added the CLI step the first time, right click it and click on `Create task group`.
 
