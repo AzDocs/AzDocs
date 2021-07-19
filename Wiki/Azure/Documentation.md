@@ -106,3 +106,6 @@ Find the documentation on how to create service principals & assign roles [here]
 
 # [Clearing unintended whitelists](/Azure/Documentation/Clearing-unintended-whitelists)
 *Please click the above link to go to this chapter*
+
+# [Deprovisioning](/Azure/Documentation/Deprovisioning)
+*Please click the above link to go to this chapter*
