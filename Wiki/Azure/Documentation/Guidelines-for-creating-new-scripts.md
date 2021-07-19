@@ -1,7 +1,7 @@
 [[_TOC_]]
 
 # Guidelines for creating new scripts
-If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
+If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](/Azure/Documentation#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
 
 The start of every script should look something like this:
 ```powershell
