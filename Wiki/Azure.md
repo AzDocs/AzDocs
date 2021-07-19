@@ -104,6 +104,10 @@ For the most up to date list, please refer to the wikipages under [Azure CLI Sni
 # Setup Azure DevOps & GIT
 We are using a more-or-less complex GIT setup to fulfil our needs. The generic library you are watching right now should be sharable between companies at all times. This means that no company related data/rules should be implemented in this boilerplate. However, you probably have scripts & documentation which actually does contain logics or information of/for your company. To deal with this, we've created a 2-tier GIT repo. We created a company specific repo with this generic repo, in it, as a GIT submodule. This implies that commiting, pulling & pushing gets a little more complicated. To help you out, this paragraph should tell you how the workflow should work.
 
+So in short:
+ - Generic scripts which can be shared between companies --> Upstream/Generic repository
+ - Company specific scripts which can't/shouldn't be shared --> Your company repository
+
 ## Create a new Azure DevOps Project
 We recommend creating an `Azure Documentation` teamproject in your Azure DevOps instance.
 
