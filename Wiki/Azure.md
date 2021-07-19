@@ -527,6 +527,8 @@ For reusability purposes, it is wise to create a taskgroup for each script you u
 
 > NOTE: Known limitation: Taskgroups can not have output parameters. So for anything that uses output parameters, the step needs to be added to the pipeline directly and cannot be in any taskgroup. We strongly recommend to use YAML pipelines to not run into these issues.
 
+> NOTE: Another known limitation is that you can not add optional parameters to taskgroups. You always have to fill in a value to the parameters. To workaround this, we've added a variable to our `Variables` called `EmptyString` which has an empty value. This means that we can simply pass `$(EmptyString)` to these optional parameters and it will no longer give an issue!
+
 ### Taskgroup the pipeline itself
 Classic Pipelines have the downside that you have to create your pipeline per environment. This can get nasty whenever you have a lot of environments or do a lot of changes on your pipeline. This is why we chose to "taskgroup the pipeline". The result is that you have 1 pipeline taskgroup which is added to each environment. Whenever you change your pipeline taskgroup, this goes for all your environments at once.
 
