@@ -66,4 +66,4 @@ The following headers will be removed automatically by the Application Gateway:
 | Remove X-AspNet-Version header;                    | X-AspNet-Version                   |
 
 
-Use the [Add-Application-Gateway-Security-Headers.ps1](../src/Application-Gateway/Add-Application-Gateway-Security-Headers.ps1) script to add the security headers to your ingresses.
+Use the [Add-Application-Gateway-Security-Headers](/Azure/Azure-CLI-Snippets/Application-Gateway/Add-Application-Gateway-Security-Headers) script to add the security headers to your ingresses.
