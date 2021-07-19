@@ -792,8 +792,32 @@ Another thing we do, is wrap our CLI statements in the `Invoke-Executable` metho
 - Our script & function parameters are written CamelCase
 - Local variables are all lowercase
 - Functionnames are written CamelCase
-- Names should be logical, recognizable and should avoid confusion
+- Names should be logical, recognizable and should avoid confusion (see below).
 - We try to follow the [Noun-verb](https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7.1) naming for functions
+
+We also make sure that there can be no confusion between parameters and the working of these parameters. This means that your parameters should explicitly named for what it is. For example; in the `Create-Storage-account.ps1` script there are multiple parameters which are "names". To make sure we know exactly which value to put in which parameter, we've named all parameters as following: `StorageAccountName`, `StorageAccountResourceGroupName`, `ApplicationVnetResourceGroupName`, `ApplicationVnetName`, `ApplicationSubnetName` etc. We couldve named `StorageAccountName` simply: `Name` but this might've been confusing. So always be overly explicit with your parameter names.
+
+### Code conventions checklist:
+Whenever submitting new scripts, please make sure it is conform the checklist below.
+
+- Using the `Allman` code formatting with `openBraceOnSameLine` set to false.
+- All CLI statements are wrapped into `Invoke-Executable`.
+- For CLI statements use full parameter names instead of abbreviations. So `--name` instead of `-n` and `--resource-group` instead of `-g`.
+- Be explicit with your script parameter names. as described in the previous paragraph.
+- Scripts which are created should not break previous versions unless it's absolutely not possible to create backwards compatibility.
+- Parameters for scripts that are mandatory, should be marked as such using the `[Parameter(Mandatory)]` notation.
+- Strongly typed parameters
+- ​Comments should be provided if needed to explain certain workings of the script.
+- For every resource that can make use of Managed Identities, these should be created and used (see Create-Web-App-Linux.ps1 ) 
+- For every resource that can make use of Diagnostic Settings, these should be enabled and send to the correct LAW. 
+- For every resource that can make use of VNet whitelisting and/or Private Endpoints, this should be configurable and added to the script. 
+- A wiki page should be added with the following information:
+   - Description - Short description of the script and what it does.
+   - Parameters - A list of parameters that are used in the scripts, their descriptions, example values and if they're required
+   - YAML - A yaml task that can be copied/pasted into a pipeline.
+   - Code - Link to download the script 
+   - Links - Links that can be used to get more information about the different scripts.
+- The script should've been tested (including for every subresource that it could be used for). 
 
 # Application Gateway
 When we started this documentation, we promised eachother to not write anything about individual components. However, since we've chosen to only use the Application Gateway (AppGw) as our edge layer component, we decided it is a good idea to say something revolving this component and it's complexity (and our automation in this). Creating an AppGw is easy, but mastering one is a little harder. We've chosen to create our own SSL Policies for our AppGw's and to automate the hell out of this component due to its complexity (see [the create entrypoint script](../src/AzDocs.Common/public/AppGateway-Helper-Functions.ps1) if you want to know what i'm talking about).
