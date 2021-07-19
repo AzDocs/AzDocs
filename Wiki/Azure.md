@@ -50,6 +50,12 @@ We follow the [zero trust architecture](https://en.wikipedia.org/wiki/Zero_trust
 The ideology we follow is that we'd rather have SaaS, then PaaS, then Containers and last IaaS. Simply because of the lack of maintenance in SaaS and the heaviest maintenance in IaaS.
 For the same reason we try to avoid containers, since we still need to update our runtimes in these (JRE/.NET/other base-image versions etc).
 
+To be clear, we categorize apps as such:
+- SaaS --> We don't have to manage anything. We simply use software from a 3rd party. The code & infra are not ours.
+- PaaS --> We don't have to manage the platform (we don't do updates or maintenance on the infra), but we are in control over which features we use (For example: App Services). Also we are still responsible for our own code which runs on this managed platform. So we still need to update our dependencies in our software and keep the .NET version of our software up to date. NOTE: Support for those different .NET versions on the platform level are being managed by the PaaS provider, we simply have to select the right one.
+- IaaS --> We have to manage some or all of the platform (we have to do updates & do maintenance on the infra) and we are responsible for our code (we still need to update & maintain dependencies & .net versions etc.).
+
+
 ## Azure CLI unless
 In this boilerplate we investigated ARM templates, Azure PowerShell & Azure CLI. We choose to have the following order:
  1. Azure CLI
