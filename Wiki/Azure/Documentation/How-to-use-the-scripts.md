@@ -12,7 +12,7 @@ First of all you will need to "build" the scripts. This means you will need a bu
 
 ![Find the generic repo url](../../../wiki_images/azdocs_build_find_generic_repo_url.png)
 
-4. Go to pipelines and create a `New Pipeline` in the [Azure Documentations team project](#setup-azure-devops-%26-git).
+4. Go to pipelines and create a `New Pipeline` in the [Azure Documentations team project](/Azure/Documentation/Setup-Azure-DevOps-and-GIT#setup-azure-devops-%26-git).
 
 ![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_1.png)
 
