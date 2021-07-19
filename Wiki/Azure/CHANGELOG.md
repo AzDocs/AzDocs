@@ -27,6 +27,7 @@ None!
 Note: as always this is work in progress and will be subjected to changes & additions.
 
 ## [2021.06.23]
+A networking release! We've made sure it is easier to interact with different kind of networking whitelisting/dewhitelisting actions within you platform.
 
 ### Breaking Changes
 
