@@ -147,7 +147,7 @@ First of all, lets assume you are using Visual Studio Code. This example will ma
 
 The generic repo will have 2 remote's if you also want to contribute to this project or get new updates from this project. So after mirroring [the upstream github repo](https://github.com/RobHofmann/Azure.PlatformProvisioning) to your own Azure DevOps instance, you want to clone the repository to your local machine.
 
-> NOTE: Next to the working company repository with the generic repository inside (as explained in [the GIT paragraph](#git)) you daily use, we tend to keep the upstream in a separate folder on our computer aswell for syncing our origin with the upstream repo.
+> NOTE: Next to the working company repository with the generic repository inside (as explained in [the GIT paragraph](#working-with-this-setup-%26-git)) you daily use, we tend to keep the upstream in a separate folder on our computer aswell for syncing our origin with the upstream repo.
 
 First clone the repo to your local disk with:
 
