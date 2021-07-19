@@ -7,8 +7,10 @@ The AzDocs are a boilerplate & knowledgebase to get you and your team started wi
 
 > NOTE: This is a **Work In Progress** effort. Multiple (larger and smaller) companies are currently backing, contributing & using this for their business critical production environments.
 
+## [Documentation](/Azure/Documentation)
 We recommend looking at the documentation before going into the scripts. You can find this documentation here: [Documentation](/Azure/Documentation)
 
+## [Scripts](/Azure/Azure-CLI-Snippets)
 Or you can go straight to the scripts: [Azure CLI](/Azure/Azure-CLI-Snippets)
 
 # Why use this boilerplate
