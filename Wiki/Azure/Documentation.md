@@ -81,19 +81,28 @@ Find the documentation on how to create service principals & assign roles [here]
 - One or more azure subscriptions
 
 # [Recommended Architecture](/Azure/Documentation/Recommended-Architecture)
+*Please click the above link to go to this chapter*
 
 # [Which components are available & when to use them?](/Azure/Documentation/Which-components-are-available-and-when-to-use-them)
+*Please click the above link to go to this chapter*
 
 # [Setup Azure DevOps & GIT](/Azure/Documentation/Setup-Azure-DevOps-and-GIT)
+*Please click the above link to go to this chapter*
 
 # [How to use the scripts](/Azure/Documentation/How-to-use-the-scripts)
+*Please click the above link to go to this chapter*
 
 # [Guidelines for creating new scripts](/Azure/Documentation/Guidelines-for-creating-new-scripts)
+*Please click the above link to go to this chapter*
 
 # [Application Gateway](/Azure/Documentation/Application-Gateway)
+*Please click the above link to go to this chapter*
 
 # [Networking](/Azure/Documentation/Networking)
+*Please click the above link to go to this chapter*
 
 # [Logging & Monitoring](/Azure/Documentation/Logging-and-monitoring)
+*Please click the above link to go to this chapter*
 
 # [Clearing unintended whitelists](/Azure/Documentation/Clearing-unintended-whitelists)
+*Please click the above link to go to this chapter*
