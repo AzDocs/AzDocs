@@ -70,7 +70,7 @@ To avoid registering secrets & maintaining usernames & passwords ourselves, we c
 There is a generic role assignment script which can assign roles on resources to your managed identity. You can find the script here: [Grant-Permissions-to-ManagedIdentity-on-Resource.ps1](../../src/Roles/Grant-Permissions-to-ManagedIdentity-on-Resource.ps1)
 
 ## Pipelines
-The idea is that one or more of the scripts from this library will form your pipeline which actually spins up the infra for your software. Please refer to [How to use the scripts](#how-to-use-the-scripts) for more information.
+The idea is that one or more of the scripts from this library will form your pipeline which actually spins up the infra for your software. Please refer to [How to use the scripts](/Azure/Documentation/How-to-use-the-scripts) for more information.
 
 ### Service Principal Setup
 To deploy from Azure DevOps you need a service connection to your Azure environment. There are multiple authentication/authorization options. We created this using a service principal (manual). We recommend creating this first in Azure and assigning it the `Owner` for your subscription (make at least one service principal per subscription).
