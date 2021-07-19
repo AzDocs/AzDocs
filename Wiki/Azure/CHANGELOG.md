@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [2021.07.19]
-We are excited to bring you the big release of the overall documentation containing architectural explainations!
+We are excited to bring you the big release of the overall documentation containing architectural explanations!
 
 ### Breaking Changes
 None!
