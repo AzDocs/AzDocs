@@ -14,7 +14,7 @@ The idea behind this boilerplate is that everyone wants a secure stack without h
 
 > TLDR; you don't want to figure out everything by yourself and build secure & compliant platforms :).
 
-Another major reason/benefit to use this boilerplate is because we fixed Azure CLI in Azure DevOps Pipelines. By default, whenever a CLI statement crashes, your pipeline does not always break. We've wrapped all of our statements into the so called `Invoke-Executable` statement which manages this behaviour for you. Next this this huge benefit, it adds another huge benefit: logging. Don't you hate the way of logging within our pipelines? We do too! So we've improved the logging when using this boilerplate. Let me simply show you by a screenshot:
+Another major reason/benefit to use this boilerplate is because we fixed Azure CLI in Azure DevOps Pipelines. By default, whenever a CLI statement crashes, your pipeline does not always break. We've wrapped all of our statements into the so called `Invoke-Executable` statement which manages this behaviour for you. Next to this huge benefit, it adds another huge benefit: logging. Don't you hate the way of logging within our pipelines? We do too! So we've improved the logging when using this boilerplate. Let me simply show you by a screenshot:
 
 ![AzDocs - Invoke Executable](../wiki_images/azdocs_invoke_executable.png)
 
@@ -33,7 +33,7 @@ There are a few core concept in this boilerplate which are essential for a succe
 - There are one or more shared resourcegroups for shared components
   - For example if you use an application gateway to expose multiple application stacks to the internet, this will be in a shared ResourceGroup (RG) with for example the VNET which is shared between your platforms.
   - Those shared resources are mainly done for cost reductions. You dont want to host an Application Gateway for each application because it's simply unnecessary.
-- Any HTTPS service exposed outside of Azure is exposed through an Azure Application Gateway. Also services which are being exposed to your on-premises network. The reason is that the Application Gateway has some extra security measures in place which reduces your attack surface. This complies with the [Zero trust architecture](#zero-trust-architecture).
+- Any HTTPS service exposed outside of Azure is exposed through an Azure Application Gateway. This is also true for services which are being exposed to your on-premises network. The reason is that the Application Gateway has some extra security measures in place which reduces your attack surface. This complies with the [Zero trust architecture](#zero-trust-architecture).
 
 ## Resource naming best practises
 Make sure that when you start using this boilerplate you come up with a good naming convention for your implementation. There are a few general rules of thumb which you can follow to get a good naming scheme.
@@ -407,7 +407,7 @@ stages:
 
 ![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_5.png)
 
-9. Click on `Variables` and add the `GIT_AUTH_HEADER` variable with with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`.
+9. Click on `Variables` and add the `GIT_AUTH_HEADER` variable with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`.
 
 ![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_6.png)
 
@@ -503,10 +503,10 @@ To create a release pipeline for your app where you can use this boilerplate, th
 
 8. *Save* & *Create Release*. Congratulations, you can now run your pipeline and spin up secure & compliant Azure resources.
 
-> NOTE: However, there are a few more tips & tricks we found useful. The following paragraphs containing tips & tricks are optional:
+> NOTE: However, there are a few more tips & tricks we found useful. The following paragraphs containing tips & tricks are optional.
 
 ### Taskgroup all the things
-For reusability purposes, it is wide to create a taskgroup for each script you use. This means you can add this taskgroup (even multiple times) to every pipeline you like without having to define the script location & parameters again. To create a taskgroup per script, follow the following tutorial:
+For reusability purposes, it is wise to create a taskgroup for each script you use. This means you can add this taskgroup (even multiple times) to every pipeline you like without having to define the script location & parameters again. To create a taskgroup per script, follow the following tutorial:
 
 1. Whenever you added the CLI step the first time, right click it and click on `Create task group`.
 
@@ -557,13 +557,13 @@ In contrast to YAML pipelines, we recommend using variable groups when using cla
 
 In YAML we recommend NOT doing this simply because of the "Infrastructure as Code" principle. This means that all the information needed for your pipeline should be in your repository & under sourcecontrol. Next to that; with YAML pipelines can you actually create pipelines per branch. In this case you can change/add/remove variables in that specific branch. This would not be possible if you use a variable group.
 
-The only exception we make for using variable groups in YAML pipelines is when we are storing secrets. You dont want these in your repository due to security concerns :).
+The only exception we make for using variable groups in YAML pipelines is when we are storing secrets. You don't want these in your repository due to security concerns :).
 
 ### Variable nesting
 We recommend nesting variables and leveraging system variables. This means you will have a more standarized/consistent platform across your environments.
 Below you can find an example where we define our Teamname & Projectname and re-use those, along with the `Release.EnvironmentName` systemvariable, to create our resourcegroup name. Note that in the example below the result for your `dev`, `acc`, and `prd` environments will be respectively: `AwesomeTeam-MyFirstProject-dev`, `AwesomeTeam-MyFirstProject-acc` and `AwesomeTeam-MyFirstProject-prd`.
 
-This means you don't have to redefine the resourcegroupname for each environment and that if you, in a later stadium, choose to create a new environment, you dont have to go through your variables again. You can simply clone the environment, rename it & roll out the release.
+This means you don't have to redefine the resourcegroupname for each environment and that if you, in a later stadium, choose to create a new environment, you don't have to go through your variables again. You can simply clone the environment, rename it & roll out the release.
 
 ![Variable nesting](../wiki_images/variable_group_variable_nesting_1.png)
 
@@ -572,7 +572,7 @@ This means you don't have to redefine the resourcegroupname for each environment
 
 The recommended way of building pipelines is using YAML pipelines. To make using this boilerplate convenient for you, we've added a few ways of using it in your projects.
 
-First of all, and most important, in each wiki page for the scripts we've added a piece of YAML code which you can conveniently copy & paste into your own YAML pipelines. The only thing you need to do is strip the parameters you don't need from this. This means that adding resources to your pipeline is as simple as just copy & paste and manage the parameters!
+First of all, and most important, in each wiki page for the scripts we've added a piece of YAML code which you can conveniently copy & paste into your own YAML pipelines. The only thing you need to do is strip the parameters you don't need from this. This means that adding resources to your pipeline is as simple as just copy & paste and managing the parameters!
 
 Next to this we've also made a few examples on how to create a pipeline with two goals in mind:
  - Examples how to setup a pipeline in general which supports multiple environments without having to redefine your pipeline for each environment (to guarantee reproducibility in your platform across environments).
@@ -859,7 +859,7 @@ Use the [Add-Application-Gateway-Security-Headers.ps1](../src/Application-Gatewa
 
 # Networking
 There are different ways of doing networking within Azure. By default resources will either be public or have an IP Whitelist. By design we don't want to use public resources or use IP whitelists because of the potential insecurities in this. We made the choice to use two different ways of supporting connectivity; VNet whitelisting & Private Endpoint.
-The general rule of thumb should be to use VNet whitelisting where applicable. If thats not possible we use private endpoints. If that is unavailable aswell, we fallback to public access with plain IP whitelists.
+The general rule of thumb should be to use VNet whitelisting where applicable. If that's not possible we use private endpoints. If that is unavailable as well, we fallback to public access with plain IP whitelists.
 Another rule of thumb is to keep in mind that we don't want to use methods of vnet connectivity where we have to sacrifice a whole subnet due to a delegation (vnet integration for appservices have this problem) unless there is no other way. The reason for this is that this costs a lot of private IP's. If you have a tight private IP space, don't waste them on delegations :).
 
 ## VNet whitelisting
@@ -1098,9 +1098,9 @@ sudo apt-get upgrade -y
 # Logging & Monitoring
 *NOTE: This is not the final version of Logging & Monitoring. Several basic measures are in place, but it is not feature complete yet. Our roadmap contains epics to straighten this out.*
 
-For both logging & monitoring we envision that this is included, for the bigger part, in the resource creation scripts. So our goal is that, in the future, you will get dashboards, infra logging & monitoring out of the box using the AzDocs. A good example to explain this is that, whenever you run an App Service, you pretty much always want to know how your app service is doing. So the most basic thing to meassure is how high or low your error rate is. And especially: whenever it deviates from the baseline. This means that in our app service creation scripts we could, by default, create alerts & dashboards for error rate basline deviation. And with this specific example, there are more examples you can think of which are generic for all platforms you run (CPU usage, memory usage etc). So in future versions this will be setup for you automatically using the AzDocs scripts.
+For both logging & monitoring we envision that this is included, for the bigger part, in the resource creation scripts. So our goal is that, in the future, you will get dashboards, infra logging & monitoring out of the box using the AzDocs. A good example to explain this is that, whenever you run an App Service, you pretty much always want to know how your app service is doing. So the most basic thing to measure is how high or low your error rate is. And especially: whenever it deviates from the baseline. This means that in our app service creation scripts we could, by default, create alerts & dashboards for error rate basline deviation. And with this specific example, there are more examples you can think of which are generic for all platforms you run (CPU usage, memory usage etc). So in future versions this will be setup for you automatically using the AzDocs scripts.
 
-To run a platform in production, you will need to have eyes & ears everwhere inside and around your platform. We know this and we try to solve this for you as painlessly as possible. We are using Log Analytics Workspace (LAW) as our main logging solution. On a conceptual level, we strive to send all the logs we have to a central LAW instance (one LAW for each `DTAP` stage). For example: you will see `az monitor diagnostic-settings create` commands in "create resource" scripts to send diagnostics to the LAW's as well. At the moment of writing, we attached the following "things" to the centralized LAW:
+To run a platform in production, you will need to have eyes & ears everywhere inside and around your platform. We know this and we try to solve this for you as painlessly as possible. We are using Log Analytics Workspace (LAW) as our main logging solution. On a conceptual level, we strive to send all the logs we have to a central LAW instance (one LAW for each `DTAP` stage). For example: you will see `az monitor diagnostic-settings create` commands in "create resource" scripts to send diagnostics to the LAW's as well. At the moment of writing, we attached the following components to the centralized LAW:
  - Application Insights (Application Performance Monitoring & insights for your software stack & dependencies. This means that all your APM information is also sent to the centralized LAW)
  - Diagnostics from resources (Infra level logging)
  - Application Logging with Serilog (See [Application logging to Log Analytics Workspace using Serilog](#application-logging-to-log-analytics-workspace-using-serilog))
