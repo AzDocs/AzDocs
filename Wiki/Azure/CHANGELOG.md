@@ -2,7 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2021.06.23.1-master]
+## [2021.07.19]
+We are excited to bring you the big release of the overall documentation containing architectural explanations!
+
+### Breaking Changes
+None!
+
+### Added
+
+- Documentation
+    - Recommended architecture
+    - Which components are available?
+    - Tutorials on how to setup this boilerplate in your Azure DevOps environment.
+    - How to use these scripts?
+    - Guidelines for creating new scripts & contributing to this repository.
+    - Application Gateway information & Best practises
+    - Networking information (private endpoints & vnet whitelisting)
+    - Logging & monitoring
+    - Deprovisioning
+- Added WAF options to the [Create Application Gateway](/Azure/Azure-CLI-Snippets/Application-Gateway/Create-Application-Gateway) script.
+- Added the [Add DDoS Protection To Vnet](/Azure/Azure-CLI-Snippets/Networking/Add-DDoS-Protection-To-Vnet) script.
+- Reset the Wiki order of components to alphabetical (for easier finding your components).
+
+Note: as always this is work in progress and will be subjected to changes & additions.
+
+## [2021.06.23]
+A networking release! We've made sure it is easier to interact with different kind of networking whitelisting/dewhitelisting actions within you platform.
 
 ### Breaking Changes
 
