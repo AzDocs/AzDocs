@@ -10,23 +10,23 @@ First of all you will need to "build" the scripts. This means you will need a bu
 2. [Base64 encode](https://www.base64encode.org/) the text `pat:<enterthePATfromstepone>`. For example: `pat:le5jjn4yskffufljovntjjjrtfzqyffvhec2b774a3zqauokbp4a` will give `cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`.
 3. Find the repo url for your generic repository.
 
-![Find the generic repo url](../wiki_images/azdocs_build_find_generic_repo_url.png)
+![Find the generic repo url](../../../wiki_images/azdocs_build_find_generic_repo_url.png)
 
 4. Go to pipelines and create a `New Pipeline` in the [Azure Documentations team project](#setup-azure-devops-%26-git).
 
-![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_1.png)
+![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_1.png)
 
 5. For your source, select `Azure Repos Git`.
 
-![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_2.png)
+![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_2.png)
 
 6. Select your company specific repository (in the example our company repo is called `Azure.Documentation`).
 
-![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_3.png)
+![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_3.png)
 
 7. Select Started Pipeline (this doesn't really matter, but you need to choose something).
 
-![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_4.png)
+![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_4.png)
 
 8. Replace the default YAML with following YAML in the pipeline:
 ```yaml
@@ -98,25 +98,25 @@ stages:
         publishLocation: 'Container'
 ```
 
-![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_5.png)
+![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_5.png)
 
 9. Click on `Variables` and add the `GIT_AUTH_HEADER` variable with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`.
 
-![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_6.png)
+![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_6.png)
 
 10. Click `New Variable`.
 
-![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_7.png)
+![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_7.png)
 
 11. Enter `GIT_AUTH_HEADER` under the name and fill the value with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`. Click `Ok`.
 
-![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_8.png)
+![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_8.png)
 
 12. Replace the `<enter the generic repository url here>` placeholder in the above YAML with the generic repo url from step 3.
 
 13. Save & run the pipeline. Everything should turn green and you will have a build artifact!
 
-![Create AzDocs Build Pipeline](../wiki_images/azdocs_build_create_new_pipeline_9.png)
+![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_9.png)
 
 ## Disable "Limit job authorization scope" settings
 *Make sure to have followed the steps in [AzDocs Build](#azdocs-build)*
@@ -131,22 +131,22 @@ First of all you need to make sure you disable multiple "limit job authorization
 
 1. Go to the main Azure DevOps overview page & click `Organization settings` in the left bottom.
 
-![Organization settings](../wiki_images/limit_job_scope_organization_1.png)
+![Organization settings](../../../wiki_images/limit_job_scope_organization_1.png)
 
 1. Go to `Settings` under `Pipelines` & Disable the following 3 toggles: `Limit job authorization scope to current project for non-release pipelines`, `Limit job authorization scope to current project for release pipelines`, `Limit job authorization scope to referenced Azure DevOps repositories`.
 
-![Limit job on org lvl](../wiki_images/limit_job_scope_organization_2.png)
+![Limit job on org lvl](../../../wiki_images/limit_job_scope_organization_2.png)
 
 ### Disable "Limit job authorization scope" on teamproject level
 Next you need to make sure you disable multiple "limit job authorization scope" toggles on your TeamProject level. You need to do this for your AzDocs Teamproject & your own teamproject. So make sure to follow these steps for both (or even more of your own) teamprojects:
 
 1. Go to your Azure DevOps Teamproject (or the Azure Documentation teamproject) & click `Project settings` in the left bottom.
 
-![Project settings](../wiki_images/limit_job_scope_teamproject_1.png)
+![Project settings](../../../wiki_images/limit_job_scope_teamproject_1.png)
 
 1. Go to `Settings` under `Pipelines` & Disable the following 3 toggles: `Limit job authorization scope to current project for non-release pipelines`, `Limit job authorization scope to current project for release pipelines`, `Limit job authorization scope to referenced Azure DevOps repositories`.
 
-![Limit job on project lvl](../wiki_images/limit_job_scope_teamproject_2.png)
+![Limit job on project lvl](../../../wiki_images/limit_job_scope_teamproject_2.png)
 
 
 ## Adding the subscriptions to your teamproject
@@ -177,12 +177,12 @@ To create a release pipeline for your app where you can use this boilerplate, th
 3. Add the optional build artifact for your own software.
 4. Rename the `Stage 1` *stage*. Let't call it `dev` (later *stages* can be made, reproducing these steps but with `acc` or `prd` as the *Stage*-name.
 
-![Classic pipeline](../wiki_images/classic_pipeline_howto_3.png)
+![Classic pipeline](../../../wiki_images/classic_pipeline_howto_3.png)
 
 5. Click the `0 jobs, 0 tasks` link in the `dev` *stage*.
 6. In the left column, click the `+` in the top right and search for the *Azure CLI* step.
 
-![Azure CLI Step](../wiki_images/classic_pipeline_howto_1.png)
+![Azure CLI Step](../../../wiki_images/classic_pipeline_howto_1.png)
 
 7. Enter these parameters in the *Azure CLI* step
     - Azure Resource Manager connection: *select the connection created in the [Adding the subscriptions to your teamproject](#adding-the-subscriptions-to-your-teamproject) step
@@ -192,7 +192,7 @@ To create a release pipeline for your app where you can use this boilerplate, th
     - Script Arguments: `<insert the needed script arguments from the script you are calling>`
     - Access service principal details in script: <input type="checkbox" checked> (Required in rare cases for some scripts).
 
-![Classic pipeline](../wiki_images/classic_pipeline_howto_2.png)
+![Classic pipeline](../../../wiki_images/classic_pipeline_howto_2.png)
 
 8. *Save* & *Create Release*. Congratulations, you can now run your pipeline and spin up secure & compliant Azure resources.
 
@@ -207,19 +207,19 @@ To create a taskgroup per script, follow the following tutorial:
 
 1. Whenever you added the CLI step the first time, right click it and click on `Create task group`.
 
-![Create Taskgroup](../wiki_images/classic_pipeline_taskgroup_1.png)
+![Create Taskgroup](../../../wiki_images/classic_pipeline_taskgroup_1.png)
 
 2. Give your taskgroup a fitting name (we choose to name the taskgroups identical to the scripts).
 
-![Create Taskgroup](../wiki_images/classic_pipeline_taskgroup_2.png)
+![Create Taskgroup](../../../wiki_images/classic_pipeline_taskgroup_2.png)
 
 3. After creating the taskgroup, you can add a new step to your pipeline and search for your taskgroup (make sure to hit the `Refresh` button if you don't see your taskgroup in the list).
 
-![Add Taskgroup](../wiki_images/classic_pipeline_taskgroup_3.png)
+![Add Taskgroup](../../../wiki_images/classic_pipeline_taskgroup_3.png)
 
 4. After you've added the taskgroup, you can fill in the variables with your desired values and run the pipeline.
 
-![Add Taskgroup](../wiki_images/classic_pipeline_taskgroup_4.png)
+![Add Taskgroup](../../../wiki_images/classic_pipeline_taskgroup_4.png)
 
 
 > NOTE: Known limitation: Taskgroups can not have output parameters. So for anything that uses output parameters, the step needs to be added to the pipeline directly and cannot be in any taskgroup. We strongly recommend to use YAML pipelines to not run into these issues.
@@ -231,23 +231,23 @@ Classic Pipelines have the downside that you have to create your pipeline per en
 
 1. Go to your classic pipeline & edit it and go to your first environments pipeline (in this example it is `dev`).
 
-![Edit pipeline](../wiki_images/classic_pipeline_taskgroup_the_pipeline_1.png)
+![Edit pipeline](../../../wiki_images/classic_pipeline_taskgroup_the_pipeline_1.png)
 
 2. Select all your tasks in the pipeline and rightclick --> `Create task group`
 
-![Select all the tasks](../wiki_images/classic_pipeline_taskgroup_the_pipeline_2.png)
+![Select all the tasks](../../../wiki_images/classic_pipeline_taskgroup_the_pipeline_2.png)
 
 3. A new window will popup. We chose to name these taskgroups `[PIPELINE] <projectname>`. Now fill in the parameters. It is very likely that you can simply copy the parameter name and paste it as a variable (see screenshot below). This will just proxy your variables to the taskgroup.
 
-![Create the new taskgroup](../wiki_images/classic_pipeline_taskgroup_the_pipeline_3.png)
+![Create the new taskgroup](../../../wiki_images/classic_pipeline_taskgroup_the_pipeline_3.png)
 
 4. You will now have a single taskgroup in your pipeline.
 
-![Single pipeline taskgroup](../wiki_images/classic_pipeline_taskgroup_the_pipeline_4.png)
+![Single pipeline taskgroup](../../../wiki_images/classic_pipeline_taskgroup_the_pipeline_4.png)
 
 5. Switch to your other environment (in this example this is `acc`). Add the same taskgroup you just created to your pipeline.
 
-![Add pipeline taskgroup to your 2nd environment](../wiki_images/classic_pipeline_taskgroup_the_pipeline_5.png)
+![Add pipeline taskgroup to your 2nd environment](../../../wiki_images/classic_pipeline_taskgroup_the_pipeline_5.png)
 
 From now on. Whenever you change something inside your `[PIPELINE]` taskgroup, it will effect all your environments without having to keep track of all the pipeline changes between environments. This will force you into keeping your environments identical (which in our opinion is required for realistic testability).
 
@@ -264,7 +264,7 @@ Below you can find an example where we define our Teamname & Projectname and re-
 
 This means you don't have to redefine the resourcegroupname for each environment and that if you, in a later stadium, choose to create a new environment, you don't have to go through your variables again. You can simply clone the environment, rename it & roll out the release.
 
-![Variable nesting](../wiki_images/variable_group_variable_nesting_1.png)
+![Variable nesting](../../../wiki_images/variable_group_variable_nesting_1.png)
 
 ## YAML Pipelines
 *Make sure to have followed the steps in [AzDocs Build](#azdocs-build) and [Adding the subscriptions to your teamproject](#adding-the-subscriptions-to-your-teamproject)*
@@ -291,7 +291,7 @@ PS. Sorry for not providing links, but the Azure DevOps wiki doesn't allow links
 ### Pipeline structure
 As with Classic Pipelines, by default you need to create a pipeline per stage in a YAML pipeline. In our vision you only have one single truth for your platform, which should be reproducable on each environment. This means that you will only need one release pipeline and one build pipeline. To get this done, we've created a setup where we have a so called "orchestrator pipeline" which executes the build & release pipeline on the right moments. The build & release pipeline are written inside a separate yaml file. This way you can simply load the pipelines at the right moment. The pipeline architecture looks like this:
 
-![YAML Pipeline structure](../wiki_images/yaml-pipeline-architecture.png)
+![YAML Pipeline structure](../../../wiki_images/yaml-pipeline-architecture.png)
 
 To achieve this, your stages in your ochestrator file will look something like this:
 
@@ -372,7 +372,7 @@ For using the AzDocs Scripts in your YAML pipeline, you will need to include the
 
 For this you will need the `TeamProjectGuid` and the `BuilddefinitionId` for the AzDocs build. The easiest way to fetch the `BuilddefinitionId` id is to go to your pipelines overview and get the builddefinition id from your URL bar (see screenshot below).
 
-![Get builddefinition ID](../wiki_images/pipelines_get_builddefinition_id.png)
+![Get builddefinition ID](../../../wiki_images/pipelines_get_builddefinition_id.png)
 
 Next you will need to fetch the `TeamProjectGuid`. The easiest way to do this is to go to the following URL in the same browser where you are logged in to Azure DevOps (this omits you having to fiddle with authentication in a rest call):
 
@@ -403,7 +403,7 @@ The scripts will be available like described on the wiki (For example: your `Cre
 
 PROTIP: If you want to make your own scripts, you will need to define the AzDocs branch you are working in. You can make this configurable at runtime by changing `branchName: "refs/heads/master"` to `branchName: "refs/heads/$(AzDocsBranchName)"` and while editing your pipeline going to `Variables`, adding the `AzDocsBranchName` with value `master` and enabling the `Let users override this value when running this pipeline` option (See screenshot below):
 
-![Override AzDocs branch](../wiki_images/pipelines_override_azdocs_artifact_branch.png)
+![Override AzDocs branch](../../../wiki_images/pipelines_override_azdocs_artifact_branch.png)
 
 
 ### Deploying to Virtual Machines
