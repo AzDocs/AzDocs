@@ -24,7 +24,7 @@ And last but certainly not least: we've unified the way to enable debug informat
 
 # Core Concepts
 There are a few core concept in this boilerplate which are essential for a successful implementation. In this chapter those core concepts are described.
-- CICD is leading --> The platform in Azure should be able to get deleted at all times and you should still be good to go (this counts for everything except persistent data ofcourse).
+- CICD is leading --> The platform in Azure should be able to get deleted at all times and you should still be good to go.
   - This means your resources, variables & secrets etc. are provisioned from your CICD pipelines towards the Azure platform.
   - Ofcourse the exception is persistent data. You should always make backups for data you can't afford to lose.
 - Backwards compatible; scripts which are created should not break previous versions unless it's absolutely not possible to create backwards compatibility.
