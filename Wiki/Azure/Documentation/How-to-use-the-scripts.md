@@ -123,7 +123,7 @@ stages:
 
 In order to use the [AzDocs Build](#azdocs-build), you will need to disable some security settings in Azure DevOps. By default you cannot use builds from different teamprojects. In our case, we do want to do this on purpose. To correct this, we need to set the setting on 3 places:
  1. The organization level.
- 2. The AzDocs TeamProject (you can find how to setup under [Setup Azure DevOps & GIT](#setup-azure-devops-%26-git)).
+ 2. The AzDocs TeamProject (you can find how to setup under [Setup Azure DevOps & GIT](/Azure/Documentation/Setup-Azure-DevOps-and-GIT#setup-azure-devops-%26-git)).
  3. Your own project's [Azure DevOps TeamProject](https://docs.microsoft.com/en-us/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page).
 
 ### Disable "Limit job authorization scope" on organization level
@@ -353,7 +353,7 @@ The only downside to this approach is that you don't have any shared variables b
 *Make sure you read the information from [Variablemanagement](#variablemanagement) first.*
 In opposition to normal variables, the only exception we make is for secrets. Since you don't want your secrets under sourcecontrol or, for that matter, plaintext at all, we need another solution for this. In this case you are pretty much free to use the variable groups in the library or use the variables inside the pipeline itself. Make sure to mark the variables as secret in both those options.
 
-The same also counts for secure files (we use this for certificates for example). Those will NOT be in your repository due to the sensitive nature of those files. You can store them under the `Secure files` tab under the `Libary` tab inside the `Pipelines` module. [For more information aboute `Secure files`, please click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files?view=azure-devops).
+The same also counts for secure files (we use this for certificates for example). Those will NOT be in your repository due to the sensitive nature of those files. You can store them under the `Secure files` tab under the `Libary` tab inside the `Pipelines` module. [For more information about `Secure files`, please click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files?view=azure-devops).
 
 ### Getting the AzDocs Build Information (ID)
 For using the AzDocs Scripts in your YAML pipeline, you will need to include the following step in your pipeline:
