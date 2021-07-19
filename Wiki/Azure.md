@@ -769,6 +769,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 ```
+
+Note the `Write-Header` which outputs the parameters that were given to this script for easy debugging.
+
 and the end should look something like this:
 ```powershell
 Write-Footer -ScopedPSCmdlet $PSCmdlet
@@ -776,6 +779,8 @@ Write-Footer -ScopedPSCmdlet $PSCmdlet
 
 ## Coding Convention
 We use the `Allman` code formatting preset from VSCode. Also we disable the `openBraceOnSameLine` setting in powershell. In theory your VSCode should already do this for you, since we've checked in our [settings.json](../.vscode/settings.json) to the repository.
+
+Another thing we do, is wrap our CLI statements in the `Invoke-Executable` method. This allows us to get better logging for our CLI statements. Next to this it also allows us to set the `System.Debug` variable in our pipeline to `true`, which will enable debug mode for CLI as well (it appends `--debug` to all CLI statements). And the final, maybe most important, thing it does is act accordingly whenever an exitcode is returned by the CLI statements. In short: Vanilla CLI does not always break the pipeline when it should. For example: if you create a resource, and the CLI fails, your pipeline will still turn out to be green and continue the next steps. The `Invoke-Executable` wrapper makes sure it checks the output and breaks the pipeline whenever this is desired. There is also a flag (`-AllowToFail`) which disables this behaviour.
 
 ### Naming
 - Our script & function parameters are written CamelCase
