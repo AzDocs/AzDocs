@@ -27,7 +27,7 @@ The strong ciphers are supported by mainly all devices since 2014.
 
 If you are still using Windows Server 2012 R2 machines, follow [this link](https://docs.microsoft.com/nl-nl/mem/configmgr/core/plan-design/security/enable-tls-1-2-client) to make TLS 1.2 work with this OS. To be able to reach Azure through the application gateways, you will need to add support for TLS 1.2 to Windows Server 2012 R2 machines.
 
-Use the [Set-Application-Gateway-SSLTLS-Settings.ps1](../src/Application-Gateway/Set-Application-Gateway-SSLTLS-Settings.ps1) script to set the right SSL & TLS settings for your Application Gateway.
+Use the [Set-Application-Gateway-SSLTLS-Settings.ps1](../../../../src/Application-Gateway/Set-Application-Gateway-SSLTLS-Settings.ps1) script to set the right SSL & TLS settings for your Application Gateway.
 
 ## Creating Entrypoints
 Creating entrypoints can be done using [Create Application Gateway Entrypoint for ContainerInstance](/Azure/Azure-CLI-Snippets/Application-Gateway/Create-Application-Gateway-Entrypoint-for-ContainerInstance) (Azure Container Instances) or [Create Application Gateway Entrypoint for DomainName](/Azure/Azure-CLI-Snippets/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName) (AppServices, FunctionApps). These scripts will more or less do the following for you:
