@@ -22,6 +22,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | SqlDatabaseMaxCapacity             | <input type="checkbox">         | <input type="checkbox" checked> | `8`                                         | The maximum allowed capacity of this database. in the vCore model this equals the number of vCores you want.                                                                                                           |
 | SqlDatabaseBackupStorageRedundancy | <input type="checkbox">         | <input type="checkbox" checked> | `Zone`                                      | The level of backup redundancy you want. Options are `Local`, `Zone`, `Geo`.                                                                                                                                           |
 | SqlDatabaseMaxStorageSize          | <input type="checkbox">         | <input type="checkbox" checked> | `50GB`                                      | The amount of storage including the unit of data. Examples: `50GB`, `250GB` or `1TB`                                                                                                                                   |
+| SqlServerElasticPoolName           | <input type="checkbox">         | <input type="checkbox">         | `my-elastic-pool`                           | The name of the elastic pool in your sql server you would like to add the database to.                                                                                                                                 |
 
 # YAML
 
@@ -35,7 +36,7 @@ Be aware that this YAML example contains all parameters that can be used with th
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
                scriptPath: '$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Database.ps1'
-               arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(SqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseSkuName '$(SqlDatabaseSkuName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)' -SqlDatabaseFamily '$(SqlDatabaseFamily)' -SqlDatabaseComputeModel '$(SqlDatabaseComputeModel)' -SqlDatabaseAutoPauseDelayInMinutes '$(SqlDatabaseAutoPauseDelayInMinutes)' -SqlDatabaseMinCapacity '$(SqlDatabaseMinCapacity)' -SqlDatabaseMaxCapacity '$(SqlDatabaseMaxCapacity)' -SqlDatabaseBackupStorageRedundancy '$(SqlDatabaseBackupStorageRedundancy)' -SqlDatabaseMaxStorageSize '$(SqlDatabaseMaxStorageSize)' -ResourceTags $(ResourceTags)"
+               arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(SqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseSkuName '$(SqlDatabaseSkuName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)' -SqlDatabaseFamily '$(SqlDatabaseFamily)' -SqlDatabaseComputeModel '$(SqlDatabaseComputeModel)' -SqlDatabaseAutoPauseDelayInMinutes '$(SqlDatabaseAutoPauseDelayInMinutes)' -SqlDatabaseMinCapacity '$(SqlDatabaseMinCapacity)' -SqlDatabaseMaxCapacity '$(SqlDatabaseMaxCapacity)' -SqlDatabaseBackupStorageRedundancy '$(SqlDatabaseBackupStorageRedundancy)' -SqlDatabaseMaxStorageSize '$(SqlDatabaseMaxStorageSize)' -SqlServerElasticPoolName '$(SqlServerElasticPoolName)' -ResourceTags $(ResourceTags)"
 ```
 
 # Code

@@ -12,6 +12,7 @@ param (
     [Parameter()][int] $SqlDatabaseMaxCapacity,
     [Parameter()][ValidateSet('', 'Local', 'Zone', 'Geo')][string] $SqlDatabaseBackupStorageRedundancy,
     [Parameter()][string] $SqlDatabaseMaxStorageSize,
+    [Parameter()][string] $SqlServerElasticPoolName,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags
 )
 
@@ -22,32 +23,45 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $additionalParameters = @()
-if ($SqlDatabaseSkuName) {
+if ($SqlDatabaseSkuName)
+{
     $additionalParameters += '--service-objective', $SqlDatabaseSkuName
 }
-if ($SqlDatabaseEdition) {
+if ($SqlDatabaseEdition)
+{
     $additionalParameters += '--edition', $SqlDatabaseEdition
 }
-if ($SqlDatabaseFamily) {
+if ($SqlDatabaseFamily)
+{
     $additionalParameters += '--family', $SqlDatabaseFamily
 }
-if ($SqlDatabaseComputeModel) {
+if ($SqlDatabaseComputeModel)
+{
     $additionalParameters += '--compute-model', $SqlDatabaseComputeModel
 }
-if ($SqlDatabaseAutoPauseDelayInMinutes) {
+if ($SqlDatabaseAutoPauseDelayInMinutes)
+{
     $additionalParameters += '--auto-pause-delay', $SqlDatabaseAutoPauseDelayInMinutes
 }
-if ($SqlDatabaseMinCapacity) {
+if ($SqlDatabaseMinCapacity)
+{
     $additionalParameters += '--min-capacity', $SqlDatabaseMinCapacity
 }
-if ($SqlDatabaseMaxCapacity) {
+if ($SqlDatabaseMaxCapacity)
+{
     $additionalParameters += '--capacity', $SqlDatabaseMaxCapacity
 }
-if ($SqlDatabaseBackupStorageRedundancy) {
+if ($SqlDatabaseBackupStorageRedundancy)
+{
     $additionalParameters += '--backup-storage-redundancy', $SqlDatabaseBackupStorageRedundancy
 }
-if ($SqlDatabaseMaxStorageSize) {
+if ($SqlDatabaseMaxStorageSize)
+{
     $additionalParameters += '--max-size', $SqlDatabaseMaxStorageSize
+}
+if ($SqlServerElasticPoolName)
+{
+    $additionalParameters += '--elastic-pool', $SqlServerElasticPoolName
 }
 
 Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags ${ResourceTags} @additionalParameters
