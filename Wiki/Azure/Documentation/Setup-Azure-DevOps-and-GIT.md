@@ -12,15 +12,15 @@ We recommend creating an `Azure Documentation` teamproject in your Azure DevOps 
 
 1. On the main page click the New Project button in the top right corner.
 
-![Main page](../wiki_images/azdo_create_new_teamproject_1.png)
+![Main page](../../../wiki_images/azdo_create_new_teamproject_1.png)
 
 2. Fill in the name of the new project. We use `Azure Documentation` for this.
 
-![Creating the team project](../wiki_images/azdo_create_new_teamproject_2.png)
+![Creating the team project](../../../wiki_images/azdo_create_new_teamproject_2.png)
 
 3. Create the project and you will be sent to it's landing page.
 
-![Created the team project](../wiki_images/azdo_create_new_teamproject_7.png)
+![Created the team project](../../../wiki_images/azdo_create_new_teamproject_7.png)
 
 ## Mirroring the upstream repo to your own Azure DevOps instance
 First of all you need to mirror [the upstream github repo](https://github.com/RobHofmann/Azure.PlatformProvisioning) to your own Azure DevOps instance as a working repo. To do this, follow these steps:
@@ -29,69 +29,69 @@ First of all you need to mirror [the upstream github repo](https://github.com/Ro
 
 2. Create a new repository.
 
-![Create new repository](../wiki_images/azdo_create_new_teamproject_3.png)
+![Create new repository](../../../wiki_images/azdo_create_new_teamproject_3.png)
 
 3. For the name fill in `Upstream.Azure.PlatformProvisioning`. Make sure to disable the `Add a README` option and put `Add a .gitignore` to `none`. Hit the `Create` button.
 
-![Create new repository](../wiki_images/azdo_create_new_teamproject_6.png)
+![Create new repository](../../../wiki_images/azdo_create_new_teamproject_6.png)
 
 4. In the repo screen, make sure to have your `Upstream.Azure.PlatformProvisioning` repo selected. Hit the `Import` button
 
-![Mirror repo](../wiki_images/azdo_create_new_teamproject_8.png)
+![Mirror repo](../../../wiki_images/azdo_create_new_teamproject_8.png)
 
 5. Import the `upstream` git repo from GitHub (Enter: https://github.com/RobHofmann/Azure.PlatformProvisioning.git).
 
-![Mirror repo](../wiki_images/azdo_create_new_teamproject_4.png)
+![Mirror repo](../../../wiki_images/azdo_create_new_teamproject_4.png)
 
 6. Give it a second to import the repo.
 
-![Mirror repo](../wiki_images/azdo_create_new_teamproject_5.png)
+![Mirror repo](../../../wiki_images/azdo_create_new_teamproject_5.png)
 
 7. You will now have an imported repository.
 
-![Mirror repo](../wiki_images/azdo_create_new_teamproject_9.png)
+![Mirror repo](../../../wiki_images/azdo_create_new_teamproject_9.png)
 
 ## Expose the docs as a wiki in your DevOps project
 This project also includes documentation next to the scripts. Even better: the document you are reading right now is inside this documentation :). You can publish these docs as a Wiki inside your own Azure DevOps teamproject. Here's how to do it:
 
 1. Go to your teamproject and navigate to `Overview` --> `Wiki`.
 
-![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_1.png)
+![Expose your Docs as Wiki](../../../wiki_images/azdo_publish_docs_as_wiki_1.png)
 
 2. Next, click the `Publish code as Wiki` button.
 
-![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_2.png)
+![Expose your Docs as Wiki](../../../wiki_images/azdo_publish_docs_as_wiki_2.png)
 
 3. Fill in the wiki information as shown on the screenshot below and hit the `Publish` button. The wiki is inside the `Generic repository`.
 
-![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_3.png)
+![Expose your Docs as Wiki](../../../wiki_images/azdo_publish_docs_as_wiki_3.png)
 
 4. You will be redirected to your freshly exposed Wiki which you can now navigate!
 
-![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_4.png)
+![Expose your Docs as Wiki](../../../wiki_images/azdo_publish_docs_as_wiki_4.png)
 
 ## Recommended GIT structure / Company specific repository
 As explained in [Setup Azure DevOps & GIT](#setup-azure-devops-%26-git) we have a setup with a company repo which holds this generic repo. We've done this to create 1 starting point for you and your colleagues to work with both company specific wiki's & scripts as well as the generic wiki & scripts. This is how the repository looks:
 
-![Repository structure](../wiki_images/git_howto_repo_structure.png)
+![Repository structure](../../../wiki_images/git_howto_repo_structure.png)
 
 To create this repository the same way, follow these steps:
 
 1. Create the new company specific repository next to the generic repo you already made in [Mirroring the upstream repo to your own Azure DevOps instance](#mirroring-the-upstream-repo-to-your-own-azure-devops-instance).
 
-![Create company repo](../wiki_images/git_create_company_repo_1.png)
+![Create company repo](../../../wiki_images/git_create_company_repo_1.png)
 
 2. Fill in the information of your company repo (the name in the screenshot is fictional) and click on the `Create` button.
 
-![Create company repo](../wiki_images/git_create_company_repo_2.png)
+![Create company repo](../../../wiki_images/git_create_company_repo_2.png)
 
 3. Get the company cloning address by clicking the `Clone` button in your freshly created repository.
 
-![Create company repo](../wiki_images/git_create_company_repo_3.png)
+![Create company repo](../../../wiki_images/git_create_company_repo_3.png)
 
 4. Copy the clone address by clicking the copy button.
 
-![Create company repo](../wiki_images/git_create_company_repo_4.png)
+![Create company repo](../../../wiki_images/git_create_company_repo_4.png)
 
 5. Open the terminal of your choice (We recommend using Windows Terminal) and navigate to the folder where you want to checkout this repo. Now clone the repo, CD into it, add the submodule & commit & push it back to the server using these commando's (make sure to substitute the variables before running the commands):
 
@@ -128,15 +128,15 @@ First of all, lets assume you are using Visual Studio Code. This example will ma
 
 2. In VsCode when you opened the company specific repo with the submodule as a folder (File --> Open Folder), 
 
-![Commit changes](../wiki_images/commit_changes_1.png)
+![Commit changes](../../../wiki_images/commit_changes_1.png)
 
 3. Under the `Source Control` tab you will see two repositories. Commit & Push the generic repo content (in our case the `Azure.md` file.). This is the bottom one in the following screenshot.
 
-![Commit changes](../wiki_images/commit_changes_2.png)
+![Commit changes](../../../wiki_images/commit_changes_2.png)
 
 4. In the top repo you will see that the submodule file was changed (in the screenshot the file is called `Azure.PlatformProvisioning`). If you click on this change, you will see the following:
 
-![Commit changes](../wiki_images/commit_changes_3.png)
+![Commit changes](../../../wiki_images/commit_changes_3.png)
 
 5. In the screenshot you see that the subproject commit id has changed. This is to reference the new version (commit) of your generic repository. Commit & Push this file to update your company specific repo. At this point, your automatic build-pipeline will start to run.
 
@@ -174,7 +174,7 @@ git pull upstream main
 git push origin main
 ```
 
-![Updated main branch](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_5.png)
+![Updated main branch](../../../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_5.png)
 
 Your repository is now up to date.
 
@@ -194,18 +194,18 @@ git push upstream 20210426
 
 This will create a new branch in the upstream repo. After this you can [create a PR](https://github.com/RobHofmann/Azure.PlatformProvisioning/compare) on github. Select the branch you just created from the "compare" list.
 
-![Select the compare branch](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_1.png)
+![Select the compare branch](../../../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_1.png)
 
 Now confirm the selected branch by clicking the green `Create pull request` button.
 
-![Confirm the branch selection](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_2.png)
+![Confirm the branch selection](../../../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_2.png)
 
 Finally enter the name of your PR (I recommend naming it the same as the branch you created).
 
-![Create a PR on GitHub](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_3.png)
+![Create a PR on GitHub](../../../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_3.png)
 
 Done! From here multiple people will review this PR. Eventually the PR will be accepted or rejected based on the feedback & discussion. Make sure to reply to questions being asked & actively participate in the discussion revolving your PR.
 
-![Accepted & Merged PR](../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_4.png)
+![Accepted & Merged PR](../../../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_4.png)
 
 *A merged pullrequest in the `upstream/main` branch*
