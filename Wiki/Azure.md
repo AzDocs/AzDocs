@@ -97,7 +97,7 @@ Currently we've focussed on the following:
 
 For the most up to date list, please refer to the wikipages under [Azure CLI Snippets](/Azure/Azure-CLI-Snippets)
 
-# Prerequisites
+# Prerequisites before starting with this boilerplate
 - An Azure DevOps instance (you are probably reading this inside one right now).
 - One or more azure subscriptions
 
