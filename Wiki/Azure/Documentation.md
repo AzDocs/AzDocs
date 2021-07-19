@@ -16,7 +16,7 @@ The idea behind this boilerplate is that everyone wants a secure stack without h
 
 Another major reason/benefit to use this boilerplate is because we fixed Azure CLI in Azure DevOps Pipelines. By default, whenever a CLI statement crashes, your pipeline does not always break. We've wrapped all of our statements into the so called `Invoke-Executable` statement which manages this behaviour for you. Next to this huge benefit, it adds another huge benefit: logging. Don't you hate the way of logging within our pipelines? We do too! So we've improved the logging when using this boilerplate. Let me simply show you by a screenshot:
 
-![AzDocs - Invoke Executable](../wiki_images/azdocs_invoke_executable.png)
+![AzDocs - Invoke Executable](../../wiki_images/azdocs_invoke_executable.png)
 
 As you can see, all parameters get printed (secrets will be hidden ofcourse!) and and all actual CLI statements that are being done by the scripts are printed as well. This allows you to quickly debug & fix things going wrong in your pipelines!
 
@@ -67,7 +67,7 @@ The reason for this is that Azure CLI is extremely simple to learn for new devel
 ## Identity Management within Azure
 To avoid registering secrets & maintaining usernames & passwords ourselves, we chose to use managed identities (MI's) as much as possible. This basically means that if a resource supports using a MI, we will automatically enable this in the AzDocs. This also means, for example, you can grant your appservice MI permissions on your underlying data layer (storage accounts etc.). We recommend avoiding storing secrets & user information as much as possible.
 
-There is a generic role assignment script which can assign roles on resources to your managed identity. You can find the script here: [Grant-Permissions-to-ManagedIdentity-on-Resource.ps1](../src/Roles/Grant-Permissions-to-ManagedIdentity-on-Resource.ps1)
+There is a generic role assignment script which can assign roles on resources to your managed identity. You can find the script here: [Grant-Permissions-to-ManagedIdentity-on-Resource.ps1](../../src/Roles/Grant-Permissions-to-ManagedIdentity-on-Resource.ps1)
 
 ## Pipelines
 The idea is that one or more of the scripts from this library will form your pipeline which actually spins up the infra for your software. Please refer to [How to use the scripts](#how-to-use-the-scripts) for more information.
