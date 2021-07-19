@@ -149,7 +149,7 @@ First of all you need to mirror [the upstream github repo](https://github.com/Ro
 ![Mirror repo](../wiki_images/azdo_create_new_teamproject_9.png)
 
 ## Expose the docs as a wiki in your DevOps project
-This project also includes documentation next to the scripts. Even better: the document you are reading right now is inside the documentation :). You can publish these docs as a Wiki inside your own Azure DevOps teamproject. Here's how to do it:
+This project also includes documentation next to the scripts. Even better: the document you are reading right now is inside this documentation :). You can publish these docs as a Wiki inside your own Azure DevOps teamproject. Here's how to do it:
 
 1. Go to your teamproject and navigate to `Overview` --> `Wiki`.
 
@@ -159,7 +159,7 @@ This project also includes documentation next to the scripts. Even better: the d
 
 ![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_2.png)
 
-3. Fill in the wiki information as shown on the screenshot below and hit the `Publish` button.
+3. Fill in the wiki information as shown on the screenshot below and hit the `Publish` button. The wiki is inside the `Generic repository`.
 
 ![Expose your Docs as Wiki](../wiki_images/azdo_publish_docs_as_wiki_3.png)
 
