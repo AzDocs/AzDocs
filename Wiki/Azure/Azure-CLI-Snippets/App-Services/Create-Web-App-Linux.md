@@ -36,6 +36,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | StopAppServiceImmediatelyAfterCreation | <input type="checkbox"> | <input type="checkbox"> | `$true`/`$false` | Stop the App Service directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
 | StopAppServiceSlotImmediatelyAfterCreation | <input type="checkbox"> | <input type="checkbox"> | `$true`/`$false` | Stop the App Service Deploymentslot directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
 
+
 # VNET Whitelisting Parameters
 
 If you want to use "vnet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
