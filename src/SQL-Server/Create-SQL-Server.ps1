@@ -68,17 +68,6 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     & "$PSScriptRoot\Add-Network-Whitelist-to-Sql-Server.ps1" -SqlServerName $SqlServerName -SqlServerResourceGroupName $SqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 }
 
-#TODO: Issue created. You currently seem to have to enable public access before whitelisting subnets is allowed. Issue: https://github.com/Azure/azure-cli/issues/16771
-# Add a firewall rule on SQL Server to allow the AppService vnet
-# Invoke-Executable az sql server vnet-rule create --server $SqlServerName --name "$($ApplicationSubnetName)_allow" --resource-group $SqlServerResourceGroupName --subnet $applicationSubnetId
-# Write-Host "Checking if public access is disabled"
-# if((Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).publicNetworkAccess -eq "Enabled")
-# {
-#      # Update setting for Public Network Access
-#      Write-Host "Public access is enabled. Disabling it now."
-#      Invoke-Executable az sql server update --name $SqlServerName --resource-group $SqlServerResourceGroupName --set publicNetworkAccess="Disabled"
-# }
-
 if ($LogAnalyticsWorkspaceResourceId)
 {
     # Set auditing policy on SQL server

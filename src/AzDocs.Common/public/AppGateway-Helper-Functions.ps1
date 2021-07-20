@@ -328,7 +328,8 @@ function Test-ShouldReplaceCertificate(
         Write-Output $shouldReplaceCertificate
         Write-Footer -ScopedPSCmdlet $PSCmdlet
     }
-    #TODO wat moet die returnen als het bovenstaande niet waar is?
+
+    return $false
 }
 
 # Check if the domain (backend) is healthy
@@ -534,17 +535,21 @@ function Confirm-RewriteRule
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
-    if ($null -eq $currentRule.HeaderName -or $null -eq $currentRule.HeaderValue -or $null -eq $currentRule.ConditionVariable -or $null -eq $currentRule.ConditionPattern -or $null -eq $currentRule.ConditionNegate) {
-        if ($null -eq $newRule.HeaderName -or $null -eq $newRule.HeaderValue -or $null -eq $newRule.ConditionVariable -or $null -eq $newRule.ConditionPattern -or $null -eq $newRule.ConditionNegate) {
+    if ($null -eq $currentRule.HeaderName -or $null -eq $currentRule.HeaderValue -or $null -eq $currentRule.ConditionVariable -or $null -eq $currentRule.ConditionPattern -or $null -eq $currentRule.ConditionNegate)
+    {
+        if ($null -eq $newRule.HeaderName -or $null -eq $newRule.HeaderValue -or $null -eq $newRule.ConditionVariable -or $null -eq $newRule.ConditionPattern -or $null -eq $newRule.ConditionNegate)
+        {
             throw 'Missing one of the propertynames to check on: HeaderName, HeaderValue, ConditionVariable, ConditionPattern and ConditionNegate'
         }
     }
 
-    if ($currentRule.HeaderName -ne $newRule.HeaderName -or $currentRule.HeaderValue -ne $newRule.HeaderValue -or $currentRule.ConditionVariable -ne $newRule.ConditionVariable -or $currentRule.ConditionPattern -ne $newRule.ConditionPattern -or $currentRule.ConditionNegate -ne $newRule.ConditionNegate) {
+    if ($currentRule.HeaderName -ne $newRule.HeaderName -or $currentRule.HeaderValue -ne $newRule.HeaderValue -or $currentRule.ConditionVariable -ne $newRule.ConditionVariable -or $currentRule.ConditionPattern -ne $newRule.ConditionPattern -or $currentRule.ConditionNegate -ne $newRule.ConditionNegate)
+    {
         Write-Host "Values have changed for the rule. Updating."
         Write-Output $true
     }
-    else {
+    else
+    {
         Write-Host "No values have changed for the rule. Continueing."
         Write-Output $false
     }
@@ -806,7 +811,7 @@ function New-ApplicationGatewayEntrypoint
 
     # Add the routing rule
     $gatewayRule = Invoke-Executable -AllowToFail az network application-gateway rule show --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsrule" | ConvertFrom-Json
-    if(!$gatewayRule)
+    if (!$gatewayRule)
     {
         Write-Host "Creating routing rule"
         Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsrule" --http-listener "$dashedDomainName-httpslistener" --address-pool "$dashedDomainName-httpspool" --http-settings "$dashedDomainName-httpssettings" --rule-type $ApplicationGatewayRuleType --resource-group $ApplicationGatewayResourceGroupName | Out-Null
@@ -842,7 +847,7 @@ function New-ApplicationGatewayEntrypoint
 
     # Create routing rule for HTTP to HTTPS
     $gatewayRule = Invoke-Executable -AllowToFail az network application-gateway rule show --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" | ConvertFrom-Json
-    if(!$gatewayRule)
+    if (!$gatewayRule)
     {
         Write-Host "Creating routing rule for HTTP entrypoint"
         Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" | Out-Null

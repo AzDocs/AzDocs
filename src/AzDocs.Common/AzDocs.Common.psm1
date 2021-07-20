@@ -3,9 +3,6 @@
 [cmdletbinding()]
 param()
 
-# todo: Enabling strict mode
-# Set-StrictMode -Version 3.0
-
 Write-Verbose $PSScriptRoot
 $script:ModuleRoot = $PSScriptRoot
 
@@ -25,5 +22,3 @@ foreach ($folder in @('classes', 'private', 'public'))
         }
     }
 }
-
-#Export-ModuleMember -Function (Get-ChildItem -Path "$PSScriptRoot\public\" -Filter '*.ps1' -Recurse).basename
