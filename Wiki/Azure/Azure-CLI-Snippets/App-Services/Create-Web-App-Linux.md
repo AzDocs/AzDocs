@@ -33,6 +33,9 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | EnableAppServiceDeploymentSlot | <input type="checkbox"> | <input type="checkbox"> | If you pass this switch (without value), a deployment slot will be created. |
 | AppServiceDeploymentSlotName | <input type="checkbox"> | <input type="checkbox"> | `'staging'` | Name of the slot to create additional to the production slot. Has the default value of "staging". |
 | DisablePublicAccessForAppServiceDeploymentSlot | <input type="checkbox"> | <input type="checkbox"> | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |
+| StopAppServiceImmediatelyAfterCreation | <input type="checkbox"> | <input type="checkbox"> | `$true`/`$false` | Stop the App Service directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
+| StopAppServiceSlotImmediatelyAfterCreation | <input type="checkbox"> | <input type="checkbox"> | `$true`/`$false` | Stop the App Service Deploymentslot directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
+
 
 # VNET Whitelisting Parameters
 

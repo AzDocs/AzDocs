@@ -12,6 +12,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ---------------------------------- | ------------------------------- | -------------------------------------------- | --------------------------------------------------------- |
 | ContainerRegistryName              | <input type="checkbox" checked> | `customershared$(Release.EnvironmentName)`   | The name of the container registry.                       |
 | ContainerRegistryResourceGroupName | <input type="checkbox" checked> | `Customer-Shared-$(Release.EnvironmentName)` | The resourcegroup where the container registry should be. |
+| ContainerRegistrySku | <input type="checkbox"> | `Premium` | The sku for this registry. Note that for networking options other than "public" you will need the `Premium` sku. Options are `Basic`, `Standar` or `Premium`. |
+| ContainerRegistryEnableAdminUser | <input type="checkbox"> | `$true`/`$false` | Enable the non-ad admin with username & password authentication for this Container Registry. For example: when you use containers in appservices you need this, because it does not support managed identities yet. |
 
 # VNET Whitelisting Parameters
 
