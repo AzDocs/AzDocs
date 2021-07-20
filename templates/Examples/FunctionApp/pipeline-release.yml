@@ -1,0 +1,317 @@
+# Example template to deploy function-app release pipeline
+parameters:
+  - name: SubscriptionName
+    type: string
+  - name: EnvironmentName
+    type: string
+    default: "dev"
+  - name: DeployInfra
+    type: boolean
+    default: true
+  - name: TeamName
+    type: string
+  - name: ProjectName
+    type: string
+  - name: Location
+    type: string
+    default: westeurope
+  - name: EnvironmentResourceType
+    type: string
+    default: ""
+  - name: EnvironmentTags
+    type: string
+    default: ""
+  - name: GatewayCertificate
+    type: string
+
+jobs:
+  - deployment:
+    displayName: "${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    ${{ if ne(parameters.EnvironmentResourceType, '') }}:
+      resourceType: ${{ parameters.EnvironmentResourceType }}
+    ${{ if ne(parameters.EnvironmentTags, '') }}:
+      tags: ${{ parameters.EnvironmentTags }}
+    variables:
+      # Add variable groups for password for certificates
+      - group: "Azure ${{ parameters.EnvironmentName }}"
+
+      # Basic
+      - name: Location
+        value: ${{ parameters.Location }}
+      - name: DeployInfra
+        value: "${{ parameters.DeployInfra }}"
+      - name: ResourceGroupName
+        value: ${{ parameters.TeamName }}-${{ parameters.ProjectName }}-${{ parameters.EnvironmentName }}
+      - name: ResourceTags
+        value: "@('BillingIdentifier=$(Tag.BillingIdentifier)'; 'EnvironmentType=${{ parameters.EnvironmentName }}';  'ApplicationName=$(Tag.ApplicationName)'; 'AppTechOwner=$(Tag.AppTechOwner)'; 'ApplicationOwner=$(Tag.ApplicationOwner)'; 'ApplicationID=$(Tag.ApplicationID)'; 'BusinessUnit=$(Tag.BusinessUnit)'; 'CostType=$(Tag.CostType)'; 'Tier=$(Tag.Tier)')"
+
+      # Vnet/Subnet
+      - name: ApplicationSubnetName
+        value: "subnet"
+      - name: ApplicationVnetName
+        value: "vnet"
+      - name: ApplicationVnetResourceGroupName
+        value: "resourcegroup"
+
+      # Storage
+      - name: StorageAccountName
+        value: "storageaccountname"
+
+      # Function app
+      - name: AppServicePlanName
+        value: "${{ format('appserviceplan-{0}-Linux-1', parameters.EnvironmentName) }}"
+      - name: AppServicePlanResourceGroupName
+        value: "${{ format('appserviceplans-{0}-Linux', parameters.EnvironmentName) }}"
+      - name: FunctionAppResourceGroupName
+        value: "$(ResourceGroupName)"
+      - name: FunctionAppName
+        value: "${{ format('{0}-fctapp', parameters.ProjectName) }}"
+      - name: FunctionAppStorageAccountName
+        value: "$(StorageAccountName)"
+      - name: FunctionAppDiagnosticsName
+        value: "${{ parameters.ProjectName }}-${{ parameters.EnvironmentName }}"
+      - name: AlwaysOn
+        value: True
+      - name: FUNCTIONS_EXTENSION_VERSION
+        value: "~3"
+      - name: ASPNETCORE_ENVIRONMENT
+        value: "development"
+      - name: FunctionAppNumberOfInstances
+        value: "2"
+      - name: FunctionAppDeploymentSlotName
+        value: "staging"
+      - name: GatewayVnetResourceGroupName
+        value: "gateway-vnetresourcegroupname"
+      - name: GatewayVnetName
+        value: "gateway-vnetname"
+      - name: GatewaySubnetName
+        value: "gateway-subnet"
+      - name: GatewayWhitelistRulePriority
+        value: "20"
+      - name: FunctionAppAlwaysOn
+        value: $True
+      - name: FunctionAppRunTime
+        value: "dotnet"
+
+      # Application Insights
+      - name: ApplyToAllSlots
+        value: $True
+      - name: AppInsightsName
+        value: "${{ parameters.ProjectName }}-${{ parameters.EnvironmentName }}"
+      - name: AppInsightsResourceGroupName
+        value: "$(ResourceGroupName)"
+      - name: AppInsightsLocation
+        value: "$(Location)"
+
+      # VNET Integration
+      - name: FunctionAppVnetIntegrationSubnetName
+        value: "subnet"
+      - name: FunctionAppVnetIntegrationVnetName
+        value: "vnet"
+
+        #Public certificate
+      - name: CertificateNameForFunctionApp
+        value: "cert"
+
+        #AppSettings
+      - name: FunctionAppTestSetting
+        value: "test"
+      - name: FunctionAppAppSettings
+        value: "@('Test=$(FunctionAppTestSetting)';)"
+
+        #Connectionstring
+      - name: DbUserName
+        value: "test"
+      - name: FunctionAppConnectionStringsInJson
+        value: '[{"name": "MyConnectionString", "value": "Server=test;Initial Catalog=MyDatabase;User ID=$(DbUserName);Password=$(DbPassword);", "type": "Custom"}, {"name": "MyConnectionString2", "value": "Server=test;Initial Catalog=MyDatabase2;User ID=$(DbUserName);Password=$(DbPassword);", "type": "SQLAzure"}]'
+
+        # Application gateway
+      - name: DomainName
+        ${{ if eq(variables['Stage.Name'], 'prod') }}:
+          value: domain.domain.org
+        ${{ if ne(variables['Stage.Name'], 'prod') }}:
+          value: domain.${{ parameters.EnvironmentName }}.domain.org
+      - name: GatewayName
+        value: "gatewayname"
+      - name: GatewayType
+        value: "Private"
+      - name: SharedServicesKeyvaultName
+        value: "SharedServicesKeyvaultName"
+      - name: BackendDomainName
+        value: $(FunctionAppName).azurewebsites.net
+      - name: HealthProbePath
+        value: "/api/HealthProbe"
+      - name: GatewayRuleType
+        value: "Basic"
+      - name: HealthProbeInterval
+        value: "60"
+      - name: HealthProbeThreshold
+        value: "2"
+      - name: HealthProbeTimeout
+        value: "20"
+      - name: HealthProbeProtocol
+        value: "HTTPS"
+      - name: HttpsSettingsProtocol
+        value: "HTTPS"
+      - name: HttpsSettingsPort
+        value: "443"
+      - name: HttpsSettingsCookieAffinity
+        value: "Disabled"
+      - name: HttpsSettingsConnectionDrainingTimeout
+        value: "0"
+      - name: HttpsSettingsTimeout
+        value: "30"
+      - name: MatchStatusCodes
+        value: "200-399"
+      - name: SharedServicesResourceGroupName
+        value: "SharedServicesResourceGroupName"
+
+      # Log Analytics Workspace
+      - name: LogAnalyticsWorkspaceResourceGroupName
+        value: "loganalyticsworkspaceresourcegroupname"
+      - name: LogAnalyticsWorkspaceName
+        value: "loganalyticsworkspacename"
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # Download the artifact
+            - task: DownloadPipelineArtifact@2
+              inputs:
+                buildType: "specific"
+                project: "projectguid"
+                definition: "594"
+                buildVersionToDownload: "latestFromBranch"
+                branchName: "refs/heads/master"
+                artifactName: "azdocs-src"
+                targetPath: "$(Pipeline.Workspace)/AzDocs"
+            # Call the different tasks you need to be able to deploy your resources
+            # Get your log analytics workspace id, output variable is $(LogAnalyticsWorkspaceResourceId)
+            - task: AzureCLI@2
+              displayName: "Get Log Analytics Workspace Id"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Id-for-Pipeline.ps1"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)'"
+            - task: AzureCLI@2
+              displayName: "Create ResourceGroup"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1"
+                arguments: "-ResourceGroupLocation '$(Location)' -ResourceGroupName '$(ResourceGroupName)' -ResourceTags $(ResourceTags)"
+            - task: AzureCLI@2
+              displayName: "Create Storage account"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1"
+                arguments: "-StorageAccountResourceGroupName '$(ResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(StorageAccountName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+            - task: AzureCLI@2
+              displayName: "Create Function App Linux"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App-Linux.ps1"
+                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppDiagnosticsName '$(FunctionAppDiagnosticsName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -EnableFunctionAppDeploymentSlot"
+            - task: AzureCLI@2
+              displayName: "Create AppInsights Resource"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-AppInsights-Resource.ps1"
+                arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(AppInsightsLocation)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+            - task: AzureCLI@2
+              displayName: "Create Application Insights Extension for FunctionApps codeless"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-FunctionApps-codeless.ps1"
+                arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)'"
+            - task: AzureCLI@2
+              displayName: "Add VNET Integration to FunctionApp"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1"
+                arguments: '-FunctionAppResourceGroupName "$(FunctionAppResourceGroupName)" -FunctionAppName "$(FunctionAppName)" -VnetName "$(FunctionAppVnetIntegrationVnetName)" -FunctionAppVnetIntegrationSubnetName "$(FunctionAppVnetIntegrationSubnetName)"'
+            - task: AzureCLI@2
+              displayName: "Set AppSettings For Function App"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Set-AppSettings-For-Function-App.ps1"
+                arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppAppSettings $(FunctionAppAppSettings) -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: AzureCLI@2
+              displayName: "Set ConnectionStrings For Function App"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Set-ConnectionStrings-For-Function-App.ps1"
+                arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppConnectionStringsInJson '$(FunctionAppConnectionStringsInJson)' -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: AzureCLI@2
+              displayName: "Add Network Whitelist to Function App"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Add-Network-Whitelist-to-Function-App.ps1"
+                arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: DownloadBuildArtifacts@0
+              inputs:
+                buildType: "current"
+                downloadType: "single"
+                artifactName: "functionapp_zip"
+                downloadPath: "$(System.ArtifactsDirectory)"
+            - task: AzureFunctionApp@1
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                appType: "functionAppLinux"
+                appName: "$(FunctionAppName)"
+                deployToSlotOrASE: true
+                resourceGroupName: "$(FunctionAppResourceGroupName)"
+                slotName: "$(FunctionAppDeploymentSlotName)"
+                package: "$(System.ArtifactsDirectory)/functionapp_zip/functionapp.zip"
+                runtimeStack: "DOTNET|3.1"
+            - task: AzureAppServiceManage@0
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                Action: "Swap Slots"
+                WebAppName: "$(FunctionAppName)"
+                ResourceGroupName: "$(FunctionAppResourceGroupName)"
+                SourceSlot: "$(FunctionAppDeploymentSlotName)"
+                PreserveVnet: true
+            - task: AzureCLI@2
+              displayName: "Remove Network Whitelist from Function App"
+              condition: always()
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Remove-Network-Whitelist-from-Function-App.ps1"
+                arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: DownloadSecureFile@1
+              name: wildcardpersonalcloud
+              displayName: "Download wildcard certificate from secure files"
+              inputs:
+                secureFile: ${{ parameters.GatewayCertificate }}
+                retryCount: "5"
+            - task: AzureCLI@2
+              displayName: "Create ApplicationGateway Entrypoint for DomainName"
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1"
+                arguments: '-CertificatePath "$(wildcardpersonalcloud.secureFilePath)" -DomainName "$(DomainName)" -Gatewayname "$(GatewayName)" -gatewayType "$(GatewayType)" -sharedServicesKeyvaultName "$(SharedServicesKeyvaultName)" -certificatePassword "$(WildcardPersonalcloudKpnOrgCertificatePassword)" -backendDomainName "$(BackendDomainName)" -healthProbePath "$(HealthProbePath)" -gatewayruletype "$(GatewayRuleType)" -healthProbeInterval "$(HealthProbeInterval)" -healthProbeThreshold "$(HealthProbeThreshold)" -healthProbeTimeout "$(HealthProbeTimeout)" -healthProbeProtocol "$(HealthProbeProtocol)" -httpsSettingsProtocol "$(HttpsSettingsProtocol)" -httpsSettingsPort "$(HttpsSettingsPort)" -httpsSettingsCookieAffinity "$(HttpsSettingsCookieAffinity)" -httpsSettingsConnectionDrainingTimeout "$(HttpsSettingsConnectionDrainingTimeout)" -httpsSettingsTimeout "$(HttpsSettingsTimeout)" -matchStatusCodes "$(MatchStatusCodes)" -ApplicationGatewayResourceGroupName "$(SharedServicesResourceGroupName)" -CertificateKeyvaultResourceGroupName "$(SharedServicesResourceGroupName)"'

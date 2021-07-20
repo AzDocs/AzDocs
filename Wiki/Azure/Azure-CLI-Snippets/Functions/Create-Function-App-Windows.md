@@ -1,19 +1,22 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will create an Function App if it does not exist. It also adds the mandatory tags to the resources.
 
 The function app is set to https only and the webapp cannot be deployed with ftp(s) for to be compliant with the azure policies.
 
 This snippet also managed the following compliancy rules:
- - HTTPS only
- - Disable FTP
- - Set Tags on this resource
- - Set a Managed Identity for the function app
- - Adds a private endpoint to securely connect to this function app
- - Sets the network configuration to only allow the private endpoint connection
+
+- HTTPS only
+- Disable FTP
+- Set Tags on this resource
+- Set a Managed Identity for the function app
+- Adds a private endpoint to securely connect to this function app
+- Sets the network configuration to only allow the private endpoint connection
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Required | Example Value | Description |
 |--|--|--|--|
@@ -21,7 +24,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AppServicePlanName | <input type="checkbox" checked> | `Shared-ASP-$(Release.EnvironmentName)-Win-1` | The AppService Plan name. Mandatory and and this may be an existing App service plan, Windows App services should use a different App Service Plan then Linux App services|
 | AppServicePlanResourceGroupName | <input type="checkbox" checked> | `Shared-ASP-$(Release.EnvironmentName)-Win` | The ResourceGroup name where the AppServicePlan resides in. |
 | FunctionAppDiagnosticsName | <input type="checkbox" checked> | `azuretestapi-$(Release.EnvironmentName)` | This name will be used as an identifier in the log analytics workspace. It is recommended to use your Application Insights name for this parameter. |
-| LogAnalyticsWorkspaceName | <input type="checkbox" checked> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace the appservice is using for writing its diagnostics settings) |
+| LogAnalyticsWorkspaceResourceId | <input type="checkbox" checked> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace the appservice is using for writing its diagnostics settings) |
 | FunctionAppResourceGroupName | <input type="checkbox" checked> | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your desired Function App will reside in |
 | FunctionAppStorageAccountName | <input type="checkbox" checked> | `azuretestapifunc$(Release.EnvironmentName)storage` | The name of the (pre-existing) storage account which will be the backend storage for this function app |
 | FunctionAppAlwaysOn | <input type="checkbox" checked> | `true`/`false` | Let the function app run in always on mode (this doesn't work for consumption plan function apps) |
@@ -36,31 +39,49 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 # VNET Whitelisting Parameters
 
 If you want to use "vnet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
+
 > NOTE: These parameters are only required when you want to use the VNet whitelisting feature for this resource.
 
-| Parameter | Required for VNET Whitelisting | Example Value | Description |
-|--|--|--|--|
-| GatewayVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your Gateway, resides in. |
-| GatewayVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the Gateway is in|
-| GatewaySubnetName | <input type="checkbox" checked> | `app-subnet-4` | The name of the subnet the Gateway is in |
-| GatewayWhitelistRulePriority | <input type="checkbox" checked> | `20` | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
+| Parameter                    | Required for VNET Whitelisting  | Example Value                        | Description                                                              |
+| ---------------------------- | ------------------------------- | ------------------------------------ | ------------------------------------------------------------------------ |
+| GatewayVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                  | The ResourceGroup where your VNET, for your Gateway, resides in.         |
+| GatewayVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the Gateway is in                                   |
+| GatewaySubnetName            | <input type="checkbox" checked> | `app-subnet-4`                       | The name of the subnet the Gateway is in                                 |
+| GatewayWhitelistRulePriority | <input type="checkbox" checked> | `20`                                 | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
 
 # Private Endpoint Parameters
 
 If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises.
+
 > NOTE: These parameters are only required when you want to use a private endpoint for this resource.
 
-| Parameter | Required for Pvt Endpoint | Example Value | Description |
-|--|--|--|--|
-| FunctionAppPrivateEndpointVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the Function App Private Endpoint in. |
-| FunctionAppPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your Function App Private Endpoint, resides in. |
-| FunctionAppPrivateEndpointSubnetName | <input type="checkbox" checked> | `app-subnet-3` | The subnet to place the private endpoint for this function app in |
-| DNSZoneResourceGroupName | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| FunctionAppPrivateDnsZoneName | <input type="checkbox" checked> | `privatelink.azurewebsites.net` | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurewebsites.net` as value for AppServices. |
+| Parameter                                       | Required for Pvt Endpoint       | Example Value                           | Description                                                                                                          |
+| ----------------------------------------------- | ------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| FunctionAppPrivateEndpointVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`    | The name of the VNET to place the Function App Private Endpoint in.                                                  |
+| FunctionAppPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                     | The ResourceGroup where your VNET, for your Function App Private Endpoint, resides in.                               |
+| FunctionAppPrivateEndpointSubnetName            | <input type="checkbox" checked> | `app-subnet-3`                          | The subnet to place the private endpoint for this function app in                                                    |
+| DNSZoneResourceGroupName                        | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription).            |
+| FunctionAppPrivateDnsZoneName                   | <input type="checkbox" checked> | `privatelink.azurewebsites.net`         | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurewebsites.net` as value for AppServices. |
+
+# YAML
+
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create Function App Windows'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App-Windows.ps1'
+               arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppDiagnosticsName '$(FunctionAppDiagnosticsName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -EnableFunctionAppDeploymentSlot -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -DisablePublicAccessForFunctionAppDeploymentSlot '$(DisablePublicAccessForFunctionAppDeploymentSlot)' -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -FunctionAppPrivateEndpointVnetResourceGroupName '$(FunctionAppPrivateEndpointVnetResourceGroupName)' -FunctionAppPrivateEndpointVnetName '$(FunctionAppPrivateEndpointVnetName)' -FunctionAppPrivateEndpointSubnetName '$(FunctionAppPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -FunctionAppPrivateDnsZoneName '$(FunctionAppPrivateDnsZoneName)'"
+```
 
 # Code
 
 ## Create Windows Function App
+
 The snippet to create a Windows Function App.
 
 [Click here to download this script](../../../../src/Functions/Create-Function-App-Windows.ps1)

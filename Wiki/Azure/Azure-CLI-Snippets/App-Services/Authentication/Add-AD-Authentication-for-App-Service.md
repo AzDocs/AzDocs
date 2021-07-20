@@ -12,20 +12,20 @@ This snippet will enable the following:
 In short, this is about what happens:
 ::: mermaid
 sequenceDiagram
-    participant Client
-    participant AppGateway
-    participant AppService
-    participant AAD
-    Client->>AppGateway: Hey give me this page
-    AppGateway->>AppService: Hey give me this page
-    AppService-->>AppGateway: Please authenticate first!
-    AppGateway->>Client: Please authenticate first!
-    Client->>AAD: Hey i'd like to authenticate. I'm Rob!
-    AAD-->>Client: Ok. Here's your token!
-    Client->>AppGateway: Here's my token. Please give me the page.
-    AppGateway->>AppService: Here's the users token. Please give me the page.
-    AppService-->>AppGateway: Perfect! here's your page!
-    AppGateway-->>Client: Here's your page!
+participant Client
+participant AppGateway
+participant AppService
+participant AAD
+Client->>AppGateway: Hey give me this page
+AppGateway->>AppService: Hey give me this page
+AppService-->>AppGateway: Please authenticate first!
+AppGateway->>Client: Please authenticate first!
+Client->>AAD: Hey i'd like to authenticate. I'm Rob!
+AAD-->>Client: Ok. Here's your token!
+Client->>AppGateway: Here's my token. Please give me the page.
+AppGateway->>AppService: Here's the users token. Please give me the page.
+AppService-->>AppGateway: Perfect! here's your page!
+AppGateway-->>Client: Here's your page!
 :::
 
 # Parameters
@@ -44,6 +44,21 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ApplicationGatewayName | `application-gateway-name` | The name of the Application Gateway |
 | ApplicationGatewayRequestRoutingRuleName | `rule-information-httpsrule` | The name of the request routing rule in the Application Gateway |
 | ApplicationGatewayHealthProbeName | `health-probe-name` | The name of the health probe to update the status codes to |
+
+# YAML
+
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Add AD Authentication for App Service'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Authentication/Add-AD-Authentication-for-App-Service.ps1'
+               arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppRegistrationName '$(AppRegistrationName)' -AppRegistrationRedirectUri '$(AppRegistrationRedirectUri)' -ApplicationGatewayRewriteRuleSetName '$(ApplicationGatewayRewriteRuleSetName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayRequestRoutingRuleName '$(ApplicationGatewayRequestRoutingRuleName)' -ApplicationGatewayHealthProbeName '$(ApplicationGatewayHealthProbeName)'"
+```
 
 # Code
 

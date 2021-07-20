@@ -27,38 +27,56 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AppServicePlanResourceGroupName | <input type="checkbox" checked> | <input type="checkbox" checked> | `Shared-ASP-$(Release.EnvironmentName)-Win` | The ResourceGroup name where the AppServicePlan resides in. |
 | AppServiceResourceGroupName | <input type="checkbox" checked> | <input type="checkbox" checked> | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your desired AppService will reside in |
 | AppServiceRunTime | <input type="checkbox" checked> | <input type="checkbox"> | `'"DOTNETCORE|3.1"'` | The name of the runtime stack. Note: you need to encapsulate this value (even when you pass it as a variable) with a `' " <value> " '` (without spaces), which is needed to mitigate the parsing of the pipe character in this string. If you forget to do this, you will get an error about the runtime which could not be found. For a list of runtimes please use the `az webapp list-runtimes --linux` command [(Documentation here)](https://docs.microsoft.com/en-us/cli/azure/webapp?view=azure-cli-latest#az_webapp_list_runtimes). |
+| AppServiceAlwaysOn | <input type="checkbox"> | <input type="checkbox"> | `true` | OPTIONAL: by default set to true. |
 | ContainerImageName | <input type="checkbox"> | <input type="checkbox" checked> | `thelastpickle/cassandra-reaper:latest` | Docker hub Image name with optional tag. |
 | AppServiceNumberOfInstances | <input type="checkbox"> | <input type="checkbox"> | `2` | OPTIONAL: You can define how much instances of your appservice will be ran (use 2 or more for HA. use 1 if you have server side sessions/stateful apps). The default value (if you don't pass any value) will be 2. |
-| EnableAppServiceDeploymentSlot | <input type="checkbox"> | <input type="checkbox"> | If you pass this switch (without value), a deployment slot will be created. | 
+| EnableAppServiceDeploymentSlot | <input type="checkbox"> | <input type="checkbox"> | If you pass this switch (without value), a deployment slot will be created. |
 | AppServiceDeploymentSlotName | <input type="checkbox"> | <input type="checkbox"> | `'staging'` | Name of the slot to create additional to the production slot. Has the default value of "staging". |
-| DisablePublicAccessForAppServiceDeploymentSlot | <input type="checkbox"> | <input type="checkbox"> | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |  
+| DisablePublicAccessForAppServiceDeploymentSlot | <input type="checkbox"> | <input type="checkbox"> | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |
 | StopAppServiceImmediatelyAfterCreation | <input type="checkbox"> | <input type="checkbox"> | `$true`/`$false` | Stop the App Service directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
 | StopAppServiceSlotImmediatelyAfterCreation | <input type="checkbox"> | <input type="checkbox"> | `$true`/`$false` | Stop the App Service Deploymentslot directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
 
 # VNET Whitelisting Parameters
 
 If you want to use "vnet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
+
 > NOTE: These parameters are only required when you want to use the VNet whitelisting feature for this resource.
 
-| Parameter | Required for VNet whitelisting | Example Value | Description |
-|--|--|--|--|
-| GatewayVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your Gateway, resides in. |
-| GatewayVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the Gateway is in|
-| GatewaySubnetName | <input type="checkbox" checked> | `app-subnet-4` | The name of the subnet the Gateway is in |
-| GatewayWhitelistRulePriority | <input type="checkbox" checked> | `20` | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
+| Parameter                    | Required for VNet whitelisting  | Example Value                        | Description                                                              |
+| ---------------------------- | ------------------------------- | ------------------------------------ | ------------------------------------------------------------------------ |
+| GatewayVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                  | The ResourceGroup where your VNET, for your Gateway, resides in.         |
+| GatewayVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the Gateway is in                                   |
+| GatewaySubnetName            | <input type="checkbox" checked> | `app-subnet-4`                       | The name of the subnet the Gateway is in                                 |
+| GatewayWhitelistRulePriority | <input type="checkbox" checked> | `20`                                 | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
 
 # Private Endpoint Parameters
 
 If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises.
+
 > NOTE: These parameters are only required when you want to use a private endpoint for this resource.
 
-| Parameter | Required for Pvt Endpoint | Example Value | Description |
-|--|--|--|--|
-| AppServicePrivateEndpointVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the App Service Private Endpoint in. |
-| AppServicePrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your App Service Private Endpoint, resides in. |
-| DNSZoneResourceGroupName | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| AppServicePrivateDnsZoneName | <input type="checkbox" checked> | `privatelink.azurewebsites.net` | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurewebsites.net` as value for AppServices. |
-| AppServicePrivateEndpointSubnetName | <input type="checkbox" checked> | `app-subnet-3` | The subnet to place the private endpoint for this appservice in |
+| Parameter                                      | Required for Pvt Endpoint       | Example Value                           | Description                                                                                                          |
+| ---------------------------------------------- | ------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| AppServicePrivateEndpointVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`    | The name of the VNET to place the App Service Private Endpoint in.                                                   |
+| AppServicePrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                     | The ResourceGroup where your VNET, for your App Service Private Endpoint, resides in.                                |
+| DNSZoneResourceGroupName                       | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription).            |
+| AppServicePrivateDnsZoneName                   | <input type="checkbox" checked> | `privatelink.azurewebsites.net`         | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurewebsites.net` as value for AppServices. |
+| AppServicePrivateEndpointSubnetName            | <input type="checkbox" checked> | `app-subnet-3`                          | The subnet to place the private endpoint for this appservice in                                                      |
+
+# YAML
+
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create Web App Linux'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-Linux.ps1'
+               arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceDiagnosticsName '$(AppServiceDiagnosticsName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -DisablePublicAccessForAppServiceDeploymentSlot '$(DisablePublicAccessForAppServiceDeploymentSlot)' -ContainerImageName '$(ContainerImageName)' -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -AppServicePrivateEndpointVnetResourceGroupName '$(AppServicePrivateEndpointVnetResourceGroupName)' -AppServicePrivateEndpointVnetName '$(AppServicePrivateEndpointVnetName)' -AppServicePrivateEndpointSubnetName '$(AppServicePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppServicePrivateDnsZoneName '$(AppServicePrivateDnsZoneName)'"
+```
 
 # Code
 

@@ -6,7 +6,8 @@ param (
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Parameter(Mandatory)][string] $FunctionAppStorageAccountName,
     [Parameter(Mandatory)][string] $FunctionAppDiagnosticsName,
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
+    [Alias("LogAnalyticsWorkspaceName")]
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Alias("AlwaysOn")]
     [Parameter(Mandatory)][string] $FunctionAppAlwaysOn,
     [Parameter(Mandatory)][string] $FUNCTIONS_EXTENSION_VERSION,
@@ -63,20 +64,21 @@ if (!$functionAppId)
 # Enforce HTTPS
 Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=true
 
-# Disable FTPS
-Invoke-Executable az functionapp config set --ids $functionAppId --ftps-state Disabled
-
-# Set number of instances
-Invoke-Executable az functionapp config set --ids $functionAppId --number-of-workers $FunctionAppNumberOfInstances
-
-# Set Always On
-Invoke-Executable az functionapp config set --always-on $AlwaysOn --ids $functionAppId
+# Set Always On, the number of instances and the ftps-state to disable
+Invoke-Executable az functionapp config set --ids $functionAppId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled
 
 # Set some basic configs (including vnet route all)
 Invoke-Executable az functionapp config appsettings set --ids $functionAppId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
 
 #  Create diagnostics settings
-Invoke-Executable az monitor diagnostic-settings create --resource $functionAppId --name $FunctionAppDiagnosticsName --workspace $LogAnalyticsWorkspaceName --logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+Write-Host 'Checking if the provider is registered'
+
+# Get root path and make sure the right provider is registered
+$RootPath = Split-Path $PSScriptRoot -Parent
+& "$RootPath\Resource-Provider\Register-Provider.ps1" -ResourceProviderNamespace 'Microsoft.Insights'
+
+Write-Host 'Adding diagnostic settings'
+Invoke-Executable az monitor diagnostic-settings create --resource $functionAppId --name $FunctionAppDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az functionapp identity assign --ids $functionAppId
@@ -86,53 +88,37 @@ if ($EnableFunctionAppDeploymentSlot)
 {
     Invoke-Executable az functionapp deployment slot create --resource-group $FunctionAppResourceGroupName --name $FunctionAppName  --slot $FunctionAppDeploymentSlotName
     $functionAppStagingId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json).id
-    Invoke-Executable az functionapp config set --ids $functionAppStagingId --ftps-state Disabled --slot $FunctionAppDeploymentSlotName
-    Invoke-Executable az functionapp config set --ids $functionAppStagingId --number-of-workers $FunctionAppNumberOfInstances --slot $FunctionAppDeploymentSlotName
+    Invoke-Executable az functionapp config set --ids $functionAppStagingId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled
     Invoke-Executable az functionapp config appsettings set --ids $functionAppStagingId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
     Invoke-Executable az functionapp identity assign --ids $functionAppStagingId --slot $FunctionAppDeploymentSlotName
+    Invoke-Executable az monitor diagnostic-settings create --resource $functionAppStagingId --name $FunctionAppDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
     if ($DisablePublicAccessForFunctionAppDeploymentSlot)
     {
         $accessRestrictionRuleName = 'DisablePublicAccess'
-        $restrictions = Invoke-Executable az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json
-
-        if (!($restrictions.scmIpSecurityRestrictions | Where-Object { $_.Name -eq $accessRestrictionRuleName }))
-        {
-            Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --action Deny --priority 100000 --description $FunctionAppName --rule-name $accessRestrictionRuleName --ip-address '0.0.0.0/0' --scm-site $true --slot $FunctionAppDeploymentSlotName
-        }
-
-        if (!($restrictions.ipSecurityRestrictions | Where-Object { $_.Name -eq $accessRestrictionRuleName }))
-        {
-            Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --action Deny --priority 100000 --description $FunctionAppName --rule-name $accessRestrictionRuleName --ip-address '0.0.0.0/0' --scm-site $false --slot $FunctionAppDeploymentSlotName
-        }
+        $cidr = '0.0.0.0/0'
+        $accessRestrictionAction = 'Deny'
+        
+        Add-AccessRestriction -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $accessRestrictionRuleName -CIDR $cidr -AccessRestrictionAction $accessRestrictionAction -Priority 100000 -DeploymentSlotName $FunctionAppDeploymentSlotName -AccessRestrictionRuleDescription $FunctionAppName -ApplyToMainEntrypoint $True -ApplyToScmEntrypoint $True -AutoGeneratedAccessRestrictionRuleName $False
     }
 }
 
 # VNET Whitelisting
-if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
+if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 {
+    # REMOVE OLD NAMES
+    $oldAccessRestrictionRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
+    Remove-AccessRestrictionIfExists -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $oldAccessRestrictionRuleName -AutoGeneratedAccessRestrictionRuleName $False
+    # END REMOVE OLD NAMES
+
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
-    # Fetch the Subnet ID where the Application Resides in
-    $gatewaySubnetId = (Invoke-Executable az network vnet subnet show --resource-group $GatewayVnetResourceGroupName --name $GatewaySubnetName --vnet-name $GatewayVnetName | ConvertFrom-Json).id
 
-    # Make sure the service endpoint is enabled for the subnet (for internal routing)
-    Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointServiceIdentifier "Microsoft.Web"
-
-    # Allow the Gateway Subnet to this AppService through a vnet-rule
-    $firewallRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
-    if (!((az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName | ConvertFrom-Json).ipSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
-    {
-        Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority --scm-site $false
-    }
-
-    if (!((az functionapp config access-restriction show --resource-group $FunctionAppResourceGroupName --name $FunctionAppName | ConvertFrom-Json).scmIpSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
-    {
-        Invoke-Executable az functionapp config access-restriction add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority --scm-site $true
-    }
+    # Whitelist VNET
+    & "$PSScriptRoot\Add-Network-Whitelist-to-Function-App.ps1" -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName -AccessRestrictionRuleDescription:$FunctionAppName -Priority $GatewayWhitelistRulePriority -ApplyToMainEntrypoint $true -ApplyToScmEntryPoint $true -SubnetToWhitelistSubnetName $GatewaySubnetName -SubnetToWhitelistVnetName $GatewayVnetName -SubnetToWhitelistVnetResourceGroupName $GatewayVnetResourceGroupName
 }
 
 # Add private endpoint & Setup Private DNS
-if($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName)
+if ($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName)
 {
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information

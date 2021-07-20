@@ -14,6 +14,21 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AppInsightsLocation | -[x] | `West Europe`/`westeurope` | Defines the Azure Location for the App Insights resource to reside in (you can use `az account list-locations -o table` to get a list of locations you can use) |
 | LogAnalyticsWorkspaceResourceId | -[ ] | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace that Application Insights can be linked to. |
 
+# YAML
+
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create AppInsights Resource'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/AppInsights/Create-AppInsights-Resource.ps1'
+               arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(AppInsightsLocation)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+```
+
 # Code
 
 [Click here to download this script](../../../../src/AppInsights/Create-AppInsights-Resource.ps1)

@@ -1,0 +1,38 @@
+# Template for an example build
+parameters:
+  - name: BuildConfiguration
+    type: string
+    default: Release
+  - name: BuildPlatform
+    type: string
+    default: Any CPU
+  - name: ProjectName
+    type: string
+
+steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: "sdk"
+      version: "5.x"
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "restore"
+      projects: "$(ProjectName)"
+      feedsToUse: "select"
+      vstsFeed: "vstsfeedid"
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "test"
+      projects: '\TestApi\TestApiTests.csproj'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "publish"
+      publishWebProjects: false
+      projects: "$(ProjectName)"
+      arguments: '-c $(BuildConfiguration) -o "$(Build.ArtifactStagingDirectory)/website" --no-restore'
+      modifyOutputPath: false
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "$(Build.ArtifactStagingDirectory)/website"
+      ArtifactName: "Website_zip"
+      publishLocation: "Container"

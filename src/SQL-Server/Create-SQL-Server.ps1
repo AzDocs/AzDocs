@@ -42,7 +42,7 @@ if (!(Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --
 # Fetch the resource id for the just created SQL Server
 $sqlServerId = (Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).id
 
-if($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpointVnetName -and $SqlServerPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $SqlServerPrivateDnsZoneName)
+if ($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpointVnetName -and $SqlServerPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $SqlServerPrivateDnsZoneName)
 {
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
@@ -55,31 +55,20 @@ if($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpoint
 }
 
 
-if($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
+if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
+    #REMOVE OLD NAMES
+    $oldAccessRuleName = "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow"
+    Remove-VnetRulesIfExists -ServiceType 'sql' -ResourceGroupName $SqlServerResourceGroupName -ResourceName $SqlServerName -AccessRuleName $oldAccessRuleName
+    # END REMOVE OLD NAMES
+
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
-    # Fetch the Subnet ID where the Application Resides in
-    $applicationSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ApplicationVnetResourceGroupName --name $ApplicationSubnetName --vnet-name $ApplicationVnetName | ConvertFrom-Json).id
-
-    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-    Set-SubnetServiceEndpoint -SubnetResourceId $applicationSubnetId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
-
-    # Allow the Application Subnet to this SQL Server through a vnet-rule
-    Invoke-Executable az sql server vnet-rule create --server $SqlServerName --name "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow" --resource-group $SqlServerResourceGroupName --subnet $applicationSubnetId
+    
+    # Whitelist VNET
+    & "$PSScriptRoot\Add-Network-Whitelist-to-Sql-Server.ps1" -SqlServerName $SqlServerName -SqlServerResourceGroupName $SqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 }
 
-#TODO: Issue created. You currently seem to have to enable public access before whitelisting subnets is allowed. Issue: https://github.com/Azure/azure-cli/issues/16771
-# Add a firewall rule on SQL Server to allow the AppService vnet
-# Invoke-Executable az sql server vnet-rule create --server $SqlServerName --name "$($ApplicationSubnetName)_allow" --resource-group $SqlServerResourceGroupName --subnet $applicationSubnetId
-# Write-Host "Checking if public access is disabled"
-# if((Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).publicNetworkAccess -eq "Enabled")
-# {
-#      # Update setting for Public Network Access
-#      Write-Host "Public access is enabled. Disabling it now."
-#      Invoke-Executable az sql server update --name $SqlServerName --resource-group $SqlServerResourceGroupName --set publicNetworkAccess="Disabled"
-# }
-
-if($LogAnalyticsWorkspaceResourceId)
+if ($LogAnalyticsWorkspaceResourceId)
 {
     # Set auditing policy on SQL server
     Install-Module PowerShellGet -Force

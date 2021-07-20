@@ -26,13 +26,28 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
 | AppServicePrivateDnsZoneName | `privatelink.azurewebsites.net` | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurewebsites.net` as value for AppServices.
 | AppServiceResourceGroupName| `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your desired AppService will reside in |
-| EnableAppServiceDeploymentSlot | If you pass this switch (without value), a deployment slot will be created. | 
+| EnableAppServiceDeploymentSlot | If you pass this switch (without value), a deployment slot will be created. |
 | AppServiceDeploymentSlotName | `'staging'` | Name of the slot to create additional to the production slot. Has the default value of "staging". |
 | DisablePublicAccessForAppServiceDeploymentSlot | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |  
 | AppServicePrivateEndpointVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the App Service Private Endpoint in. |
 | AppServicePrivateEndpointVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your App Service Private Endpoint, resides in. |
 | AppServicePlanNumberOfWorkerInstances | `3` | OPTIONAL: The amount of worker instances you want for this appservice plan. For high availability, choose 2 or more. The default value (if you don't pass any value) will be 3. |
 | AppServiceNumberOfInstances | `2` | OPTIONAL: You can define how much instances of your appservice will be ran (use 2 or more for HA. use 1 if you have server side sessions/stateful apps). The default value (if you don't pass any value) will be 2. |
+
+# YAML
+
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create Web App with App Service Plan Windows'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-with-App-Service-Plan-Windows.ps1'
+               arguments: "-AppServicePrivateEndpointVnetResourceGroupName '$(AppServicePrivateEndpointVnetResourceGroupName)' -AppServicePrivateEndpointVnetName '$(AppServicePrivateEndpointVnetName)' -AppServicePrivateEndpointSubnetName '$(AppServicePrivateEndpointSubnetName)' -AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServicePlanSkuName '$(AppServicePlanSkuName)' -ResourceTags $(ResourceTags) -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceDiagnosticsName '$(AppServiceDiagnosticsName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppServicePrivateDnsZoneName '$(AppServicePrivateDnsZoneName)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServicePlanNumberOfWorkerInstances '$(AppServicePlanNumberOfWorkerInstances)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -EnableAppServiceDeploymentSlot -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -DisablePublicAccessForAppServiceDeploymentSlot '$(DisablePublicAccessForAppServiceDeploymentSlot)'"
+```
 
 # Code
 

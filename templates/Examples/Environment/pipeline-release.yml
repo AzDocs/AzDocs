@@ -1,0 +1,197 @@
+# Example template to deploy release pipeline
+parameters:
+  - name: SubscriptionName
+    type: string
+  - name: EnvironmentName
+    type: string
+    default: "dev"
+  - name: DeployInfra
+    type: boolean
+    default: true
+  - name: Location
+    type: string
+    default: westeurope
+  - name: ProjectName
+    type: string
+  - name: EnvironmentResourceType
+    type: string
+    default: ""
+  - name: EnvironmentTags
+    type: string
+    default: ""
+
+jobs:
+  - deployment:
+    displayName: "${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    ${{ if ne(parameters.EnvironmentResourceType, '') }}:
+      resourceType: ${{ parameters.EnvironmentResourceType }}
+    ${{ if ne(parameters.EnvironmentTags, '') }}:
+      tags: ${{ parameters.EnvironmentTags }}
+    variables:
+      # Add your variables here.
+
+      # Basics
+      - name: DeployInfra
+        value: "${{ parameters.DeployInfra }}"
+      - name: ComponentName
+        value: Shared
+      - name: ResourceBaseName
+        value: $(ProjectName)-$(ComponentName)
+      - name: ResourceGroupName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: Location
+        value: ${{ parameters.Location }}
+      - name: ResourceTags
+        value: "@('BillingIdentifier=$(Tag.BillingIdentifier)'; 'EnvironmentType=${{ parameters.EnvironmentName }}';  'ApplicationName=$(Tag.ApplicationName)'; 'AppTechOwner=$(Tag.AppTechOwner)'; 'ApplicationOwner=$(Tag.ApplicationOwner)'; 'ApplicationID=$(Tag.ApplicationID)'; 'BusinessUnit=$(Tag.BusinessUnit)'; 'CostType=$(Tag.CostType)'; 'Tier=$(Tag.Tier)')"
+
+      # Log Analytics Workspace
+      - name: LogAnalyticsWorkspaceResourceGroupName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: LogAnalyticsWorkspaceName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: LogAnalyticsWorkspaceRetentionInDays
+        value: 90
+      - name: LogAnalyticsWorkspaceSolutionTypes
+        value: "@('VMInsights', 'AlertManagement')"
+
+      # App Service Plan
+      - name: AppServicePlanName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: AppServicePlanResourceGroupName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: AppServicePlanSkuName
+        value: P1v3
+      - name: AppServicePlanNumberOfWorkerInstances
+        value: 3
+
+      # VNet
+      - name: VnetResourceGroupName
+        value: $(ResourceGroupName)
+      - name: VnetName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: VnetCidr
+        value: VnetCidr
+
+        # Certificate KeyVault
+      - name: KeyvaultResourceGroupName
+        value: $(ResourceGroupName)
+      - name: KeyvaultDiagnosticsName
+        value: $(CertificateKeyvaultName)
+      - name: ApplicationVnetResourceGroupName
+        value: $(ResourceGroupName)
+      - name: ApplicationVnetName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: ApplicationSubnetName
+        value: $(ApplicationGatewaySubnetName)
+
+      # Application Gateway
+      - name: ApplicationGatewayName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: ApplicationGatewayResourceGroupName
+        value: $(ResourceGroupName)
+      - name: ApplicationGatewayVnetName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: ApplicationGatewayVnetResourceGroupName
+        value: $(ResourceGroupName)
+      - name: ApplicationGatewaySubnetName
+        value: gateway-subnet
+      - name: ApplicationGatewaySubnet
+        value: gatewaysubnet
+      - name: ApplicationGatewayCapacity
+        value: 1
+      - name: ApplicationGatewaySku
+        value: ApplicationGatewaySku
+      - name: CertificateKeyvaultName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+      - name: CertificateKeyvaultResourceGroupName
+        value: $(ResourceGroupName)
+      - name: ApplicationGatewayPolicyType
+        value: Custom
+      - name: ApplicationGatewayMinimalProtocolVersion
+        value: ApplicationGatewayMinimalProtocolVersion
+      - name: ApplicationGatewayCipherSuites
+        value: "gatewayciphersuites"
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # Download the artifact
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: "specific"
+                project: "projectguid"
+                definition: "439"
+                buildVersionToDownload: "latestFromBranch"
+                branchName: "refs/heads/master"
+                artifactName: "azdocs-src"
+                targetPath: "$(Pipeline.Workspace)/AzDocs"
+            # Call the different tasks you need to be able to deploy your resources
+            - task: AzureCLI@2
+              displayName: "Create ResourceGroup"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1"
+                arguments: "-ResourceGroupLocation '$(Location)' -ResourceGroupName '$(ResourceGroupName)' -ResourceTags $(ResourceTags)"
+            - task: AzureCLI@2
+              displayName: "Create Log Analytics Workspace"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Create-Log-Analytics-Workspace.ps1"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -LogAnalyticsWorkspaceRetentionInDays '$(LogAnalyticsWorkspaceRetentionInDays)' -PublicInterfaceIngestionEnabled -PublicInterfaceQueryAccess -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceSolutionTypes $(LogAnalyticsWorkspaceSolutionTypes)"
+            # Get your log analytics workspace id, output variable is $(LogAnalyticsWorkspaceResourceId)
+            - task: AzureCLI@2
+              displayName: "Get Log Analytics Workspace Id"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Id-for-Pipeline.ps1"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)'"
+            - task: AzureCLI@2
+              displayName: "Create subnet with VNET if needed"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1"
+                arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(ApplicationGatewaySubnetName)' -Subnet '$(ApplicationGatewaySubnet)' -ResourceTags $(ResourceTags)"
+            - task: AzureCLI@2
+              displayName: "Create Keyvault"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1"
+                arguments: "-KeyvaultName '$(CertificateKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -KeyvaultDiagnosticsName '$(KeyvaultDiagnosticsName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+            - task: AzureCLI@2
+              displayName: "Create Application Gateway"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway.ps1"
+                arguments: "-ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayVnetName '$(ApplicationGatewayVnetName)' -ApplicationGatewayVnetResourceGroupName '$(ApplicationGatewayVnetResourceGroupName)' -ApplicationGatewaySubnetName '$(ApplicationGatewaySubnetName)' -ApplicationGatewayCapacity '$(ApplicationGatewayCapacity)' -ApplicationGatewaySku '$(ApplicationGatewaySku)' -CertificateKeyvaultName '$(CertificateKeyvaultName)' -CertificateKeyvaultResourceGroupName '$(CertificateKeyvaultResourceGroupName)'"
+            - task: AzureCLI@2
+              displayName: "Set Application Gateway SSLTLS Settings"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Set-Application-Gateway-SSLTLS-Settings.ps1"
+                arguments: "-ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayPolicyType '$(ApplicationGatewayPolicyType)' -ApplicationGatewayMinimalProtocolVersion '$(ApplicationGatewayMinimalProtocolVersion)' -ApplicationGatewayCipherSuites $(ApplicationGatewayCipherSuites)"
+            - task: AzureCLI@2
+              displayName: "Create App Service Plan Linux"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Create-App-Service-Plan-Linux.ps1"
+                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServicePlanSkuName '$(AppServicePlanSkuName)' -AppServicePlanNumberOfWorkerInstances '$(AppServicePlanNumberOfWorkerInstances)' -ResourceTags $(ResourceTags)"

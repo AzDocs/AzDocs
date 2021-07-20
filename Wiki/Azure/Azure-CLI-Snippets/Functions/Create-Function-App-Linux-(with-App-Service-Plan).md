@@ -12,6 +12,7 @@ This script will call the following 2 scripts in order (please refer to those sc
 [Create-Function-App-Linux](/Azure/Azure-CLI-Snippets/Functions/Create-Function-App-Linux)
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Example Value | Description |
 |--|--|--|
@@ -21,7 +22,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | FunctionAppPrivateEndpointSubnetName | `app-subnet-3` | The subnet to place the private endpoint for this function app in |
 | AppServicePlanResourceGroupName | `Shared-ASP-$(Release.EnvironmentName)-Linux` | The ResourceGroup name where the AppServicePlan resides in. |
 | FunctionAppDiagnosticsName | `azuretestapi-$(Release.EnvironmentName)` | This name will be used as an identifier in the log analytics workspace. It is recommended to use your Application Insights name for this parameter. |
-| LogAnalyticsWorkspaceName | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace the appservice is using for writing its diagnostics settings) |
+| LogAnalyticsWorkspaceResourceId | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace the appservice is using for writing its diagnostics settings) |
 | DNSZoneResourceGroupName | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
 | FunctionAppPrivateDnsZoneName | `privatelink.azurewebsites.net` | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurewebsites.net` as value for AppServices.
 | FunctionAppResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your desired Function App will reside in |
@@ -31,14 +32,31 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ASPNETCORE_ENVIRONMENT | `Development` | Use either `Development`, `Acceptance` or `Production`. NOTE: `Development` and `Production` have features which are provided by the framework. [Read more here](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments) |
 | FunctionAppPrivateEndpointVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the Function App Private Endpoint in. |
 | FunctionAppPrivateEndpointVnetResourceGroupName | `sharedservices-rg` | The ResourceGroup where your VNET, for your Function App Private Endpoint, resides in. |
-| EnableFunctionAppDeploymentSlot | If you pass this switch (without value), a deployment slot will be created. | 
+| EnableFunctionAppDeploymentSlot | If you pass this switch (without value), a deployment slot will be created. |
 | FunctionAppDeploymentSlotName | `staging` | Name of the slot to create additional to the production slot. Has the default value of "staging". |
 | DisablePublicAccessForFunctionAppDeploymentSlot | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |  
 | AppServicePlanNumberOfWorkerInstances | `3` | OPTIONAL: The amount of worker instances you want for this appservice plan. For high availability, choose 2 or more. The default value (if you don't pass any value) will be 3. |
 | FunctionAppNumberOfInstances | `2` | OPTIONAL: You can define how much instances of your functions will be ran (use 2 or more for HA. use 1 if you have server side sessions/stateful apps). The default value (if you don't pass any value) will be 2. |
 
+# YAML
+
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create Function App with App Service Plan Linux'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App-with-App-Service-Plan-Linux.ps1'
+               arguments: "-FunctionAppPrivateEndpointVnetResourceGroupName '$(FunctionAppPrivateEndpointVnetResourceGroupName)' -FunctionAppPrivateEndpointVnetName '$(FunctionAppPrivateEndpointVnetName)' -FunctionAppPrivateEndpointSubnetName '$(FunctionAppPrivateEndpointSubnetName)' -AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServicePlanSkuName '$(AppServicePlanSkuName)' -ResourceTags $(ResourceTags) -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppDiagnosticsName '$(FunctionAppDiagnosticsName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -FunctionAppPrivateDnsZoneName '$(FunctionAppPrivateDnsZoneName)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -EnableFunctionAppDeploymentSlot -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -DisablePublicAccessForFunctionAppDeploymentSlot '$(DisablePublicAccessForFunctionAppDeploymentSlot)' -AppServicePlanNumberOfWorkerInstances '$(AppServicePlanNumberOfWorkerInstances)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)'"
+```
+
 # Code
+
 ## Create Linux FunctionApp
-The snippet to create a Linux Function App & ASP. Note that there can be no Windows App Service Plan in the same resourcegroup. This snippet will also create the app service plan if it does not exist. 
+
+The snippet to create a Linux Function App & ASP. Note that there can be no Windows App Service Plan in the same resourcegroup. This snippet will also create the app service plan if it does not exist.
 
 [Click here to download this script](../../../../src/Functions/Create-Function-App-with-App-Service-Plan-Linux.ps1)

@@ -1,10 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)]
-    [String] $KeyVaultName,
-
-    [Parameter(Mandatory)]
-    [String] $KeyName
+    [Parameter(Mandatory)][String] $KeyVaultName,
+    [Parameter(Mandatory)][String] $KeyName
 )
 
 #region ===BEGIN IMPORTS===

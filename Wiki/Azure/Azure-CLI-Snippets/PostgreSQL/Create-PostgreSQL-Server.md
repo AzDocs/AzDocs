@@ -1,49 +1,67 @@
 [[_TOC_]]
 
 # Description
+
 This snippet will create a PostgreSQL Server if it does not exist within a given subnet. It will whitelist the application subnet so your app can connect to the SQL Server within the vnet. All the needed components (private endpoint, service endpoint etc) will be created too.
 
 # Parameters
+
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter | Required | Example Value | Description |
-|--|--|--|--|
-| PostgreSqlServerPassword | <input type="checkbox" checked> | `#$mydatabas**e` | The password for the PostgreSql server username |
-| PostgreSqlServerUsername | <input type="checkbox" checked> | `rob` | The admin username for the PostgreSql server |
-| PostgreSqlServerName | <input type="checkbox" checked> | `somesqlserver$(Release.EnvironmentName)` | The name for the PostgreSQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.|
-| PostgreSqlServerResourceGroupName | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your PostgreSql server to be created in |
-| PostgreSqlServerSku | <input type="checkbox" checked> | `GP_Gen5_2` | The SKU to use for this server. This will determine the performancetier |
-| BackupRetentionInDays | <input type="checkbox"> | `7` | The number of days you want the backup retention to be | 
-| PostgreSqlServerVersion | <input type="checkbox"> | `11` | Define the version of postgresql to use. This defaults to v11 |
-| PostgreSqlServerPublicNetworkAccess | <input type="checkbox"> | `Enabled`/`Disabled` | Enable or disable the public endpoint. When using VNet Whitelisting this will forcefully be enabled. In this case the VNet whitelist will only allow access from your VNets via the public interface (this might be confusing). If you are ONLY using Private Endpoints, you can disable public access. The default value is set to `Disabled` with an forced override to `Enabled` if you use VNet whitelisting. |
-
+| Parameter                           | Required                        | Example Value                               | Description                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------- | ------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PostgreSqlServerPassword            | <input type="checkbox" checked> | `#$mydatabas**e`                            | The password for the PostgreSql server username                                                                                                                                                                                                                                                                                                                                                                   |
+| PostgreSqlServerUsername            | <input type="checkbox" checked> | `rob`                                       | The admin username for the PostgreSql server                                                                                                                                                                                                                                                                                                                                                                      |
+| PostgreSqlServerName                | <input type="checkbox" checked> | `somesqlserver$(Release.EnvironmentName)`   | The name for the PostgreSQL Server resource. It's recommended to use just alphanumerical characters without hyphens etc.                                                                                                                                                                                                                                                                                          |
+| PostgreSqlServerResourceGroupName   | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your PostgreSql server to be created in                                                                                                                                                                                                                                                                                                                                    |
+| PostgreSqlServerSku                 | <input type="checkbox" checked> | `GP_Gen5_2`                                 | The SKU to use for this server. This will determine the performancetier                                                                                                                                                                                                                                                                                                                                           |
+| BackupRetentionInDays               | <input type="checkbox">         | `7`                                         | The number of days you want the backup retention to be                                                                                                                                                                                                                                                                                                                                                            |
+| PostgreSqlServerVersion             | <input type="checkbox">         | `11`                                        | Define the version of postgresql to use. This defaults to v11                                                                                                                                                                                                                                                                                                                                                     |
+| PostgreSqlServerPublicNetworkAccess | <input type="checkbox">         | `Enabled`/`Disabled`                        | Enable or disable the public endpoint. When using VNet Whitelisting this will forcefully be enabled. In this case the VNet whitelist will only allow access from your VNets via the public interface (this might be confusing). If you are ONLY using Private Endpoints, you can disable public access. The default value is set to `Disabled` with an forced override to `Enabled` if you use VNet whitelisting. |
 
 # VNET Whitelisting Parameters
 
 If you want to use "vnet whitelisting" on your resource. Use these parameters. Using VNET Whitelisting is the recommended way of building & connecting your application stack within Azure.
+
 > NOTE: These parameters are only required when you want to use the VNet whitelisting feature for this resource.
 
-| Parameter | Required for VNET Whitelisting | Example Value | Description |
-|--|--|--|--|
-| ApplicationVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the appservice is in|
-| ApplicationVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your appservice, resides in. |
-| ApplicationSubnetName | <input type="checkbox" checked> | `app-subnet-4` | The name of the subnet the appservice is in |
+| Parameter                        | Required for VNET Whitelisting  | Example Value                        | Description                                                         |
+| -------------------------------- | ------------------------------- | ------------------------------------ | ------------------------------------------------------------------- |
+| ApplicationVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the appservice is in                           |
+| ApplicationVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                  | The ResourceGroup where your VNET, for your appservice, resides in. |
+| ApplicationSubnetName            | <input type="checkbox" checked> | `app-subnet-4`                       | The name of the subnet the appservice is in                         |
 
 # Private Endpoint Parameters
 
 If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises.
+
 > NOTE: These parameters are only required when you want to use a private endpoint for this resource.
 
-| Parameter | Required for Pvt Endpoint | Example Value | Description |
-|--|--|--|--|
-| PostgreSqlServerPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The ResourceGroup where your VNET, for your PostgreSQL Server Private Endpoint, resides in. |
-| PostgreSqlServerPrivateEndpointVnetName | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to place the PostgreSQL Server Private Endpoint in. |
-| PostgreSqlServerPrivateEndpointSubnetName | <input type="checkbox" checked> | `app-subnet-3` | The name of the subnet you want your sql server's private endpoint to be in |
-| DNSZoneResourceGroupName | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
-| PostgreSqlServerPrivateDnsZoneName | <input type="checkbox" checked> | `privatelink.postgres.database.windows.net` | The name of DNS zone where your private endpoint will be created in. If you are unsure use `privatelink.database.windows.net` |
+| Parameter                                            | Required for Pvt Endpoint       | Example Value                               | Description                                                                                                                   |
+| ---------------------------------------------------- | ------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| PostgreSqlServerPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                         | The ResourceGroup where your VNET, for your PostgreSQL Server Private Endpoint, resides in.                                   |
+| PostgreSqlServerPrivateEndpointVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`        | The name of the VNET to place the PostgreSQL Server Private Endpoint in.                                                      |
+| PostgreSqlServerPrivateEndpointSubnetName            | <input type="checkbox" checked> | `app-subnet-3`                              | The name of the subnet you want your sql server's private endpoint to be in                                                   |
+| DNSZoneResourceGroupName                             | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)`     | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription).                     |
+| PostgreSqlServerPrivateDnsZoneName                   | <input type="checkbox" checked> | `privatelink.postgres.database.windows.net` | The name of DNS zone where your private endpoint will be created in. If you are unsure use `privatelink.database.windows.net` |
 
+# YAML
+
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
+```yaml
+        - task: AzureCLI@2
+           displayName: 'Create PostgreSQL Server'
+           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+           inputs:
+               azureSubscription: '${{ parameters.SubscriptionName }}'
+               scriptType: pscore
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/PostgreSQL/Create-PostgreSQL-Server.ps1'
+               arguments: "-PostgreSqlServerPassword '$(PostgreSqlServerPassword)' -PostgreSqlServerUsername '$(PostgreSqlServerUsername)' -PostgreSqlServerName '$(PostgreSqlServerName)' -PostgreSqlServerResourceGroupName '$(PostgreSqlServerResourceGroupName)' -PostgreSqlServerSku '$(PostgreSqlServerSku)' -BackupRetentionInDays '$(BackupRetentionInDays)' -PostgreSqlServerVersion '$(PostgreSqlServerVersion)' -PostgreSqlServerPublicNetworkAccess '$(PostgreSqlServerPublicNetworkAccess)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -PostgreSqlServerPrivateEndpointVnetResourceGroupName '$(PostgreSqlServerPrivateEndpointVnetResourceGroupName)' -PostgreSqlServerPrivateEndpointVnetName '$(PostgreSqlServerPrivateEndpointVnetName)' -PostgreSqlServerPrivateEndpointSubnetName '$(PostgreSqlServerPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -PostgreSqlServerPrivateDnsZoneName '$(PostgreSqlServerPrivateDnsZoneName)'"
+```
 
 # Code
+
 [Click here to download this script](../../../../src/PostgreSQL/Create-PostgreSQL-Server.ps1)
 
 # Links

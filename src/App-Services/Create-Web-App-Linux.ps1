@@ -12,6 +12,7 @@ param (
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     [Parameter()][bool] $StopAppServiceImmediatelyAfterCreation = $false,
     [Parameter()][bool] $StopAppServiceSlotImmediatelyAfterCreation = $false,
+    [Parameter()][bool] $AppServiceAlwaysOn = $true,
     
     # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
@@ -79,14 +80,15 @@ $webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-
 # Enforce HTTPS
 Invoke-Executable az webapp update --ids $webAppId --https-only true
 
-# Disable FTPS
-Invoke-Executable az webapp config set --ids $webAppId --ftps-state Disabled
-
-# Set number of instances
-Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppServiceNumberOfInstances
+# Set Always On, the number of instances and the ftps-state to disable
+Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled
 
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
+
+# Get root path and make sure the right provider is registered
+$RootPath = Split-Path $PSScriptRoot -Parent
+& "$RootPath\Resource-Provider\Register-Provider.ps1" -ResourceProviderNamespace 'Microsoft.Insights'
 
 #  Create diagnostics settings
 Invoke-Executable az monitor diagnostic-settings create --resource $webAppId --name $AppServiceDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
@@ -105,53 +107,37 @@ if ($EnableAppServiceDeploymentSlot)
     }
 
     $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json).id
-    Invoke-Executable az webapp config set --ids $webAppStagingId --ftps-state Disabled --slot $AppServiceDeploymentSlotName
-    Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --slot $AppServiceDeploymentSlotName
+    Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceDeploymentSlotName
+    Invoke-Executable az monitor diagnostic-settings create --resource $webAppStagingId --name $AppServiceDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
     
     if ($DisablePublicAccessForAppServiceDeploymentSlot)
     {
         $accessRestrictionRuleName = 'DisablePublicAccess'
-        $restrictions = Invoke-Executable az webapp config access-restriction show --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json
+        $cidr = '0.0.0.0/0'
+        $accessRestrictionAction = 'Deny'
         
-        if (!($restrictions.scmIpSecurityRestrictions | Where-Object { $_.Name -eq $accessRestrictionRuleName }))
-        {
-            Invoke-Executable az webapp config access-restriction add --resource-group $AppServiceResourceGroupName --name $AppServiceName --action Deny --priority 100000 --description $AppServiceName --rule-name $accessRestrictionRuleName --ip-address '0.0.0.0/0' --scm-site $true --slot $AppServiceDeploymentSlotName
-        }
-
-        if (!($restrictions.ipSecurityRestrictions | Where-Object { $_.Name -eq $accessRestrictionRuleName }))
-        {
-            Invoke-Executable az webapp config access-restriction add --resource-group $AppServiceResourceGroupName --name $AppServiceName --action Deny --priority 100000 --description $AppServiceName --rule-name $accessRestrictionRuleName --ip-address '0.0.0.0/0' --scm-site $false --slot $AppServiceDeploymentSlotName
-        }
+        Add-AccessRestriction -AppType webapp -ResourceGroupName $AppServiceResourceGroupName -ResourceName $AppServiceName -AccessRestrictionRuleName $accessRestrictionRuleName -CIDR $cidr -AccessRestrictionAction $accessRestrictionAction -Priority 100000 -DeploymentSlotName $AppServiceDeploymentSlotName -AccessRestrictionRuleDescription $AppServiceName -ApplyToMainEntrypoint $True -ApplyToScmEntrypoint $True -AutoGeneratedAccessRestrictionRuleName $False
     }
 }
 
 # VNET Whitelisting
-if($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
+if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 {
+    # REMOVE OLD NAMES
+    $oldAccessRestrictionRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
+    Remove-AccessRestrictionIfExists -AppType webapp -ResourceGroupName $AppServiceResourceGroupName -ResourceName $AppServiceName -AccessRestrictionRuleName $oldAccessRestrictionRuleName -AutoGeneratedAccessRestrictionRuleName $False
+    # END REMOVE OLD NAMES
+
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
-    # Fetch the Subnet ID where the Application Resides in
-    $gatewaySubnetId = (Invoke-Executable az network vnet subnet show --resource-group $GatewayVnetResourceGroupName --name $GatewaySubnetName --vnet-name $GatewayVnetName | ConvertFrom-Json).id
 
-    # Make sure the service endpoint is enabled for the subnet (for internal routing)
-    Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointServiceIdentifier "Microsoft.Web"
-
-    # Allow the Gateway Subnet to this AppService through a vnet-rule
-    $firewallRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
-    if (!((az webapp config access-restriction show --resource-group $AppServiceResourceGroupName --name $AppServiceName | ConvertFrom-Json).ipSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
-    {
-        Invoke-Executable az webapp config access-restriction add --resource-group $AppServiceResourceGroupName --name $AppServiceName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority --scm-site $false
-    }
-
-    if (!((az webapp config access-restriction show --resource-group $AppServiceResourceGroupName --name $AppServiceName | ConvertFrom-Json).scmIpSecurityRestrictions | Where-Object { $_.name -eq $firewallRuleName }))
-    {
-        Invoke-Executable az webapp config access-restriction add --resource-group $AppServiceResourceGroupName --name $AppServiceName --rule-name $firewallRuleName --action Allow --subnet $gatewaySubnetId --priority $GatewayWhitelistRulePriority --scm-site $true
-    }
+    # Whitelist VNET
+    & "$PSScriptRoot\Add-Network-Whitelist-to-App-Service.ps1" -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AccessRestrictionRuleDescription:$AppServiceName -Priority $GatewayWhitelistRulePriority -ApplyToMainEntrypoint $true -ApplyToScmEntryPoint $true -SubnetToWhitelistSubnetName $GatewaySubnetName -SubnetToWhitelistVnetName $GatewayVnetName -SubnetToWhitelistVnetResourceGroupName $GatewayVnetResourceGroupName
 }
 
 # Add private endpoint & Setup Private DNS
-if($AppServicePrivateEndpointVnetResourceGroupName -and $AppServicePrivateEndpointVnetName -and $AppServicePrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $AppServicePrivateDnsZoneName)
+if ($AppServicePrivateEndpointVnetResourceGroupName -and $AppServicePrivateEndpointVnetName -and $AppServicePrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $AppServicePrivateDnsZoneName)
 {
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information

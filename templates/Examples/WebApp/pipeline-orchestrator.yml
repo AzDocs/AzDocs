@@ -1,0 +1,86 @@
+# Template example for the pipeline-orchestrator
+name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - pipeline-orchestrator.yml
+      - pipeline-build.yml
+      - pipeline-release.yml
+
+# it is important to pick a specific version so that you have the possibility to run a version with the exact same version agent.
+pool:
+  vmImage: "ubuntu-20.04"
+
+variables:
+  # Basic
+  - name: TeamName
+    value: Team
+  - name: ProjectName
+    value: ProjectName
+
+  # Tags
+  - name: Tag.ApplicationId
+    value: 1234
+  - name: Tag.ApplicationName
+    value: applicationname
+  - name: Tag.ApplicationOwner
+    value: owner
+  - name: Tag.AppTechOwner
+    value: owner
+  - name: Tag.BillingIdentifier
+    value: 1234
+  - name: Tag.BusinessUnit
+    value: businessunit
+  - name: Tag.CostType
+    value: Application
+  - name: Tag.Tier
+    value: App
+
+  # Stage Pool
+  - name: Stage.Pool
+    value: "ubuntu-20.04"
+
+stages:
+  - stage: "Build"
+    jobs:
+      - job: Build
+        displayName: "Build"
+        steps:
+          - template: pipeline-build.yml
+            parameters:
+              ProjectName: "TestApi/TestApi.csproj"
+
+  - stage: "dev"
+    displayName: "Deploy to dev"
+    pool:
+      vmImage: $(Stage.Pool)
+    jobs:
+      - template: pipeline-release.yml
+        parameters:
+          SubscriptionName: "subscriptionName"
+          EnvironmentName: dev
+          TeamName: $(TeamName)
+          ProjectName: $(ProjectName)
+          GatewayCertificate: "certificate-name"
+          # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
+          # EnvironmentResourceType:
+          # EnvironmentTags:
+
+  - stage: "acc"
+    displayName: "Deploy to acc"
+    pool:
+      vmImage: $(Stage.Pool)
+    jobs:
+      - template: pipeline-release.yml
+        parameters:
+          SubscriptionName: "subscriptionName"
+          EnvironmentName: acc
+          TeamName: $(TeamName)
+          ProjectName: $(ProjectName)
+          GatewayCertificate: "certificate-name"
+          # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
+          # EnvironmentResourceType:
+          # EnvironmentTags:

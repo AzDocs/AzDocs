@@ -1,0 +1,86 @@
+# Example template for the orchestrator
+name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - pipeline-orchestrator.yml
+      - pipeline-build.yml
+      - pipeline-release.yml
+
+# it is important to pick a specific version so that you have the possibility to run a version with the exact same version agent.
+pool:
+  vmImage: "ubuntu-20.04"
+
+variables:
+  # Basic
+  - name: TeamName
+    value: Curiosity
+  - name: ProjectName
+    value: TestApi
+  - name: EnvironmentName
+    value: dev
+
+  # Tags
+  - name: Tag.ApplicationId
+    value: 1234
+  - name: Tag.ApplicationName
+    value: ApplicationName
+  - name: Tag.ApplicationOwner
+    value: ApplicationOwner
+  - name: Tag.AppTechOwner
+    value: AppTechOwner
+  - name: Tag.BillingIdentifier
+    value: BillingIdentifier
+  - name: Tag.BusinessUnit
+    value: BusinessUnit
+  - name: Tag.CostType
+    value: Application
+  - name: Tag.Tier
+    value: App
+
+  # Stage Pool
+  - name: Stage.Pool
+    value: "ubuntu-20.04"
+
+stages:
+  - stage: "Build"
+    jobs:
+      - job: Build
+        displayName: "Build"
+        steps:
+          - template: pipeline-build.yml
+            parameters:
+              ProjectName: "TestApi.Functions/TestApi.Functions.csproj"
+
+  - stage: "dev"
+    displayName: "Deploy to dev"
+    pool:
+      vmImage: $(Stage.Pool)
+    jobs:
+      - template: pipeline-release.yml
+        parameters:
+          SubscriptionName: "SubscriptionName"
+          EnvironmentName: dev
+          TeamName: $(TeamName)
+          ProjectName: $(ProjectName)
+          # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
+          # EnvironmentResourceType: "VirtualMachine"
+          # EnvironmentTags: "Tag"
+
+  - stage: "acc"
+    displayName: "Deploy to acc"
+    pool:
+      vmImage: $(Stage.Pool)
+    jobs:
+      - template: pipeline-release.yml
+        parameters:
+          SubscriptionName: "SubscriptionName"
+          EnvironmentName: acc
+          TeamName: $(TeamName)
+          ProjectName: $(ProjectName)
+          # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
+          # EnvironmentResourceType: "VirtualMachine"
+          # EnvironmentTags: "Tag"
