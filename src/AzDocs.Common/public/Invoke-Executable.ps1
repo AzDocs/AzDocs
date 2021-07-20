@@ -17,6 +17,10 @@ function Invoke-Executable
         [Parameter()][switch] $AllowToFail
     )
 
+    # Saving the LASTEXITCODE for when we enable -AllowToFail to reset the LASTEXITCODE later
+    $lastKnownExitCode = $global:LASTEXITCODE
+
+    # Make sure to append --debug when using Azure CLI with $env:System_Debug set to $true
     if ($ExecutableLiteralPath -eq 'az')
     {
         if ($env:System_Debug -and $env:System_Debug -eq $true)
@@ -24,14 +28,37 @@ function Invoke-Executable
             $ExecutableArguments += "--debug"
         }
     }
+
     Write-Header -ScopedPSCmdlet $PSCmdlet -OverrideMessage "$ExecutableLiteralPath $ExecutableArguments" -OmitOutputParameters
+
+    # Execute the original executable with the original parameters
     & $ExecutableLiteralPath $ExecutableArguments
+    
+    if($env:System_Debug)
+    {
+        Write-Host "Returncode: $LASTEXITCODE"
+    }
+
+    # If an error was thrown and -AllowToFail is not passed --> Break the pipeline.
     if (!$AllowToFail -and !$?)
     {
         Write-Error "Arguments: $ExecutableLiteralPath $ExecutableArguments"
         Get-Error
         throw $Error
     }
+
+    # Restore original $LASTEXITCODE when -AllowToFail is passed
+    if ($AllowToFail)
+    {
+        if($env:System_Debug)
+        {
+            Write-Host "Overriding LASTEXITCODE to $lastKnownExitCode due to -AllowToFail."
+        }
+        $global:LASTEXITCODE = $lastKnownExitCode
+    }
+
+    # Make sure to reset color (bug in AzDo pipelines which keeps it on orange/red after a catched error)
     [Console]::ResetColor()
+
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
