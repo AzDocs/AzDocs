@@ -1,3 +1,5 @@
+<img src="wiki_images/logo_1.png" alt="AzDocs Logo" width="400" />
+
 # AzDocs (Azure Documentation)
 
 This is the AzDocs repository. This is meant to be imported into an Azure DevOps environment.
