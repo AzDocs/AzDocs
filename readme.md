@@ -1,4 +1,4 @@
-<img src="wiki_images/logo_1.png" alt="AzDocs Logo" width="400" />
+<img src="wiki_images/logo_3.png" alt="AzDocs Logo" width="400" />
 
 # AzDocs (Azure Documentation)
 
