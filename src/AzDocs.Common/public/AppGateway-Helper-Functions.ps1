@@ -211,12 +211,12 @@ function Get-CertificateFromKeyvault (
 # Grants the current user permissions on keyvault to work with the contents
 function Grant-MePermissionsOnKeyvault (
     [Parameter(Mandatory)][string] $KeyvaultResourceGroupName,
-    [Parameter(Mandatory)][string] $KeyvaultName )
+    [Parameter(Mandatory)][string] $KeyvaultName)
 {
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $identityId = (Invoke-Executable az account show | ConvertFrom-Json).user.name
-    Invoke-Executable az keyvault set-policy --name $KeyvaultName --certificate-permissions get list create update import purge --key-permissions get list create update import purge --secret-permissions get list set purge --storage-permissions get list update set purge --spn $identityId --resource-group $KeyvaultResourceGroupName | Out-Null
+    Invoke-Executable az keyvault set-policy --name $KeyvaultName --certificate-permissions get list create update import purge delete --key-permissions get list create update import purge --secret-permissions get list set purge --storage-permissions get list update set purge --spn $identityId --resource-group $KeyvaultResourceGroupName | Out-Null
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
@@ -666,6 +666,200 @@ function New-RewriteRuleAndCondition
 #endregion
 
 #region Main function
+
+function Get-ApplicationGatewayHttpRules
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] $DashedDomainName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $gatewayRules = @()
+    $httpGatewayRule = (Invoke-Executable -AllowToFail az network application-gateway rule show --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --name "$DashedDomainName-httprule" | ConvertFrom-Json).id
+    $httpsGatewayRule = (Invoke-Executable -AllowToFail az network application-gateway rule show --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --name "$DashedDomainName-httpsrule" | ConvertFrom-Json).id
+    if ($httpGatewayRule)
+    {
+        $gatewayRules += $httpGatewayRule
+    }
+    if ($httpsGatewayRule)
+    {
+        $gatewayRules += $httpsGatewayRule
+    }
+
+    Write-Output $gatewayRules
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+function Get-ApplicationGatewayListeners
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] $DashedDomainName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $listeners = @()
+    $httpListenerResourceId = Invoke-Executable -AllowToFail az network application-gateway http-listener show --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --name "$DashedDomainName-httplistener" | ConvertFrom-Json
+    $httpsListenerResourceId = Invoke-Executable -AllowToFail az network application-gateway http-listener show --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --name "$DashedDomainName-httpslistener" | ConvertFrom-Json
+    if ($httpsListenerResourceId)
+    {
+        $listeners += $httpsListenerResourceId
+    }
+    if ($httpListenerResourceId)
+    {
+        $listeners += $httpListenerResourceId
+    }
+
+    Write-Output $listeners
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+function Remove-ApplicationGatewayEntrypoint
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] $IngressDomainName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayName,
+        [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
+        [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName,
+        [Parameter(Mandatory)][string] $CertificateKeyvaultName
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    # Get the dashed version of the domainname to use as name for multiple app gateway components
+    Write-Host "Fetching dashed domainname"
+    $dashedDomainName = Get-DashedDomainname -DomainName $IngressDomainName
+    Write-Host "Dashed domainname: $dashedDomainName"
+
+    # Remove rules if exists
+    $gatewayRulesFound = Get-ApplicationGatewayHttpRules -ApplicationGatewayName $ApplicationGatewayName -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -DashedDomainName $dashedDomainName
+    if ($gatewayRulesFound)
+    {
+        Write-Host "Found gateway rules for $dashedDomainName. Removing.."
+        foreach ($gatewayRule in $gatewayRulesFound)
+        {
+            Write-Host "Deleting gateway rule $gatewayRule."
+            Invoke-Executable az network application-gateway rule delete --ids $gatewayRule
+        }
+    }
+
+    # Remove redirect configuration for HTTP and HTTPS if exists
+    $httpRedirectConfigResourceId = (Invoke-Executable -AllowToFail az network application-gateway redirect-config show --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpredirector" --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
+    if ($httpRedirectConfigResourceId)
+    {
+        Write-Host "Found http redirect for $dashedDomainName. Removing.."
+        Invoke-Executable az network application-gateway redirect-config delete --ids $httpRedirectConfigResourceId
+    }
+
+    # Remove listener entrypoint for HTTP and HTTPS if exists
+    $listenersFound = Get-ApplicationGatewayListeners -DashedDomainName $dashedDomainName -ApplicationGatewayName $ApplicationGatewayName -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName
+    if ($listenersFound)
+    {
+        Write-Host "Found HTTP/HTTPS Listener for $dashedDomainName. Removing.."
+        foreach ($listenerFound in $listenersFound)
+        {
+            Write-Host "Deleting listener ${listenerFound.name}."
+            Invoke-Executable az network application-gateway http-listener delete --ids $listenerFound.id
+            if ($listenerFound.sslCertificate)
+            {
+                Write-Host "Searching for ssl certificate attached to listener."
+                $sslCertFound = Invoke-Executable -AllowToFail az network application-gateway ssl-cert show --ids $listenerFound.sslCertificate.id | ConvertFrom-Json
+                $sslCertIsUsed = $false
+                if ($sslCertFound)
+                {
+                    Write-Host "Found SSL Certificate for $dashedDomainName. Removing.."
+                    Invoke-Executable az network application-gateway ssl-cert delete --ids $sslCertFound.id
+            
+                    Write-Host "Checking if certificate is being used by other entrypoints.."
+                    $listenersCertificates = (Invoke-Executable az network application-gateway http-listener list --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).sslCertificate
+                    foreach ($certificate in $listenersCertificates)
+                    {
+                        if ($certificate.id -eq $sslCertFound.id)
+                        {
+                            Write-Host 'Certificate is being used by other entrypoints. Skipping removing from keyvault.'
+                            $sslCertIsUsed = $true
+                            break
+                        }
+                    }
+            
+                    if (!$sslCertIsUsed)
+                    {
+                        Write-Host "Certificate is not being used by other entrypoints. Removing from keyvault.."
+            
+                        Write-Host "Granting permissions on keyvault for executing user"
+                        # Grant the current logged in user (service principal) rights to modify certificates in the keyvault (for uploading & fetching the certificate)
+                        Grant-MePermissionsOnKeyvault -KeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName -KeyvaultName $CertificateKeyvaultName
+                        Write-Host "Granted permissions on keyvault for executing user"
+            
+                        # Removing from keyvault
+                        $keyvaultCertificate = Invoke-Executable az keyvault certificate show --vault-name $CertificateKeyvaultName --name $sslCertFound.name
+                        if ($keyvaultCertificate)
+                        {
+                            Write-Host "Removing certificate from keyvault."
+                            Invoke-Executable az keyvault certificate delete --name $sslCertFound.name --vault-name $CertificateKeyvaultName
+                            
+                            $result = Invoke-Executable -AllowToFail az keyvault certificate show-deleted --vault-name $CertificateKeyvaultName --name $sslCertFound.name
+                            while (!$result)
+                            {
+                                Write-Host "Waiting for the certificate to be deleted before purging."
+                                $result = Invoke-Executable -AllowToFail az keyvault certificate show-deleted --vault-name $CertificateKeyvaultName --name $sslCertFound.name
+                                Start-Sleep -Seconds 20
+                            }
+                            
+                            Write-Host "Purging certificate from keyvault."
+                            Invoke-Executable az keyvault certificate purge --name $sslCertFound.name --vault-name $CertificateKeyvaultName
+                        }            
+                    }
+                }
+            }            
+        }
+    }
+   
+    # Remove backend pool if exists
+    $backendPoolResourceId = (Invoke-Executable -AllowToFail az network application-gateway address-pool show --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --name "$dashedDomainName-httpspool" | ConvertFrom-Json).id
+    if ($backendPoolResourceId)
+    {
+        Write-Host "Found backend pool for $dashedDomainName. Removing.."
+        Invoke-Executable az network application-gateway address-pool delete --ids $backendPoolResourceId
+    }
+
+    # Remove https settings if exists
+    $httpsSettingResourceId = (Invoke-Executable -AllowToFail az network application-gateway http-settings show --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --name "$dashedDomainName-httpssettings" | ConvertFrom-Json).id
+    if ($httpsSettingResourceId)
+    {
+        Write-Host "Found HTTPS Settings for $dashedDomainName. Removing.."
+        Invoke-Executable az network application-gateway http-settings delete --ids $httpsSettingResourceId
+    }
+
+    # Remove health probe if exists
+    $healthProbeResourceId = (Invoke-Executable -AllowToFail az network application-gateway probe show --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsprobe" --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
+    if ($healthProbeResourceId)
+    {
+        Write-Host "Found health probe for $dashedDomainName. Removing.."
+        Invoke-Executable az network application-gateway probe delete --ids $healthProbeResourceId
+    }
+   
+    # Remove rewrite sets if exists
+    $rewriteRuleSetResourceId = (Invoke-Executable -AllowToFail az network application-gateway rewrite-rule set show --gateway-name $ApplicationGatewayName --name "$dashedDomainName-https-rewriteset" --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
+    if ($rewriteRuleSetResourceId)
+    {
+        Write-Host "Found rewrite ruleset for $dashedDomainName. Removing.."
+        Invoke-Executable az network application-gateway rewrite-rule set delete --ids $rewriteRuleSetResourceId
+    }
+
+    Write-Host "Removed every gateway component for $dashedDomainName"
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
 function New-ApplicationGatewayEntrypoint
 {
     [CmdletBinding()]
@@ -775,9 +969,13 @@ function New-ApplicationGatewayEntrypoint
             $keyvaultCertificate = Add-CertificateToKeyvault -KeyvaultName $CertificateKeyvaultName -CertificateName $CertificateName -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -CommonName $CommonName
             Write-Host "Cert added/replaced to keyvault"
         }
+
+        Write-Host "AppGatewayCertificate before adding keyvault certificate to application gateway $appgatewayCertificate"
         # Add the certificate to the AppGateway if its not there yet
-        $appgatewayCertificate = Add-KeyvaultCertificateToApplicationGateway -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -KeyvaultName $CertificateKeyvaultName -ApplicationGatewayName $ApplicationGatewayName -KeyvaultCertificateName $CertificateName
-        Write-Host "Cert added/replaced to appgateway"
+        Add-KeyvaultCertificateToApplicationGateway -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -KeyvaultName $CertificateKeyvaultName -ApplicationGatewayName $ApplicationGatewayName -KeyvaultCertificateName $CertificateName 
+       
+        $appgatewayCertificate = (Invoke-Executable az network application-gateway ssl-cert show --gateway-name $ApplicationGatewayName --name $CertificateName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
+        Write-Host "Cert added/replaced to appgateway with the following id $sslCreatedId"
     }
     Write-Host "Cert is in place!"
 
@@ -801,7 +999,7 @@ function New-ApplicationGatewayEntrypoint
 
     # Get the id of the SSL certificate available for the Applicaton Gateway to use in the next step for creating the listener
     Write-Host "Get SSL Certificate ID from AppGateway"
-    $sslCertId = (Invoke-Executable az network application-gateway ssl-cert show --gateway-name $ApplicationGatewayName --name $CertificateName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
+    $sslCertId = (Invoke-Executable az network application-gateway ssl-cert show --gateway-name $ApplicationGatewayName --ids $appgatewayCertificate --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
     Write-Host "AppGateway SSL Cert ID: $sslCertId"
 
     # Create Listener

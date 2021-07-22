@@ -34,7 +34,7 @@ function Invoke-Executable
     # Execute the original executable with the original parameters
     & $ExecutableLiteralPath $ExecutableArguments
     
-    if($env:System_Debug)
+    if ($env:System_Debug)
     {
         Write-Host "Returncode: $LASTEXITCODE"
     }
@@ -50,7 +50,7 @@ function Invoke-Executable
     # Restore original $LASTEXITCODE when -AllowToFail is passed
     if ($AllowToFail)
     {
-        if($env:System_Debug)
+        if ($env:System_Debug)
         {
             Write-Host "Overriding LASTEXITCODE to $lastKnownExitCode due to -AllowToFail."
         }
