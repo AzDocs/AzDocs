@@ -23,8 +23,6 @@ parameters:
   - name: EnvironmentTags
     type: string
     default: ""
-  - name: LogAnalyticsWorkspaceResourceId
-    type: string
 
 jobs:
   - deployment:
@@ -65,8 +63,6 @@ jobs:
         value: "${{ parameters.ProjectName }}-${{ parameters.EnvironmentName }}"
       - name: AppServiceDiagnosticsName
         value: "${{ parameters.ProjectName }}-${{ parameters.EnvironmentName }}"
-      - name: LogAnalyticsWorkspaceName
-        value: "${{ parameters.LogAnalyticsWorkspaceResourceId }}"
       - name: AppServiceAlwaysOn
         value: $True
       - name: ASPNETCORE_ENVIRONMENT
@@ -181,6 +177,12 @@ jobs:
       - name: SqlDatabaseMaxStorageSize
         value: 50GB
 
+      # Log Analytics Workspace
+      - name: LogAnalyticsWorkspaceResourceGroupName
+        value: "loganalyticsworkspaceresourcegroupname"
+      - name: LogAnalyticsWorkspaceName
+        value: "loganalyticsworkspacename"
+
     strategy:
       runOnce:
         deploy:
@@ -194,6 +196,16 @@ jobs:
                 branchName: refs/heads/master
                 artifactName: azdocs-src
                 targetPath: $(Pipeline.Workspace)/AzDocs
+              # Call the different tasks you need to be able to deploy your resources
+              # Get your log analytics workspace id, output variable is $(LogAnalyticsWorkspaceResourceId)
+            - task: AzureCLI@2
+              displayName: "Get Log Analytics Workspace Id"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Id-for-Pipeline.ps1"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)'"
             - task: AzureCLI@2
               displayName: "Create ResourceGroup"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -209,7 +221,7 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-Linux.ps1"
-                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceDiagnosticsName '$(AppServiceDiagnosticsName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceName)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)'"
+                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceDiagnosticsName '$(AppServiceDiagnosticsName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)'"
             - task: AzureCLI@2
               displayName: "Add VNet integration to AppService"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -225,7 +237,7 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-AppInsights-Resource.ps1"
-                arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(Location)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceName)'"
+                arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(Location)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
             - task: AzureCLI@2
               displayName: "Create Application Insights Extension for WebApps codeless"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -234,22 +246,6 @@ jobs:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
                 arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(AppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -ApplyToAllSlots $(ApplyToAllSlots)"
-            - task: AzureCLI@2
-              displayName: "Set AppSettings For AppService"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -ApplyToAllSlots $(ApplyToAllSlots)"
-            - task: AzureCLI@2
-              displayName: "Set ConnectionStrings For AppService"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-ConnectionStrings-For-AppService.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -ApplyToAllSlots $(ApplyToAllSlots)"
             - task: AzureCLI@2
               displayName: "Create SQL Server"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -267,13 +263,29 @@ jobs:
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Database.ps1"
                 arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(SqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)' -SqlDatabaseFamily '$(SqlDatabaseFamily)' -SqlDatabaseComputeModel '$(SqlDatabaseComputeModel)' -SqlDatabaseAutoPauseDelayInMinutes '$(SqlDatabaseAutoPauseDelayInMinutes)' -SqlDatabaseMinCapacity '$(SqlDatabaseMinCapacity)' -SqlDatabaseMaxCapacity '$(SqlDatabaseMaxCapacity)' -SqlDatabaseBackupStorageRedundancy '$(SqlDatabaseBackupStorageRedundancy)' -SqlDatabaseMaxStorageSize '$(SqlDatabaseMaxStorageSize)' -ResourceTags $(ResourceTags)"
             - task: AzureCLI@2
+              displayName: "Set AppSettings For AppService"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: AzureCLI@2
+              displayName: "Set ConnectionStrings For AppService"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-ConnectionStrings-For-AppService.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: AzureCLI@2
               displayName: "Add Network Whitelist to App Service"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Network-Whitelist-to-App-Service.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)'"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -ApplyToAllSlots $(ApplyToAllSlots)"
             - task: DownloadBuildArtifacts@0
               inputs:
                 buildType: "current"
@@ -286,10 +298,21 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 appType: "webAppLinux"
                 WebAppName: "$(AppServiceName)"
+                deployToSlotOrASE: true
+                ResourceGroupName: "$(AppServiceResourceGroupName)"
+                SlotName: "$(AppServiceDeploymentSlotName)"
                 packageForLinux: "$(System.ArtifactsDirectory)/Website_zip/website.zip"
+            - task: AzureAppServiceManage@0
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                Action: "Swap Slots"
+                WebAppName: "$(AppServiceName)"
+                ResourceGroupName: "$(AppServiceResourceGroupName)"
+                SourceSlot: "$(AppServiceDeploymentSlotName)"
+                PreserveVnet: true
             - task: AzureCLI@2
               displayName: "Remove Network Whitelist from App Service"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              condition: always()
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore

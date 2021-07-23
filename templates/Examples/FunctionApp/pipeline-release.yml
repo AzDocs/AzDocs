@@ -23,8 +23,6 @@ parameters:
     default: ""
   - name: GatewayCertificate
     type: string
-  - name: LogAnalyticsWorkspaceResourceId
-    type: string
 
 jobs:
   - deployment:
@@ -74,8 +72,6 @@ jobs:
         value: "$(StorageAccountName)"
       - name: FunctionAppDiagnosticsName
         value: "${{ parameters.ProjectName }}-${{ parameters.EnvironmentName }}"
-      - name: LogAnalyticsWorkspaceName
-        value: $(LogAnalyticsWorkspaceResourceId)
       - name: AlwaysOn
         value: True
       - name: FUNCTIONS_EXTENSION_VERSION
@@ -172,6 +168,12 @@ jobs:
       - name: SharedServicesResourceGroupName
         value: "SharedServicesResourceGroupName"
 
+      # Log Analytics Workspace
+      - name: LogAnalyticsWorkspaceResourceGroupName
+        value: "loganalyticsworkspaceresourcegroupname"
+      - name: LogAnalyticsWorkspaceName
+        value: "loganalyticsworkspacename"
+
     strategy:
       runOnce:
         deploy:
@@ -187,6 +189,15 @@ jobs:
                 artifactName: "azdocs-src"
                 targetPath: "$(Pipeline.Workspace)/AzDocs"
             # Call the different tasks you need to be able to deploy your resources
+            # Get your log analytics workspace id, output variable is $(LogAnalyticsWorkspaceResourceId)
+            - task: AzureCLI@2
+              displayName: "Get Log Analytics Workspace Id"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Id-for-Pipeline.ps1"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)'"
             - task: AzureCLI@2
               displayName: "Create ResourceGroup"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -210,7 +221,7 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App-Linux.ps1"
-                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppDiagnosticsName '$(FunctionAppDiagnosticsName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)'"
+                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppDiagnosticsName '$(FunctionAppDiagnosticsName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -EnableFunctionAppDeploymentSlot"
             - task: AzureCLI@2
               displayName: "Create AppInsights Resource"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -218,7 +229,7 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-AppInsights-Resource.ps1"
-                arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(AppInsightsLocation)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceName)'"
+                arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(AppInsightsLocation)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
             - task: AzureCLI@2
               displayName: "Create Application Insights Extension for FunctionApps codeless"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -270,8 +281,19 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 appType: "functionAppLinux"
                 appName: "$(FunctionAppName)"
+                deployToSlotOrASE: true
+                resourceGroupName: "$(FunctionAppResourceGroupName)"
+                slotName: "$(FunctionAppDeploymentSlotName)"
                 package: "$(System.ArtifactsDirectory)/functionapp_zip/functionapp.zip"
                 runtimeStack: "DOTNET|3.1"
+            - task: AzureAppServiceManage@0
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                Action: "Swap Slots"
+                WebAppName: "$(FunctionAppName)"
+                ResourceGroupName: "$(FunctionAppResourceGroupName)"
+                SourceSlot: "$(FunctionAppDeploymentSlotName)"
+                PreserveVnet: true
             - task: AzureCLI@2
               displayName: "Remove Network Whitelist from Function App"
               condition: always()

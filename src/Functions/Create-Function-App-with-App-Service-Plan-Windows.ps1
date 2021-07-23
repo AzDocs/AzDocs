@@ -13,7 +13,8 @@ param (
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Parameter(Mandatory)][string] $FunctionAppStorageAccountName,
     [Parameter(Mandatory)][string] $FunctionAppDiagnosticsName,
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
+    [Alias("LogAnalyticsWorkspaceName")]
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $FunctionAppPrivateDnsZoneName = "privatelink.azurewebsites.net",

@@ -63,6 +63,8 @@ az network application-gateway waf-policy custom-rule delete --name 'WAFRuleName
 
 # YAML
 
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
 ```yaml
         - task: AzureCLI@2
            displayName: 'Set ApplicationGatewayFirewallWhitelistRule'
@@ -71,7 +73,7 @@ az network application-gateway waf-policy custom-rule delete --name 'WAFRuleName
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
                scriptPath: '$(Pipeline.Workspace)/AzDocs/Application-Gateway/Set-ApplicationGatewayFirewallWhitelistRule.ps1'
-               arguments: "-IngressDomainName '$(IngressDomainName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayWafName '$(ApplicationGatewayWafName)' -HighPriority '$(HighPriority)' -Priority '$(Priority)'"
+               arguments: "-IngressDomainName '$(IngressDomainName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayWafName '$(ApplicationGatewayWafName)' -HighPriority -Priority '$(Priority)'"
 ```
 
 # Code

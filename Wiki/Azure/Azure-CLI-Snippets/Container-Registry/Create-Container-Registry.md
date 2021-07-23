@@ -12,6 +12,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ---------------------------------- | ------------------------------- | -------------------------------------------- | --------------------------------------------------------- |
 | ContainerRegistryName              | <input type="checkbox" checked> | `customershared$(Release.EnvironmentName)`   | The name of the container registry.                       |
 | ContainerRegistryResourceGroupName | <input type="checkbox" checked> | `Customer-Shared-$(Release.EnvironmentName)` | The resourcegroup where the container registry should be. |
+| ContainerRegistrySku | <input type="checkbox"> | `Premium` | The sku for this registry. Note that for networking options other than "public" you will need the `Premium` sku. Options are `Basic`, `Standar` or `Premium`. |
+| ContainerRegistryEnableAdminUser | <input type="checkbox"> | `$true`/`$false` | Enable the non-ad admin with username & password authentication for this Container Registry. For example: when you use containers in appservices you need this, because it does not support managed identities yet. |
 
 # VNET Whitelisting Parameters
 
@@ -41,6 +43,8 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 | ContainerRegistryPrivateDnsZoneName                   | <input type="checkbox" checked> | `privatelink.azurecr.io`                       | The privatelink DNS Zone to use. `privatelink.azurecr.io` can be safely used here.                     |
 
 # YAML
+
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
         - task: AzureCLI@2

@@ -2,6 +2,8 @@
 param (
     [Parameter(Mandatory)][string] $ContainerRegistryName,
     [Parameter(Mandatory)][string] $ContainerRegistryResourceGroupName,
+    [Parameter(Mandatory)][ValidateSet('', 'Basic', 'Standard', 'Premium')][string] $ContainerRegistrySku = 'Premium',
+    [Parameter(Mandatory)][bool] $ContainerRegistryEnableAdminUser = $false,
     
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -26,8 +28,13 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-# For now --admin-enabled true is needed because managed identities are not supported yet from, for example, App Services
-Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku Premium --admin-enabled true
+$scriptArguments = @()
+if ($ContainerRegistryEnableAdminUser)
+{
+    $scriptArguments += "--admin-enabled", "true"
+}
+
+Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku $ContainerRegistrySku @scriptArguments
 
 # Private Endpoint
 if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName)

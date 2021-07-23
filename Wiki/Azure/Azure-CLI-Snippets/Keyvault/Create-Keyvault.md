@@ -16,12 +16,12 @@ This snippet also managed the following compliancy rules:
 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter                 | Required                        | Example Value                                                                                                                                   | Description                                                                                                                                         |
-| ------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| KeyvaultDiagnosticsName   | <input type="checkbox" checked> | `mykeyvault-$(Release.EnvironmentName)`                                                                                                         | This name will be used as an identifier in the log analytics workspace. It is recommended to use your Application Insights name for this parameter. |
-| KeyvaultName              | <input type="checkbox" checked> | `mykeyvault-$(Release.EnvironmentName)`                                                                                                         | This is the keyvault name to use.                                                                                                                   |
-| LogAnalyticsWorkspaceName | <input type="checkbox">         | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The name of the Log Analytics Workspace for the diagnostics settings of the keyvault.                                                               |
-| KeyvaultResourceGroupName | <input type="checkbox">         | `MyTeam-TestApi-$(Release.EnvironmentName)`                                                                                                     | The ResourceGroup where your keyvault will reside in.                                                                                               |
+| Parameter                       | Required                        | Example Value                                                                                                                                   | Description                                                                                                                                         |
+| ------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| KeyvaultDiagnosticsName         | <input type="checkbox" checked> | `mykeyvault-$(Release.EnvironmentName)`                                                                                                         | This name will be used as an identifier in the log analytics workspace. It is recommended to use your Application Insights name for this parameter. |
+| KeyvaultName                    | <input type="checkbox" checked> | `mykeyvault-$(Release.EnvironmentName)`                                                                                                         | This is the keyvault name to use.                                                                                                                   |
+| LogAnalyticsWorkspaceResourceId | <input type="checkbox">         | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The name of the Log Analytics Workspace for the diagnostics settings of the keyvault.                                                               |
+| KeyvaultResourceGroupName       | <input type="checkbox">         | `MyTeam-TestApi-$(Release.EnvironmentName)`                                                                                                     | The ResourceGroup where your keyvault will reside in.                                                                                               |
 
 # VNET Whitelisting Parameters
 
@@ -51,6 +51,8 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 
 # YAML
 
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
 ```yaml
         - task: AzureCLI@2
            displayName: 'Create Keyvault'
@@ -59,7 +61,7 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
                scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1'
-               arguments: "-KeyvaultName '$(KeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -KeyvaultDiagnosticsName '$(KeyvaultDiagnosticsName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -KeyvaultPrivateEndpointVnetResourceGroupName '$(KeyvaultPrivateEndpointVnetResourceGroupName)' -KeyvaultPrivateEndpointVnetName '$(KeyvaultPrivateEndpointVnetName)' -KeyvaultPrivateEndpointSubnetName '$(KeyvaultPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -KeyvaultPrivateDnsZoneName '$(KeyvaultPrivateDnsZoneName)'"
+               arguments: "-KeyvaultName '$(KeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -KeyvaultDiagnosticsName '$(KeyvaultDiagnosticsName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -KeyvaultPrivateEndpointVnetResourceGroupName '$(KeyvaultPrivateEndpointVnetResourceGroupName)' -KeyvaultPrivateEndpointVnetName '$(KeyvaultPrivateEndpointVnetName)' -KeyvaultPrivateEndpointSubnetName '$(KeyvaultPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -KeyvaultPrivateDnsZoneName '$(KeyvaultPrivateDnsZoneName)'"
 ```
 
 # Code

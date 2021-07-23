@@ -18,6 +18,8 @@ This snippet will whitelist the specified IP Range from the Azure Database for M
 
 # YAML
 
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
 ```yaml
         - task: AzureCLI@2
            displayName: 'Add Network Whitelist to MySQL'

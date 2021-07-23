@@ -1,4 +1,5 @@
 # Example template for the orchestrator
+name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
     include:
@@ -65,9 +66,9 @@ stages:
           EnvironmentName: dev
           TeamName: $(TeamName)
           ProjectName: $(ProjectName)
-          # if you are targetting an on-premise server, use the following parameters:
-          EnvironmentResourceType: "VirtualMachine"
-          EnvironmentTags: "Tag"
+          # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
+          # EnvironmentResourceType: "VirtualMachine"
+          # EnvironmentTags: "Tag"
 
   - stage: "acc"
     displayName: "Deploy to acc"
@@ -80,3 +81,6 @@ stages:
           EnvironmentName: acc
           TeamName: $(TeamName)
           ProjectName: $(ProjectName)
+          # if you are targetting an environment agent (for example on a on-premise server), use the following parameters:
+          # EnvironmentResourceType: "VirtualMachine"
+          # EnvironmentTags: "Tag"

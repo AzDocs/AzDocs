@@ -10,6 +10,8 @@ param (
     [Parameter(Mandatory, ParameterSetName = 'default')][Parameter(Mandatory, ParameterSetName = 'DeploymentSlot')][string] $AppServiceRunTime,
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][bool] $StopAppServiceImmediatelyAfterCreation = $false,
+    [Parameter()][bool] $StopAppServiceSlotImmediatelyAfterCreation = $false,
     [Parameter()][bool] $AppServiceAlwaysOn = $true,
     
     # Deployment Slots
@@ -66,6 +68,12 @@ if ($AppServiceRunTime)
 # Create AppService
 Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters
 
+# Stop immediately if desired
+if($StopAppServiceImmediatelyAfterCreation)
+{
+    Invoke-Executable az webapp stop --name $AppServiceName --resource-group $AppServiceResourceGroupName
+}
+
 # Fetch the ID from the AppService
 $webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
 
@@ -78,6 +86,10 @@ Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppS
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
 
+# Get root path and make sure the right provider is registered
+$RootPath = Split-Path $PSScriptRoot -Parent
+& "$RootPath\Resource-Provider\Register-Provider.ps1" -ResourceProviderNamespace 'Microsoft.Insights'
+
 #  Create diagnostics settings
 Invoke-Executable az monitor diagnostic-settings create --resource $webAppId --name $AppServiceDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
@@ -87,10 +99,18 @@ Invoke-Executable az webapp identity assign --ids $webAppId
 if ($EnableAppServiceDeploymentSlot)
 {
     Invoke-Executable az webapp deployment slot create --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceDeploymentSlotName
+
+    # Stop immediately if desired
+    if($StopAppServiceSlotImmediatelyAfterCreation)
+    {
+        Invoke-Executable az webapp stop --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName
+    }
+
     $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json).id
     Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceDeploymentSlotName
+    Invoke-Executable az monitor diagnostic-settings create --resource $webAppStagingId --name $AppServiceDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
     
     if ($DisablePublicAccessForAppServiceDeploymentSlot)
     {

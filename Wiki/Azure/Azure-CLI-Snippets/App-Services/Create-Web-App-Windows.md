@@ -30,7 +30,10 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AppServiceDeploymentSlotName | <input type="checkbox"> | `'staging'` | Name of the slot to create additional to the production slot. Has the default value of "staging". |
 | DisablePublicAccessForAppServiceDeploymentSlot | <input type="checkbox"> | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |  
 | AppServiceNumberOfInstances | <input type="checkbox"> | `2` | OPTIONAL: You can define how much instances of your appservice will be ran (use 2 or more for HA. use 1 if you have server side sessions/stateful apps). The default value (if you don't pass any value) will be 2. |
-| AppServiceAlwaysOn | <input type="checkbox"> | <input type="checkbox"> | `true` | OPTIONAL: by default set to true. |
+| DisablePublicAccessForAppServiceDeploymentSlot | <input type="checkbox"> | <input type="checkbox"> | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |  
+| StopAppServiceImmediatelyAfterCreation | <input type="checkbox"> | `$true`/`$false` | Stop the App Service directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
+| StopAppServiceSlotImmediatelyAfterCreation | <input type="checkbox"> | `$true`/`$false` | Stop the App Service Deploymentslot directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
+| AppServiceAlwaysOn | <input type="checkbox"> | `true` | OPTIONAL: by default set to true. |
 
 # VNET Whitelisting Parameters
 
@@ -59,6 +62,8 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 
 # YAML
 
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
 ```yaml
         - task: AzureCLI@2
            displayName: 'Create Web App Windows'
@@ -67,7 +72,7 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-Windows.ps1'
-               arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceDiagnosticsName '$(AppServiceDiagnosticsName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot '$(EnableAppServiceDeploymentSlot)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -DisablePublicAccessForAppServiceDeploymentSlot '$(DisablePublicAccessForAppServiceDeploymentSlot)' -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -AppServicePrivateEndpointVnetResourceGroupName '$(AppServicePrivateEndpointVnetResourceGroupName)' -AppServicePrivateEndpointVnetName '$(AppServicePrivateEndpointVnetName)' -AppServicePrivateEndpointSubnetName '$(AppServicePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppServicePrivateDnsZoneName '$(AppServicePrivateDnsZoneName)'"
+               arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceDiagnosticsName '$(AppServiceDiagnosticsName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -DisablePublicAccessForAppServiceDeploymentSlot '$(DisablePublicAccessForAppServiceDeploymentSlot)' -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -AppServicePrivateEndpointVnetResourceGroupName '$(AppServicePrivateEndpointVnetResourceGroupName)' -AppServicePrivateEndpointVnetName '$(AppServicePrivateEndpointVnetName)' -AppServicePrivateEndpointSubnetName '$(AppServicePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppServicePrivateDnsZoneName '$(AppServicePrivateDnsZoneName)'"
 ```
 
 # Code
