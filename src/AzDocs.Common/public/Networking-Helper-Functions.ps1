@@ -222,7 +222,7 @@ function Assert-IntentionallyCreatedPublicResource
 
 	if (!$ForcePublic)
 	{
-		Write-Host "##vso[task.complete result=Failed;You are creating a resource which is, from a network perspective, fully open to the internet. This is NOT recommended. If this was intentional, please pass the -ForcePublic flag."
+		Write-Host "##vso[task.complete result=Failed;]You are creating a resource which is, from a network perspective, fully open to the internet. This is NOT recommended. If this was intentional, please pass the -ForcePublic flag."
 		throw "You are creating a resource which is, from a network perspective, fully open to the internet. This is NOT recommended. If this was intentional, please pass the -ForcePublic flag."
 	}
 	else
