@@ -4,6 +4,9 @@ param (
     [Parameter(Mandatory)][string] $StorageAccountResourceGroupName,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][string] $StorageAccountName,
+    [Parameter()][string][ValidateSet("BlobStorage", "BlockBlobStorage", "FileStorage", "Storage", "StorageV2")] $StorageAccountKind = "StorageV2",
+    [Parameter()][string][ValidateSet("Premium_LRS", "Premium_ZRS", "Standard_GRS", "Standard_GZRS", "Standard_LRS", "Standard_RAGRS", "Standard_RAGZRS", "Standard_ZRS")] $StorageAccountSku = "Standard_LRS",
+    [Parameter()][bool] $StorageAccountAllowBlobPublicAccess = $false,
 
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -19,7 +22,10 @@ param (
     [Parameter()][string] $PrivateEndpointGroupId,
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $StorageAccountPrivateDnsZoneName = "privatelink.blob.core.windows.net"
+    [Parameter()][string] $StorageAccountPrivateDnsZoneName = "privatelink.blob.core.windows.net",
+
+    # Diagnostic Settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
 
 #region ===BEGIN IMPORTS===
@@ -29,7 +35,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Create StorageAccount with the appropriate tags
-Invoke-Executable az storage account create --name $StorageAccountName --resource-group $StorageAccountResourceGroupName --kind StorageV2 --sku Standard_LRS --allow-blob-public-access false --tags ${ResourceTags}
+$storageAccountId = (Invoke-Executable az storage account create --name $StorageAccountName --resource-group $StorageAccountResourceGroupName --kind $StorageAccountKind --sku $StorageAccountSku --allow-blob-public-access $StorageAccountAllowBlobPublicAccess --tags ${ResourceTags} | ConvertFrom-Json).id
 
 # VNET Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
@@ -59,5 +65,8 @@ if ($StorageAccountPrivateEndpointVnetName -and $StorageAccountPrivateEndpointVn
     # Make sure the default action is "deny" which causes public traffic to be dropped (like is defined in the KSP)
     Invoke-Executable az storage account update --resource-group $StorageAccountResourceGroupName --name $StorageAccountName --default-action Deny
 }
+
+# Enable diagnostic settings for storage account
+Set-DiagnosticSettings -ResourceId $storageAccountId -ResourceName $StorageAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"') 
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

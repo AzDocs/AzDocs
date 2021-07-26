@@ -13,7 +13,10 @@ param (
     [Parameter()][ValidateSet('', 'Local', 'Zone', 'Geo')][string] $SqlDatabaseBackupStorageRedundancy,
     [Parameter()][string] $SqlDatabaseMaxStorageSize,
     [Parameter()][string] $SqlServerElasticPoolName,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags
+    [Parameter(Mandatory)][System.Object[]] $ResourceTags, 
+
+    # Diagnostic Settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
 
 #region ===BEGIN IMPORTS===
@@ -64,6 +67,11 @@ if ($SqlServerElasticPoolName)
     $additionalParameters += '--elastic-pool', $SqlServerElasticPoolName
 }
 
-Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags ${ResourceTags} @additionalParameters
+# Create SQL database
+$sqlDatabaseId = (Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+
+# Add diagnostic settings to SQL database
+$sqlDiagnosticSettingLogs = "[{ 'category': 'SQLInsights', 'enabled': true }, { 'category': 'AutomaticTuning', 'enabled': true }, { 'category': 'QueryStoreRuntimeStatistics', 'enabled': true }, { 'category': 'QueryStoreWaitStatistics', 'enabled': true }, { 'category': 'Errors', 'enabled': true }, { 'category': 'DatabaseWaitStatistics', 'enabled': true },  { 'category': 'Timeouts', 'enabled': true }, { 'category': 'Blocks', 'enabled': true }, { 'category': 'Deadlocks', 'enabled': true }]"
+Set-DiagnosticSettings -ResourceId $sqlDatabaseId -ResourceName $SqlDatabaseName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs $sqlDiagnosticSettingLogs.Replace("'", '\"') -Metrics "[ { 'category': 'Basic', 'enabled': true }, { 'category': 'InstanceAndAppAdvanced', 'enabled': true }, { 'category': 'WorkloadManagement', 'enabled': true } ]".Replace("'", '\"')
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
