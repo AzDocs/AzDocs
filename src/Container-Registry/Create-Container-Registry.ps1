@@ -21,6 +21,9 @@ param (
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $ContainerRegistryPrivateDnsZoneName,
 
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic,
+
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
@@ -30,6 +33,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$ContainerRegistryPrivateEndpointVnetResourceGroupName -or !$ContainerRegistryPrivateEndpointVnetName -or !$ContainerRegistryPrivateEndpointSubnetName -or !$PrivateEndpointGroupId -or !$DNSZoneResourceGroupName -or !$ContainerRegistryPrivateDnsZoneName))
+{
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
+
 
 $scriptArguments = @()
 if ($ContainerRegistryEnableAdminUser)

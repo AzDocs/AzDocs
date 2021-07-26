@@ -38,6 +38,7 @@ param (
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
     
+    # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
 
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Web-App-with-App-Service-Plan-Linux.ps1
@@ -50,6 +51,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
+# Check if public access is enabled and if we need to alert
 if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetName -or !$GatewayWhitelistRulePriority) -and (!$AppServicePrivateEndpointVnetResourceGroupName -or !$AppServicePrivateEndpointVnetName -or !$AppServicePrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$AppServicePrivateDnsZoneName))
 {
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic

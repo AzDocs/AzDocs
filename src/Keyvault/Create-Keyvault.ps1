@@ -19,7 +19,10 @@ param (
     [Parameter()][string] $KeyvaultPrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $KeyvaultPrivateDnsZoneName = "privatelink.vaultcore.azure.net"
+    [Parameter()][string] $KeyvaultPrivateDnsZoneName = "privatelink.vaultcore.azure.net",
+
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic
     
 )
 
@@ -28,6 +31,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+# Check if public access is enabled and if we need to alert
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$KeyvaultPrivateEndpointVnetResourceGroupName -or !$KeyvaultPrivateEndpointVnetName -or !$KeyvaultPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$KeyvaultPrivateDnsZoneName))
+{
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
 
 # Check if keyvault needs to be created. Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/issues/13752
 $keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }

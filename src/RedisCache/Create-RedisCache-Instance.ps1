@@ -16,6 +16,9 @@ param (
     [Parameter()][string] $RedisInstancePrivateDnsZoneName = 'privatelink.redis.cache.windows.net',
     [Parameter()][string] $DNSZoneResourceGroupName, 
 
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic,
+
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
@@ -25,6 +28,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+# Check if public access is enabled and if we need to alert
+if (!$RedisInstancePrivateEndpointVnetResourceGroupName -or !$RedisInstancePrivateEndpointVnetName -or !$RedisInstancePrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$RedisInstancePrivateDnsZoneName)
+{
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
 
 # Create Redis Instance.
 $redisInstanceResourceId = (Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName | ConvertFrom-Json).id

@@ -35,6 +35,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | FunctionAppRuntime | <input type="checkbox"> | `dotnet` | The runtime you want your code to run in. By default this has a value of "dotnet". |
 | FunctionAppNumberOfInstances | <input type="checkbox"> | `2` | OPTIONAL: You can define how much instances of your functions will be ran (use 2 or more for HA. use 1 if you have server side sessions/stateful apps). The default value (if you don't pass any value) will be 2. |
 | FunctionAppOSType | <input type="checkbox" checked> | `Linux`\ `Windows` | The OS type of the function app. You can choose between 'Linux' or 'Windows'. |
+| ForcePublic | <input type="checkbox"> | n.a. | If you are not using any networking settings, you need to pass this boolean to confirm you are willingly creating a public resource (to avoid unintended public resources). You can pass it as a switch without a value (`-ForcePublic`). |
 
 # VNET Whitelisting Parameters
 
