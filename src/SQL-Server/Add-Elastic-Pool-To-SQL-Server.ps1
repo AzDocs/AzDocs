@@ -10,7 +10,10 @@ param (
     [Parameter()][string][ValidateSet('', 'Gen4', 'Gen5')] $ElasticPoolVCoreFamily,
     [Parameter()][string] $ElasticPoolMaxStorageSize,
     [Parameter()][string][ValidateSet('', 'false', 'true')] $ElasticPoolZoneRedundancy,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags
+    [Parameter(Mandatory)][System.Object[]] $ResourceTags, 
+    
+    # Diagnostic Settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
 
 #region ===BEGIN IMPORTS===
@@ -50,6 +53,9 @@ if ($ElasticPoolZoneRedundancy)
 }
 
 # Create Elastic Pool
-Invoke-Executable az sql elastic-pool create --name $ElasticPoolName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags ${ResourceTags} @additionalParameters
+$elasticPoolId = (Invoke-Executable az sql elastic-pool create --name $ElasticPoolName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+
+# Add diagnostic settings to Elastic Pool
+Set-DiagnosticSettings -ResourceId $elasticPoolId -ResourceName $ElasticPoolName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'Basic', 'enabled': true }, { 'category': 'InstanceAndAppAdvanced', 'enabled': true } ]".Replace("'", '\"')
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

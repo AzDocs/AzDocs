@@ -14,8 +14,10 @@ param (
     [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName,
     [Parameter()][bool] $EnableWafPreventionMode = $false,
     [Parameter()][string] $WafRuleSetType = "OWASP",
-    [Parameter()][string] $WafRuleSetVersion = "3.0"
+    [Parameter()][string] $WafRuleSetVersion = "3.0", 
 
+    # Diagnostic Settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
 
 #region ===BEGIN IMPORTS===
@@ -35,10 +37,10 @@ Write-Host "PublicIp: $publicIpId"
 
 Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId
 
-if($ApplicationGatewaySku -contains "WAF")
+if ($ApplicationGatewaySku -contains "WAF")
 {
     $wafMode = "Detection"
-    if($EnableWafPreventionMode)
+    if ($EnableWafPreventionMode)
     {
         $wafMode = "Prevention"
     }
@@ -58,5 +60,9 @@ Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointSer
 
 # Whitelist our Gateway's subnet in the Certificate Keyvault so we can connect
 Invoke-Executable az keyvault network-rule add --resource-group $CertificateKeyvaultResourceGroupName --name $CertificateKeyvaultName --subnet $gatewaySubnetId
+
+# Add diagnostic settings to Application Gateway
+$applicationGatewayId = (Invoke-Executable az network application-gateway show --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName).id
+Set-DiagnosticSettings -ResourceId $applicationGatewayId -ResourceName $ApplicationGatewayName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'ApplicationGatewayAccessLog', 'enabled': true }, { 'category': 'ApplicationGatewayPerformanceLog', 'enabled': true }, { 'category': 'ApplicationGatewayFirewallLog', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

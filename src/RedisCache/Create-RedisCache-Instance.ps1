@@ -14,7 +14,10 @@ param (
     [Parameter()][string] $RedisInstancePrivateEndpointVnetName,
     [Parameter()][string] $RedisInstancePrivateEndpointSubnetName,
     [Parameter()][string] $RedisInstancePrivateDnsZoneName = 'privatelink.redis.cache.windows.net',
-    [Parameter()][string] $DNSZoneResourceGroupName
+    [Parameter()][string] $DNSZoneResourceGroupName, 
+
+    # Diagnostic Settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
 
 #region ===BEGIN IMPORTS===
@@ -24,20 +27,25 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Create Redis Instance.
-if(!(Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName))
+$redisInstanceResourceId = (Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName | ConvertFrom-Json).id
+if (!$redisInstanceId)
 {
     $additionalParameters = @()
-    if ($RedisInstanceEnableNonSslPort) {
+    if ($RedisInstanceEnableNonSslPort)
+    {
         $additionalParameters += '--enable-non-ssl-port'
     }
-    if ($RedisInstanceMinimalTlsVersion) {
+    if ($RedisInstanceMinimalTlsVersion)
+    {
         $additionalParameters += '--minimum-tls-version', $RedisInstanceMinimalTlsVersion
     }
-    if ($RedisInstanceSubnetId) {
+    if ($RedisInstanceSubnetId)
+    {
         $additionalParameters += '--subnet-id', $RedisInstanceSubnetId
     }
-    Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --tags ${ResourceTags} @additionalParameters
-    while(((Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json).provisioningState -eq 'Creating')
+    
+    $redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+    while (((Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json).provisioningState -eq 'Creating')
     {
         Write-Host "Redis still creating... waiting for it to complete..."
         Start-Sleep -Seconds 60
@@ -48,7 +56,6 @@ if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivat
 {
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
-    $redisInstanceResourceId = (Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName | ConvertFrom-Json).id
     $vnetId = (Invoke-Executable az network vnet show --resource-group $RedisInstancePrivateEndpointVnetResourceGroupName --name $RedisInstancePrivateEndpointVnetName | ConvertFrom-Json).id
     $redisInstancePrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $RedisInstancePrivateEndpointVnetResourceGroupName --name $RedisInstancePrivateEndpointSubnetName --vnet-name $RedisInstancePrivateEndpointVnetName | ConvertFrom-Json).id
     $redisInstancePrivateEndpointName = "$($RedisInstanceName)-pvtredis"
@@ -56,5 +63,8 @@ if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivat
     # Add private endpoint & Setup Private DNS
     Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $redisInstancePrivateEndpointSubnetId -PrivateEndpointName $redisInstancePrivateEndpointName -PrivateEndpointResourceGroupName $RedisInstanceResourceGroupName -TargetResourceId $redisInstanceResourceId -PrivateEndpointGroupId redisCache -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $RedisInstancePrivateDnsZoneName -PrivateDnsLinkName "$($RedisInstancePrivateEndpointVnetName)-redis"
 }
+
+# Add diagnostic settings to PostgreSQL server
+Set-DiagnosticSettings -ResourceId $redisInstanceResourceId -ResourceName $RedisInstanceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

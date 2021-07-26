@@ -12,7 +12,6 @@ param (
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
-    [Parameter(Mandatory)][string] $AppServiceDiagnosticsName,
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
@@ -33,10 +32,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
+Write-Warning 'This script is deprecated. Please use the Create-Web-App.ps1 and the Create-App-Service-Plan-Windows.ps1 instead.'
+
 # Create AppServicePlan
 & "$PSScriptRoot\Create-App-Service-Plan-Windows.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -AppServicePlanNumberOfWorkerInstances $AppServicePlanNumberOfWorkerInstances -ResourceTags ${ResourceTags}
 
 # Create AppService
-& "$PSScriptRoot\Create-Web-App-Windows.ps1" @PSBoundParameters
+& "$PSScriptRoot\Create-Web-App.ps1" @PSBoundParameters
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
