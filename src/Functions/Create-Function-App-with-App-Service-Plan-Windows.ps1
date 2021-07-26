@@ -12,7 +12,6 @@ param (
     [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Parameter(Mandatory)][string] $FunctionAppStorageAccountName,
-    [Parameter(Mandatory)][string] $FunctionAppDiagnosticsName,
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
@@ -35,10 +34,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
+Write-Warning 'This script is deprecated. Please use the Create-Function-App.ps1 and the Create-App-Service-Plan-Windows.ps1 instead.'
+
 # Create App Service Plan
 & "$PSScriptRoot\..\App-Services\Create-App-Service-Plan-Windows.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -AppServicePlanNumberOfWorkerInstances $AppServicePlanNumberOfWorkerInstances -ResourceTags ${ResourceTags}
 
 # Create Function App
-& "$PSScriptRoot\Create-Function-App-Windows.ps1" @PSBoundParameters
+& "$PSScriptRoot\Create-Function-App.ps1" -FunctionAppOSType 'Windows' @PSBoundParameters
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

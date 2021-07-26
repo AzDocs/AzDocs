@@ -9,7 +9,6 @@ param (
     [Parameter(Mandatory)][string] $AppConfigName,
     [Parameter()][string] $AppConfigLocation = "westeurope",
     [Parameter(Mandatory)][string] $AppConfigResourceGroupName,
-    [Parameter()][string] $AppConfigDiagnosticsName,
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter()][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
@@ -33,12 +32,8 @@ Invoke-Executable az appconfig create --resource-group $AppConfigResourceGroupNa
 # Fetch the App Config ID to use while creating the Diagnostics settings in the next step
 $appConfigId = (Invoke-Executable az appconfig show --name $AppConfigName --resource-group $AppConfigResourceGroupName | ConvertFrom-Json).id
 
-# Get root path and make sure the right provider is registered
-$RootPath = Split-Path $PSScriptRoot -Parent
-& "$RootPath\Resource-Provider\Register-Provider.ps1" -ResourceProviderNamespace 'Microsoft.Insights'
-
 # Create diagnostics settings for the App Config resource
-Invoke-Executable az monitor diagnostic-settings create --resource $appConfigId --name $AppConfigDiagnosticsName --workspace $LogAnalyticsWorkspaceResourceId --metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+Set-DiagnosticSettings -ResourceId $appConfigId -ResourceName $AppConfigName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 # Add private endpoint & Setup Private DNS
 Add-PrivateEndpoint -PrivateEndpointVnetId $appConfigPrivateEndpointVnetId -PrivateEndpointSubnetId $appConfigPrivateEndpointSubnetId -PrivateEndpointName $appConfigPrivateEndpointName -PrivateEndpointResourceGroupName $AppConfigResourceGroupName -TargetResourceId $appConfigId -PrivateEndpointGroupId configurationStores -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $AppConfigPrivateDnsZoneName -PrivateDnsLinkName "$($AppConfigPrivateEndpointVnetName)-appcfg"

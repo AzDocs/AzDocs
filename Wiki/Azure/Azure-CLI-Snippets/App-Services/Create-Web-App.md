@@ -2,8 +2,6 @@
 
 # Description
 
-<font color="red">NOTE: This script is now legacy. Please use `Create-Web-App` instead of this task.</font>
-
 This snippet will create an Web App if it does not exist. It also adds the mandatory tags to the resources.
 
 The webapp is set to https only and the webapp cannot be deployed with ftp(s) for to be compliant with the azure policies.
@@ -23,13 +21,13 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Required Normal WebApp | Required Container | Example Value | Description |
 |--|--|--|--|--|
 | AppServiceName | <input type="checkbox" checked> | <input type="checkbox" checked> | `azuretestapi-$(Release.EnvironmentName)` | The name of the webapp. It's recommended to stick to alphanumeric & hyphens for this. |
-| AppServicePlanName | <input type="checkbox" checked> | <input type="checkbox" checked> | `Shared-ASP-$(Release.EnvironmentName)-Win-1` | The AppService Plan name. Mandatory and and this may be an existing App service plan, Windows App services should use a different App Service Plan then Linux App services |
+| AppServicePlanName | <input type="checkbox" checked> | <input type="checkbox" checked> | `Shared-ASP-$(Release.EnvironmentName)-Win-1` \ `Shared-ASP-$(Release.EnvironmentName)-Linux` | The AppService Plan name. Mandatory and and this may be an existing App service plan, Windows App services should use a different App Service Plan then Linux App services. |
 | LogAnalyticsWorkspaceResourceId | <input type="checkbox" checked> | <input type="checkbox" checked> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace the appservice is using for writing its diagnostics settings). |
 | AppServicePlanResourceGroupName | <input type="checkbox" checked> | <input type="checkbox" checked> | `Shared-ASP-$(Release.EnvironmentName)-Win` | The ResourceGroup name where the AppServicePlan resides in. |
 | AppServiceResourceGroupName | <input type="checkbox" checked> | <input type="checkbox" checked> | `MyTeam-TestApi-$(Release.EnvironmentName)` | The ResourceGroup where your desired AppService will reside in |
-| AppServiceRunTime | <input type="checkbox" checked> | <input type="checkbox"> | `'"DOTNETCORE|3.1"'` | The name of the runtime stack. Note: you need to encapsulate this value (even when you pass it as a variable) with a `' " <value> " '` (without spaces), which is needed to mitigate the parsing of the pipe character in this string. If you forget to do this, you will get an error about the runtime which could not be found. For a list of runtimes please use the `az webapp list-runtimes --linux` command [(Documentation here)](https://docs.microsoft.com/en-us/cli/azure/webapp?view=azure-cli-latest#az_webapp_list_runtimes). |
+| AppServiceRunTime | <input type="checkbox" checked> | <input type="checkbox"> | `'"DOTNETCORE|3.1"'` | The name of the runtime stack. Note: you need to encapsulate this value (even when you pass it as a variable) with a `' " <value> " '` (without spaces), which is needed to mitigate the parsing of the pipe character in this string. If you forget to do this, you will get an error about the runtime which could not be found. For a list of runtimes please use the `az webapp list-runtimes --linux` or `az webapp list-runtimes` for windows command [(Documentation here)](https://docs.microsoft.com/en-us/cli/azure/webapp?view=azure-cli-latest#az_webapp_list_runtimes). |
 | AppServiceAlwaysOn | <input type="checkbox"> | <input type="checkbox"> | `true` | OPTIONAL: by default set to true. |
-| ContainerImageName | <input type="checkbox"> | <input type="checkbox" checked> | `thelastpickle/cassandra-reaper:latest` | Docker hub Image name with optional tag. |
+| ContainerImageName | <input type="checkbox"> | <input type="checkbox" checked> | `thelastpickle/cassandra-reaper:latest` | Docker hub Image name with optional tag. This can only be used if you use the Linux app service. |
 | AppServiceNumberOfInstances | <input type="checkbox"> | <input type="checkbox"> | `2` | OPTIONAL: You can define how much instances of your appservice will be ran (use 2 or more for HA. use 1 if you have server side sessions/stateful apps). The default value (if you don't pass any value) will be 2. |
 | EnableAppServiceDeploymentSlot | <input type="checkbox"> | <input type="checkbox"> | If you pass this switch (without value), a deployment slot will be created. |
 | AppServiceDeploymentSlotName | <input type="checkbox"> | <input type="checkbox"> | `'staging'` | Name of the slot to create additional to the production slot. Has the default value of "staging". |

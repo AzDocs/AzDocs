@@ -19,7 +19,10 @@ param (
     [Parameter()][string] $PrivateEndpointGroupId,
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $ContainerRegistryPrivateDnsZoneName
+    [Parameter()][string] $ContainerRegistryPrivateDnsZoneName,
+
+    # Diagnostic Settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
 
 #region ===BEGIN IMPORTS===
@@ -34,7 +37,7 @@ if ($ContainerRegistryEnableAdminUser)
     $scriptArguments += "--admin-enabled", "true"
 }
 
-Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku $ContainerRegistrySku @scriptArguments
+$containerRegistryId = (Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku $ContainerRegistrySku @scriptArguments | ConvertFrom-Json).id
 
 # Private Endpoint
 if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName)
@@ -61,5 +64,8 @@ if ($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResour
     # Make sure the default action is "deny" which causes public traffic to be dropped (like is defined in the KSP)
     Invoke-Executable az acr update --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --default-action Deny
 }
+
+# Add diagnostic settings to container registry
+Set-DiagnosticSettings -ResourceId $containerRegistryId -ResourceName $ContainerRegistryName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'ContainerRegistryRepositoryEvents', 'enabled': true }, { 'category': 'ContainerRegistryLoginEvents', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
