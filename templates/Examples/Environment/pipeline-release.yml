@@ -77,8 +77,6 @@ jobs:
         # Certificate KeyVault
       - name: KeyvaultResourceGroupName
         value: $(ResourceGroupName)
-      - name: KeyvaultDiagnosticsName
-        value: $(CertificateKeyvaultName)
       - name: ApplicationVnetResourceGroupName
         value: $(ResourceGroupName)
       - name: ApplicationVnetName
@@ -170,7 +168,7 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1"
-                arguments: "-KeyvaultName '$(CertificateKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -KeyvaultDiagnosticsName '$(KeyvaultDiagnosticsName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+                arguments: "-KeyvaultName '$(CertificateKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
             - task: AzureCLI@2
               displayName: "Create Application Gateway"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
