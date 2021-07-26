@@ -37,9 +37,11 @@ Write-Host "PublicIp: $publicIpId"
 
 Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId
 
-if ($ApplicationGatewaySku -contains "WAF") {
+if ($ApplicationGatewaySku -contains "WAF")
+{
     $wafMode = "Detection"
-    if ($EnableWafPreventionMode) {
+    if ($EnableWafPreventionMode)
+    {
         $wafMode = "Prevention"
     }
 
