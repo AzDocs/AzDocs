@@ -61,7 +61,7 @@ if ($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResour
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-Container-Registry.ps1" -ContainerRegistryName $ContainerRegistryName -ContainerRegistryResourceGroupName $ContainerRegistryResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 
-    # Make sure the default action is "deny" which causes public traffic to be dropped (like is defined in the KSP)
+    # Make sure the default action is "deny" which causes public traffic to be dropped.
     Invoke-Executable az acr update --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --default-action Deny
 }
 
