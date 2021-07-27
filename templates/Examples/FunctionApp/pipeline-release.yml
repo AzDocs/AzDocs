@@ -211,7 +211,7 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1"
-                arguments: "-StorageAccountResourceGroupName '$(ResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(StorageAccountName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+                arguments: "-StorageAccountResourceGroupName '$(ResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(StorageAccountName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
             - task: AzureCLI@2
               displayName: "Create Function App Linux"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))

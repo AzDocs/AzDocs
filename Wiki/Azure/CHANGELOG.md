@@ -41,7 +41,7 @@ Happy deploying!
 - Added diagnostic settings to `Create-SQL-Database.ps1`
   - Added mandatory parameters `LogAnalyticsWorkspaceResourceId`
 - Added diagnostic settings to `Create-AppInsights-Resource.ps1`
-  - Added mandatory parameters `DiagnosticSettingLogAnalyticsWorkspaceResourceId`
+  - Added mandatory parameters `LogAnalyticsWorkspaceResourceId`
 - Added diagnostic settings to `Create-Application-Gateway.ps1`
   - Added mandatory parameters `LogAnalyticsWorkspaceResourceId`
 
