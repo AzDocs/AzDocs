@@ -68,6 +68,7 @@ Be aware that this YAML example contains all parameters that can be used with th
            inputs:
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
+               addSpnToEnvironment: True
                scriptPath: '$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Server.ps1'
                arguments: "-SqlServerSubscriptionId '$(SqlServerSubscriptionId)' -SqlServerPassword '$(SqlServerPassword)' -SqlServerUsername '$(SqlServerUsername)' -SqlServerName '$(SqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -SqlServerMinimalTlsVersion '$(SqlServerMinimalTlsVersion)' -SqlServerEnablePublicNetwork '$(SqlServerEnablePublicNetwork)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -SqlServerPrivateEndpointVnetResourceGroupName '$(SqlServerPrivateEndpointVnetResourceGroupName)' -SqlServerPrivateEndpointVnetName '$(SqlServerPrivateEndpointVnetName)' -SqlServerPrivateEndpointSubnetName '$(SqlServerPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -SqlServerPrivateDnsZoneName '$(SqlServerPrivateDnsZoneName)'"
 ```

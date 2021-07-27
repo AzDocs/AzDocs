@@ -252,6 +252,7 @@ jobs:
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
+                addSpnToEnvironment: True
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Server.ps1"
                 arguments: "-SqlServerSubscriptionId '${{ parameters.SubscriptionName }}' -SqlServerPassword '$(SqlServerPassword)' -SqlServerUsername '$(SqlServerUsername)' -SqlServerName '$(SqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerMinimalTlsVersion '$(SqlServerMinimalTlsVersion)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
             - task: AzureCLI@2
