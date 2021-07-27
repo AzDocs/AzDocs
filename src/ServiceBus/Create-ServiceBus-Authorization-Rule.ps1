@@ -18,15 +18,15 @@ $ServiceBusAuthRightsConcat = $ServiceBusAuthRights -join ' '
 
 if ($ServiceBusQueueName)
 {
-    Invoke-Executable az servicebus queue authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --queue-name $ServiceBusQueueName --name $ServiceBusAuthorizationRuleName --rights "$ServiceBusAuthRightsConcat"
+    Invoke-Executable az servicebus queue authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --queue-name $ServiceBusQueueName --name $ServiceBusAuthorizationRuleName --rights $ServiceBusAuthRights
 }
 elseif ($ServiceBusTopicName)
 {
-    Invoke-Executable az servicebus topic authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --topic-name $ServiceBusTopicName --name $ServiceBusAuthorizationRuleName --rights "$ServiceBusAuthRightsConcat"
+    Invoke-Executable az servicebus topic authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --topic-name $ServiceBusTopicName --name $ServiceBusAuthorizationRuleName --rights $ServiceBusAuthRights
 }
 else
 {
-    Invoke-Executable az servicebus namespace authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --name $ServiceBusAuthorizationRuleName --rights "$ServiceBusAuthRightsConcat"
+    Invoke-Executable az servicebus namespace authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --name $ServiceBusAuthorizationRuleName --rights $ServiceBusAuthRights
 }
 
 
