@@ -47,9 +47,8 @@ We also make sure that there can be no confusion between parameters and the work
 
 Whenever submitting new scripts, please make sure it is checked against the checklist below.
 
-[] Using the `Allman` code formatting with `openBraceOnSameLine` set to false.
-[] All CLI statements are wrapped into `Invoke-Executable`.
-
+- [ ] Using the `Allman` code formatting with `openBraceOnSameLine` set to false.
+- [ ] All CLI statements are wrapped into `Invoke-Executable`.
 - For CLI statements use full parameter names instead of abbreviations. So `--name` instead of `-n` and `--resource-group` instead of `-g`.
 - Be explicit with your script parameter names. As described in the previous paragraph.
 - Scripts which are created should not break previous versions unless it's absolutely not possible to create backwards compatibility.
