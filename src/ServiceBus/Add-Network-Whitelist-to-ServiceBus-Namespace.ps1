@@ -22,14 +22,6 @@ if ($ServiceBusSku -eq 'Premium')
     # Confirm if the correct parameters are passed
     Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
     
-    # Autogenerate CIDR if no CIDR or Subnet is passed
-    
-    $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
-    
-    # Github issue for being able to add the same ip-addressess: https://github.com/Azure/azure-cli/issues/18479
-    # Have to add suffix because of bug: 
-    $CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'servicebus' -CIDR:$CIDRToWhitelist
-    
     # Fetch Subnet ID when subnet option is given.
     if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
     {
@@ -37,6 +29,14 @@ if ($ServiceBusSku -eq 'Premium')
         
         # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
         Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.ServiceBus"
+    }
+    else
+    {
+        # Autogenerate CIDR if no CIDR or Subnet is passed
+        $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
+        
+        # Check if valid CIDR
+        $CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'servicebus' -CIDR:$CIDRToWhitelist
     }
     
     $optionalParameters = @()
@@ -53,7 +53,7 @@ if ($ServiceBusSku -eq 'Premium')
 }
 else
 {
-    Write-Warning "Network Whitelist only possible for Premium ServiceBus SKU. Current SKU: $ServiceBusSku"
+    throw "Network Whitelist only possible for Premium ServiceBus SKU. Current SKU: $ServiceBusSku"
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
