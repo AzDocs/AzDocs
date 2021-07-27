@@ -47,22 +47,22 @@ We also make sure that there can be no confusion between parameters and the work
 
 Whenever submitting new scripts, please make sure it is checked against the checklist below.
 
-- [ ] Using the `Allman` code formatting with `openBraceOnSameLine` set to false.
-- [ ] All CLI statements are wrapped into `Invoke-Executable`.
-- For CLI statements use full parameter names instead of abbreviations. So `--name` instead of `-n` and `--resource-group` instead of `-g`.
-- Be explicit with your script parameter names. As described in the previous paragraph.
-- Scripts which are created should not break previous versions unless it's absolutely not possible to create backwards compatibility.
-- Parameters for scripts that are mandatory, should be marked as such using the `[Parameter(Mandatory)]` notation.
-- Use strongly typed parameters for all script parameters.
-- ​Comments should be provided if needed to explain certain workings of the script.
-- For every resource that can make use of Managed Identities, these should be created and used (see Create-Web-App-Linux.ps1).
-- For every resource that can make use of Diagnostic Settings, these should be enabled and send to the correct LAW.
-- For every resource that can make use of VNet whitelisting, this should be configurable and added to the script.
-- For every resource that can make use of Private Endpoints, this should be configurable and added to the script.
-- A wiki page should be added with the following information:
-  - Description - Short description of the script and what it does.
-  - Parameters - A list of parameters that are used in the scripts, their descriptions, example values and if they're required.
-  - YAML - A yaml task that can be copied/pasted into a pipeline.
-  - Code - Link to download the script.
-  - Links - Links that can be used to get more information about the different scripts.
-- The script should've been tested (including for every subresource that it could be used for).
+- <input type="checkbox"> Using the `Allman` code formatting with `openBraceOnSameLine` set to false.
+- <input type="checkbox"> All CLI statements are wrapped into `Invoke-Executable`.
+- <input type="checkbox"> For CLI statements use full parameter names instead of abbreviations. So `--name` instead of `-n` and `--resource-group` instead of `-g`.
+- <input type="checkbox"> Be explicit with your script parameter names. As described in the previous paragraph.
+- <input type="checkbox"> Scripts which are created should not break previous versions unless it's absolutely not possible to create backwards compatibility.
+- <input type="checkbox"> Parameters for scripts that are mandatory, should be marked as such using the `[Parameter(Mandatory)]` notation.
+- <input type="checkbox"> Use strongly typed parameters for all script parameters.
+- <input type="checkbox"> ​Comments should be provided if needed to explain certain workings of the script.
+- <input type="checkbox"> For every resource that can make use of Managed Identities, these should be created and used (see Create-Web-App-Linux.ps1).
+- <input type="checkbox"> For every resource that can make use of Diagnostic Settings, these should be enabled and send to the correct LAW.
+- <input type="checkbox"> For every resource that can make use of VNet whitelisting, this should be configurable and added to the script.
+- <input type="checkbox"> For every resource that can make use of Private Endpoints, this should be configurable and added to the script.
+- <input type="checkbox"> A wiki page should be added with the following information:
+  - <input type="checkbox"> Description - Short description of the script and what it does.
+  - <input type="checkbox"> Parameters - A list of parameters that are used in the scripts, their descriptions, example values and if they're required.
+  - <input type="checkbox"> YAML - A yaml task that can be copied/pasted into a pipeline.
+  - <input type="checkbox"> Code - Link to download the script.
+  - <input type="checkbox"> Links - Links that can be used to get more information about the different scripts.
+- <input type="checkbox"> The script should've been tested (including for every subresource that it could be used for).
