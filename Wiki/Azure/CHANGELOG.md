@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [TBD]
+
+- Removed `ApplicationSubnetName` from `Create-App-Configuration.ps1` since it was not being used.
+
 ## [2021.07.26]
 
 New scripts and improvements!
