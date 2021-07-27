@@ -14,21 +14,17 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-#$ServiceBusAuthRightsConcat = $ServiceBusAuthRights -join ' '
-$ServiceBusAuthRightsParam = @();
-$ServiceBusAuthRightsParam += '--rights', $ServiceBusAuthRights;
-
 if ($ServiceBusQueueName)
 {
-    Invoke-Executable az servicebus queue authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --queue-name $ServiceBusQueueName --name $ServiceBusAuthorizationRuleName @ServiceBusAuthRightsParam
+    Invoke-Executable az servicebus queue authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --queue-name $ServiceBusQueueName --name $ServiceBusAuthorizationRuleName --rights @ServiceBusAuthRights
 }
 elseif ($ServiceBusTopicName)
 {
-    Invoke-Executable az servicebus topic authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --topic-name $ServiceBusTopicName --name $ServiceBusAuthorizationRuleName @ServiceBusAuthRightsParam
+    Invoke-Executable az servicebus topic authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --topic-name $ServiceBusTopicName --name $ServiceBusAuthorizationRuleName --rights @ServiceBusAuthRights
 }
 else
 {
-    Invoke-Executable az servicebus namespace authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --name $ServiceBusAuthorizationRuleName @ServiceBusAuthRightsParam
+    Invoke-Executable az servicebus namespace authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --name $ServiceBusAuthorizationRuleName --rights @ServiceBusAuthRights
 }
 
 
