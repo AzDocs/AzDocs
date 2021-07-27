@@ -1,20 +1,25 @@
 [CmdletBinding()]
 param (
-    [Alias("VnetResourceGroupName")]
-    [Parameter(Mandatory)][string] $AppConfigPrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
-    [Parameter(Mandatory)][string] $AppConfigPrivateEndpointVnetName,
-    [Parameter(Mandatory)][string] $AppConfigPrivateEndpointSubnetName,
-    [Parameter(Mandatory)][string] $AppConfigName,
-    [Parameter()][string] $AppConfigLocation = "westeurope",
     [Parameter(Mandatory)][string] $AppConfigResourceGroupName,
-    [Alias("LogAnalyticsWorkspaceName")]
+    [Parameter(Mandatory)][string] $AppConfigName,
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
-    [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
+    [Parameter()][string] $AppConfigLocation = "westeurope",
+    [Alias("LogAnalyticsWorkspaceName")]
+    [Parameter()][ValidateSet("Free", "Standard")][string] $AppConfigSku = 'Standard',
+    [Parameter()][bool] $AppConfigAllowPublicAccess = $false,
+
+    # Private Endpoint
+    [Alias("VnetResourceGroupName")]
+    [Parameter()][string] $AppConfigPrivateEndpointVnetResourceGroupName,
+    [Alias("VnetName")]
+    [Parameter()][string] $AppConfigPrivateEndpointVnetName,
+    [Parameter()][string] $AppConfigPrivateEndpointSubnetName,
+    [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $AppConfigPrivateDnsZoneName = "privatelink.azconfig.io",
-    [Parameter()][ValidateSet("Free", "Standard")][string] $AppConfigSku = 'Standard',
-    [Parameter()][bool] $AppConfigAllowPublicAccess = $false
+
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic
 )
 
 #region ===BEGIN IMPORTS===
@@ -22,6 +27,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+if (!$AppConfigPrivateEndpointVnetResourceGroupName -or !$AppConfigPrivateEndpointVnetName -or !$AppConfigPrivateEndpointSubnetName -or !$PrivateEndpointGroupId -or !$DNSZoneResourceGroupName -or !$AppConfigPrivateDnsZoneName)
+{
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
+
 
 # Create AppConfig with the appropriate tags
 Invoke-Executable az appconfig create --resource-group $AppConfigResourceGroupName --name $AppConfigName --location $AppConfigLocation --sku $AppConfigSku
