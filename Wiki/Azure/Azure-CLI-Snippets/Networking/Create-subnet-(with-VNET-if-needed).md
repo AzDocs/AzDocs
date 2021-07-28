@@ -22,14 +22,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create subnet with VNET if needed'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1'
-               arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(SubnetName)' -Subnet '$(Subnet)' -DNSServers '$(DNSServers)' -ResourceTags $(ResourceTags)"
+- task: AzureCLI@2
+  displayName: "Create subnet with VNET if needed"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1"
+    arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(SubnetName)' -Subnet '$(Subnet)' -DNSServers '$(DNSServers)' -ResourceTags $(ResourceTags)"
 ```
 
 # Code
