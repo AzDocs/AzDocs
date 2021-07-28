@@ -44,7 +44,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
 }
 
 # Private Endpoint
-if ($ServiceBusNamespacePrivateEndpointVnetName -and $ServiceBusNamespacePrivateEndpointVnetResourceGroupName -and $ServiceBusNamespacePrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ServiceBusNamespacePrivateDnsZoneName)
+if ($ServiceBusNamespacePrivateEndpointVnetName -and $ServiceBusNamespacePrivateEndpointVnetResourceGroupName -and $ServiceBusNamespacePrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $ServiceBusNamespacePrivateDnsZoneName)
 {
     if ($ServiceBusNamespaceSku -ne "Premium")
     {
