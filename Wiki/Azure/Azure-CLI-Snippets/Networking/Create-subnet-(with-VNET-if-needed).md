@@ -8,11 +8,14 @@ This snippet will create a VNET if it does not exist with a subnet if it doesnt 
 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter  | Example Value  | Description                                                                  |
-| ---------- | -------------- | ---------------------------------------------------------------------------- |
-| VnetCidr   | `10.0.0.0/16`  | The VNET address space to create. This uses the CIDR notation.               |
-| Subnet     | `10.0.0.0/24`  | The subnet identifier for the subnet to create. This uses the CIDR notation. |
-| SubnetName | `app-subnet-3` | The name to use for the subnet to create.                                    |
+| Parameter             | Required                        | Example Value                        | Description                                                                                                              |
+| --------------------- | ------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| VnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET to use for your resource.                                                                           |
+| VnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                  | The ResourceGroup where your VNET resides in. If you are unsure use `sharedservices-rg`                                  |
+| VnetCidr              | <input type="checkbox" checked> | `10.0.0.0/16`                        | The VNET address space to create. This uses the CIDR notation.                                                           |
+| SubnetName            | <input type="checkbox" checked> | `app-subnet-3`                       | The name to use for the subnet to create.                                                                                |
+| Subnet                | <input type="checkbox" checked> | `10.0.0.0/24`                        | The subnet identifier for the subnet to create. This uses the CIDR notation.                                             |
+| DNSServers            | <input type="checkbox">         | `168.63.129.16`                      | Space separated list of DNS servers. This defauts to `168.63.129.16` (the default private endpoint DNS server for Azure) |
 
 # YAML
 
