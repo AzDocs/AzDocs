@@ -42,10 +42,15 @@ else
     $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName 
 
     # Only add if CIDR doesn't exist
-    $existingCIDR = ((Invoke-Executable az servicebus namespace network-rule list --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.ipMask -eq $CIDRToWhitelist }
+    $existingCIDR = ((Invoke-Executable -AllowToFail az servicebus namespace network-rule list --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.ipMask -eq $CIDRToWhitelist }
     if (!$existingCIDR)
     {
         Invoke-Executable az servicebus namespace network-rule add --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName --ip-address $existingCIDR
+        Write-Host "CIDR $CIDRToWhitelist added"
+    }
+    else
+    {
+        Write-Host "CIDR $CIDRToWhitelist already present"
     }
 }
 
