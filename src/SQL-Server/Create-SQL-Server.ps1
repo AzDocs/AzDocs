@@ -74,6 +74,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
 if ($LogAnalyticsWorkspaceResourceId) {
     # Fetch subscription name
     $subscriptionName = (Invoke-Executable az account show | ConvertFrom-Json).name
+    Write-Host "Found subscriptionName: $subscriptionName"
 
     # Set auditing policy on SQL server
     Install-Module PowerShellGet -Force
