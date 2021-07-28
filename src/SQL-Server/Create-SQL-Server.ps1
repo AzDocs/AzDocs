@@ -34,20 +34,23 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$SqlServerPrivateEndpointVnetResourceGroupName -or !$SqlServerPrivateEndpointVnetName -or !$SqlServerPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$SqlServerPrivateDnsZoneName)) {
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$SqlServerPrivateEndpointVnetResourceGroupName -or !$SqlServerPrivateEndpointVnetName -or !$SqlServerPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$SqlServerPrivateDnsZoneName))
+{
     # Check if we are making this resource public intentionally
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
 # Create SQL Server
-if (!(Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName)) {
+if (!(Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName))
+{
     Invoke-Executable az sql server create --admin-password $SqlServerPassword --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName --enable-public-network $SqlServerEnablePublicNetwork --minimal-tls-version $SqlServerMinimalTlsVersion
 }
 
 # Fetch the resource id for the just created SQL Server
 $sqlServerId = (Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).id
 
-if ($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpointVnetName -and $SqlServerPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $SqlServerPrivateDnsZoneName) {
+if ($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpointVnetName -and $SqlServerPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $SqlServerPrivateDnsZoneName)
+{
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
     $vnetId = (Invoke-Executable az network vnet show --resource-group $SqlServerPrivateEndpointVnetResourceGroupName --name $SqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -59,7 +62,8 @@ if ($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpoin
 }
 
 
-if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName) {
+if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
+{
     #REMOVE OLD NAMES
     $oldAccessRuleName = "$($ApplicationVnetName)_$($ApplicationSubnetName)_allow"
     Remove-VnetRulesIfExists -ServiceType 'sql' -ResourceGroupName $SqlServerResourceGroupName -ResourceName $SqlServerName -AccessRuleName $oldAccessRuleName
@@ -71,7 +75,8 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     & "$PSScriptRoot\Add-Network-Whitelist-to-Sql-Server.ps1" -SqlServerName $SqlServerName -SqlServerResourceGroupName $SqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 }
 
-if ($LogAnalyticsWorkspaceResourceId) {
+if ($LogAnalyticsWorkspaceResourceId)
+{
     # Fetch subscription name
     $subscriptionName = (Invoke-Executable az account show | ConvertFrom-Json).name
     Write-Host "Found subscriptionName: $subscriptionName"
