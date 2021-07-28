@@ -4,14 +4,18 @@ param (
     [Parameter(Mandatory)][string] $ContainerResourceGroupName,
     [Parameter(Mandatory)][int] $ContainerCpuCount,
     [Parameter(Mandatory)][int] $ContainerMemoryInGb,
-    [Parameter(Mandatory)][string] $ContainerOs,
+    [Parameter(Mandatory)][string][ValidateSet("Linux", "Windows")] $ContainerOs,
     [Parameter(Mandatory)][string] $ContainerPorts,
     [Parameter(Mandatory)][string] $ContainerImageName,
+
+    # Networking
     [Alias("VnetName")]
-    [Parameter(Mandatory)][string] $ContainerVnetName,
+    [Parameter()][string] $ContainerVnetName,
     [Alias("VnetResourceGroupName")]
-    [Parameter(Mandatory)][string] $ContainerVnetResourceGroupName,
-    [Parameter(Mandatory)][string] $ContainerSubnetName,
+    [Parameter()][string] $ContainerVnetResourceGroupName,
+    [Parameter()][string] $ContainerSubnetName,
+    [Parameter()][string][ValidateSet("Private", "Public")] $ContainerIpAddressType = "Private",
+    
     [Alias("RegistryLoginServer")]
     [Parameter()][string] $ImageRegistryLoginServer,
     [Alias("RegistryUserName")]
@@ -38,48 +42,64 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerVnetName | ConvertFrom-Json).id
-$containerSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerSubnetName --vnet-name $ContainerVnetName | ConvertFrom-Json).id
 $ContainerName = $ContainerName.ToLower()
+$optionalParameters = @()
+if ($ContainerIpAddressType -eq "Private")
+{
+    if (!$ContainerVnetName -or !$ContainerVnetResourceGroupName -or !$ContainerSubnetName)
+    {
+        throw 'You have specified the container to be Private. Make sure to provide the values for ContainerVnetName, ContainerVnetResourceGroupName and ContainerSubnetName.'
+    }
 
-$scriptArguments = "--name", "$ContainerName", "--resource-group", "$ContainerResourceGroupName", "--ip-address", "Private", "--os-type", "$ContainerOs", "--cpu", $ContainerCpuCount, "--memory", $ContainerMemoryInGb, "--image", "$ContainerImageName", "--vnet", "$vnetId", "--subnet", "$containerSubnetId"
+    $vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerVnetName | ConvertFrom-Json).id
+    $containerSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerSubnetName --vnet-name $ContainerVnetName | ConvertFrom-Json).id
+    $optionalParameters += "--vnet", "$vnetId", "--subnet", "$containerSubnetId"
+}
 
-if ($ContainerPorts) {
+if ($ContainerPorts)
+{
     # Add the ports (nasty hack)
-    $scriptArguments += "--ports"
-    foreach ($port in ($ContainerPorts -split ' ')) {
-        $scriptArguments += $port
+    $optionalParameters += "--ports"
+    foreach ($port in ($ContainerPorts -split ' '))
+    {
+        $optionalParameters += $port
     }
 }
 
-if ($ImageRegistryLoginServer) {
-    $scriptArguments += "--registry-login-server", "$ImageRegistryLoginServer"
+if ($ImageRegistryLoginServer)
+{
+    $optionalParameters += "--registry-login-server", "$ImageRegistryLoginServer"
 }
 
-if ($ImageRegistryUserName) {
-    $scriptArguments += "--registry-username", "$ImageRegistryUserName"
+if ($ImageRegistryUserName)
+{
+    $optionalParameters += "--registry-username", "$ImageRegistryUserName"
 }
 
-if ($ImageRegistryPassword) {
-    $scriptArguments += "--registry-password", "$ImageRegistryPassword"
+if ($ImageRegistryPassword)
+{
+    $optionalParameters += "--registry-password", "$ImageRegistryPassword"
 }
 
-if ($ContainerEnvironmentVariables) {
-    $scriptArguments += "--environment-variables", $ContainerEnvironmentVariables -split $ContainerEnvironmentVariablesDelimiter
+if ($ContainerEnvironmentVariables)
+{
+    $optionalParameters += "--environment-variables", $ContainerEnvironmentVariables -split $ContainerEnvironmentVariablesDelimiter
 }
 
-if ($StorageAccountFileShareName -and $FileShareStorageAccountName -and $FileShareStorageAccountResourceGroupName -and $StorageAccountFileShareMountPath) {
+if ($StorageAccountFileShareName -and $FileShareStorageAccountName -and $FileShareStorageAccountResourceGroupName -and $StorageAccountFileShareMountPath)
+{
     $storageKey = Invoke-Executable az storage account keys list --resource-group $FileShareStorageAccountResourceGroupName --account-name $FileShareStorageAccountName --query=[0].value --output tsv
-    $scriptArguments += "--azure-file-volume-share-name", "$StorageAccountFileShareName", "--azure-file-volume-account-name", "$FileShareStorageAccountName", "--azure-file-volume-account-key", "$storageKey", "--azure-file-volume-mount-path", "$StorageAccountFileShareMountPath"
+    $optionalParameters += "--azure-file-volume-share-name", "$StorageAccountFileShareName", "--azure-file-volume-account-name", "$FileShareStorageAccountName", "--azure-file-volume-account-key", "$storageKey", "--azure-file-volume-mount-path", "$StorageAccountFileShareMountPath"
 }
 
-if ($LogAnalyticsWorkspaceId -and $LogAnalyticsWorkspaceKey) {
-    $scriptArguments += '--log-analytics-workspace', "$LogAnalyticsWorkspaceId"
-    $scriptArguments += '--log-analytics-workspace-key', "$LogAnalyticsWorkspaceKey"
+if ($LogAnalyticsWorkspaceId -and $LogAnalyticsWorkspaceKey)
+{
+    $optionalParameters += '--log-analytics-workspace', "$LogAnalyticsWorkspaceId"
+    $optionalParameters += '--log-analytics-workspace-key', "$LogAnalyticsWorkspaceKey"
 }
 
-Write-Host "Script Arguments: $scriptArguments"
-
-Invoke-Executable az container create @scriptArguments
+# TODO: Add managed identity when it's GA. https://docs.microsoft.com/en-us/azure/container-instances/container-instances-managed-identity
+# Create container instance
+Invoke-Executable az container create --name $ContainerName --resource-group $ContainerResourceGroupName --ip-address $ContainerIpAddressType --os-type $ContainerOS --cpu $ContainerCpuCount --memory $ContainerMemoryInGB --image $ContainerImageName @optionalParameters
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
