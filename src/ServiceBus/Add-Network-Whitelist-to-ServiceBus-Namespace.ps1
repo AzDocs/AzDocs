@@ -45,7 +45,7 @@ else
     $existingCIDR = ((Invoke-Executable -AllowToFail az servicebus namespace network-rule list --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.ipMask -eq $CIDRToWhitelist }
     if (!$existingCIDR)
     {
-        Invoke-Executable az servicebus namespace network-rule add --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName --ip-address $existingCIDR
+        Invoke-Executable az servicebus namespace network-rule add --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName --ip-address $CIDRToWhitelist
         Write-Host "CIDR $CIDRToWhitelist added"
     }
     else
