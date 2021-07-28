@@ -38,7 +38,7 @@ if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToW
 }
 else
 {
-    # Autogenerate CIDR if no CIDR or Subnet is passed
+    # Autogenerate CIDR if no CIDR is passed
     $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist
 
     # Only add if CIDR doesn't exist

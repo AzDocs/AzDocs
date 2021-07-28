@@ -32,8 +32,8 @@ if ($SubnetToRemoveSubnetName -and $SubnetToRemoveVnetName -and $SubnetToRemoveV
 }
 else
 {
-    # Autogenerate CIDR if no CIDR or Subnet is passed
-    $CIDRToRemove = Get-CIDRForWhitelist -CIDR:$CIDRToRemove -SubnetName:$SubnetToRemoveSubnetName -VnetName:$SubnetToRemoveVnetName -VnetResourceGroupName:$SubnetToRemoveVnetResourceGroupName 
+    # Autogenerate CIDR if no CIDR is passed
+    $CIDRToRemove = Get-CIDRForWhitelist -CIDR:$CIDRToRemove
 }
     
 $optionalParameters = @()
