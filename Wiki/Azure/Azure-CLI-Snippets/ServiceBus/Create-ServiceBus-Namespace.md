@@ -52,7 +52,7 @@ Be aware that this YAML example contains all parameters that can be used with th
             azureSubscription: "${{ parameters.SubscriptionName }}"
             scriptType: pscore
             scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
-            arguments: "-ServiceBusNamespaceName '$(ServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName $(ApplicationVnetResourceGroupName) -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ServiceBusApplicationSubnetName)' -ResourceTags $(Resource.Tags)"
+            arguments: "-ServiceBusNamespaceName '$(ServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ServiceBusApplicationSubnetName)' -ServiceBusNamespacePrivateEndpointVnetResourceGroupName '$(ServiceBusNamespacePrivateEndpointVnetResourceGroupName)' -ServiceBusNamespacePrivateEndpointVnetName '$(ServiceBusNamespacePrivateEndpointVnetName)' -ServiceBusNamespacePrivateEndpointSubnetName '$(ServiceBusNamespacePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -ServiceBusNamespacePrivateDnsZoneName '$(ServiceBusNamespacePrivateDnsZoneName)' -ResourceTags $(Resource.Tags)"
 ```
 
 # Code
