@@ -2,9 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## [TBD]
+## [2021.07.28]
 
 - Removed `ApplicationSubnetName` from `Create-App-Configuration.ps1` since it was not being used.
+- Added `-ForcePublic` to the scripts which spin up resources to avoid creating public resources unintentionally.
 
 ## [2021.07.26]
 
