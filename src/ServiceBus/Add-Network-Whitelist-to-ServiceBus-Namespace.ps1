@@ -39,7 +39,7 @@ if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToW
 else
 {
     # Autogenerate CIDR if no CIDR or Subnet is passed
-    $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName 
+    $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist
 
     # Only add if CIDR doesn't exist
     $existingCIDR = ((Invoke-Executable -AllowToFail az servicebus namespace network-rule list --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.ipMask -eq $CIDRToWhitelist }
