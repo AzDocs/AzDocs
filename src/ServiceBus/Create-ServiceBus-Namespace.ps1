@@ -29,6 +29,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags $ResourceTags
+$serviceBusNamespaceId = (Invoke-Executable az servicebus namespace show --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName | ConvertFrom-Json).id
 
 # VNET Whitelisting (only supported in SKU Premium)
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
@@ -53,7 +54,6 @@ if ($ServiceBusNamespacePrivateEndpointVnetName -and $ServiceBusNamespacePrivate
 
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch the basic information for creating the Private Endpoint
-    $serviceBusNamespaceId = (Invoke-Executable az servicebus namespace show --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName | ConvertFrom-Json).id
     $vnetId = (Invoke-Executable az network vnet show --resource-group $ServiceBusNamespacePrivateEndpointVnetResourceGroupName --name $ServiceBusNamespacePrivateEndpointVnetName | ConvertFrom-Json).id
     $serviceBusNamespacePrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ServiceBusNamespacePrivateEndpointVnetResourceGroupName --name $ServiceBusNamespacePrivateEndpointSubnetName --vnet-name $ServiceBusNamespacePrivateEndpointVnetName | ConvertFrom-Json).id
     $serviceBusNamespacePrivateEndpointName = "$($ServiceBusNamespaceName)-pvtsbns-$($PrivateEndpointGroupId)"
