@@ -31,26 +31,26 @@ function Invoke-Executable
 
     Write-Header -ScopedPSCmdlet $PSCmdlet -OverrideMessage "$ExecutableLiteralPath $ExecutableArguments" -OmitOutputParameters
 
-    # Execute the original executable with the original parameters
+    # Execute the original executable with the original parameters in child scope
     & $ExecutableLiteralPath $ExecutableArguments
-    
-    if ($env:System_Debug)
-    {
-        Write-Host "Returncode: $LASTEXITCODE"
-    }
-
-    # If an error was thrown and -AllowToFail is not passed --> Break the pipeline.
+    # If an error was thrown from the last operation and -AllowToFail is not passed --> Break the pipeline. 
     if (!$AllowToFail -and !$?)
     {
+        Write-Host "Returncode: $LASTEXITCODE"
         Write-Error "Arguments: $ExecutableLiteralPath $ExecutableArguments"
         Get-Error
         throw $Error
     }
 
+    if ($env:System_Debug -and $env:System_Debug -eq $true)
+    {
+        Write-Host "Returncode: $LASTEXITCODE"
+    }
+
     # Restore original $LASTEXITCODE when -AllowToFail is passed
     if ($AllowToFail)
     {
-        if ($env:System_Debug)
+        if ($env:System_Debug -and $env:System_Debug -eq $true)
         {
             Write-Host "Overriding LASTEXITCODE to $lastKnownExitCode due to -AllowToFail."
         }
