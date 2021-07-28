@@ -15,45 +15,38 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Get ServiceBus SKU. Can only be set for Premium tier.
-$ServiceBusSku = (Invoke-Executable az servicebus namespace show --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName | ConvertFrom-Json).sku.tier
+$serviceBusSku = (Invoke-Executable az servicebus namespace show --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName | ConvertFrom-Json).sku.tier
 
-if ($ServiceBusSku -eq 'Premium')
+if ($serviceBusSku -ne 'Premium')
 {
-    # Confirm if the correct parameters are passed
-    Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
-    
-    # Fetch Subnet ID when subnet option is given.
-    if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
-    {
-        $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
-        
-        # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-        Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.ServiceBus"
-    }
-    else
-    {
-        # Autogenerate CIDR if no CIDR or Subnet is passed
-        $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
-        
-        # Check if valid CIDR
-        $CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'servicebus' -CIDR:$CIDRToWhitelist
-    }
-    
-    $optionalParameters = @()
-    if ($CIDRToWhitelist)
-    {
-        $optionalParameters += "--ip-address", "$CIDRToWhitelist"
-    }
-    elseif ($subnetResourceId)
-    {
-        $optionalParameters += "--subnet", "$subnetResourceId"
-    }
-    
-    Invoke-Executable az servicebus namespace network-rule add --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName @optionalParameters
+    throw "Network Whitelist only possible for Premium ServiceBus SKU. Current SKU: $serviceBusSku"
+}
+
+# Confirm if the correct parameters are passed
+Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
+
+# Fetch Subnet ID when subnet option is given.
+if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
+{
+    $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
+
+    # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
+    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.ServiceBus"
+
+    # Execute whitelist
+    Invoke-Executable az servicebus namespace network-rule add --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName --subnet $subnetResourceId
 }
 else
 {
-    throw "Network Whitelist only possible for Premium ServiceBus SKU. Current SKU: $ServiceBusSku"
+    # Autogenerate CIDR if no CIDR or Subnet is passed
+    $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName 
+
+    # Only add if CIDR doesn't exist
+    $existingCIDR = ((Invoke-Executable az servicebus namespace network-rule list --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.ipMask -eq $CIDRToWhitelist }
+    if (!$existingCIDR)
+    {
+        Invoke-Executable az servicebus namespace network-rule add --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName --ip-address $existingCIDR
+    }
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

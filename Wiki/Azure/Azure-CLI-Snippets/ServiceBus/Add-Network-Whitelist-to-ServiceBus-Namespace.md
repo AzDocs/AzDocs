@@ -2,7 +2,7 @@
 
 # Description
 
-Adding network rules is only possible for ServiceBus with Premium tier. The script will check if ServiceBus is at Premium tier, if not, the script will write a warning, but will not fail.
+Adding network rules is only possible for ServiceBus with Premium tier. The script will check if ServiceBus is at Premium tier, if not, the script will fail (to prevent creating a public servicebus by accident).
 
 This snippet will whitelist the specified IP Range from the ServiceBus. If you leave the `CIDRToWhitelist` parameter empty, it will use the outgoing IP from where you execute this script.
 

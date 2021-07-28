@@ -2,7 +2,7 @@
 
 # Description
 
-This snippet will create a ServiceBus namespace if it does not exists.
+This snippet will create a ServiceBus namespace if it does not exist.
 
 # Parameters
 
@@ -54,3 +54,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 [Azure CLI - az-network-vnet-subnet-show](https://docs.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-show)
 
 [Azure CLI - az-network-vnet-subnet-update](https://docs.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-update)
+
+[Azure - Service Bus network security](https://docs.microsoft.com/en-us/azure/service-bus-messaging/network-security)
+
+[Azure - Service Bus Namespace Tiers](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-create-namespace-portal)
