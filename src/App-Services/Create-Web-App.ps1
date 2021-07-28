@@ -51,9 +51,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-# Check if public access is enabled and if we need to alert
 if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetName -or !$GatewayWhitelistRulePriority) -and (!$AppServicePrivateEndpointVnetResourceGroupName -or !$AppServicePrivateEndpointVnetName -or !$AppServicePrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$AppServicePrivateDnsZoneName))
 {
+    # Check if we are making this resource public intentionally
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 

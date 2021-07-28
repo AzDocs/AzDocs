@@ -33,7 +33,10 @@ param (
     [Alias("AzureFileShareMountPath")]
     [Parameter()][string] $StorageAccountFileShareMountPath,
     [Parameter()][Guid] $LogAnalyticsWorkspaceId,
-    [Parameter()][string] $LogAnalyticsWorkspaceKey
+    [Parameter()][string] $LogAnalyticsWorkspaceKey,
+
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic,
 )
 
 #region ===BEGIN IMPORTS===
@@ -54,6 +57,11 @@ if ($ContainerIpAddressType -eq "Private")
     $vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerVnetName | ConvertFrom-Json).id
     $containerSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerSubnetName --vnet-name $ContainerVnetName | ConvertFrom-Json).id
     $optionalParameters += "--vnet", "$vnetId", "--subnet", "$containerSubnetId"
+}
+else
+{
+    # Check if we are making this resource public intentionally
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
 if ($ContainerPorts)

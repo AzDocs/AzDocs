@@ -36,6 +36,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 
 if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$ContainerRegistryPrivateEndpointVnetResourceGroupName -or !$ContainerRegistryPrivateEndpointVnetName -or !$ContainerRegistryPrivateEndpointSubnetName -or !$PrivateEndpointGroupId -or !$DNSZoneResourceGroupName -or !$ContainerRegistryPrivateDnsZoneName))
 {
+    # Check if we are making this resource public intentionally
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
