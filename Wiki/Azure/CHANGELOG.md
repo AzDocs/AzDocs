@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Removed `ApplicationSubnetName` from `Create-App-Configuration.ps1` since it was not being used.
 - Added `-ForcePublic` to the scripts which spin up resources to avoid creating public resources unintentionally.
 - Corrected `Create-Log-Analytics-Workspace` documentation for the `LogAnalyticsWorkspaceSolutionTypes` parameter.
+- Removed `SqlServerSubscriptionId` from `Create-SQL-Server`. This is now fetched automatically.
 
 ## [2021.07.26]
 
