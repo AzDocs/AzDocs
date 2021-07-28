@@ -14,15 +14,18 @@ param (
     [Parameter()][string] $ApplicationSubnetName,
 
     # Private Endpoint
-    [Alias("VnetName")]
-    [Parameter()][string] $StorageAccountPrivateEndpointVnetName,
     [Alias("VnetResourceGroupName")]
     [Parameter()][string] $StorageAccountPrivateEndpointVnetResourceGroupName,
+    [Alias("VnetName")]
+    [Parameter()][string] $StorageAccountPrivateEndpointVnetName,
     [Parameter()][string] $StorageAccountPrivateEndpointSubnetName,
     [Parameter()][string] $PrivateEndpointGroupId,
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $StorageAccountPrivateDnsZoneName = "privatelink.blob.core.windows.net",
+
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic,
 
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
@@ -33,6 +36,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$StorageAccountPrivateEndpointVnetResourceGroupName -or !$StorageAccountPrivateEndpointVnetName -or !$StorageAccountPrivateEndpointSubnetName -or !$PrivateEndpointGroupId -or !$DNSZoneResourceGroupName -or !$StorageAccountPrivateDnsZoneName))
+{
+    # Check if we are making this resource public intentionally
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
 
 # Create StorageAccount with the appropriate tags
 $storageAccountId = (Invoke-Executable az storage account create --name $StorageAccountName --resource-group $StorageAccountResourceGroupName --kind $StorageAccountKind --sku $StorageAccountSku --allow-blob-public-access $StorageAccountAllowBlobPublicAccess --tags ${ResourceTags} | ConvertFrom-Json).id
