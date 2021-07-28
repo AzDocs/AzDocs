@@ -20,25 +20,39 @@ If you want to use "vnet whitelisting" on your resource. Use these parameters. U
 
 > NOTE: These parameters are only required when you want to use the VNet whitelisting feature for this resource.
 
-| Parameter                        | Required for VNET Whitelisting  | Example Value                        | Description                                                              |
-| -------------------------------- | ------------------------------- | ------------------------------------ | ------------------------------------------------------------------------ |
-| ApplicationVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                  | The ResourceGroup where your VNET, for your storage account, resides in. |
-| ApplicationVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the storage account is in                           |
-| ApplicationSubnetName            | <input type="checkbox" checked> | `app-subnet-4`                       | The subnetname for the subnet whitelist on the storage account.          |
+| Parameter                        | Required for VNET Whitelisting  | Example Value                              | Description                                                                   |
+| -------------------------------- | ------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------- |
+| ApplicationVnetResourceGroupName | <input type="checkbox" checked> | `myteam-shared-$(Release.EnvironmentName)` | The ResourceGroup where your VNET, for your ServiceBus Namespace, resides in. |
+| ApplicationVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`       | The name of the VNET the ServiceBus Namespace is in                           |
+| ApplicationSubnetName            | <input type="checkbox" checked> | `app-subnet-4`                             | The subnetname for the subnet whitelist on the ServiceBus Namespace.          |
+
+# Private Endpoint Parameters
+
+If you want to use private endpoints on your resource. Use these parameters. Private Endpoints are used for connecting to your Azure Resources from on-premises.
+
+> NOTE: These parameters are only required when you want to use a private endpoint for this resource.
+
+| Parameter                                               | Required for Pvt Endpoint       | Example Value                              | Description                                                                                                                                    |
+| ------------------------------------------------------- | ------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| ServiceBusNamespacePrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `myteam-shared-$(Release.EnvironmentName)` | The ResourceGroup where your VNET, for your ServiceBus Namespace private endpoint, resides in.                                                 |
+| ServiceBusNamespacePrivateEndpointVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`       | The name of the VNET to place the ServiceBus Namespace private endpoint in.                                                                    |
+| ServiceBusNamespacePrivateEndpointSubnetName            | <input type="checkbox" checked> | `app-subnet-3`                             | The name of the subnet where the ServiceBus Namespace's private endpoint will reside in.                                                       |
+| DNSZoneResourceGroupName                                | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)`    | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription).                                      |
+| ServiceBusNamespacePrivateDnsZoneName                   | <input type="checkbox" checked> | `privatelink.servicebus.windows.net`       | Generally this will be `privatelink.servicebus.windows.net`. This defines which DNS Zone to use for the private ServiceBus Namespace endpoint. |
 
 # YAML
 
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-            - task: AzureCLI@2
-              displayName: "Create ServiceBus Namespace"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
-                arguments: "-ServiceBusNamespaceName '$(ServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName $(ApplicationVnetResourceGroupName) -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ServiceBusApplicationSubnetName)' -ResourceTags $(Resource.Tags)"
+        - task: AzureCLI@2
+          displayName: "Create ServiceBus Namespace"
+          condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+          inputs:
+            azureSubscription: "${{ parameters.SubscriptionName }}"
+            scriptType: pscore
+            scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
+            arguments: "-ServiceBusNamespaceName '$(ServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName $(ApplicationVnetResourceGroupName) -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ServiceBusApplicationSubnetName)' -ResourceTags $(Resource.Tags)"
 ```
 
 # Code
@@ -55,6 +69,6 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 [Azure CLI - az-network-vnet-subnet-update](https://docs.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-update)
 
-[Azure - Service Bus network security](https://docs.microsoft.com/en-us/azure/service-bus-messaging/network-security)
+[Azure - ServiceBus network security](https://docs.microsoft.com/en-us/azure/service-bus-messaging/network-security)
 
-[Azure - Service Bus Namespace Tiers](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-create-namespace-portal)
+[Azure - ServiceBus Namespace Tiers](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-create-namespace-portal)

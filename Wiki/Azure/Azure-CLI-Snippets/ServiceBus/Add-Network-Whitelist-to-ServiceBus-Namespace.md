@@ -6,11 +6,13 @@ Adding network rules is only possible for ServiceBus with Premium tier. The scri
 
 This snippet will whitelist the specified IP Range from the ServiceBus. If you leave the `CIDRToWhitelist` parameter empty, it will use the outgoing IP from where you execute this script.
 
+If the given CIDR is already present, the script will not re-add the same CIDR.
+
 # Parameters
 
 | Parameter                              | Required                        | Example Value                             | Description                                                                                                                                                                                                                   |
 | -------------------------------------- | ------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ServiceBusNamespaceResourceGroupName   | <input type="checkbox" checked> | `$(ServiceBusNamespaceResourceGroupName)` | The name of the resource group the ServiceBus is in.                                                                                                                                                                          |
+| ServiceBusNamespaceResourceGroupName   | <input type="checkbox" checked> | `$(ServiceBusNamespaceResourceGroupName)` | The name of the resource group the ServiceBus Namespace is in.                                                                                                                                                                |
 | ServiceBusNamespaceName                | <input type="checkbox" checked> | `$(ServiceBusNamespaceName)`              | The name for the ServiceBus Namespace.                                                                                                                                                                                        |
 | CIDRToWhitelist                        | <input type="checkbox">         | `52.43.65.123/32`                         | IP range in [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) notation that should be whitelisted. If you leave this value empty, it will whitelist the machine's ip where you're running the script from. |
 | SubnetToWhitelistSubnetName            | <input type="checkbox">         | `gateway2-subnet`                         | The name of the subnet you want to get whitelisted.                                                                                                                                                                           |
@@ -41,6 +43,8 @@ Be aware that this YAML example contains all parameters that can be used with th
 [Azure CLI - az servicebus namespace show](https://docs.microsoft.com/nl-nl/cli/azure/servicebus/namespace?view=azure-cli-latest#az_servicebus_namespace_show)
 
 [Azure CLI - az servicebus namespace network-rule add](https://docs.microsoft.com/nl-nl/cli/azure/servicebus/namespace/network-rule?view=azure-cli-latest#az_servicebus_namespace_network_rule_add)
+
+[Azure CLI - az servicebus namespace network-rule list](https://docs.microsoft.com/nl-nl/cli/azure/servicebus/namespace/network-rule?view=azure-cli-latest#az_servicebus_namespace_network_rule_list)
 
 [Azure CLI - az-network-vnet-subnet-show](https://docs.microsoft.com/en-us/cli/azure/network/vnet/subnet?view=azure-cli-latest#az-network-vnet-subnet-show)
 

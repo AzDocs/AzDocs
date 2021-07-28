@@ -14,7 +14,6 @@ param (
     [Parameter()][string] $ServiceBusNamespacePrivateEndpointVnetName,
     [Parameter()][string] $ServiceBusNamespacePrivateEndpointVnetResourceGroupName,
     [Parameter()][string] $ServiceBusNamespacePrivateEndpointSubnetName,
-    [Parameter()][string] $PrivateEndpointGroupId,
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Parameter()][string] $ServiceBusNamespacePrivateDnsZoneName = "privatelink.servicebus.windows.net",
 
@@ -56,10 +55,10 @@ if ($ServiceBusNamespacePrivateEndpointVnetName -and $ServiceBusNamespacePrivate
     # Fetch the basic information for creating the Private Endpoint
     $vnetId = (Invoke-Executable az network vnet show --resource-group $ServiceBusNamespacePrivateEndpointVnetResourceGroupName --name $ServiceBusNamespacePrivateEndpointVnetName | ConvertFrom-Json).id
     $serviceBusNamespacePrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ServiceBusNamespacePrivateEndpointVnetResourceGroupName --name $ServiceBusNamespacePrivateEndpointSubnetName --vnet-name $ServiceBusNamespacePrivateEndpointVnetName | ConvertFrom-Json).id
-    $serviceBusNamespacePrivateEndpointName = "$($ServiceBusNamespaceName)-pvtsbns-$($PrivateEndpointGroupId)"
+    $serviceBusNamespacePrivateEndpointName = "$($ServiceBusNamespaceName)-pvtsbns"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $serviceBusNamespacePrivateEndpointSubnetId -PrivateEndpointName $serviceBusNamespacePrivateEndpointName -PrivateEndpointResourceGroupName $ServiceBusNamespaceResourceGroupName -TargetResourceId $serviceBusNamespaceId -PrivateEndpointGroupId $PrivateEndpointGroupId -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ServiceBusNamespacePrivateDnsZoneName -PrivateDnsLinkName "$($ServiceBusNamespacePrivateEndpointVnetName)-servicebusnamespace"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $serviceBusNamespacePrivateEndpointSubnetId -PrivateEndpointName $serviceBusNamespacePrivateEndpointName -PrivateEndpointResourceGroupName $ServiceBusNamespaceResourceGroupName -TargetResourceId $serviceBusNamespaceId -PrivateEndpointGroupId namespace -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ServiceBusNamespacePrivateDnsZoneName -PrivateDnsLinkName "$($ServiceBusNamespacePrivateEndpointVnetName)-servicebusnamespace"
 }
 
 # Enable diagnostic settings for storage account
