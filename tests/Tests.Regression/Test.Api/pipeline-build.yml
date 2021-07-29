@@ -1,0 +1,66 @@
+parameters:
+  - name: BuildConfiguration
+    type: string
+    default: Release
+  - name: BuildPlatform
+    type: string
+    default: Any CPU
+
+steps:
+  - task: UseDotNet@2
+    displayName: Use .NET 5
+    inputs:
+      packageType: 'sdk'
+      version: '5.x'
+  - task: UseDotNet@2
+    displayName: Use .NET Core 3.x
+    inputs:
+      packageType: 'sdk'
+      version: '3.x'
+  - task: DotNetCoreCLI@2
+    displayName: Nuget restore functionapp
+    inputs:
+      command: 'restore'
+      projects: 'TestApi.Functions/TestApi.Functions.csproj'
+      feedsToUse: 'select'
+      vstsFeed: '11abb7ea-e18b-4b92-a65d-556b1eb795a4'
+  - task: DotNetCoreCLI@2
+    displayName: Run Tests
+    inputs:
+      command: 'test'
+      projects: '\TestApi\TestApiTests.csproj'
+  - task: DotNetCoreCLI@2
+    displayName: Dotnet Publish Binaries
+    inputs:
+      command: 'publish'
+      publishWebProjects: false
+      projects: 'TestApi.Functions/TestApi.Functions.csproj'
+      arguments: '-c Debug -o "$(Build.ArtifactStagingDirectory)/functionapp" --no-restore'
+      modifyOutputPath: false
+  - task: PublishBuildArtifacts@1
+    displayName: Publish function app artifact
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp'
+      ArtifactName: 'functionapp_zip'
+      publishLocation: 'Container'
+  - task: DotNetCoreCLI@2
+    displayName: Nuget restore webapp
+    inputs:
+      command: 'restore'
+      projects: 'TestApi/TestApi.csproj'
+      feedsToUse: 'select'
+      vstsFeed: '11abb7ea-e18b-4b92-a65d-556b1eb795a4'
+  - task: DotNetCoreCLI@2
+    displayName: Dotnet publish webapp
+    inputs:
+      command: 'publish'
+      publishWebProjects: false
+      projects: 'TestApi/TestApi.csproj'
+      arguments: '-c Debug -o "$(Build.ArtifactStagingDirectory)/website" --no-restore'
+      modifyOutputPath: false
+  - task: PublishBuildArtifacts@1
+    displayName: Publish webapp artifact
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/website'
+      ArtifactName: 'Website_zip'
+      publishLocation: 'Container'

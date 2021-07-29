@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- Configurations that affect the Test Framework -->
+  <RunConfiguration>
+    <MaxCpuCount>1</MaxCpuCount>
+    <ResultsDirectory>.\TestResults</ResultsDirectory>
+    <TreatNoTestsAsError>true</TreatNoTestsAsError>
+  </RunConfiguration>
+
+  <!-- Configurations for data collectors -->
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <!-- Configuration for blame data collector -->
+      <DataCollector friendlyName="blame" enabled="True">
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+
+  <!-- Parameters used by tests at run time -->
+  <TestRunParameters>
+    <Parameter name="webAppUrl" value="http://localhost/" />
+    <Parameter name="webAppUserName" value="admin" />
+    <Parameter name="webAppPassword" value="password" />
+    <Parameter name="checkTextOnHomepage" value = "welcome" />
+    <Parameter name="checkTextOnKeyvaultPage" value = "keymyfirstsecretkey" />
+    <Parameter name="checkTextOnSQLPage" value = "[1,2]" />
+    <Parameter name="checkTextOnStoragePage" value = "volgende" />
+	<Parameter name="textOnSQLPage" value = "[1,2]" />
+    <Parameter name="textOnPostgreSql" value = "[1,2]" />
+    <Parameter name="textOnMySql" value = "[1,2]" />
+    <Parameter name="textOnFileshare" value = "[1,2]" />
+    <Parameter name="textOnRedis" value = "[1,2]" />
+    <Parameter name="textOnBlob" value = "volgende" />
+    <Parameter name="textOnQueue" value = "volgende" />
+    <Parameter name="enableVideo" value="true"/>
+    <Parameter name="enableScreenshot" value="true"/>
+  </TestRunParameters>
+
+  <!-- Configuration for loggers -->
+  <LoggerRunSettings>
+    <Loggers>
+      <Logger friendlyName="console" enabled="True">
+        <Configuration>
+            <Verbosity>normal</Verbosity>
+        </Configuration>
+      </Logger>
+      <Logger friendlyName="trx" enabled="True">
+        <Configuration>
+          <LogFileName>logfile.trx</LogFileName>
+        </Configuration>
+      </Logger>
+      <Logger friendlyName="html" enabled="True">
+        <Configuration>
+          <LogFileName>log.html</LogFileName>
+        </Configuration>
+      </Logger>
+      <Logger friendlyName="blame" enabled="True" />
+    </Loggers>
+  </LoggerRunSettings>
+
+  <!-- Adapter Specific sections -->
+
+  <!-- MSTest adapter -->
+
+
+</RunSettings>
