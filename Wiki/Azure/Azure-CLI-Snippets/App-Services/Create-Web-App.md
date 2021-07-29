@@ -47,7 +47,7 @@ If you want to use "vnet whitelisting" on your resource. Use these parameters. U
 | GatewayVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                  | The ResourceGroup where your VNET, for your Gateway, resides in.         |
 | GatewayVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the Gateway is in                                   |
 | GatewaySubnetName            | <input type="checkbox" checked> | `app-subnet-4`                       | The name of the subnet the Gateway is in                                 |
-| GatewayWhitelistRulePriority | <input type="checkbox" checked> | `20`                                 | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
+| GatewayWhitelistRulePriority | <input type="checkbox">         | `20`                                 | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
 
 # Private Endpoint Parameters
 
