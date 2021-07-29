@@ -21,20 +21,20 @@ steps:
     displayName: Nuget restore functionapp
     inputs:
       command: 'restore'
-      projects: 'TestApi.Functions/TestApi.Functions.csproj'
+      projects: 'tests/Tests.Regression/TestApi.Functions/TestApi.Functions.csproj'
       feedsToUse: 'select'
       vstsFeed: '11abb7ea-e18b-4b92-a65d-556b1eb795a4'
   - task: DotNetCoreCLI@2
     displayName: Run Tests
     inputs:
       command: 'test'
-      projects: '\TestApi\TestApiTests.csproj'
+      projects: 'tests/Tests.Regression/TestApi/TestApiTests.csproj'
   - task: DotNetCoreCLI@2
     displayName: Dotnet Publish Binaries
     inputs:
       command: 'publish'
       publishWebProjects: false
-      projects: 'TestApi.Functions/TestApi.Functions.csproj'
+      projects: 'tests/Tests.Regression/TestApi.Functions/TestApi.Functions.csproj'
       arguments: '-c Debug -o "$(Build.ArtifactStagingDirectory)/functionapp" --no-restore'
       modifyOutputPath: false
   - task: PublishBuildArtifacts@1
@@ -47,7 +47,7 @@ steps:
     displayName: Nuget restore webapp
     inputs:
       command: 'restore'
-      projects: 'TestApi/TestApi.csproj'
+      projects: 'tests/Tests.Regression/TestApi/TestApi.csproj'
       feedsToUse: 'select'
       vstsFeed: '11abb7ea-e18b-4b92-a65d-556b1eb795a4'
   - task: DotNetCoreCLI@2
@@ -55,7 +55,7 @@ steps:
     inputs:
       command: 'publish'
       publishWebProjects: false
-      projects: 'TestApi/TestApi.csproj'
+      projects: 'tests/Tests.Regression/TestApi/TestApi.csproj'
       arguments: '-c Debug -o "$(Build.ArtifactStagingDirectory)/website" --no-restore'
       modifyOutputPath: false
   - task: PublishBuildArtifacts@1

@@ -518,14 +518,14 @@ jobs:
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-ConnectionStrings-For-AppService.ps1"
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -ApplyToAllSlots $(ApplyToAllSlots)"
             # ========================================= APP SERVICE CONTENT DEPLOYMENT =========================================
-            #- task: AzureCLI@2 # TODO THIS TASK IS CURRENTLY BROKEN DUE TO A AZURE CLI BUG
-            #  displayName: "Add Network Whitelist to App Service"
-            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-            #  inputs:
-            #    azureSubscription: "${{ parameters.SubscriptionName }}"
-            #    scriptType: pscore
-            #    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Network-Whitelist-to-App-Service.ps1"
-            #    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
+            - task: AzureCLI@2
+              displayName: "Add Network Whitelist to App Service"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Network-Whitelist-to-App-Service.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
             - task: DownloadBuildArtifacts@0
               displayName: Download Application Binaries to deploy
               inputs:
@@ -553,14 +553,14 @@ jobs:
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SourceSlot: "$(AppServiceDeploymentSlotName)"
                 PreserveVnet: true
-            #- task: AzureCLI@2 # TODO THIS TASK IS CURRENTLY BROKEN DUE TO A AZURE CLI BUG
-            #  displayName: "Remove Network Whitelist from App Service"
-            #  condition: always()
-            #  inputs:
-            #    azureSubscription: "${{ parameters.SubscriptionName }}"
-            #    scriptType: pscore
-            #    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
-            #    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)'  -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
+            - task: AzureCLI@2
+              displayName: "Remove Network Whitelist from App Service"
+              condition: always()
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)'  -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
             # ========================================= APPLICATION GATEWAY =========================================
             - task: AzureCLI@2
               displayName: 'Create Application Gateway'
