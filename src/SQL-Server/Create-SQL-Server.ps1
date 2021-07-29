@@ -1,7 +1,5 @@
 [CmdletBinding()]
 param (
-    [Alias("SubscriptionId")]
-    [Parameter(Mandatory)][string] $SqlServerSubscriptionId,
     [Parameter(Mandatory)][string] $SqlServerPassword,
     [Parameter(Mandatory)][string] $SqlServerUsername,
     [Parameter(Mandatory)][string] $SqlServerName,
@@ -24,7 +22,10 @@ param (
     [Parameter()][string] $SqlServerPrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $SqlServerPrivateDnsZoneName = "privatelink.database.windows.net"
+    [Parameter()][string] $SqlServerPrivateDnsZoneName = "privatelink.database.windows.net",
+
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic
 )
 
 #region ===BEGIN IMPORTS===
@@ -32,6 +33,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$SqlServerPrivateEndpointVnetResourceGroupName -or !$SqlServerPrivateEndpointVnetName -or !$SqlServerPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$SqlServerPrivateDnsZoneName))
+{
+    # Check if we are making this resource public intentionally
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
 
 # Create SQL Server
 if (!(Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName))
@@ -70,12 +77,16 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
 
 if ($LogAnalyticsWorkspaceResourceId)
 {
+    # Fetch subscription name
+    $subscriptionName = (Invoke-Executable az account show | ConvertFrom-Json).name
+    Write-Host "Found subscriptionName: $subscriptionName"
+
     # Set auditing policy on SQL server
     Install-Module PowerShellGet -Force
     Install-Module -Name Az.Sql -Force
     $encryptedPassword = ConvertTo-SecureString -String $env:servicePrincipalKey -AsPlainText
     $pscredential = [PSCredential]::new($env:servicePrincipalId, $encryptedPassword)
-    Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $env:tenantId -Subscription $SqlServerSubscriptionId
+    Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $env:tenantId -Subscription $subscriptionName
     Set-AzSqlServerAudit -ResourceGroupName $SqlServerResourceGroupName -ServerName $SqlServerName -LogAnalyticsTargetState Enabled -WorkspaceResourceId $LogAnalyticsWorkspaceResourceId
 }
 

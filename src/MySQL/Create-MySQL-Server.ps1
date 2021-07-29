@@ -24,6 +24,9 @@ param (
     [Parameter()][string] $MySqlServerPrivateDnsZoneName = 'privatelink.mysql.database.azure.com',
     [Parameter()][string] $DNSZoneResourceGroupName,
 
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic,
+
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
@@ -33,6 +36,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$MySqlServerPrivateEndpointVnetResourceGroupName -or !$MySqlServerPrivateEndpointVnetName -or !$MySqlServerPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$MySqlServerPrivateDnsZoneName))
+{
+    # Check if we are making this resource public intentionally
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
 
 # Create MySQL Server.
 $mySqlServerId = (Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id

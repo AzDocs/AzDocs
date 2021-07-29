@@ -376,7 +376,7 @@ In opposition to normal variables, the only exception we make is for secrets. Si
 
 The same also counts for secure files (we use this for certificates for example). Those will NOT be in your repository due to the sensitive nature of those files. You can store them under the `Secure files` tab under the `Libary` tab inside the `Pipelines` module. [For more information about `Secure files`, please click here](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files?view=azure-devops).
 
-### Getting the AzDocs Build Information (ID)
+### Getting the AzDocs Build Information
 
 For using the AzDocs Scripts in your YAML pipeline, you will need to include the following step in your pipeline:
 

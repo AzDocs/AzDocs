@@ -1,0 +1,70 @@
+##############################################################################################################################################################################################################################
+#
+# AzDocs Regressiontest pipeline
+#
+# Make sure to have the following vars in your pipeline variables:
+#   CompanyName: Your company name. This will be used to randomize url's to avoid collision with other companies' deployments. Please stick to only alphanumeric characters (no hyphens, spaces or dots etc).
+#   AzDocsBranch: the AzDocs branch to use. make sure this defaults to master. Optionally make this overridable at runtime.
+#   AzDocsTeamProjectId: Azure DevOps Project ID (GUID) for your AzDocs TeamProject
+#   AzDocsBuildDefinitionId: The build definition id of your AzDocs build (int)
+#   GatewayIngressDomainName: The domainname you want to use as your entrypoint for this test application. This should be matching the certificate details below.
+#   GatewayCertificateSecureFileName: The name of the secure file containing your pfx for the AppGw certificate
+#   GatewayCertificatePassword: The password for the AppGw certificate pfx
+# 
+# And finally add a Service Connection to your Azure DevOps Project to your Azure Subscription with the Service Connection Name "AZDOCSREGRESSIONTESTSUBSCRIPTION".
+# Unfortunately theres a technical limitation in Azure DevOps which prevents us from making this a pipeline variable.
+#
+##############################################################################################################################################################################################################################
+
+name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
+trigger:
+  branches:
+    include:
+    - '*'
+
+pool:
+    vmImage: 'ubuntu-20.04'
+
+variables:
+  # Basic
+  - name: ProjectName 
+    value: TestApi
+
+  # Tags
+  - name: Tag.ApplicationId
+    value: 0000
+  - name: Tag.ApplicationName 
+    value: MyApplication
+  - name: Tag.ApplicationOwner 
+    value: someuser@company.com
+  - name: Tag.AppTechOwner
+    value: myteam@company.com
+  - name: Tag.BillingIdentifier
+    value: 0000
+  - name: Tag.BusinessUnit
+    value: My Business Unit
+  - name: Tag.CostType
+    value: Platform
+  - name: Tag.Tier 
+    value: App
+
+  # Stage Pool
+  - name: Stage.Pool
+    value: 'ubuntu-20.04'
+stages:
+- stage: 'Build'
+  jobs:
+    - job: Build
+      displayName: 'Build'
+      steps:
+       - template: pipeline-build.yml 
+
+- stage: 'dev'
+  displayName: 'Deploy to dev'
+  pool:
+    vmImage: $(Stage.Pool)
+  jobs:
+  - template: pipeline-release.yml 
+    parameters:
+      EnvironmentName: dev
+      SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION

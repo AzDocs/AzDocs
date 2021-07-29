@@ -15,7 +15,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | LogAnalyticsWorkspaceRetentionInDays   | <input type="checkbox">         | `30`                                        | OPTIONAL: The retention in days for the log analytics workspace. NOTE: The default value is 30 days.                                                             |
 | PublicInterfaceIngestionEnabled        | <input type="checkbox">         | n.a.                                        | If you pass this switch (without value), public access for ingestion data will be enabled for this log analytics workspace (you still need to be authenticated). |
 | PublicInterfaceQueryAccess             | <input type="checkbox">         | n.a.                                        | If you pass this switch (without value), public access for querying data will be enabled for this log analytics workspace (you still need to be authenticated).  |
-| LogAnalyticsWorkspaceSolutionTypes     | <input type="checkbox">         | `'VMInsights', 'AlertManagement'`           | The solutions that can be added to the log analytics workspace can be added here.                                                                                |
+| LogAnalyticsWorkspaceSolutionTypes     | <input type="checkbox">         | `"@('VMInsights', 'AlertManagement')"`      | The solutions that can be added to the log analytics workspace can be added here.                                                                                |
 
 # YAML
 
@@ -29,7 +29,7 @@ Be aware that this YAML example contains all parameters that can be used with th
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
                scriptPath: '$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Create-Log-Analytics-Workspace.ps1'
-               arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -LogAnalyticsWorkspaceRetentionInDays '$(LogAnalyticsWorkspaceRetentionInDays)' -PublicInterfaceIngestionEnabled -PublicInterfaceQueryAccess -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceSolutionTypes '$(LogAnalyticsWorkspaceSolutionTypes)'"
+               arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -LogAnalyticsWorkspaceRetentionInDays '$(LogAnalyticsWorkspaceRetentionInDays)' -PublicInterfaceIngestionEnabled -PublicInterfaceQueryAccess -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceSolutionTypes $(LogAnalyticsWorkspaceSolutionTypes)"
 ```
 
 # Code

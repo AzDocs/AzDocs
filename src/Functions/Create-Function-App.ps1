@@ -37,6 +37,9 @@ param (
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $FunctionAppPrivateDnsZoneName = "privatelink.azurewebsites.net",
 
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic,
+
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Function-App-with-App-Service-Plan-Linux.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
 )
@@ -46,6 +49,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetName -or !$GatewayWhitelistRulePriority) -and (!$FunctionAppPrivateEndpointVnetResourceGroupName -or !$FunctionAppPrivateEndpointVnetName -or !$FunctionAppPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$FunctionAppPrivateDnsZoneName))
+{
+    # Check if we are making this resource public intentionally
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
 
 # Fetch AppService Plan ID
 $appServicePlanId = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json).id

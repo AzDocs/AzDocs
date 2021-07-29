@@ -31,6 +31,9 @@ param (
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $PostgreSqlServerPrivateDnsZoneName = "privatelink.postgres.database.azure.com", 
 
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic,
+
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
@@ -40,6 +43,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$PostgreSqlServerPrivateEndpointVnetResourceGroupName -or !$PostgreSqlServerPrivateEndpointVnetName -or !$PostgreSqlServerPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$PostgreSqlServerPrivateDnsZoneName))
+{
+    # Check if we are making this resource public intentionally
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
 
 $resourceGroupLocation = (az group show --name $PostgreSqlServerResourceGroupName | ConvertFrom-Json).location
 

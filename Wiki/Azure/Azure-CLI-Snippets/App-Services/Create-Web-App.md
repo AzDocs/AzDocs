@@ -34,6 +34,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | DisablePublicAccessForAppServiceDeploymentSlot | <input type="checkbox"> | <input type="checkbox"> | `true` | The public access can be removed from the deployment slot. By default this has a value of true. |
 | StopAppServiceImmediatelyAfterCreation | <input type="checkbox"> | <input type="checkbox"> | `$true`/`$false` | Stop the App Service directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
 | StopAppServiceSlotImmediatelyAfterCreation | <input type="checkbox"> | <input type="checkbox"> | `$true`/`$false` | Stop the App Service Deploymentslot directly after it is created. This is sometimes needed if you have containers which do database migrations, which don't have the correct appsettings yet. |
+| ForcePublic | <input type="checkbox"> | <input type="checkbox"> | n.a. | If you are not using any networking settings, you need to pass this boolean to confirm you are willingly creating a public resource (to avoid unintended public resources). You can pass it as a switch without a value (`-ForcePublic`). |
 
 # VNET Whitelisting Parameters
 
@@ -46,7 +47,7 @@ If you want to use "vnet whitelisting" on your resource. Use these parameters. U
 | GatewayVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                  | The ResourceGroup where your VNET, for your Gateway, resides in.         |
 | GatewayVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET the Gateway is in                                   |
 | GatewaySubnetName            | <input type="checkbox" checked> | `app-subnet-4`                       | The name of the subnet the Gateway is in                                 |
-| GatewayWhitelistRulePriority | <input type="checkbox" checked> | `20`                                 | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
+| GatewayWhitelistRulePriority | <input type="checkbox">         | `20`                                 | The priority of the whitelist rule. Can be left blank. Defaults to `20`. |
 
 # Private Endpoint Parameters
 
