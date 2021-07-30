@@ -69,12 +69,12 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 ```yaml
         - task: AzureCLI@2
-           displayName: 'Create Web App Linux'
+           displayName: 'Create Web App'
            condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
            inputs:
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-Linux.ps1'
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App.ps1'
                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -DisablePublicAccessForAppServiceDeploymentSlot '$(DisablePublicAccessForAppServiceDeploymentSlot)' -ContainerImageName '$(ContainerImageName)' -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -AppServicePrivateEndpointVnetResourceGroupName '$(AppServicePrivateEndpointVnetResourceGroupName)' -AppServicePrivateEndpointVnetName '$(AppServicePrivateEndpointVnetName)' -AppServicePrivateEndpointSubnetName '$(AppServicePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppServicePrivateDnsZoneName '$(AppServicePrivateDnsZoneName)'"
 ```
 

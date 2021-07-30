@@ -70,12 +70,12 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 ```yaml
         - task: AzureCLI@2
-           displayName: 'Create Function App Linux'
+           displayName: 'Create Function App'
            condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
            inputs:
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App-Linux.ps1'
+               scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App.ps1'
                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppOSType '$(FunctionAppOSType)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -EnableFunctionAppDeploymentSlot -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -DisablePublicAccessForFunctionAppDeploymentSlot '$(DisablePublicAccessForFunctionAppDeploymentSlot)' -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -FunctionAppPrivateEndpointVnetResourceGroupName '$(FunctionAppPrivateEndpointVnetResourceGroupName)' -FunctionAppPrivateEndpointVnetName '$(FunctionAppPrivateEndpointVnetName)' -FunctionAppPrivateEndpointSubnetName '$(FunctionAppPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -FunctionAppPrivateDnsZoneName '$(FunctionAppPrivateDnsZoneName)'"
 ```
 
