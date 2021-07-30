@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.07.30]
+
+- Added ServiceBus
+
 ## [2021.07.29]
 
 - Removed `ApplicationSubnetName` from `Create-App-Configuration.ps1` since it was not being used.
