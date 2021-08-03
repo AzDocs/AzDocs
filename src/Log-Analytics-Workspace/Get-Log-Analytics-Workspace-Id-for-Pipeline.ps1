@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceGroupName,
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
+    [Parameter()][string] $OutputPipelineVariableName = "LogAnalyticsWorkspaceResourceId"
 )
 
 #region ===BEGIN IMPORTS===
@@ -10,8 +11,8 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$logAnalyticsWorkspaceResourceId = (az monitor log-analytics workspace show --resource-group $LogAnalyticsWorkspaceResourceGroupName --workspace-name $LogAnalyticsWorkspaceName | ConvertFrom-Json).id
+$logAnalyticsWorkspaceResourceId = (Invoke-Executable az monitor log-analytics workspace show --resource-group $LogAnalyticsWorkspaceResourceGroupName --workspace-name $LogAnalyticsWorkspaceName | ConvertFrom-Json).id
 Write-Host "LogAnalyticsWorkspaceResourceId: $LogAnalyticsWorkspaceResourceId"
-Write-Host "##vso[task.setvariable variable=LogAnalyticsWorkspaceResourceId]$LogAnalyticsWorkspaceResourceId"
+Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName)]$LogAnalyticsWorkspaceResourceId"
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
