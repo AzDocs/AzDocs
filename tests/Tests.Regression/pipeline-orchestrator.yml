@@ -48,6 +48,34 @@ variables:
   - name: Tag.Tier 
     value: App
 
+  # Switches
+  - name: ResourceCreation.ResourceGroup.Enabled
+    value: true
+  - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
+    value: true
+  - name: ResourceCreation.AppInsights.Enabled
+    value: true
+  - name: ResourceCreation.Networking.Enabled
+    value: true
+  - name: ResourceCreation.AppService.Enabled
+    value: true
+  - name: ResourceCreation.Keyvault.Enabled
+    value: true
+  - name: ResourceCreation.MSSQL.Enabled
+    value: true
+  - name: ResourceCreation.MySQL.Enabled
+    value: true
+  - name: ResourceCreation.StorageAccounts.Enabled
+    value: true
+  - name: ResourceCreation.Functions.Enabled
+    value: true
+  - name: ResourceCreation.ContainerRegistry.Enabled
+    value: true
+  - name: ResourceCreation.ContainerInstance.Enabled
+    value: true
+  - name: ResourceCreation.ApplicationGateway.Enabled
+    value: true
+
   # Stage Pool
   - name: Stage.Pool
     value: 'ubuntu-20.04'
