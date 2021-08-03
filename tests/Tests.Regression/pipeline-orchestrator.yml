@@ -20,7 +20,8 @@ name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
     include:
-    - '*'
+    #- 'main'
+    - more-regression-tests
 
 pool:
     vmImage: 'ubuntu-20.04'
