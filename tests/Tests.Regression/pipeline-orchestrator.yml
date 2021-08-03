@@ -50,10 +50,7 @@ variables:
 
   # Switches
   - name: ResourceCreation.ResourceGroup.Enabled
-    $[ eq(variables.ResourceCreation.ResourceGroup.Enabled, '') ]:
-      value: true
-    $[ ne(variables.ResourceCreation.ResourceGroup.Enabled, '') ]:
-      value: $[variables.ResourceCreation.ResourceGroup.Enabled]
+    value: $[or(eq(variables.ResourceCreation.ResourceGroup.Enabled, ''), eq(variables.ResourceCreation.ResourceGroup.Enabled, 'true'))]
   #- name: ResourceCreation.LogAnalyticsWorkspace.Enabled
   #  value: true
   #- name: ResourceCreation.AppInsights.Enabled
