@@ -600,15 +600,6 @@ jobs:
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SlotName: "$(AppServiceDeploymentSlotName)"
                 packageForLinux: "$(System.ArtifactsDirectory)/Website_zip/website.zip"
-            - task: AzureAppServiceManage@0
-              displayName: Swap Staging slot to Production
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                Action: "Swap Slots"
-                WebAppName: "$(VnetWhitelistingAppServiceName)"
-                ResourceGroupName: "$(AppServiceResourceGroupName)"
-                SourceSlot: "$(AppServiceDeploymentSlotName)"
-                PreserveVnet: true
             - task: AzureCLI@2
               displayName: "Remove Network Whitelist from App Service"
               condition: always()
@@ -651,6 +642,16 @@ jobs:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Instance/Create-Container.ps1'
                 arguments: "-ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)'"
+            # ========================================= SWAP APPSERVICE SLOTS =========================================
+            - task: AzureAppServiceManage@0
+              displayName: Swap Staging slot to Production
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                Action: "Swap Slots"
+                WebAppName: "$(VnetWhitelistingAppServiceName)"
+                ResourceGroupName: "$(AppServiceResourceGroupName)"
+                SourceSlot: "$(AppServiceDeploymentSlotName)"
+                PreserveVnet: true
             # ========================================= APPLICATION GATEWAY =========================================
             - task: AzureCLI@2
               displayName: 'Create Application Gateway'
