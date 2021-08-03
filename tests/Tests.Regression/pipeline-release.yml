@@ -146,6 +146,10 @@ jobs:
       - name: MatchStatusCodes
         value: "200-399"
 
+      # Functions
+      #-name 
+#arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppOSType '$(FunctionAppOSType)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -EnableFunctionAppDeploymentSlot -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -DisablePublicAccessForFunctionAppDeploymentSlot '$(DisablePublicAccessForFunctionAppDeploymentSlot)' -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -FunctionAppPrivateEndpointVnetResourceGroupName '$(FunctionAppPrivateEndpointVnetResourceGroupName)' -FunctionAppPrivateEndpointVnetName '$(FunctionAppPrivateEndpointVnetName)' -FunctionAppPrivateEndpointSubnetName '$(FunctionAppPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -FunctionAppPrivateDnsZoneName '$(FunctionAppPrivateDnsZoneName)'"
+
       # Keyvault
       - name: VnetWhitelistingKeyvaultName
         value: $(ResourceBaseName)vkv${{ parameters.EnvironmentName }}
@@ -308,7 +312,7 @@ jobs:
                 project: $(AzDocsTeamProjectId)
                 definition: $(AzDocsBuildDefinitionId)
                 buildVersionToDownload: latestFromBranch
-                branchName: refs/heads/$(AzDocsBranch)
+                branchName: $(Build.SourceBranch)
                 artifactName: azdocs-src
                 targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= RESOURCEGROUP =========================================
@@ -456,6 +460,15 @@ jobs:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
                 arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+            ## ========================================= Functions =========================================
+            #- task: AzureCLI@2
+            #  displayName: 'Create Public Function App'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+            #  inputs:
+            #    azureSubscription: '${{ parameters.SubscriptionName }}'
+            #    scriptType: pscore
+            #    scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App.ps1'
+            #    arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -FunctionAppOSType '$(FunctionAppOSType)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -EnableFunctionAppDeploymentSlot -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -DisablePublicAccessForFunctionAppDeploymentSlot '$(DisablePublicAccessForFunctionAppDeploymentSlot)' -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -FunctionAppPrivateEndpointVnetResourceGroupName '$(FunctionAppPrivateEndpointVnetResourceGroupName)' -FunctionAppPrivateEndpointVnetName '$(FunctionAppPrivateEndpointVnetName)' -FunctionAppPrivateEndpointSubnetName '$(FunctionAppPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -FunctionAppPrivateDnsZoneName '$(FunctionAppPrivateDnsZoneName)'"
             # ========================================= KEYVAULT =========================================
             - task: AzureCLI@2
               displayName: 'Create Keyvault (VNET Whitelisting)'
