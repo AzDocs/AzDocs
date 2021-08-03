@@ -2,8 +2,8 @@
 param (
     [Parameter(Mandatory)][string] $ContainerRegistryName,
     [Parameter(Mandatory)][string] $ContainerRegistryResourceGroupName,
-    [Parameter(Mandatory)][ValidateSet('', 'Basic', 'Standard', 'Premium')][string] $ContainerRegistrySku = 'Premium',
-    [Parameter(Mandatory)][bool] $ContainerRegistryEnableAdminUser = $false,
+    [Parameter()][ValidateSet('', 'Basic', 'Standard', 'Premium')][string] $ContainerRegistrySku = 'Premium',
+    [Parameter()][bool] $ContainerRegistryEnableAdminUser = $false,
     
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
