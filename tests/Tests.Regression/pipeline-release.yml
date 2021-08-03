@@ -400,7 +400,7 @@ jobs:
             - task: AzureCLI@2
               displayName: "Create ResourceGroup"
               #condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
-              condition: and(and(succeeded(), eq(variables['DeployInfra'], 'true')), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true')
+              condition: and(and(succeeded(), eq(variables['DeployInfra'], 'true')), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
