@@ -15,6 +15,35 @@ jobs:
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
+
+      # Switches
+      - name: ResourceCreation.ResourceGroup.Enabled
+        value: true
+      - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
+        value: true
+      - name: ResourceCreation.AppInsights.Enabled
+        value: true
+      - name: ResourceCreation.Networking.Enabled
+        value: true
+      - name: ResourceCreation.AppService.Enabled
+        value: true
+      - name: ResourceCreation.Keyvault.Enabled
+        value: true
+      - name: ResourceCreation.MSSQL.Enabled
+        value: true
+      - name: ResourceCreation.MySQL.Enabled
+        value: true
+      - name: ResourceCreation.StorageAccounts.Enabled
+        value: true
+      - name: ResourceCreation.Functions.Enabled
+        value: true
+      - name: ResourceCreation.ContainerRegistry.Enabled
+        value: true
+      - name: ResourceCreation.ContainerInstance.Enabled
+        value: true
+      - name: ResourceCreation.ApplicationGateway.Enabled
+        value: true
+
       # Basic
       - name: Location
         value: westeurope
@@ -370,7 +399,8 @@ jobs:
             # ========================================= RESOURCEGROUP =========================================
             - task: AzureCLI@2
               displayName: "Create ResourceGroup"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
+              #condition: and(and(succeeded(), eq(variables['DeployInfra'], 'true')), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
@@ -669,7 +699,7 @@ jobs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App.ps1'
-                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PrivateEndpointFunctionAppName)' -FunctionAppStorageAccountName '$(PrivateEndpointFunctionAppStorageAccountName)' -FunctionAppOSType '$(FunctionAppOSType)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -EnableFunctionAppDeploymentSlot -DisablePublicAccessForFunctionAppDeploymentSlot $true -FunctionAppPrivateEndpointVnetResourceGroupName '$(FunctionAppPrivateEndpointVnetResourceGroupName)' -FunctionAppPrivateEndpointVnetName '$(FunctionAppPrivateEndpointVnetName)' -FunctionAppPrivateEndpointSubnetName '$(FunctionAppPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -FunctionAppPrivateDnsZoneName '$(FunctionAppPrivateDnsZoneName)'"
+                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PrivateEndpointFunctionAppName)' -FunctionAppStorageAccountName '$(PrivateEndpointFunctionAppStorageAccountName)' -FunctionAppOSType '$(FunctionAppOSType)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -EnableFunctionAppDeploymentSlot -DisablePublicAccessForFunctionAppDeploymentSlot $true -FunctionAppPrivateEndpointVnetResourceGroupName '$(FunctionAppPrivateEndpointVnetResourceGroupName)' -FunctionAppPrivateEndpointVnetName '$(FunctionAppPrivateEndpointVnetName)' -FunctionAppPrivateEndpointSubnetName '$(FunctionAppPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)'"
             - task: AzureCLI@2
               displayName: 'Create VNet Whitelisting Function App'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
