@@ -3,7 +3,8 @@ param (
     [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Alias("VnetName")]
-    [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationName,
+    [Alias("FunctionAppVnetIntegrationName")]
+    [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationVnetName,
     [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationSubnetName,
     [Parameter()][string] $FunctionAppServiceDeploymentSlotName,
     [Parameter()][bool] $ApplyToAllSlots = $false
@@ -15,14 +16,14 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-function Add-VnetIntegration
-{
+function Add-VnetIntegration {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
         [Parameter(Mandatory)][string] $FunctionAppName,
         [Alias("VnetName")]
-        [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationName,
+        [Alias("FunctionAppVnetIntegrationName")]
+        [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationVnetName,
         [Parameter(Mandatory)][string] $FunctionAppVnetIntegrationSubnetName,
         [Parameter()][string] $FunctionAppServiceDeploymentSlotName
     )
@@ -38,15 +39,13 @@ function Add-VnetIntegration
     }
 
     $vnetIntegrations = Invoke-Executable az functionapp vnet-integration list --resource-group $FunctionAppResourceGroupName --name $FunctionAppName @additionalParameters | ConvertFrom-Json
-    $matchedIntegrations = $vnetIntegrations | Where-Object  vnetResourceId -like "*/providers/Microsoft.Network/virtualNetworks/$FunctionAppVnetIntegrationName/subnets/$FunctionAppVnetIntegrationSubnetName"
-    if($matchedIntegrations)
-    {
+    $matchedIntegrations = $vnetIntegrations | Where-Object  vnetResourceId -like "*/providers/Microsoft.Network/virtualNetworks/$FunctionAppVnetIntegrationVnetName/subnets/$FunctionAppVnetIntegrationSubnetName"
+    if ($matchedIntegrations) {
         Write-Host "VNET Integration found for $fullFunctionAppName"
     }
-    else
-    {
+    else {
         Write-Host "VNET Integration not found, adding it to $fullFunctionAppName"
-        Invoke-Executable az functionapp vnet-integration add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --vnet $FunctionAppVnetIntegrationName --subnet $FunctionAppVnetIntegrationSubnetName @additionalParameters
+        Invoke-Executable az functionapp vnet-integration add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --vnet $FunctionAppVnetIntegrationVnetName --subnet $FunctionAppVnetIntegrationSubnetName @additionalParameters
         Invoke-Executable az functionapp restart --name $FunctionAppName --resource-group $FunctionAppResourceGroupName
     }
 
@@ -57,18 +56,16 @@ function Add-VnetIntegration
 }
 
 # Fetch available slots if we want to deploy all slots
-if ($ApplyToAllSlots)
-{
+if ($ApplyToAllSlots) {
     $availableSlots = Invoke-Executable -AllowToFail az functionapp deployment slot list --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json
 }
 
 # Set VNET Integration on the main given slot (normally production)
-Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppVnetIntegrationName $FunctionAppVnetIntegrationName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $FunctionAppServiceDeploymentSlotName
+Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName FunctionAppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $FunctionAppServiceDeploymentSlotName
 
 # Apply to all slots if desired
-foreach($availableSlot in $availableSlots)
-{
-    Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppVnetIntegrationName $FunctionAppVnetIntegrationName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $availableSlot.name
+foreach ($availableSlot in $availableSlots) {
+    Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName FunctionAppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $availableSlot.name
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
