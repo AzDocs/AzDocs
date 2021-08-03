@@ -48,12 +48,12 @@ variables:
   - name: Tag.Tier 
     value: App
 
-  ## Switches
-  #- name: ResourceCreation.ResourceGroup.Enabled
-  #  ${{ if eq(variables['ResourceCreation.ResourceGroup.Enabled'], '') }}:
-  #    value: true
-  #  ${{ if ne(variables['ResourceCreation.ResourceGroup.Enabled'], '') }}:
-  #    value: ${{ variables['ResourceCreation.ResourceGroup.Enabled'] }}
+  # Switches
+  - name: ResourceCreation.ResourceGroup.Enabled
+    ${{ if eq(variables['ResourceCreation.ResourceGroup.Enabled'], '') }}:
+      value: true
+    ${{ if ne(variables['ResourceCreation.ResourceGroup.Enabled'], '') }}:
+      value: $(ResourceCreation.ResourceGroup.Enabled)
   #- name: ResourceCreation.LogAnalyticsWorkspace.Enabled
   #  value: true
   #- name: ResourceCreation.AppInsights.Enabled
