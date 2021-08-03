@@ -31,17 +31,20 @@ function Add-VnetIntegration
     $fullAppServiceName = $AppServiceName
     $additionalParameters = @()
 
-    if ($AppServiceSlotName) {
+    if ($AppServiceSlotName)
+    {
         $additionalParameters += '--slot' , $AppServiceSlotName
         $fullAppServiceName += " [$AppServiceSlotName]"
     }
     
     $vnetIntegrations = Invoke-Executable az webapp vnet-integration list --resource-group $AppServiceResourceGroupName --name $AppServiceName @additionalParameters | ConvertFrom-Json
     $matchedIntegrations = $vnetIntegrations | Where-Object  vnetResourceId -like "*/providers/Microsoft.Network/virtualNetworks/$AppServiceVnetIntegrationVnetName/subnets/$AppServiceVnetIntegrationSubnetName"
-    if ($matchedIntegrations) {
+    if ($matchedIntegrations)
+    {
         Write-Host "VNET Integration found for $fullAppServiceName"
     }
-    else {
+    else
+    {
         Write-Host "VNET Integration NOT found, adding it to $fullAppServiceName"
         Invoke-Executable az webapp vnet-integration add --resource-group $AppServiceResourceGroupName --name $AppServiceName --vnet $AppServiceVnetIntegrationVnetName --subnet $AppServiceVnetIntegrationSubnetName @additionalParameters
         Invoke-Executable az webapp restart --name $AppServiceName --resource-group $AppServiceResourceGroupName @additionalParameters
@@ -54,7 +57,7 @@ function Add-VnetIntegration
 }
 
 # Fetch available slots if we want to deploy all slots
-if ($ApplyToAllSlots)
+if ($ApplyToAllSlots -eq $True)
 {
     $availableSlots = Invoke-Executable -AllowToFail az webapp deployment slot list --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json
 }
@@ -63,7 +66,7 @@ if ($ApplyToAllSlots)
 Add-VnetIntegration -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AppServiceVnetIntegrationVnetName $AppServiceVnetIntegrationVnetName -AppServiceVnetIntegrationSubnetName $AppServiceVnetIntegrationSubnetName -AppServiceSlotName $AppServiceSlotName
 
 # Apply to all slots if desired
-foreach($availableSlot in $availableSlots)
+foreach ($availableSlot in $availableSlots)
 {
     Add-VnetIntegration -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -AppServiceVnetIntegrationVnetName $AppServiceVnetIntegrationVnetName -AppServiceVnetIntegrationSubnetName $AppServiceVnetIntegrationSubnetName -AppServiceSlotName $availableSlot.name
 }
