@@ -368,6 +368,10 @@ jobs:
                 artifactName: azdocs-src
                 targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= RESOURCEGROUP =========================================
+            - task: PowerShell@2
+              inputs:
+                targetType: 'inline'
+                script: 'Write-Host "ResourceCreation.ResourceGroup.Enabled: $(ResourceCreation.ResourceGroup.Enabled)"'
             - task: AzureCLI@2
               displayName: "Create ResourceGroup"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
