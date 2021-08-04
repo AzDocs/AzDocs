@@ -423,34 +423,34 @@ stages:
                 branchName: $(Build.SourceBranch)
                 artifactName: azdocs-src
                 targetPath: $(Pipeline.Workspace)/AzDocs
-            # ========================================= RESOURCEGROUP =========================================
-            - task: AzureCLI@2
-              displayName: "Create ResourceGroup"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1"
-                arguments: "-ResourceGroupLocation '$(Location)' 
-                            -ResourceGroupName '$(ResourceGroupName)' 
-                            -ResourceTags $(ResourceTags)"
-            # ========================================= LOG ANALYTICS WORKSPACE =========================================
-            - task: AzureCLI@2
-              displayName: 'Register Microsoft.Insights Provider'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.LogAnalyticsWorkspace.Enabled'], 'true'))
-              inputs:
-                  azureSubscription: '${{ parameters.SubscriptionName }}'
-                  scriptType: pscore
-                  scriptPath: '$(Pipeline.Workspace)/AzDocs/Resource-Provider/Register-Provider.ps1'
-                  arguments: "-ResourceProviderNamespace 'Microsoft.Insights'"
-            - task: AzureCLI@2
-              displayName: 'Create Log Analytics Workspace'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.LogAnalyticsWorkspace.Enabled'], 'true'))
-              inputs:
-                azureSubscription: '${{ parameters.SubscriptionName }}'
-                scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Create-Log-Analytics-Workspace.ps1'
-                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -LogAnalyticsWorkspaceRetentionInDays '$(LogAnalyticsWorkspaceRetentionInDays)' -PublicInterfaceIngestionEnabled -PublicInterfaceQueryAccess -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceSolutionTypes $(LogAnalyticsWorkspaceSolutionTypes)"
+            ## ========================================= RESOURCEGROUP =========================================
+            #- task: AzureCLI@2
+            #  displayName: "Create ResourceGroup"
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
+            #  inputs:
+            #    azureSubscription: "${{ parameters.SubscriptionName }}"
+            #    scriptType: pscore
+            #    scriptPath: "$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1"
+            #    arguments: "-ResourceGroupLocation '$(Location)' 
+            #                -ResourceGroupName '$(ResourceGroupName)' 
+            #                -ResourceTags $(ResourceTags)"
+            ## ========================================= LOG ANALYTICS WORKSPACE =========================================
+            #- task: AzureCLI@2
+            #  displayName: 'Register Microsoft.Insights Provider'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.LogAnalyticsWorkspace.Enabled'], 'true'))
+            #  inputs:
+            #      azureSubscription: '${{ parameters.SubscriptionName }}'
+            #      scriptType: pscore
+            #      scriptPath: '$(Pipeline.Workspace)/AzDocs/Resource-Provider/Register-Provider.ps1'
+            #      arguments: "-ResourceProviderNamespace 'Microsoft.Insights'"
+            #- task: AzureCLI@2
+            #  displayName: 'Create Log Analytics Workspace'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.LogAnalyticsWorkspace.Enabled'], 'true'))
+            #  inputs:
+            #    azureSubscription: '${{ parameters.SubscriptionName }}'
+            #    scriptType: pscore
+            #    scriptPath: '$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Create-Log-Analytics-Workspace.ps1'
+            #    arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -LogAnalyticsWorkspaceRetentionInDays '$(LogAnalyticsWorkspaceRetentionInDays)' -PublicInterfaceIngestionEnabled -PublicInterfaceQueryAccess -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceSolutionTypes $(LogAnalyticsWorkspaceSolutionTypes)"
             - task: AzureCLI@2
               displayName: "Get Log Analytics Workspace Id"
               name: GetLogAnalyticsWorkspaceIdforPipeline
@@ -472,56 +472,56 @@ stages:
                 targetType: 'inline'
                 script: |
                   Write-Host "ID: $(GetLogAnalyticsWorkspaceIdforPipeline.LogAnalyticsWorkspaceResourceId)"
-            # ========================================= APP INSIGHTS =========================================
-            - task: AzureCLI@2
-              displayName: "Create AppInsights Resource"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppInsights.Enabled'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-AppInsights-Resource.ps1"
-                arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(Location)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
-            # ========================================= NETWORKING =========================================
-            - task: AzureCLI@2
-              displayName: 'Create App Service VNet integration subnet'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
-              inputs:
-                  azureSubscription: '${{ parameters.SubscriptionName }}'
-                  scriptType: pscore
-                  scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1'
-                  arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(AppServiceVnetIntegrationSubnetName)' -Subnet '$(AppServiceVnetIntegrationSubnet)' -ResourceTags $(ResourceTags)"
-            - task: AzureCLI@2
-              displayName: 'Create Private Endpoint subnet'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
-              inputs:
-                  azureSubscription: '${{ parameters.SubscriptionName }}'
-                  scriptType: pscore
-                  scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1'
-                  arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(PrivateEndpointSubnetName)' -Subnet '$(PrivateEndpointSubnet)' -ResourceTags $(ResourceTags)"
-            - task: AzureCLI@2
-              displayName: 'Create Application Gateway subnet'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
-              inputs:
-                  azureSubscription: '${{ parameters.SubscriptionName }}'
-                  scriptType: pscore
-                  scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1'
-                  arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(ApplicationGatewaySubnetName)' -Subnet '$(ApplicationGatewaySubnet)' -ResourceTags $(ResourceTags)"
-            - task: AzureCLI@2
-              displayName: 'Create Container subnet'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
-              inputs:
-                  azureSubscription: '${{ parameters.SubscriptionName }}'
-                  scriptType: pscore
-                  scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1'
-                  arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(ContainerSubnetName)' -Subnet '$(ContainerSubnet)' -ResourceTags $(ResourceTags)"
-            - task: AzureCLI@2
-              displayName: 'Add Custom DNS Server to VNET'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
-              inputs:
-                  azureSubscription: '${{ parameters.SubscriptionName }}'
-                  scriptType: pscore
-                  scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Add-Custom-DNS-Server-To-VNET.ps1'
-                  arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -DNSServers '$(DNSServers)'"
+            ## ========================================= APP INSIGHTS =========================================
+            #- task: AzureCLI@2
+            #  displayName: "Create AppInsights Resource"
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppInsights.Enabled'], 'true'))
+            #  inputs:
+            #    azureSubscription: "${{ parameters.SubscriptionName }}"
+            #    scriptType: pscore
+            #    scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-AppInsights-Resource.ps1"
+            #    arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(Location)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+            ## ========================================= NETWORKING =========================================
+            #- task: AzureCLI@2
+            #  displayName: 'Create App Service VNet integration subnet'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
+            #  inputs:
+            #      azureSubscription: '${{ parameters.SubscriptionName }}'
+            #      scriptType: pscore
+            #      scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1'
+            #      arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(AppServiceVnetIntegrationSubnetName)' -Subnet '$(AppServiceVnetIntegrationSubnet)' -ResourceTags $(ResourceTags)"
+            #- task: AzureCLI@2
+            #  displayName: 'Create Private Endpoint subnet'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
+            #  inputs:
+            #      azureSubscription: '${{ parameters.SubscriptionName }}'
+            #      scriptType: pscore
+            #      scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1'
+            #      arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(PrivateEndpointSubnetName)' -Subnet '$(PrivateEndpointSubnet)' -ResourceTags $(ResourceTags)"
+            #- task: AzureCLI@2
+            #  displayName: 'Create Application Gateway subnet'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
+            #  inputs:
+            #      azureSubscription: '${{ parameters.SubscriptionName }}'
+            #      scriptType: pscore
+            #      scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1'
+            #      arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(ApplicationGatewaySubnetName)' -Subnet '$(ApplicationGatewaySubnet)' -ResourceTags $(ResourceTags)"
+            #- task: AzureCLI@2
+            #  displayName: 'Create Container subnet'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
+            #  inputs:
+            #      azureSubscription: '${{ parameters.SubscriptionName }}'
+            #      scriptType: pscore
+            #      scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Create-subnet-with-VNET-if-needed.ps1'
+            #      arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -VnetCidr '$(VnetCidr)' -SubnetName '$(ContainerSubnetName)' -Subnet '$(ContainerSubnet)' -ResourceTags $(ResourceTags)"
+            #- task: AzureCLI@2
+            #  displayName: 'Add Custom DNS Server to VNET'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
+            #  inputs:
+            #      azureSubscription: '${{ parameters.SubscriptionName }}'
+            #      scriptType: pscore
+            #      scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Add-Custom-DNS-Server-To-VNET.ps1'
+            #      arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -DNSServers '$(DNSServers)'"
   #- deployment: "AppService_${{ parameters.EnvironmentName }}"
   #  dependsOn: "BaseResources"
   #  environment:
@@ -629,42 +629,42 @@ stages:
                 targetType: 'inline'
                 script: |
                   Write-Host "ID: $(LogAnalyticsWorkspaceResourceId)"
-            # ========================================= DOWNLOAD AZDOCS =========================================
-            - task: DownloadPipelineArtifact@2
-              displayName: Download AzDocs
-              inputs:
-                buildType: specific
-                project: $(AzDocsTeamProjectId)
-                definition: $(AzDocsBuildDefinitionId)
-                buildVersionToDownload: latestFromBranch
-                branchName: $(Build.SourceBranch)
-                artifactName: azdocs-src
-                targetPath: $(Pipeline.Workspace)/AzDocs
-            # ========================================= KEYVAULT =========================================
-            - task: AzureCLI@2
-              displayName: 'Create Keyvault (Public)'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
-              inputs:
-                azureSubscription: '${{ parameters.SubscriptionName }}'
-                scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1'
-                arguments: "-KeyvaultName '$(PublicKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ForcePublic"
-            - task: AzureCLI@2
-              displayName: 'Create Keyvault (Private Endpoint)'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
-              inputs:
-                azureSubscription: '${{ parameters.SubscriptionName }}'
-                scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1'
-                arguments: "-KeyvaultName '$(PrivateEndpointKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -KeyvaultPrivateEndpointVnetResourceGroupName '$(KeyvaultPrivateEndpointVnetResourceGroupName)' -KeyvaultPrivateEndpointVnetName '$(KeyvaultPrivateEndpointVnetName)' -KeyvaultPrivateEndpointSubnetName '$(KeyvaultPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -KeyvaultPrivateDnsZoneName '$(KeyvaultPrivateDnsZoneName)'"
-            - task: AzureCLI@2
-              displayName: 'Create Keyvault (VNET Whitelisting)'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
-              inputs:
-                  azureSubscription: '${{ parameters.SubscriptionName }}'
-                  scriptType: pscore
-                  scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1'
-                  arguments: "-KeyvaultName '$(VnetWhitelistingKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+            ## ========================================= DOWNLOAD AZDOCS =========================================
+            #- task: DownloadPipelineArtifact@2
+            #  displayName: Download AzDocs
+            #  inputs:
+            #    buildType: specific
+            #    project: $(AzDocsTeamProjectId)
+            #    definition: $(AzDocsBuildDefinitionId)
+            #    buildVersionToDownload: latestFromBranch
+            #    branchName: $(Build.SourceBranch)
+            #    artifactName: azdocs-src
+            #    targetPath: $(Pipeline.Workspace)/AzDocs
+            ## ========================================= KEYVAULT =========================================
+            #- task: AzureCLI@2
+            #  displayName: 'Create Keyvault (Public)'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
+            #  inputs:
+            #    azureSubscription: '${{ parameters.SubscriptionName }}'
+            #    scriptType: pscore
+            #    scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1'
+            #    arguments: "-KeyvaultName '$(PublicKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ForcePublic"
+            #- task: AzureCLI@2
+            #  displayName: 'Create Keyvault (Private Endpoint)'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
+            #  inputs:
+            #    azureSubscription: '${{ parameters.SubscriptionName }}'
+            #    scriptType: pscore
+            #    scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1'
+            #    arguments: "-KeyvaultName '$(PrivateEndpointKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -KeyvaultPrivateEndpointVnetResourceGroupName '$(KeyvaultPrivateEndpointVnetResourceGroupName)' -KeyvaultPrivateEndpointVnetName '$(KeyvaultPrivateEndpointVnetName)' -KeyvaultPrivateEndpointSubnetName '$(KeyvaultPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -KeyvaultPrivateDnsZoneName '$(KeyvaultPrivateDnsZoneName)'"
+            #- task: AzureCLI@2
+            #  displayName: 'Create Keyvault (VNET Whitelisting)'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
+            #  inputs:
+            #      azureSubscription: '${{ parameters.SubscriptionName }}'
+            #      scriptType: pscore
+            #      scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1'
+            #      arguments: "-KeyvaultName '$(VnetWhitelistingKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
   #- deployment: "MSSQL_${{ parameters.EnvironmentName }}"
   #  dependsOn: "BaseResources"
   #  environment:
