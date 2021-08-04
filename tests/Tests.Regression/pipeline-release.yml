@@ -403,7 +403,7 @@ stages:
       value: 10.0.4.0/24
 
   jobs:
-  - deployment: "ResourceGroup ${{ parameters.EnvironmentName }}"
+  - deployment: "ResourceGroup_${{ parameters.EnvironmentName }}"
     environment:
       name: ${{ parameters.EnvironmentName }}
     timeoutInMinutes: 360
@@ -434,8 +434,8 @@ stages:
                 arguments: "-ResourceGroupLocation '$(Location)' 
                             -ResourceGroupName '$(ResourceGroupName)' 
                             -ResourceTags $(ResourceTags)"
-  - deployment: "LogAnalyticsWorkspace ${{ parameters.EnvironmentName }}"
-    dependsOn: "ResourceGroup ${{ parameters.EnvironmentName }}"
+  - deployment: "LogAnalyticsWorkspace_${{ parameters.EnvironmentName }}"
+    dependsOn: "ResourceGroup_${{ parameters.EnvironmentName }}"
     environment:
       name: ${{ parameters.EnvironmentName }}
     timeoutInMinutes: 360
