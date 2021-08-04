@@ -57,16 +57,17 @@ Write-Host "Found location $($resourceGroupLocation)"
 $postgreSqlServerId = (Invoke-Executable -AllowToFail az postgres server show --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName | ConvertFrom-Json).Id
 if (!$postgreSqlServerId)
 {
-    # Make sure to enable public network access when we are using VNET Whitelisting
+    # Make sure to enable public network access when we are using VNet Whitelisting
     if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName -and $PostgreSqlServerPublicNetworkAccess -eq 'Disabled')
     {
-        throw "You are trying to use VNET whitelisting with public access disabled. This is impossible. Either remove your vnet whitelist or enable public access."
+        $PostgreSqlServerPublicNetworkAccess = 'Enabled'
+        Write-Warning "You are trying to use VNet whitelisting with public access disabled. This is impossible. The public endpoint will be forcefully enabled."
     }
     Write-Host "Creating Postgres server"
     $postgreSqlServerId = (Invoke-Executable az postgres server create --admin-password $PostgreSqlServerPassword --admin-user $PostgreSqlServerUsername --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName --location $resourceGroupLocation --sku-name $PostgreSqlServerSku --backup-retention $BackupRetentionInDays --assign-identity --public-network-access $PostgreSqlServerPublicNetworkAccess --version $PostgreSqlServerVersion | ConvertFrom-Json).id
 }
 
-# VNET Whitelisting
+# VNet Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
     # REMOVE OLD NAMES
