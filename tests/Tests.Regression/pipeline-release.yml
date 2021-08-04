@@ -480,7 +480,7 @@ stages:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-AppInsights-Resource.ps1"
-                arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(Location)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+                arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(Location)' -LogAnalyticsWorkspaceResourceId '$(GetLogAnalyticsWorkspaceIdforPipeline.LogAnalyticsWorkspaceResourceId)'"
             # ========================================= NETWORKING =========================================
             - task: AzureCLI@2
               displayName: 'Create App Service VNet integration subnet'
