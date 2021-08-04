@@ -15,6 +15,11 @@
 #
 ##############################################################################################################################################################################################################################
 
+parameters:
+  - name: ResourceCreation.ResourceGroup.Enabled
+    type: boolean
+    default: true
+
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
@@ -29,6 +34,34 @@ variables:
   # Basic
   - name: ProjectName 
     value: TestApi
+
+  # Switches
+  - name: ResourceCreation.ResourceGroup.Enabled
+    value: ${{ parameters.ResourceCreation.ResourceGroup.Enabled }}
+  #- name: ResourceCreation.LogAnalyticsWorkspace.Enabled
+  #  value: true
+  #- name: ResourceCreation.AppInsights.Enabled
+  #  value: true
+  #- name: ResourceCreation.Networking.Enabled
+  #  value: true
+  #- name: ResourceCreation.AppService.Enabled
+  #  value: true
+  #- name: ResourceCreation.Keyvault.Enabled
+  #  value: true
+  #- name: ResourceCreation.MSSQL.Enabled
+  #  value: true
+  #- name: ResourceCreation.MySQL.Enabled
+  #  value: true
+  #- name: ResourceCreation.StorageAccounts.Enabled
+  #  value: true
+  #- name: ResourceCreation.Functions.Enabled
+  #  value: true
+  #- name: ResourceCreation.ContainerRegistry.Enabled
+  #  value: true
+  #- name: ResourceCreation.ContainerInstance.Enabled
+  #  value: true
+  #- name: ResourceCreation.ApplicationGateway.Enabled
+  #  value: true
 
   # Tags
   - name: Tag.ApplicationId
