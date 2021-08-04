@@ -403,7 +403,7 @@ stages:
       value: 10.0.4.0/24
 
   jobs:
-  - deployment: "ResourceGroup_${{ parameters.EnvironmentName }}"
+  - deployment: "BaseResources_${{ parameters.EnvironmentName }}"
     environment:
       name: ${{ parameters.EnvironmentName }}
     timeoutInMinutes: 360
@@ -412,17 +412,6 @@ stages:
       runOnce:
         deploy:
           steps:
-            # ========================================= DOWNLOAD AZDOCS =========================================
-            - task: DownloadPipelineArtifact@2
-              displayName: Download AzDocs
-              inputs:
-                buildType: specific
-                project: $(AzDocsTeamProjectId)
-                definition: $(AzDocsBuildDefinitionId)
-                buildVersionToDownload: latestFromBranch
-                branchName: $(Build.SourceBranch)
-                artifactName: azdocs-src
-                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= RESOURCEGROUP =========================================
             - task: AzureCLI@2
               displayName: "Create ResourceGroup"
@@ -434,16 +423,6 @@ stages:
                 arguments: "-ResourceGroupLocation '$(Location)' 
                             -ResourceGroupName '$(ResourceGroupName)' 
                             -ResourceTags $(ResourceTags)"
-  - deployment: "LogAnalyticsWorkspace_${{ parameters.EnvironmentName }}"
-    dependsOn: "ResourceGroup_${{ parameters.EnvironmentName }}"
-    environment:
-      name: ${{ parameters.EnvironmentName }}
-    timeoutInMinutes: 360
-    cancelTimeoutInMinutes: 1
-    strategy:
-      runOnce:
-        deploy:
-          steps:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
@@ -538,6 +517,16 @@ stages:
                   scriptType: pscore
                   scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Add-Custom-DNS-Server-To-VNET.ps1'
                   arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -DNSServers '$(DNSServers)'"
+  - deployment: "AppService_${{ parameters.EnvironmentName }}"
+    dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= APP SERVICE =========================================
             - task: AzureCLI@2
               displayName: 'Create App Service Plan Linux'
@@ -603,6 +592,16 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
                 arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+  - deployment: "Keyvault_${{ parameters.EnvironmentName }}"
+    dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= KEYVAULT =========================================
             - task: AzureCLI@2
               displayName: 'Create Keyvault (Public)'
@@ -628,6 +627,16 @@ stages:
                   scriptType: pscore
                   scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1'
                   arguments: "-KeyvaultName '$(VnetWhitelistingKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+  - deployment: "MSSQL_${{ parameters.EnvironmentName }}"
+    dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= SQL SERVER =========================================
             - task: AzureCLI@2
               displayName: 'Create SQL Server (Public)'
@@ -680,6 +689,16 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Database.ps1"
                 arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VnetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)' -SqlDatabaseFamily '$(SqlDatabaseFamily)' -SqlDatabaseComputeModel '$(SqlDatabaseComputeModel)' -SqlDatabaseAutoPauseDelayInMinutes '$(SqlDatabaseAutoPauseDelayInMinutes)' -SqlDatabaseMinCapacity '$(SqlDatabaseMinCapacity)' -SqlDatabaseMaxCapacity '$(SqlDatabaseMaxCapacity)' -SqlDatabaseBackupStorageRedundancy '$(SqlDatabaseBackupStorageRedundancy)' -SqlDatabaseMaxStorageSize '$(SqlDatabaseMaxStorageSize)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ResourceTags $(ResourceTags)"
+  - deployment: "MySQL_${{ parameters.EnvironmentName }}"
+    dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= MYSQL SERVER =========================================
             - task: AzureCLI@2
               displayName: 'Create MySQL (Public) Server'
@@ -729,6 +748,16 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/MySQL/Create-MySQL-Database.ps1'
                 arguments: "-MySqlServerResourceGroupName '$(MySqlServerResourceGroupName)' -MySqlServerName '$(VnetWhitelistingMySqlServerName)' -MySqlDatabaseName '$(MySqlDatabaseName)'"
+  - deployment: "PostgreSQL_${{ parameters.EnvironmentName }}"
+    dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= POSTGRESQL =========================================
             - task: AzureCLI@2
               displayName: 'Create (Public) PostgreSQL Server'
@@ -778,6 +807,16 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/PostgreSQL/Create-PostgreSQL-Database.ps1'
                 arguments: "-PostgreSqlServerResourceGroupName '$(PostgreSqlServerResourceGroupName)' -PostgreSqlServerName '$(VnetWhitelistingPostgreSqlServerName)' -PostgreSqlDatabaseName '$(PostgreSqlDatabaseName)'"
+  - deployment: "RedisCache_${{ parameters.EnvironmentName }}"
+    dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= REDIS CACHE =========================================
             - task: AzureCLI@2
               displayName: 'Create (Public) RedisCache Instance'
@@ -795,6 +834,16 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/RedisCache/Create-RedisCache-Instance.ps1'
                 arguments: "-RedisInstanceLocation '$(RedisInstanceLocation)' -RedisInstanceName '$(PrivateEndpointRedisInstanceName)' -RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' -RedisInstanceSkuName '$(RedisInstanceSkuName)' -RedisInstanceVmSize '$(RedisInstanceVmSize)' -ResourceTags $(ResourceTags) -RedisInstancePrivateEndpointVnetResourceGroupName '$(RedisInstancePrivateEndpointVnetResourceGroupName)' -RedisInstancePrivateEndpointVnetName '$(RedisInstancePrivateEndpointVnetName)' -RedisInstancePrivateEndpointSubnetName '$(RedisInstancePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+  - deployment: "StorageAccount_${{ parameters.EnvironmentName }}"
+    dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= STORAGE ACCOUNTS =========================================
             - task: PowerShell@2
               displayName: Generate StorageAccountNames
@@ -834,6 +883,16 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1'
                 arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(VnetWhitelistingStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+  - deployment: "FunctionApp_${{ parameters.EnvironmentName }}"
+    dependsOn: [ "BaseResources_${{ parameters.EnvironmentName }}", "StorageAccount_${{ parameters.EnvironmentName }}"]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= Functions =========================================
             - task: AzureCLI@2
               displayName: 'Create (Public) Function App'
@@ -883,6 +942,16 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1'
                 arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(VnetWhitelistingFunctionAppName)' -FunctionAppVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -FunctionAppVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $true"
+  - deployment: "AppService_PostConfiguration_${{ parameters.EnvironmentName }}"
+    dependsOn: [ "BaseResources_${{ parameters.EnvironmentName }}", "AppService_${{ parameters.EnvironmentName }}"]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= APP SERVICE POST-CREATION CONFIGURATION =========================================
             - task: AzureCLI@2
               displayName: "Set AppSettings For AppService"
@@ -937,6 +1006,16 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)'  -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
+  - deployment: "ContainerRegistry_${{ parameters.EnvironmentName }}"
+    dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= CONTAINER REGISTRY =========================================
             - task: AzureCLI@2
               displayName: 'Create (Public) Container Registry'
@@ -962,6 +1041,16 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Registry/Create-Container-Registry.ps1'
                 arguments: "-ContainerRegistryName '$(ContainerRegistryName)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+  - deployment: "ContainerInstance_${{ parameters.EnvironmentName }}"
+    dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= CONTAINER INSTANCE =========================================
             - task: AzureCLI@2
               displayName: 'Create Container Instance'
@@ -971,6 +1060,16 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Instance/Create-Container.ps1'
                 arguments: "-ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)'"
+  - deployment: "AppService_SwapSlots_${{ parameters.EnvironmentName }}"
+    dependsOn: [ "BaseResources_${{ parameters.EnvironmentName }}", "AppService_${{ parameters.EnvironmentName }}", "AppService_PostConfiguration_${{ parameters.EnvironmentName }}"]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= SWAP APPSERVICE SLOTS =========================================
             - task: AzureAppServiceManage@0
               displayName: Swap Staging slot to Production
@@ -982,6 +1081,16 @@ stages:
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SourceSlot: "$(AppServiceDeploymentSlotName)"
                 PreserveVnet: true
+  - deployment: "ApplicationGateway_${{ parameters.EnvironmentName }}"
+    dependsOn: [ "BaseResources_${{ parameters.EnvironmentName }}", "AppService_${{ parameters.EnvironmentName }}", "AppService_PostConfiguration_${{ parameters.EnvironmentName }}", "AppService_SwapSlots_${{ parameters.EnvironmentName }}"]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
             # ========================================= APPLICATION GATEWAY =========================================
             - task: AzureCLI@2
               displayName: 'Create Application Gateway'
