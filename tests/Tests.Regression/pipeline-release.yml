@@ -453,20 +453,20 @@ stages:
                 arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -LogAnalyticsWorkspaceRetentionInDays '$(LogAnalyticsWorkspaceRetentionInDays)' -PublicInterfaceIngestionEnabled -PublicInterfaceQueryAccess -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceSolutionTypes $(LogAnalyticsWorkspaceSolutionTypes)"
             - task: AzureCLI@2
               displayName: "Get Log Analytics Workspace Id"
+              name: GetLogAnalyticsWorkspaceIdforPipeline
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Id-for-Pipeline.ps1"
-                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' 
-                            -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)'"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -OutputPipelineVariableName 'LogAnalyticsWorkspaceResourceId'"
             - task: AzureCLI@2
               displayName: "Get Log Analytics Workspace Key"
+              name: GetLogAnalyticsWorkspaceKeyforPipeline
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Key-for-Pipeline.ps1"
-                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' 
-                            -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)'"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -OutputPipelineVariableName 'LogAnalyticsWorkspaceKey'"
             # ========================================= APP INSIGHTS =========================================
             - task: AzureCLI@2
               displayName: "Create AppInsights Resource"
@@ -521,6 +521,9 @@ stages:
     dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
     environment:
       name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies["BaseResources_${{ parameters.EnvironmentName }}"].outputs['GetLogAnalyticsWorkspaceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+      LogAnalyticsWorkspaceKey: $[ dependencies["BaseResources_${{ parameters.EnvironmentName }}"].outputs['GetLogAnalyticsWorkspaceKeyforPipeline.LogAnalyticsWorkspaceKey'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
     strategy:
@@ -607,6 +610,9 @@ stages:
     dependsOn: "BaseResources_${{ parameters.EnvironmentName }}"
     environment:
       name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies["BaseResources_${{ parameters.EnvironmentName }}"].outputs['GetLogAnalyticsWorkspaceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+      LogAnalyticsWorkspaceKey: $[ dependencies["BaseResources_${{ parameters.EnvironmentName }}"].outputs['GetLogAnalyticsWorkspaceKeyforPipeline.LogAnalyticsWorkspaceKey'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
     strategy:
