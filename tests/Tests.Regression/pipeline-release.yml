@@ -379,8 +379,10 @@ stages:
       value: registry
 
     # Container Instances
-    - name: ContainerName
-      value: $(ResourceBaseName)-ACI-${{ parameters.EnvironmentName }}
+    - name: PublicContainerName
+      value: $(ResourceBaseName)-pci-${{ parameters.EnvironmentName }}
+    - name: PrivateContainerName
+      value: $(ResourceBaseName)-eci-${{ parameters.EnvironmentName }}
     - name: ContainerResourceGroupName
       value: $(ResourceGroupName)
     - name: ContainerCpuCount
@@ -1206,13 +1208,21 @@ stages:
                 targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= CONTAINER INSTANCE =========================================
             - task: AzureCLI@2
-              displayName: 'Create Container Instance'
+              displayName: 'Create (Public) Container Instance'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerInstance.Enabled'], 'true'))
               inputs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Instance/Create-Container.ps1'
-                arguments: "-ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)'"
+                arguments: "-ContainerName '$(PublicContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)'"
+            - task: AzureCLI@2
+              displayName: 'Create (Private) Container Instance'
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerInstance.Enabled'], 'true'))
+              inputs:
+                azureSubscription: '${{ parameters.SubscriptionName }}'
+                scriptType: pscore
+                scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Instance/Create-Container.ps1'
+                arguments: "-ContainerName '$(PrivateContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)'"
   - deployment: "AppService_SwapSlots"
     dependsOn: [ "BaseResources", "AppService", "AppService_PostConfiguration"]
     environment:
