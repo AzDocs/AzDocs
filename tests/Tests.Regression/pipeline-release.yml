@@ -1158,6 +1158,21 @@ stages:
                 artifactName: azdocs-src
                 targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= CONTAINER REGISTRY =========================================
+            - task: PowerShell@2
+              displayName: Generate ACR Resource Names
+              name: GenerateAcrResourceNames
+              inputs:
+                targetType: "inline"
+                script: |
+                  $PublicContainerRegistryNameToLower = "$(ResourceBaseName)pacr${{ parameters.EnvironmentName }}".ToLower() -replace "-", ""
+                  Write-Host "PublicContainerRegistryNameToLower: $PublicContainerRegistryNameToLower"
+                  Write-Host "##vso[task.setvariable variable=PublicContainerRegistryNameToLower;isOutput=true]$PublicContainerRegistryNameToLower"
+                  $PrivateEndpointContainerRegistryNameToLower = "$(ResourceBaseName)eacr${{ parameters.EnvironmentName }}".ToLower() -replace "-", ""
+                  Write-Host "PrivateEndpointContainerRegistryNameToLower: $PrivateEndpointContainerRegistryNameToLower"
+                  Write-Host "##vso[task.setvariable variable=PrivateEndpointContainerRegistryNameToLower;isOutput=true]$PrivateEndpointContainerRegistryNameToLower"
+                  $VNetWhitelistingContainerRegistryNameToLower = "$(ResourceBaseName)vacr${{ parameters.EnvironmentName }}".ToLower() -replace "-", ""
+                  Write-Host "VNetWhitelistingContainerRegistryNameToLower: $VNetWhitelistingContainerRegistryNameToLower"
+                  Write-Host "##vso[task.setvariable variable=VNetWhitelistingContainerRegistryNameToLower;isOutput=true]$VNetWhitelistingContainerRegistryNameToLower"
             - task: AzureCLI@2
               displayName: 'Create (Public) Container Registry'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerRegistry.Enabled'], 'true'))
@@ -1165,7 +1180,7 @@ stages:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Registry/Create-Container-Registry.ps1'
-                arguments: "-ContainerRegistryName '$(PublicContainerRegistryName)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ForcePublic"
+                arguments: "-ContainerRegistryName '$(GenerateAcrResourceNames.PublicContainerRegistryNameToLower)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ForcePublic"
             - task: AzureCLI@2
               displayName: 'Create (Private Endpoint) Container Registry'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerRegistry.Enabled'], 'true'))
@@ -1173,7 +1188,7 @@ stages:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Registry/Create-Container-Registry.ps1'
-                arguments: "-ContainerRegistryName '$(PrivateEndpointContainerRegistryName)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -ContainerRegistryPrivateEndpointVnetName '$(ContainerRegistryPrivateEndpointVnetName)' -ContainerRegistryPrivateEndpointVnetResourceGroupName '$(ContainerRegistryPrivateEndpointVnetResourceGroupName)' -ContainerRegistryPrivateEndpointSubnetName '$(ContainerRegistryPrivateEndpointSubnetName)' -PrivateEndpointGroupId '$(ContainerRegistryPrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+                arguments: "-ContainerRegistryName '$(GenerateAcrResourceNames.PrivateEndpointContainerRegistryNameToLower)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -ContainerRegistryPrivateEndpointVnetName '$(ContainerRegistryPrivateEndpointVnetName)' -ContainerRegistryPrivateEndpointVnetResourceGroupName '$(ContainerRegistryPrivateEndpointVnetResourceGroupName)' -ContainerRegistryPrivateEndpointSubnetName '$(ContainerRegistryPrivateEndpointSubnetName)' -PrivateEndpointGroupId '$(ContainerRegistryPrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
             - task: AzureCLI@2
               displayName: 'Create (VNet Whitelisting) Container Registry'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerRegistry.Enabled'], 'true'))
@@ -1181,7 +1196,7 @@ stages:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Registry/Create-Container-Registry.ps1'
-                arguments: "-ContainerRegistryName '$(VNetWhitelistingContainerRegistryName)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+                arguments: "-ContainerRegistryName '$(GenerateAcrResourceNames.VNetWhitelistingContainerRegistryNameToLower)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
   - deployment: "ContainerInstance"
     dependsOn: "BaseResources"
     environment:
