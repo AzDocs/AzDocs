@@ -467,6 +467,11 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Key-for-Pipeline.ps1"
                 arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -OutputPipelineVariableName 'LogAnalyticsWorkspaceKey'"
+            - task: PowerShell@2
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Write-Host "ID: $(GetLogAnalyticsWorkspaceIdforPipeline.LogAnalyticsWorkspaceResourceId)"
             # ========================================= APP INSIGHTS =========================================
             - task: AzureCLI@2
               displayName: "Create AppInsights Resource"
