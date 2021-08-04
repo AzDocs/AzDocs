@@ -16,7 +16,7 @@
 ##############################################################################################################################################################################################################################
 
 parameters:
-  - name: ResourceCreation-ResourceGroup-Enabled
+  - name: ResourceCreation.ResourceGroup.Enabled
     type: boolean
     default: true
 
@@ -37,7 +37,7 @@ variables:
 
   # Switches
   - name: ResourceCreation.ResourceGroup.Enabled
-    value: ${{ parameters.ResourceCreation-ResourceGroup-Enabled }}
+    value: ${{ parameters['ResourceCreation.ResourceGroup.Enabled'] }}
   #- name: ResourceCreation.LogAnalyticsWorkspace.Enabled
   #  value: true
   #- name: ResourceCreation.AppInsights.Enabled
