@@ -2,21 +2,21 @@
 
 # Description
 
-This snippet gets your Log Analytics Workspace Resource ID to be able to use it in a pipeline. You can set the pipeline variable name using the `OutputPipelineVariableName` parameter.
+This snippet gets your Log Analytics Workspace ID (A.k.a. Customer ID) to be able to use it in a pipeline. You can set the pipeline variable name using the `OutputPipelineVariableName` parameter.
 
 # Parameters
 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter                              | Required                        | Example Value                               | Description                                                                                                                                                 |
-| -------------------------------------- | ------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| LogAnalyticsWorkspaceResourceGroupName | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your log analytics workspace to be created in                                                                        |
-| LogAnalyticsWorkspaceName              | <input type="checkbox" checked> | `My-Shared-Law-$(Release.EnvironmentName)`  | The name you want to use for your log analytics-workspace.                                                                                                  |
-| OutputPipelineVariableName             | <input type="checkbox">         | `MyLogAnalyticsWorkspaceResourceId`         | The name of the pipeline variable. This defaults to `LogAnalyticsWorkspaceResourceId` and can be used inside the pipeline as `$(LogAnalyticsWorkspaceKey)`. |
+| Parameter                              | Required                        | Example Value                               | Description                                                                                                                                        |
+| -------------------------------------- | ------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LogAnalyticsWorkspaceResourceGroupName | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)` | The name of the resourcegroup you want your log analytics workspace to be created in                                                               |
+| LogAnalyticsWorkspaceName              | <input type="checkbox" checked> | `My-Shared-Law-$(Release.EnvironmentName)`  | The name you want to use for your log analytics-workspace.                                                                                         |
+| OutputPipelineVariableName             | <input type="checkbox">         | `MyLogAnalyticsWorkspaceId`                 | The name of the pipeline variable. This defaults to `LogAnalyticsWorkspaceId` and can be used inside the pipeline as `$(LogAnalyticsWorkspaceId)`. |
 
 # Output
 
-You can set the pipeline variable name using the `OutputPipelineVariableName` parameter. For example: if the `OutputPipelineVariableName` is `MyLogAnalyticsWorkspaceResourceId`, you can use `$(MyLogAnalyticsWorkspaceResourceId)` in your pipeline after running this script in your pipeline.
+You can set the pipeline variable name using the `OutputPipelineVariableName` parameter. For example: if the `OutputPipelineVariableName` is `MyLogAnalyticsWorkspaceId`, you can use `$(MyLogAnalyticsWorkspaceId)` in your pipeline after running this script in your pipeline.
 
 # YAML
 

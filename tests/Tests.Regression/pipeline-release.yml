@@ -452,13 +452,21 @@ stages:
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Create-Log-Analytics-Workspace.ps1'
                 arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -LogAnalyticsWorkspaceRetentionInDays '$(LogAnalyticsWorkspaceRetentionInDays)' -PublicInterfaceIngestionEnabled -PublicInterfaceQueryAccess -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceSolutionTypes $(LogAnalyticsWorkspaceSolutionTypes)"
             - task: AzureCLI@2
-              displayName: "Get Log Analytics Workspace Id"
+              displayName: "Get Log Analytics Workspace Resource Id"
               name: GetLogAnalyticsWorkspaceResourceIdforPipeline
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Id-for-Pipeline.ps1"
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-ResourceId-for-Pipeline.ps1"
                 arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -OutputPipelineVariableName 'LogAnalyticsWorkspaceResourceId'"
+            - task: AzureCLI@2
+              displayName: "Get Log Analytics Workspace Id"
+              name: GetLogAnalyticsWorkspaceIdforPipeline
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Id-for-Pipeline.ps1"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -OutputPipelineVariableName 'LogAnalyticsWorkspaceId'"
             - task: AzureCLI@2
               displayName: "Get Log Analytics Workspace Key"
               name: GetLogAnalyticsWorkspaceKeyforPipeline
@@ -467,11 +475,6 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Key-for-Pipeline.ps1"
                 arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -OutputPipelineVariableName 'LogAnalyticsWorkspaceKey'"
-            - task: PowerShell@2
-              inputs:
-                targetType: 'inline'
-                script: |
-                  Write-Host "ID: $(GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId)"
             # ========================================= APP INSIGHTS =========================================
             - task: AzureCLI@2
               displayName: "Create AppInsights Resource"
@@ -1182,7 +1185,7 @@ stages:
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
-      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+      LogAnalyticsWorkspaceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceIdforPipeline.LogAnalyticsWorkspaceId'] ]
       LogAnalyticsWorkspaceKey: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceKeyforPipeline.LogAnalyticsWorkspaceKey'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
@@ -1209,7 +1212,7 @@ stages:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Instance/Create-Container.ps1'
-                arguments: "-ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceResourceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)'"
+                arguments: "-ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)'"
   - deployment: "AppService_SwapSlots"
     dependsOn: [ "BaseResources", "AppService", "AppService_PostConfiguration"]
     environment:

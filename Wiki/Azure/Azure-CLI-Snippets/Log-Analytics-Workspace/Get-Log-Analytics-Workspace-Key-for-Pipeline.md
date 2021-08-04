@@ -29,7 +29,7 @@ Be aware that this YAML example contains all parameters that can be used with th
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Id-for-Pipeline.ps1"
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-Key-for-Pipeline.ps1"
                 arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -OutputPipelineVariableName '$(OutputPipelineVariableName)'"
 ```
 
