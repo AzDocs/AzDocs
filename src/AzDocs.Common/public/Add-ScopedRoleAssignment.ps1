@@ -1,7 +1,8 @@
-function Create-ScopedRoleAssignment {
+function Add-ScopedRoleAssignment
+{
 	[CmdletBinding(DefaultParameterSetName = 'Resource')]
 	param (
-	    # Switches for which resource we are talking about
+		# Switches for which resource we are talking about
 		[Parameter(Mandatory, ParameterSetName = 'Resource')][switch]$Resource,
 		[Parameter(Mandatory, ParameterSetName = 'Scope')][switch]$Scope,
 		# Parameters
@@ -17,7 +18,8 @@ function Create-ScopedRoleAssignment {
 
 	Write-Header -ScopedPSCmdlet $PSCmdlet
 
-	if (-Not $Scope) {
+	if (-Not $Scope)
+	{
 		if ($ParentResourcePath)
 		{
 			$PermissionScopeResourceId = Invoke-Executable az resource show --resource-group $ResourceGroupName --name $ResourceName --namespace $ResourceNamespace --resource-type $ResourceType --parent $ParentResourcePath --query=id

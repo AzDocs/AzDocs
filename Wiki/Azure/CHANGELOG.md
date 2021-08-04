@@ -2,17 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.08.04]
+
+### Added
+
+- Added parameter `PostgreSqlServerMinimalTlsVersion` to `Create-PostgreSQL-Server.ps1`.
+- Added parameter `StorageAccountMinimalTlsVersion` to `Create-Storage-account.ps1`.
+- Added parameter `AppServiceMinimalTlsVersion` to `Create-Web-App.ps1`.
+- Added parameter `FunctionAppMinimalTlsVersion` to `Create-Function-App.ps1`.
+- Added warnings when not using TLS version 1.2 or higher.
+- Added `-ForceDisableTLS` to the scripts which spin up resources that can allow this to avoid creating resources without TLS enforcement unintentionally.
+
 ## [2021.07.30]
+
+### Added
 
 - Added ServiceBus
 
 ## [2021.07.29]
 
+### Breaking Changes
+
 - Removed `ApplicationSubnetName` from `Create-App-Configuration.ps1` since it was not being used.
+
+### Added
+
 - Added `-ForcePublic` to the scripts which spin up resources to avoid creating public resources unintentionally.
-- Corrected `Create-Log-Analytics-Workspace` documentation for the `LogAnalyticsWorkspaceSolutionTypes` parameter.
-- Removed `SqlServerSubscriptionId` from `Create-SQL-Server`. This is now fetched automatically.
 - Added Regression Tests & Test.API to AzDocs! We are now able to run tests when changing our scripts.
+- Corrected `Create-Log-Analytics-Workspace` documentation for the `LogAnalyticsWorkspaceSolutionTypes` parameter.
+
+### Removed
+
+- Removed `SqlServerSubscriptionId` from `Create-SQL-Server`. This is now fetched automatically.
 
 ## [2021.07.26]
 

@@ -8,7 +8,7 @@ param (
     [Parameter(Mandatory)][string] $MySqlServerSkuName,
     [Parameter(Mandatory)][string] $MySqlServerStorageSizeInMB,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
-    [Parameter()][ValidateSet('', 'TLS1_0', 'TLS1_1', 'TLS1_2', 'TLSEnforcementDisabled')][string] $MySqlServerMinimalTlsVersion = 'TLS1_2',
+    [Parameter()][ValidateSet('TLS1_0', 'TLS1_1', 'TLS1_2', 'TLSEnforcementDisabled')][string] $MySqlServerMinimalTlsVersion = 'TLS1_2',
     # YES I KNOW. BUT THE CLI DOES NOT UNDERSTAND $FALSE & $TRUE :(
     [Parameter()][ValidateSet('Enabled', 'Disabled')][string] $MySqlServerSslEnforcement = 'Enabled',
 
@@ -27,6 +27,9 @@ param (
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
 
+    # Forcefully agree to spin up this resource with TLS disabled
+    [Parameter()][switch] $ForceDisableTLS,
+
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
@@ -42,6 +45,9 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
     # Check if we are making this resource public intentionally
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
+
+# Check TLS version
+Assert-TLSVersion -TlsVersion $MySqlServerMinimalTlsVersion -ForceDisableTls $ForceDisableTLS
 
 # Create MySQL Server.
 $mySqlServerId = (Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id

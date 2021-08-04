@@ -59,6 +59,8 @@ Whenever submitting new scripts, please make sure it is checked against the chec
 - <input type="checkbox"> For every resource that can make use of Diagnostic Settings, these should be enabled and send to the correct LAW.
 - <input type="checkbox"> For every resource that can make use of VNet whitelisting, this should be configurable and added to the script.
 - <input type="checkbox"> For every resource that can make use of Private Endpoints, this should be configurable and added to the script.
+- <input type="checkbox"> For every resource that has the possibility to set TLS, the TLS version should be checked if it is equal or higher than TLS 1.2. Make use of the `Assert-TLSVersion` function.
+- <input type="checkbox"> For every resource that can be created without TLS enforced, a switch statement should be added with the name `ForceDisableTLS` to allow this. This so that this cannot happen unintentionally.
 - <input type="checkbox"> A wiki page should be added with the following information:
   - <input type="checkbox"> Description - Short description of the script and what it does.
   - <input type="checkbox"> Parameters - A list of parameters that are used in the scripts, their descriptions, example values and if they're required.
