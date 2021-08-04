@@ -14,6 +14,394 @@ stages:
   displayName: ${{ format('Deploy to {0}', parameters.EnvironmentName) }}
   pool:
     vmImage: $(Stage.Pool)
+  variables:
+    # Basic
+    - name: Location
+      value: westeurope
+    - name: DeployInfra
+      value: "${{ parameters.DeployInfra }}"
+    - name: ResourceBaseName
+      value: $(CompanyName)-$(ProjectName)
+    - name: ResourceGroupName
+      value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+    - name: ResourceTags
+      value: "@('BillingIdentifier=$(Tag.BillingIdentifier)'; 'EnvironmentType=${{ parameters.EnvironmentName }}'; 'ApplicationName=$(Tag.ApplicationName)'; 'AppTechOwner=$(Tag.AppTechOwner)'; 'ApplicationOwner=$(Tag.ApplicationOwner)'; 'ApplicationID=$(Tag.ApplicationID)'; 'BusinessUnit=$(Tag.BusinessUnit)'; 'CostType=$(Tag.CostType)'; 'Tier=$(Tag.Tier)')"
+
+    # VNet
+    - name: VnetName
+      value: "$(ResourceBaseName)-vnet-${{ parameters.EnvironmentName }}"
+    - name: VnetResourceGroupName
+      value: $(ResourceGroupName)
+    - name: VnetCidr
+      value: 10.0.0.0/8
+    - name: DNSServers
+      value: '168.63.129.16'
+
+    # AppService
+    - name: AppServicePlanSkuName
+      value: P1v3
+    - name: AppServiceRunTime
+      value: DOTNETCORE|3.1
+    - name: AppServicePlanName
+      value: "${{ format('{0}-ASP-{1}-Linux', variables.ResourceBaseName, parameters.EnvironmentName) }}"
+    - name: AppServicePlanResourceGroupName
+      value: $(ResourceGroupName)
+    - name: AppServiceResourceGroupName
+      value: $(ResourceGroupName)
+    - name: VnetWhitelistingAppServiceName
+      value: "$(ResourceBaseName)-v-${{ parameters.EnvironmentName }}"
+    - name: PrivateEndpointAppServiceName
+      value: "$(ResourceBaseName)-e-${{ parameters.EnvironmentName }}"
+    - name: PublicAppServiceName
+      value: "$(ResourceBaseName)-p-${{ parameters.EnvironmentName }}"
+    - name: AppServiceAlwaysOn
+      value: $True
+    - name: ASPNETCORE_ENVIRONMENT
+      value: development
+    - name: AppServicePlanNumberOfWorkerInstances
+      value: 2
+    - name: AppServiceNumberOfInstances
+      value: 2
+    - name: AppServiceDeploymentSlotName
+      value: staging
+    - name: ApplyToAllSlots
+      value: $True
+    - name: AppInsightsName
+      value: "$(ResourceBaseName)-${{ parameters.EnvironmentName }}"
+    - name: AppInsightsResourceGroupName
+      value: $(ResourceGroupName)
+    - name: AppServiceVnetIntegrationSubnetName
+      value: "$(ResourceBaseName)-appservice-subnet"
+    - name: AppServiceVnetIntegrationSubnet
+      value: 10.0.1.0/24
+    - name: AppServiceVnetIntegrationVnetName
+      value: $(VnetName)
+    # Private Endpoint AppService
+    - name: AppServicePrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: AppServicePrivateEndpointVnetName
+      value: $(VnetName)
+    - name: AppServicePrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+    - name: AppServicePrivateDnsZoneName
+      value: privatelink.azurewebsites.net
+
+    # App Service AppSettings
+    - name: AppServiceAppSettings
+      value: >-
+        @(
+        'test=test';
+        'test123=test';
+        )
+
+    # App Service ConnectionStrings
+    - name: AppServiceConnectionStringsInJson
+      value: '[{"name": "MyConnectionString", "value": "Server=test;Initial Catalog=MyDatabase;User ID=$(DbUserName);Password=$(DbPassword);", "type": "Custom"}, {"name": "MyConnectionString2", "value": "Server=test;Initial Catalog=MyDatabase2;User ID=$(DbUserName);Password=$(DbPassword);", "type": "SQLAzure"}]'
+
+    # Application Gateway
+    - name: ApplicationGatewayName
+      value: $(ResourceBaseName)-appgw-${{ parameters.EnvironmentName }}
+    - name: ApplicationGatewayResourceGroupName
+      value: $(ResourceGroupName)
+    - name: ApplicationGatewayVnetName
+      value: $(VnetName)
+    - name: ApplicationGatewayVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: ApplicationGatewaySubnetName
+      value: "$(ResourceBaseName)-appgw-subnet"
+    - name: ApplicationGatewaySubnet
+      value: 10.0.3.0/24
+    - name: ApplicationGatewayCapacity
+      value: 2
+    - name: ApplicationGatewaySku
+      value: Standard_v2
+
+    # Application Gateway Entrypoint
+    - name: GatewayType
+      value: "Public"
+    - name: BackendDomainName
+      value: $(VnetWhitelistingAppServiceName).azurewebsites.net
+    - name: HealthProbePath
+      value: "/HealthCheck"
+    - name: GatewayRuleType
+      value: "Basic"
+    - name: HealthProbeInterval
+      value: "60"
+    - name: HealthProbeThreshold
+      value: "2"
+    - name: HealthProbeTimeout
+      value: "20"
+    - name: HealthProbeProtocol
+      value: "HTTPS"
+    - name: HttpsSettingsProtocol
+      value: "HTTPS"
+    - name: HttpsSettingsPort
+      value: "443"
+    - name: HttpsSettingsCookieAffinity
+      value: "Disabled"
+    - name: HttpsSettingsConnectionDrainingTimeout
+      value: "0"
+    - name: HttpsSettingsTimeout
+      value: "30"
+    - name: MatchStatusCodes
+      value: "200-399"
+
+    # Functions
+    - name: VnetWhitelistingFunctionAppName
+      value: "$(ResourceBaseName)-vfunc-${{ parameters.EnvironmentName }}"
+    - name: PrivateEndpointFunctionAppName
+      value: "$(ResourceBaseName)-efunc-${{ parameters.EnvironmentName }}"
+    - name: PublicFunctionAppName
+      value: "$(ResourceBaseName)-pfunc-${{ parameters.EnvironmentName }}"
+    - name: FunctionAppResourceGroupName
+      value: $(ResourceGroupName)
+    - name: PublicFunctionAppStorageAccountName
+      value: $(PublicStorageAccountNameToLower)
+    - name: VnetWhitelistingFunctionAppStorageAccountName
+      value: $(VnetWhitelistingStorageAccountNameToLower)
+    - name: PrivateEndpointFunctionAppStorageAccountName
+      value: $(PrivateEndpointStorageAccountNameToLower)
+    - name: FunctionAppOSType
+      value: Linux
+    - name: FunctionAppAlwaysOn
+      value: $true
+    - name: FUNCTIONS_EXTENSION_VERSION
+      value: ~3
+    - name: FunctionAppNumberOfInstances
+      value: 2
+    - name: FunctionAppRuntime
+      value: dotnet
+    - name: FunctionAppPrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: FunctionAppPrivateEndpointVnetName
+      value: $(VnetName)
+    - name: FunctionAppPrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+
+    # Keyvault
+    - name: VnetWhitelistingKeyvaultName
+      value: $(ResourceBaseName)vkv${{ parameters.EnvironmentName }}
+    - name: PrivateEndpointKeyvaultName
+      value: $(ResourceBaseName)ekv${{ parameters.EnvironmentName }}
+    - name: PublicKeyvaultName
+      value: $(ResourceBaseName)pkv${{ parameters.EnvironmentName }}
+    - name: KeyvaultResourceGroupName
+      value: $(ResourceGroupName)
+    - name: KeyvaultPrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: KeyvaultPrivateEndpointVnetName
+      value: $(VnetName)
+    - name: KeyvaultPrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+    - name: KeyvaultPrivateDnsZoneName
+      value: privatelink.vaultcore.azure.net
+
+    # SQL Server
+    - name: VnetWhitelistingSqlServerName
+      value: $(ResourceBaseName)-vsql-${{ parameters.EnvironmentName }}
+    - name: PrivateEndpointSqlServerName
+      value: $(ResourceBaseName)-esql-${{ parameters.EnvironmentName }}
+    - name: PublicSqlServerName
+      value: $(ResourceBaseName)-psql-${{ parameters.EnvironmentName }}
+    - name: SqlServerPassword
+      value: s0m3Nic3Passw0rd123
+    - name: SqlServerResourceGroupName
+      value: $(ResourceGroupName)
+    - name: SqlServerUsername
+      value: sqluser
+    - name: SqlServerMinimalTlsVersion
+      value: 1.2
+    - name: SqlServerPrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: SqlServerPrivateEndpointVnetName
+      value: $(VnetName)
+    - name: SqlServerPrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+    - name: SqlServerPrivateDnsZoneName
+      value: privatelink.database.windows.net
+
+    # AppService Details for VNet Integration to other services
+    - name: ApplicationSubnetName
+      value: $(AppServiceVnetIntegrationSubnetName)
+    - name: ApplicationVnetName
+      value: $(VnetName)
+    - name: ApplicationVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+
+    # Private Endpoint General Details
+    - name: DNSZoneResourceGroupName
+      value: $(ResourceGroupName)
+    - name: PrivateEndpointSubnetName
+      value: "$(ResourceBaseName)-privateendpoints-subnet"
+    - name: PrivateEndpointSubnet
+      value: 10.0.2.0/24
+
+    # SQL Database
+    - name: SqlDatabaseName
+      value: $(VnetWhitelistingAppServiceName)db
+    - name: SqlDatabaseEdition
+      value: GeneralPurpose
+    - name: SqlDatabaseFamily
+      value: Gen5
+    - name: SqlDatabaseComputeModel
+      value: Serverless
+    - name: SqlDatabaseAutoPauseDelayInMinutes
+      value: 60
+    - name: SqlDatabaseMinCapacity
+      value: 2
+    - name: SqlDatabaseMaxCapacity
+      value: 8
+    - name: SqlDatabaseBackupStorageRedundancy
+      value: Zone
+    - name: SqlDatabaseMaxStorageSize
+      value: 50GB
+
+    # MySQL
+    - name: MySqlServerLocation
+      value: $(Location)
+    - name: PublicMySqlServerName
+      value: $(ResourceBaseName)-pmy-${{ parameters.EnvironmentName }}
+    - name: PrivateEndpointMySqlServerName
+      value: $(ResourceBaseName)-emy-${{ parameters.EnvironmentName }}
+    - name: VnetWhitelistingMySqlServerName
+      value: $(ResourceBaseName)-vmy-${{ parameters.EnvironmentName }}
+    - name: MySqlServerUsername
+      value: mysqluser
+    - name: MySqlServerPassword
+      value: s0m3Nic3Passw0rd123
+    - name: MySqlServerResourceGroupName
+      value: $(ResourceGroupName)
+    - name: MySqlServerSkuName
+      value: GP_Gen5_2
+    - name: MySqlServerStorageSizeInMB
+      value: 51200
+    - name: MySqlServerPrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: MySqlServerPrivateEndpointVnetName
+      value: $(VnetName)
+    - name: MySqlServerPrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+    - name: MySqlDatabaseName
+      value: mymysqldb
+
+    # PostgreSQL
+    - name: PostgreSqlServerResourceGroupName
+      value: $(ResourceGroupName)
+    - name: PublicPostgreSqlServerName
+      value: $(ResourceBaseName)-ppg-${{ parameters.EnvironmentName }}
+    - name: PrivateEndpointPostgreSqlServerName
+      value: $(ResourceBaseName)-epg-${{ parameters.EnvironmentName }}
+    - name: VnetWhitelistingPostgreSqlServerName
+      value: $(ResourceBaseName)-vpg-${{ parameters.EnvironmentName }}
+    - name: PostgreSqlServerUsername
+      value: postgresqluser
+    - name: PostgreSqlServerPassword
+      value: s0m3Nic3Passw0rd123
+    - name: PostgreSqlServerSku
+      value: GP_Gen5_2
+    - name: BackupRetentionInDays
+      value: 7
+    - name: PostgreSqlServerVersion
+      value: 11
+    - name: PostgreSqlServerPrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: PostgreSqlServerPrivateEndpointVnetName
+      value: $(VnetName)
+    - name: PostgreSqlServerPrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+    - name: PostgreSqlDatabaseName
+      value: mypostgresdb
+
+    # Redis Cache
+    - name: RedisInstanceLocation
+      value: $(Location)
+    - name: RedisInstanceResourceGroupName
+      value: $(ResourceGroupName)
+    - name: PublicRedisInstanceName
+      value: $(ResourceBaseName)-prc-${{ parameters.EnvironmentName }}
+    - name: PrivateEndpointRedisInstanceName
+      value: $(ResourceBaseName)-erc-${{ parameters.EnvironmentName }}
+    - name: RedisInstanceSkuName
+      value: Standard
+    - name: RedisInstanceVmSize
+      value: C1
+    - name: RedisInstancePrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: RedisInstancePrivateEndpointVnetName
+      value: $(VnetName)
+    - name: RedisInstancePrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+
+    # Log analytics workspace
+    - name: LogAnalyticsWorkspaceResourceGroupName
+      value: $(ResourceGroupName)
+    - name: LogAnalyticsWorkspaceName
+      value: $(ResourceBaseName)-LAW-${{ parameters.EnvironmentName }}
+    - name: LogAnalyticsWorkspaceRetentionInDays
+      value: 30
+    - name: LogAnalyticsWorkspaceSolutionTypes
+      value: "@('VMInsights', 'AlertManagement')"
+
+    # Storage accounts
+    - name: StorageAccountResourceGroupName
+      value: $(ResourceGroupName)
+    - name: StorageAccountKind
+      value: StorageV2
+    - name: StorageAccountSku
+      value: Standard_LRS
+    - name: StorageAccountPrivateEndpointVnetName
+      value: $(VnetName)
+    - name: StorageAccountPrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: StorageAccountPrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+    - name: StorageAccountPrivateEndpointGroupId
+      value: blob
+    - name: StorageAccountPrivateDnsZoneName
+      value: privatelink.blob.core.windows.net
+
+    # Container Registry
+    - name: PublicContainerRegistryName
+      value: $(ResourceBaseName)-pacr-${{ parameters.EnvironmentName }}
+    - name: VnetWhitelistingContainerRegistryName
+      value: $(ResourceBaseName)-vacr-${{ parameters.EnvironmentName }}
+    - name: PrivateEndpointContainerRegistryName
+      value: $(ResourceBaseName)-eacr-${{ parameters.EnvironmentName }}
+    - name: ContainerRegistryResourceGroupName
+      value: $(ResourceGroupName)
+    - name: ContainerRegistryPrivateEndpointVnetName
+      value: $(VnetName)
+    - name: ContainerRegistryPrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: ContainerRegistryPrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+    - name: ContainerRegistryPrivateEndpointGroupId
+      value: registry
+
+    # Container Instances
+    - name: ContainerName
+      value: $(ResourceBaseName)-ACI-${{ parameters.EnvironmentName }}
+    - name: ContainerResourceGroupName
+      value: $(ResourceGroupName)
+    - name: ContainerCpuCount
+      value: 4
+    - name: ContainerMemoryInGb
+      value: 8
+    - name: ContainerOs
+      value: Linux
+    - name: ContainerPorts
+      value: '80 443'
+    - name: ContainerImageName
+      value: nginx
+    - name: ContainerVnetName
+      value: $(VnetName)
+    - name: ContainerVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: ContainerSubnetName
+      value: "$(ResourceBaseName)-container-subnet"
+    - name: ContainerSubnet
+      value: 10.0.4.0/24
+
   jobs:
     - deployment:
       displayName: "${{ parameters.EnvironmentName }}"
@@ -21,394 +409,6 @@ stages:
         name: ${{ parameters.EnvironmentName }}
       timeoutInMinutes: 360
       cancelTimeoutInMinutes: 1
-      variables:
-        # Basic
-        - name: Location
-          value: westeurope
-        - name: DeployInfra
-          value: "${{ parameters.DeployInfra }}"
-        - name: ResourceBaseName
-          value: $(CompanyName)-$(ProjectName)
-        - name: ResourceGroupName
-          value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
-        - name: ResourceTags
-          value: "@('BillingIdentifier=$(Tag.BillingIdentifier)'; 'EnvironmentType=${{ parameters.EnvironmentName }}'; 'ApplicationName=$(Tag.ApplicationName)'; 'AppTechOwner=$(Tag.AppTechOwner)'; 'ApplicationOwner=$(Tag.ApplicationOwner)'; 'ApplicationID=$(Tag.ApplicationID)'; 'BusinessUnit=$(Tag.BusinessUnit)'; 'CostType=$(Tag.CostType)'; 'Tier=$(Tag.Tier)')"
-
-        # VNet
-        - name: VnetName
-          value: "$(ResourceBaseName)-vnet-${{ parameters.EnvironmentName }}"
-        - name: VnetResourceGroupName
-          value: $(ResourceGroupName)
-        - name: VnetCidr
-          value: 10.0.0.0/8
-        - name: DNSServers
-          value: '168.63.129.16'
-
-        # AppService
-        - name: AppServicePlanSkuName
-          value: P1v3
-        - name: AppServiceRunTime
-          value: DOTNETCORE|3.1
-        - name: AppServicePlanName
-          value: "${{ format('{0}-ASP-{1}-Linux', variables.ResourceBaseName, parameters.EnvironmentName) }}"
-        - name: AppServicePlanResourceGroupName
-          value: $(ResourceGroupName)
-        - name: AppServiceResourceGroupName
-          value: $(ResourceGroupName)
-        - name: VnetWhitelistingAppServiceName
-          value: "$(ResourceBaseName)-v-${{ parameters.EnvironmentName }}"
-        - name: PrivateEndpointAppServiceName
-          value: "$(ResourceBaseName)-e-${{ parameters.EnvironmentName }}"
-        - name: PublicAppServiceName
-          value: "$(ResourceBaseName)-p-${{ parameters.EnvironmentName }}"
-        - name: AppServiceAlwaysOn
-          value: $True
-        - name: ASPNETCORE_ENVIRONMENT
-          value: development
-        - name: AppServicePlanNumberOfWorkerInstances
-          value: 2
-        - name: AppServiceNumberOfInstances
-          value: 2
-        - name: AppServiceDeploymentSlotName
-          value: staging
-        - name: ApplyToAllSlots
-          value: $True
-        - name: AppInsightsName
-          value: "$(ResourceBaseName)-${{ parameters.EnvironmentName }}"
-        - name: AppInsightsResourceGroupName
-          value: $(ResourceGroupName)
-        - name: AppServiceVnetIntegrationSubnetName
-          value: "$(ResourceBaseName)-appservice-subnet"
-        - name: AppServiceVnetIntegrationSubnet
-          value: 10.0.1.0/24
-        - name: AppServiceVnetIntegrationVnetName
-          value: $(VnetName)
-        # Private Endpoint AppService
-        - name: AppServicePrivateEndpointVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: AppServicePrivateEndpointVnetName
-          value: $(VnetName)
-        - name: AppServicePrivateEndpointSubnetName
-          value: $(PrivateEndpointSubnetName)
-        - name: AppServicePrivateDnsZoneName
-          value: privatelink.azurewebsites.net
-
-        # App Service AppSettings
-        - name: AppServiceAppSettings
-          value: >-
-            @(
-            'test=test';
-            'test123=test';
-            )
-
-        # App Service ConnectionStrings
-        - name: AppServiceConnectionStringsInJson
-          value: '[{"name": "MyConnectionString", "value": "Server=test;Initial Catalog=MyDatabase;User ID=$(DbUserName);Password=$(DbPassword);", "type": "Custom"}, {"name": "MyConnectionString2", "value": "Server=test;Initial Catalog=MyDatabase2;User ID=$(DbUserName);Password=$(DbPassword);", "type": "SQLAzure"}]'
-
-        # Application Gateway
-        - name: ApplicationGatewayName
-          value: $(ResourceBaseName)-appgw-${{ parameters.EnvironmentName }}
-        - name: ApplicationGatewayResourceGroupName
-          value: $(ResourceGroupName)
-        - name: ApplicationGatewayVnetName
-          value: $(VnetName)
-        - name: ApplicationGatewayVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: ApplicationGatewaySubnetName
-          value: "$(ResourceBaseName)-appgw-subnet"
-        - name: ApplicationGatewaySubnet
-          value: 10.0.3.0/24
-        - name: ApplicationGatewayCapacity
-          value: 2
-        - name: ApplicationGatewaySku
-          value: Standard_v2
-
-        # Application Gateway Entrypoint
-        - name: GatewayType
-          value: "Public"
-        - name: BackendDomainName
-          value: $(VnetWhitelistingAppServiceName).azurewebsites.net
-        - name: HealthProbePath
-          value: "/HealthCheck"
-        - name: GatewayRuleType
-          value: "Basic"
-        - name: HealthProbeInterval
-          value: "60"
-        - name: HealthProbeThreshold
-          value: "2"
-        - name: HealthProbeTimeout
-          value: "20"
-        - name: HealthProbeProtocol
-          value: "HTTPS"
-        - name: HttpsSettingsProtocol
-          value: "HTTPS"
-        - name: HttpsSettingsPort
-          value: "443"
-        - name: HttpsSettingsCookieAffinity
-          value: "Disabled"
-        - name: HttpsSettingsConnectionDrainingTimeout
-          value: "0"
-        - name: HttpsSettingsTimeout
-          value: "30"
-        - name: MatchStatusCodes
-          value: "200-399"
-
-        # Functions
-        - name: VnetWhitelistingFunctionAppName
-          value: "$(ResourceBaseName)-vfunc-${{ parameters.EnvironmentName }}"
-        - name: PrivateEndpointFunctionAppName
-          value: "$(ResourceBaseName)-efunc-${{ parameters.EnvironmentName }}"
-        - name: PublicFunctionAppName
-          value: "$(ResourceBaseName)-pfunc-${{ parameters.EnvironmentName }}"
-        - name: FunctionAppResourceGroupName
-          value: $(ResourceGroupName)
-        - name: PublicFunctionAppStorageAccountName
-          value: $(PublicStorageAccountNameToLower)
-        - name: VnetWhitelistingFunctionAppStorageAccountName
-          value: $(VnetWhitelistingStorageAccountNameToLower)
-        - name: PrivateEndpointFunctionAppStorageAccountName
-          value: $(PrivateEndpointStorageAccountNameToLower)
-        - name: FunctionAppOSType
-          value: Linux
-        - name: FunctionAppAlwaysOn
-          value: $true
-        - name: FUNCTIONS_EXTENSION_VERSION
-          value: ~3
-        - name: FunctionAppNumberOfInstances
-          value: 2
-        - name: FunctionAppRuntime
-          value: dotnet
-        - name: FunctionAppPrivateEndpointVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: FunctionAppPrivateEndpointVnetName
-          value: $(VnetName)
-        - name: FunctionAppPrivateEndpointSubnetName
-          value: $(PrivateEndpointSubnetName)
-
-        # Keyvault
-        - name: VnetWhitelistingKeyvaultName
-          value: $(ResourceBaseName)vkv${{ parameters.EnvironmentName }}
-        - name: PrivateEndpointKeyvaultName
-          value: $(ResourceBaseName)ekv${{ parameters.EnvironmentName }}
-        - name: PublicKeyvaultName
-          value: $(ResourceBaseName)pkv${{ parameters.EnvironmentName }}
-        - name: KeyvaultResourceGroupName
-          value: $(ResourceGroupName)
-        - name: KeyvaultPrivateEndpointVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: KeyvaultPrivateEndpointVnetName
-          value: $(VnetName)
-        - name: KeyvaultPrivateEndpointSubnetName
-          value: $(PrivateEndpointSubnetName)
-        - name: KeyvaultPrivateDnsZoneName
-          value: privatelink.vaultcore.azure.net
-
-        # SQL Server
-        - name: VnetWhitelistingSqlServerName
-          value: $(ResourceBaseName)-vsql-${{ parameters.EnvironmentName }}
-        - name: PrivateEndpointSqlServerName
-          value: $(ResourceBaseName)-esql-${{ parameters.EnvironmentName }}
-        - name: PublicSqlServerName
-          value: $(ResourceBaseName)-psql-${{ parameters.EnvironmentName }}
-        - name: SqlServerPassword
-          value: s0m3Nic3Passw0rd123
-        - name: SqlServerResourceGroupName
-          value: $(ResourceGroupName)
-        - name: SqlServerUsername
-          value: sqluser
-        - name: SqlServerMinimalTlsVersion
-          value: 1.2
-        - name: SqlServerPrivateEndpointVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: SqlServerPrivateEndpointVnetName
-          value: $(VnetName)
-        - name: SqlServerPrivateEndpointSubnetName
-          value: $(PrivateEndpointSubnetName)
-        - name: SqlServerPrivateDnsZoneName
-          value: privatelink.database.windows.net
-
-        # AppService Details for VNet Integration to other services
-        - name: ApplicationSubnetName
-          value: $(AppServiceVnetIntegrationSubnetName)
-        - name: ApplicationVnetName
-          value: $(VnetName)
-        - name: ApplicationVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-
-        # Private Endpoint General Details
-        - name: DNSZoneResourceGroupName
-          value: $(ResourceGroupName)
-        - name: PrivateEndpointSubnetName
-          value: "$(ResourceBaseName)-privateendpoints-subnet"
-        - name: PrivateEndpointSubnet
-          value: 10.0.2.0/24
-
-        # SQL Database
-        - name: SqlDatabaseName
-          value: $(VnetWhitelistingAppServiceName)db
-        - name: SqlDatabaseEdition
-          value: GeneralPurpose
-        - name: SqlDatabaseFamily
-          value: Gen5
-        - name: SqlDatabaseComputeModel
-          value: Serverless
-        - name: SqlDatabaseAutoPauseDelayInMinutes
-          value: 60
-        - name: SqlDatabaseMinCapacity
-          value: 2
-        - name: SqlDatabaseMaxCapacity
-          value: 8
-        - name: SqlDatabaseBackupStorageRedundancy
-          value: Zone
-        - name: SqlDatabaseMaxStorageSize
-          value: 50GB
-
-        # MySQL
-        - name: MySqlServerLocation
-          value: $(Location)
-        - name: PublicMySqlServerName
-          value: $(ResourceBaseName)-pmy-${{ parameters.EnvironmentName }}
-        - name: PrivateEndpointMySqlServerName
-          value: $(ResourceBaseName)-emy-${{ parameters.EnvironmentName }}
-        - name: VnetWhitelistingMySqlServerName
-          value: $(ResourceBaseName)-vmy-${{ parameters.EnvironmentName }}
-        - name: MySqlServerUsername
-          value: mysqluser
-        - name: MySqlServerPassword
-          value: s0m3Nic3Passw0rd123
-        - name: MySqlServerResourceGroupName
-          value: $(ResourceGroupName)
-        - name: MySqlServerSkuName
-          value: GP_Gen5_2
-        - name: MySqlServerStorageSizeInMB
-          value: 51200
-        - name: MySqlServerPrivateEndpointVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: MySqlServerPrivateEndpointVnetName
-          value: $(VnetName)
-        - name: MySqlServerPrivateEndpointSubnetName
-          value: $(PrivateEndpointSubnetName)
-        - name: MySqlDatabaseName
-          value: mymysqldb
-
-        # PostgreSQL
-        - name: PostgreSqlServerResourceGroupName
-          value: $(ResourceGroupName)
-        - name: PublicPostgreSqlServerName
-          value: $(ResourceBaseName)-ppg-${{ parameters.EnvironmentName }}
-        - name: PrivateEndpointPostgreSqlServerName
-          value: $(ResourceBaseName)-epg-${{ parameters.EnvironmentName }}
-        - name: VnetWhitelistingPostgreSqlServerName
-          value: $(ResourceBaseName)-vpg-${{ parameters.EnvironmentName }}
-        - name: PostgreSqlServerUsername
-          value: postgresqluser
-        - name: PostgreSqlServerPassword
-          value: s0m3Nic3Passw0rd123
-        - name: PostgreSqlServerSku
-          value: GP_Gen5_2
-        - name: BackupRetentionInDays
-          value: 7
-        - name: PostgreSqlServerVersion
-          value: 11
-        - name: PostgreSqlServerPrivateEndpointVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: PostgreSqlServerPrivateEndpointVnetName
-          value: $(VnetName)
-        - name: PostgreSqlServerPrivateEndpointSubnetName
-          value: $(PrivateEndpointSubnetName)
-        - name: PostgreSqlDatabaseName
-          value: mypostgresdb
-
-        # Redis Cache
-        - name: RedisInstanceLocation
-          value: $(Location)
-        - name: RedisInstanceResourceGroupName
-          value: $(ResourceGroupName)
-        - name: PublicRedisInstanceName
-          value: $(ResourceBaseName)-prc-${{ parameters.EnvironmentName }}
-        - name: PrivateEndpointRedisInstanceName
-          value: $(ResourceBaseName)-erc-${{ parameters.EnvironmentName }}
-        - name: RedisInstanceSkuName
-          value: Standard
-        - name: RedisInstanceVmSize
-          value: C1
-        - name: RedisInstancePrivateEndpointVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: RedisInstancePrivateEndpointVnetName
-          value: $(VnetName)
-        - name: RedisInstancePrivateEndpointSubnetName
-          value: $(PrivateEndpointSubnetName)
-
-        # Log analytics workspace
-        - name: LogAnalyticsWorkspaceResourceGroupName
-          value: $(ResourceGroupName)
-        - name: LogAnalyticsWorkspaceName
-          value: $(ResourceBaseName)-LAW-${{ parameters.EnvironmentName }}
-        - name: LogAnalyticsWorkspaceRetentionInDays
-          value: 30
-        - name: LogAnalyticsWorkspaceSolutionTypes
-          value: "@('VMInsights', 'AlertManagement')"
-
-        # Storage accounts
-        - name: StorageAccountResourceGroupName
-          value: $(ResourceGroupName)
-        - name: StorageAccountKind
-          value: StorageV2
-        - name: StorageAccountSku
-          value: Standard_LRS
-        - name: StorageAccountPrivateEndpointVnetName
-          value: $(VnetName)
-        - name: StorageAccountPrivateEndpointVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: StorageAccountPrivateEndpointSubnetName
-          value: $(PrivateEndpointSubnetName)
-        - name: StorageAccountPrivateEndpointGroupId
-          value: blob
-        - name: StorageAccountPrivateDnsZoneName
-          value: privatelink.blob.core.windows.net
-
-        # Container Registry
-        - name: PublicContainerRegistryName
-          value: $(ResourceBaseName)-pacr-${{ parameters.EnvironmentName }}
-        - name: VnetWhitelistingContainerRegistryName
-          value: $(ResourceBaseName)-vacr-${{ parameters.EnvironmentName }}
-        - name: PrivateEndpointContainerRegistryName
-          value: $(ResourceBaseName)-eacr-${{ parameters.EnvironmentName }}
-        - name: ContainerRegistryResourceGroupName
-          value: $(ResourceGroupName)
-        - name: ContainerRegistryPrivateEndpointVnetName
-          value: $(VnetName)
-        - name: ContainerRegistryPrivateEndpointVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: ContainerRegistryPrivateEndpointSubnetName
-          value: $(PrivateEndpointSubnetName)
-        - name: ContainerRegistryPrivateEndpointGroupId
-          value: registry
-
-        # Container Instances
-        - name: ContainerName
-          value: $(ResourceBaseName)-ACI-${{ parameters.EnvironmentName }}
-        - name: ContainerResourceGroupName
-          value: $(ResourceGroupName)
-        - name: ContainerCpuCount
-          value: 4
-        - name: ContainerMemoryInGb
-          value: 8
-        - name: ContainerOs
-          value: Linux
-        - name: ContainerPorts
-          value: '80 443'
-        - name: ContainerImageName
-          value: nginx
-        - name: ContainerVnetName
-          value: $(VnetName)
-        - name: ContainerVnetResourceGroupName
-          value: $(VnetResourceGroupName)
-        - name: ContainerSubnetName
-          value: "$(ResourceBaseName)-container-subnet"
-        - name: ContainerSubnet
-          value: 10.0.4.0/24
-
       strategy:
         runOnce:
           deploy:
