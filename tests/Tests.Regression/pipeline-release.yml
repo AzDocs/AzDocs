@@ -935,13 +935,13 @@ stages:
   #              script: |
   #                $PublicStorageAccountNameToLower = "$(ResourceBaseName)pstg${{ parameters.EnvironmentName }}".ToLower() -replace "-", ""
   #                Write-Host "PublicStorageAccountNameToLower: $PublicStorageAccountNameToLower"
-  #                Write-Host "##vso[task.setvariable variable=PublicStorageAccountNameToLower]$PublicStorageAccountNameToLower"
+  #                Write-Host "##vso[task.setvariable variable=PublicStorageAccountNameToLower;isOutput=true]$PublicStorageAccountNameToLower"
   #                $VnetWhitelistingStorageAccountNameToLower = "$(ResourceBaseName)vstg${{ parameters.EnvironmentName }}".ToLower() -replace "-", ""
   #                Write-Host "VnetWhitelistingStorageAccountNameToLower: $VnetWhitelistingStorageAccountNameToLower"
-  #                Write-Host "##vso[task.setvariable variable=VnetWhitelistingStorageAccountNameToLower]$VnetWhitelistingStorageAccountNameToLower"
+  #                Write-Host "##vso[task.setvariable variable=VnetWhitelistingStorageAccountNameToLower;isOutput=true]$VnetWhitelistingStorageAccountNameToLower"
   #                $PrivateEndpointStorageAccountNameToLower = "$(ResourceBaseName)estg${{ parameters.EnvironmentName }}".ToLower() -replace "-", ""
   #                Write-Host "PrivateEndpointStorageAccountNameToLower: $PrivateEndpointStorageAccountNameToLower"
-  #                Write-Host "##vso[task.setvariable variable=PrivateEndpointStorageAccountNameToLower]$PrivateEndpointStorageAccountNameToLower"
+  #                Write-Host "##vso[task.setvariable variable=PrivateEndpointStorageAccountNameToLower;isOutput=true]$PrivateEndpointStorageAccountNameToLower"
   #          - task: AzureCLI@2
   #            displayName: 'Create Storage account (Public)'
   #            condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
