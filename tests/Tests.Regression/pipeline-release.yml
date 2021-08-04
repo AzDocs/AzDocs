@@ -616,8 +616,8 @@ stages:
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
-      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['GetLogAnalyticsWorkspaceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
-      LogAnalyticsWorkspaceKey: $[ dependencies.BaseResources.outputs['GetLogAnalyticsWorkspaceKeyforPipeline.LogAnalyticsWorkspaceKey'] ]
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+      LogAnalyticsWorkspaceKey: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceKeyforPipeline.LogAnalyticsWorkspaceKey'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
     strategy:
