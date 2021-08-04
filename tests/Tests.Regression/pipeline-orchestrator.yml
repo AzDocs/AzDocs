@@ -43,6 +43,9 @@ parameters:
   - name: ResourceCreation.PostgreSQL.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.RedisCache.Enabled
+    type: boolean
+    default: true
   - name: ResourceCreation.StorageAccounts.Enabled
     type: boolean
     default: true
@@ -93,6 +96,8 @@ variables:
     value: ${{ parameters['ResourceCreation.MySQL.Enabled'] }}
   - name: ResourceCreation.PostgreSQL.Enabled
     value: ${{ parameters['ResourceCreation.PostgreSQL.Enabled'] }}
+  - name: ResourceCreation.RedisCache.Enabled
+    value: ${{ parameters['ResourceCreation.RedisCache.Enabled'] }}
   - name: ResourceCreation.StorageAccounts.Enabled
     value: ${{ parameters['ResourceCreation.StorageAccounts.Enabled'] }}
   - name: ResourceCreation.FunctionApp.Enabled
