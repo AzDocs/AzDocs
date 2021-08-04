@@ -13,6 +13,6 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $logAnalyticsWorkspaceKey = (Invoke-Executable az monitor log-analytics workspace get-shared-keys --resource-group $LogAnalyticsWorkspaceResourceGroupName --workspace-name $LogAnalyticsWorkspaceName | ConvertFrom-Json).primarySharedKey
 Write-Host "LogAnalyticsWorkspaceKey: $logAnalyticsWorkspaceKey"
-Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName)]$logAnalyticsWorkspaceKey"
+Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$logAnalyticsWorkspaceKey"
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

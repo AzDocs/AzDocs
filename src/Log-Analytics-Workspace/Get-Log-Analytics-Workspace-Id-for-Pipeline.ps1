@@ -13,6 +13,6 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $logAnalyticsWorkspaceResourceId = (Invoke-Executable az monitor log-analytics workspace show --resource-group $LogAnalyticsWorkspaceResourceGroupName --workspace-name $LogAnalyticsWorkspaceName | ConvertFrom-Json).id
 Write-Host "LogAnalyticsWorkspaceResourceId: $LogAnalyticsWorkspaceResourceId"
-Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName)]$LogAnalyticsWorkspaceResourceId"
+Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$LogAnalyticsWorkspaceResourceId"
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
