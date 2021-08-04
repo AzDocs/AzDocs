@@ -403,8 +403,8 @@ stages:
       value: 10.0.4.0/24
 
   jobs:
-    - deployment:
-      displayName: "${{ parameters.EnvironmentName }}"
+    - job: "ResourceGroup ${{ parameters.EnvironmentName }}"
+      deployment:
       environment:
         name: ${{ parameters.EnvironmentName }}
       timeoutInMinutes: 360
@@ -435,6 +435,28 @@ stages:
                   arguments: "-ResourceGroupLocation '$(Location)' 
                               -ResourceGroupName '$(ResourceGroupName)' 
                               -ResourceTags $(ResourceTags)"
+    - job: "LogAnalyticsWorkspace ${{ parameters.EnvironmentName }}"
+      dependsOn: "ResourceGroup ${{ parameters.EnvironmentName }}"
+      deployment:
+      environment:
+        name: ${{ parameters.EnvironmentName }}
+      timeoutInMinutes: 360
+      cancelTimeoutInMinutes: 1
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              # ========================================= DOWNLOAD AZDOCS =========================================
+              - task: DownloadPipelineArtifact@2
+                displayName: Download AzDocs
+                inputs:
+                  buildType: specific
+                  project: $(AzDocsTeamProjectId)
+                  definition: $(AzDocsBuildDefinitionId)
+                  buildVersionToDownload: latestFromBranch
+                  branchName: $(Build.SourceBranch)
+                  artifactName: azdocs-src
+                  targetPath: $(Pipeline.Workspace)/AzDocs
               # ========================================= LOG ANALYTICS WORKSPACE =========================================
               - task: AzureCLI@2
                 displayName: 'Register Microsoft.Insights Provider'
