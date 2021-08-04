@@ -412,17 +412,6 @@ stages:
       runOnce:
         deploy:
           steps:
-            # ========================================= RESOURCEGROUP =========================================
-            - task: AzureCLI@2
-              displayName: "Create ResourceGroup"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1"
-                arguments: "-ResourceGroupLocation '$(Location)' 
-                            -ResourceGroupName '$(ResourceGroupName)' 
-                            -ResourceTags $(ResourceTags)"
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
@@ -434,6 +423,17 @@ stages:
                 branchName: $(Build.SourceBranch)
                 artifactName: azdocs-src
                 targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= RESOURCEGROUP =========================================
+            - task: AzureCLI@2
+              displayName: "Create ResourceGroup"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1"
+                arguments: "-ResourceGroupLocation '$(Location)' 
+                            -ResourceGroupName '$(ResourceGroupName)' 
+                            -ResourceTags $(ResourceTags)"
             # ========================================= LOG ANALYTICS WORKSPACE =========================================
             - task: AzureCLI@2
               displayName: 'Register Microsoft.Insights Provider'
@@ -527,6 +527,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= APP SERVICE =========================================
             - task: AzureCLI@2
               displayName: 'Create App Service Plan Linux'
@@ -602,6 +613,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= KEYVAULT =========================================
             - task: AzureCLI@2
               displayName: 'Create Keyvault (Public)'
@@ -637,6 +659,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= SQL SERVER =========================================
             - task: AzureCLI@2
               displayName: 'Create SQL Server (Public)'
@@ -699,6 +732,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= MYSQL SERVER =========================================
             - task: AzureCLI@2
               displayName: 'Create MySQL (Public) Server'
@@ -758,6 +802,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= POSTGRESQL =========================================
             - task: AzureCLI@2
               displayName: 'Create (Public) PostgreSQL Server'
@@ -817,6 +872,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= REDIS CACHE =========================================
             - task: AzureCLI@2
               displayName: 'Create (Public) RedisCache Instance'
@@ -844,6 +910,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= STORAGE ACCOUNTS =========================================
             - task: PowerShell@2
               displayName: Generate StorageAccountNames
@@ -893,6 +970,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= Functions =========================================
             - task: AzureCLI@2
               displayName: 'Create (Public) Function App'
@@ -952,6 +1040,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= APP SERVICE POST-CREATION CONFIGURATION =========================================
             - task: AzureCLI@2
               displayName: "Set AppSettings For AppService"
@@ -1016,6 +1115,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= CONTAINER REGISTRY =========================================
             - task: AzureCLI@2
               displayName: 'Create (Public) Container Registry'
@@ -1051,6 +1161,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= CONTAINER INSTANCE =========================================
             - task: AzureCLI@2
               displayName: 'Create Container Instance'
@@ -1070,6 +1191,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= SWAP APPSERVICE SLOTS =========================================
             - task: AzureAppServiceManage@0
               displayName: Swap Staging slot to Production
@@ -1091,6 +1223,17 @@ stages:
       runOnce:
         deploy:
           steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= APPLICATION GATEWAY =========================================
             - task: AzureCLI@2
               displayName: 'Create Application Gateway'
