@@ -131,12 +131,12 @@ variables:
   - name: Stage.Pool
     value: 'ubuntu-20.04'
 stages:
-#- stage: 'Build'
-#  jobs:
-#    - job: Build
-#      displayName: 'Build'
-#      steps:
-#       - template: pipeline-build.yml 
+- stage: 'Build'
+  jobs:
+    - job: Build
+      displayName: 'Build'
+      steps:
+       - template: pipeline-build.yml 
 
 - template: pipeline-release.yml
   parameters:
