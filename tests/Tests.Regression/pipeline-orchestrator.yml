@@ -18,16 +18,16 @@
 parameters:
   - name: ResourceCreation.ResourceGroup.Enabled
     type: boolean
-    default: false
+    default: true
   - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
     type: boolean
-    default: false
+    default: true
   - name: ResourceCreation.AppInsights.Enabled
     type: boolean
-    default: false
+    default: true
   - name: ResourceCreation.Networking.Enabled
     type: boolean
-    default: false
+    default: true
   - name: ResourceCreation.AppService.Enabled
     type: boolean
     default: true
