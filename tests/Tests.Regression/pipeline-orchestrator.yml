@@ -138,12 +138,7 @@ stages:
 #      steps:
 #       - template: pipeline-build.yml 
 
-- stage: 'dev'
-  displayName: 'Deploy to dev'
-  pool:
-    vmImage: $(Stage.Pool)
-  jobs:
-  - template: pipeline-release.yml 
-    parameters:
-      EnvironmentName: dev
-      SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION
+- template: pipeline-release.yml
+  parameters:
+    EnvironmentName: dev
+    SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION
