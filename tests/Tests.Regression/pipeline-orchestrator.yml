@@ -40,6 +40,9 @@ parameters:
   - name: ResourceCreation.MySQL.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.PostgreSQL.Enabled
+    type: boolean
+    default: true
   - name: ResourceCreation.StorageAccounts.Enabled
     type: boolean
     default: true
@@ -88,6 +91,8 @@ variables:
     value: ${{ parameters['ResourceCreation.MSSQL.Enabled'] }}
   - name: ResourceCreation.MySQL.Enabled
     value: ${{ parameters['ResourceCreation.MySQL.Enabled'] }}
+  - name: ResourceCreation.PostgreSQL.Enabled
+    value: ${{ parameters['ResourceCreation.PostgreSQL.Enabled'] }}
   - name: ResourceCreation.StorageAccounts.Enabled
     value: ${{ parameters['ResourceCreation.StorageAccounts.Enabled'] }}
   - name: ResourceCreation.FunctionApp.Enabled

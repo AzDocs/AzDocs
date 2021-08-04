@@ -61,11 +61,11 @@ if ($ApplyToAllSlots) {
 }
 
 # Set VNET Integration on the main given slot (normally production)
-Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName FunctionAppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $FunctionAppServiceDeploymentSlotName
+Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $FunctionAppServiceDeploymentSlotName
 
 # Apply to all slots if desired
 foreach ($availableSlot in $availableSlots) {
-    Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName FunctionAppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $availableSlot.name
+    Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $availableSlot.name
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
