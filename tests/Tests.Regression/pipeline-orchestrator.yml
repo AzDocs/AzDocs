@@ -55,8 +55,6 @@ parameters:
   - name: ResourceCreation.ApplicationGateway.Enabled
     type: boolean
     default: true
-  - name: MyPassword
-    type: secret
 
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
