@@ -43,7 +43,7 @@ parameters:
   - name: ResourceCreation.StorageAccounts.Enabled
     type: boolean
     default: true
-  - name: ResourceCreation.Functions.Enabled
+  - name: ResourceCreation.FunctionApp.Enabled
     type: boolean
     default: true
   - name: ResourceCreation.ContainerRegistry.Enabled
@@ -90,8 +90,8 @@ variables:
     value: ${{ parameters['ResourceCreation.MySQL.Enabled'] }}
   - name: ResourceCreation.StorageAccounts.Enabled
     value: ${{ parameters['ResourceCreation.StorageAccounts.Enabled'] }}
-  - name: ResourceCreation.Functions.Enabled
-    value: ${{ parameters['ResourceCreation.Functions.Enabled'] }}
+  - name: ResourceCreation.FunctionApp.Enabled
+    value: ${{ parameters['ResourceCreation.FunctionApp.Enabled'] }}
   - name: ResourceCreation.ContainerRegistry.Enabled
     value: ${{ parameters['ResourceCreation.ContainerRegistry.Enabled'] }}
   - name: ResourceCreation.ContainerInstance.Enabled
