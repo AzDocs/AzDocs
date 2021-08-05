@@ -527,7 +527,7 @@ stages:
                   scriptType: pscore
                   scriptPath: '$(Pipeline.Workspace)/AzDocs/Networking/Add-Custom-DNS-Server-To-VNET.ps1'
                   arguments: "-VnetResourceGroupName '$(VnetResourceGroupName)' -VnetName '$(VnetName)' -DNSServers '$(DNSServers)'"
-  - deployment: "AppService"
+  - deployment: "AppServicePlan"
     dependsOn: "BaseResources"
     environment:
       name: ${{ parameters.EnvironmentName }}
@@ -559,6 +559,30 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-App-Service-Plan-Linux.ps1'
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServicePlanSkuName '$(AppServicePlanSkuName)' -AppServicePlanNumberOfWorkerInstances '$(AppServicePlanNumberOfWorkerInstances)' -ResourceTags $(ResourceTags)"
+  - deployment: "Public_AppService"
+    dependsOn: [ "BaseResources", "AppServicePlan" ]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= APP SERVICE =========================================
             - task: AzureCLI@2
               displayName: "Create Web App (Public)"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
@@ -568,6 +592,46 @@ stages:
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App.ps1"
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -ForcePublic -DisablePublicAccessForAppServiceDeploymentSlot $false"
             - task: AzureCLI@2
+              displayName: "Add VNet integration to (Public) AppService"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-VNet-integration-to-AppService.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -AppServiceVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: AzureCLI@2
+              displayName: "Create Application Insights Extension for WebApps codeless"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
+                arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+  - deployment: "PrivateEndpoint_AppService"
+    dependsOn: [ "BaseResources", "AppServicePlan" ]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= APP SERVICE =========================================
+            - task: AzureCLI@2
               displayName: 'Create Web App Linux (Private Endpoint)'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
@@ -575,6 +639,38 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-Linux.ps1'
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -AppServicePrivateEndpointVnetResourceGroupName '$(AppServicePrivateEndpointVnetResourceGroupName)' -AppServicePrivateEndpointVnetName '$(AppServicePrivateEndpointVnetName)' -AppServicePrivateEndpointSubnetName '$(AppServicePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppServicePrivateDnsZoneName '$(AppServicePrivateDnsZoneName)'"
+            - task: AzureCLI@2
+              displayName: "Add VNet integration to (Private Endpoint) AppService"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-VNet-integration-to-AppService.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -AppServiceVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -AppServiceVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+  - deployment: "VNetWhitelist_AppService"
+    dependsOn: [ "BaseResources", "AppServicePlan" ]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= APP SERVICE =========================================
             - task: AzureCLI@2
               displayName: 'Create Web App Linux (VNet Whitelisting)'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
@@ -584,22 +680,6 @@ stages:
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-Linux.ps1'
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -GatewayVnetResourceGroupName '$(ApplicationGatewayVnetResourceGroupName)' -GatewayVnetName '$(ApplicationGatewayVnetName)' -GatewaySubnetName '$(ApplicationGatewaySubnetName)'"
             - task: AzureCLI@2
-              displayName: "Add VNet integration to (Public) AppService"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-VNet-integration-to-AppService.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -AppServiceVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $(ApplyToAllSlots)"
-            - task: AzureCLI@2
-              displayName: "Add VNet integration to (Private Endpoint) AppService"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-VNet-integration-to-AppService.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -AppServiceVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -AppServiceVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $(ApplyToAllSlots)"
-            - task: AzureCLI@2
               displayName: "Add VNet integration to (VNet Whitelisting) AppService"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
@@ -607,14 +687,6 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-VNet-integration-to-AppService.ps1"
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -AppServiceVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $(ApplyToAllSlots)"
-            - task: AzureCLI@2
-              displayName: "Create Application Insights Extension for WebApps codeless"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
-                arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -ApplyToAllSlots $(ApplyToAllSlots)"
   - deployment: "Keyvault"
     dependsOn: "BaseResources"
     environment:
@@ -985,7 +1057,7 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1'
                 arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(GenerateStorageAccountNames.VNetWhitelistingStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
-  - deployment: "FunctionApp"
+  - deployment: "Public_FunctionApp"
     dependsOn: [ "BaseResources", "StorageAccount"]
     environment:
       name: ${{ parameters.EnvironmentName }}
@@ -1018,6 +1090,38 @@ stages:
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App.ps1'
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PublicFunctionAppName)' -FunctionAppStorageAccountName '$(PublicFunctionAppStorageAccountName)' -FunctionAppOSType '$(FunctionAppOSType)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -EnableFunctionAppDeploymentSlot -DisablePublicAccessForFunctionAppDeploymentSlot $false -ForcePublic"
             - task: AzureCLI@2
+              displayName: 'Add VNet integration to (Public) Function App'
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
+              inputs:
+                azureSubscription: '${{ parameters.SubscriptionName }}'
+                scriptType: pscore
+                scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1'
+                arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PublicFunctionAppName)' -FunctionAppVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -FunctionAppVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $true"
+  - deployment: "PrivateEndpoint_FunctionApp"
+    dependsOn: [ "BaseResources", "StorageAccount"]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= Functions =========================================
+            - task: AzureCLI@2
               displayName: 'Create (Private Endpoint) Function App'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
               inputs:
@@ -1025,6 +1129,38 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App.ps1'
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PrivateEndpointFunctionAppName)' -FunctionAppStorageAccountName '$(PrivateEndpointFunctionAppStorageAccountName)' -FunctionAppOSType '$(FunctionAppOSType)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -EnableFunctionAppDeploymentSlot -DisablePublicAccessForFunctionAppDeploymentSlot $true -FunctionAppPrivateEndpointVnetResourceGroupName '$(FunctionAppPrivateEndpointVnetResourceGroupName)' -FunctionAppPrivateEndpointVnetName '$(FunctionAppPrivateEndpointVnetName)' -FunctionAppPrivateEndpointSubnetName '$(FunctionAppPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)'"
+            - task: AzureCLI@2
+              displayName: 'Add VNet integration to (Private Endpoint) Function App'
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
+              inputs:
+                azureSubscription: '${{ parameters.SubscriptionName }}'
+                scriptType: pscore
+                scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1'
+                arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PrivateEndpointFunctionAppName)' -FunctionAppVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -FunctionAppVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $true"
+  - deployment: "VnetWhitelisting_FunctionApp"
+    dependsOn: [ "BaseResources", "StorageAccount"]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= Functions =========================================
             - task: AzureCLI@2
               displayName: 'Create (VNet Whitelisting) Function App'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
@@ -1034,22 +1170,6 @@ stages:
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App.ps1'
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(VNetWhitelistingFunctionAppName)' -FunctionAppStorageAccountName '$(VNetWhitelistingFunctionAppStorageAccountName)' -FunctionAppOSType '$(FunctionAppOSType)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -EnableFunctionAppDeploymentSlot -DisablePublicAccessForFunctionAppDeploymentSlot $true -GatewayVnetResourceGroupName '$(ApplicationGatewayVnetResourceGroupName)' -GatewayVnetName '$(ApplicationGatewayVnetName)' -GatewaySubnetName '$(ApplicationGatewaySubnetName)'"
             - task: AzureCLI@2
-              displayName: 'Add VNet integration to (Public) Function App'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
-              inputs:
-                azureSubscription: '${{ parameters.SubscriptionName }}'
-                scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1'
-                arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PublicFunctionAppName)' -FunctionAppVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -FunctionAppVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $true"
-            - task: AzureCLI@2
-              displayName: 'Add VNet integration to (Private Endpoint) Function App'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
-              inputs:
-                azureSubscription: '${{ parameters.SubscriptionName }}'
-                scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1'
-                arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PrivateEndpointFunctionAppName)' -FunctionAppVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -FunctionAppVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $true"
-            - task: AzureCLI@2
               displayName: 'Add VNet integration to (VNet Whitelisting) Function App'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
               inputs:
@@ -1058,7 +1178,7 @@ stages:
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1'
                 arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(VNetWhitelistingFunctionAppName)' -FunctionAppVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -FunctionAppVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $true"
   - deployment: "AppService_PostConfiguration"
-    dependsOn: [ "BaseResources", "AppService"]
+    dependsOn: [ "BaseResources", "Public_AppService"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
@@ -1088,7 +1208,7 @@ stages:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -ApplyToAllSlots $(ApplyToAllSlots)"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -ApplyToAllSlots $(ApplyToAllSlots)"
             - task: AzureCLI@2
               displayName: "Set ConnectionStrings For AppService"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
@@ -1096,7 +1216,7 @@ stages:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-ConnectionStrings-For-AppService.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -ApplyToAllSlots $(ApplyToAllSlots)"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -ApplyToAllSlots $(ApplyToAllSlots)"
             # ========================================= APP SERVICE CONTENT DEPLOYMENT =========================================
             - task: AzureCLI@2
               displayName: "Add Network Whitelist to App Service"
@@ -1105,7 +1225,7 @@ stages:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Network-Whitelist-to-App-Service.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
             - task: DownloadBuildArtifacts@0
               displayName: Download Application Binaries to deploy
               condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
@@ -1121,7 +1241,7 @@ stages:
                 ConnectionType: "AzureRM"
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 appType: "webAppLinux"
-                WebAppName: "$(VNetWhitelistingAppServiceName)"
+                WebAppName: "$(PublicAppServiceName)"
                 deployToSlotOrASE: true
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SlotName: "$(AppServiceDeploymentSlotName)"
@@ -1133,7 +1253,7 @@ stages:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)'  -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)'  -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
   - deployment: "ContainerRegistry"
     dependsOn: "BaseResources"
     environment:
@@ -1239,7 +1359,7 @@ stages:
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Instance/Create-Container.ps1'
                 arguments: "-ContainerName '$(PrivateContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -ContainerIpAddressType 'Private' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)'"
   - deployment: "AppService_SwapSlots"
-    dependsOn: [ "BaseResources", "AppService", "AppService_PostConfiguration"]
+    dependsOn: [ "BaseResources", "Public_AppService", "AppService_PostConfiguration"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
@@ -1268,12 +1388,12 @@ stages:
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 Action: "Swap Slots"
-                WebAppName: "$(VNetWhitelistingAppServiceName)"
+                WebAppName: "$(PublicAppServiceName)"
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SourceSlot: "$(AppServiceDeploymentSlotName)"
                 PreserveVnet: true
   - deployment: "ApplicationGateway"
-    dependsOn: [ "BaseResources", "AppService", "AppService_PostConfiguration", "AppService_SwapSlots"]
+    dependsOn: [ "BaseResources", "VnetWhitelist_AppService", "AppService_PostConfiguration", "AppService_SwapSlots"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
