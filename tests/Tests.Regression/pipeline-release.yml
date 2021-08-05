@@ -1246,14 +1246,6 @@ stages:
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SlotName: "$(AppServiceDeploymentSlotName)"
                 packageForLinux: "$(System.ArtifactsDirectory)/Website_zip/website.zip"
-            - task: AzureCLI@2
-              displayName: "Remove Network Whitelist from App Service"
-              condition: always()
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)'  -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
   - deployment: "ContainerRegistry"
     dependsOn: "BaseResources"
     environment:
@@ -1392,6 +1384,14 @@ stages:
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SourceSlot: "$(AppServiceDeploymentSlotName)"
                 PreserveVnet: true
+            - task: AzureCLI@2
+              displayName: "Remove Network Whitelist from App Service"
+              condition: always()
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)'  -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
   - deployment: "ApplicationGateway"
     dependsOn: [ "BaseResources", "VnetWhitelist_AppService", "AppService_PostConfiguration", "AppService_SwapSlots"]
     environment:
