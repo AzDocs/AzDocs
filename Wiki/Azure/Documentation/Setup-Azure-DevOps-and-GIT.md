@@ -91,15 +91,17 @@ To create this repository the same way, follow these steps:
 
 ![Create company repo](../../../wiki_images/git_create_company_repo_2.png)
 
-3. Get the company cloning address by clicking the `Clone` button in your freshly created repository.
+3. Create two folders in the root of your company specific repo called `src` and `Wiki`. These folders will be used for your Company specific scripts & matching Wiki pages.
+
+4. Get the company cloning address by clicking the `Clone` button in your freshly created repository.
 
 ![Create company repo](../../../wiki_images/git_create_company_repo_3.png)
 
-4. Copy the clone address by clicking the copy button.
+5. Copy the clone address by clicking the copy button.
 
 ![Create company repo](../../../wiki_images/git_create_company_repo_4.png)
 
-5. Open the terminal of your choice (We recommend using Windows Terminal) and navigate to the folder where you want to checkout this repo. Now clone the repo, CD into it, add the submodule & commit & push it back to the server using these commando's (make sure to substitute the variables before running the commands):
+6. Open the terminal of your choice (We recommend using Windows Terminal) and navigate to the folder where you want to checkout this repo. Now clone the repo, CD into it, add the submodule & commit & push it back to the server using these commando's (make sure to substitute the variables before running the commands):
 
 ```batch
 git clone <repo url>
