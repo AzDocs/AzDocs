@@ -1408,7 +1408,7 @@ stages:
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1'
                 arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(GenerateStorageAccountNames.VNetWhitelistingStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
   - deployment: "Public_FunctionApp"
-    dependsOn: [ "ResourceGroup", "BaseResources", "StorageAccount"]
+    dependsOn: [ "ResourceGroup", "BaseResources", "Public_StorageAccount"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
@@ -1448,7 +1448,7 @@ stages:
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1'
                 arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PublicFunctionAppName)' -FunctionAppVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -FunctionAppVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $true"
   - deployment: "PrivateEndpoint_FunctionApp"
-    dependsOn: [ "ResourceGroup", "BaseResources", "StorageAccount"]
+    dependsOn: [ "ResourceGroup", "BaseResources", "PrivateEndpoint_StorageAccount"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
@@ -1488,7 +1488,7 @@ stages:
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1'
                 arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(PrivateEndpointFunctionAppName)' -FunctionAppVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -FunctionAppVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $true"
   - deployment: "VnetWhitelisting_FunctionApp"
-    dependsOn: [ "ResourceGroup", "BaseResources", "StorageAccount"]
+    dependsOn: [ "ResourceGroup", "BaseResources", "VNetWhitelisting_StorageAccount"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
