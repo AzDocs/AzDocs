@@ -14,11 +14,22 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
+# Check if the tier is premium, else throw error
+$containerRegistrySku = (Invoke-Executable az acr show --name $ContainerRegistryName --resource-group $ContainerRegistryResourceGroupName | ConvertFrom-Json).sku.tier
+if ($containerRegistrySku -ne 'Premium')
+{
+    throw "Network Whitelist only possible for Premium Container Registry SKU. Current SKU: $containerRegistrySku"
+}
+
 # Confirm if the correct parameters are passed
 Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
 
+# Check if CIDR is passed, it adheres to restrictions
+Assert-CIDR -CIDR:$CIDRToWhitelist
+
 # Autogenerate CIDR if no CIDR or Subnet is passed
-$CIDRToWhiteList = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName 
+$CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName 
+$CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'container-registry' -CIDR $CIDRToWhitelist 
 
 # Fetch Subnet ID when subnet option is given.
 if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2021.08.04]
+## [2021.08.05]
 
 ### Added
 
@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Added parameter `FunctionAppMinimalTlsVersion` to `Create-Function-App.ps1`.
 - Added warnings when not using TLS version 1.2 or higher.
 - Added `-ForceDisableTLS` to the scripts which spin up resources that can allow this to avoid creating resources without TLS enforcement unintentionally.
+- Added a extra check for not allowing all access when setting the "Any" network whitelisting (0.0.0.0/*).
 
 ## [2021.07.30]
 

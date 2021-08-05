@@ -38,8 +38,12 @@ if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToW
 }
 else
 {
+    # Check if CIDR is passed, it adheres to restrictions
+    Assert-CIDR -CIDR:$CIDRToWhitelist
+
     # Autogenerate CIDR if no CIDR is passed
     $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist
+    $CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'servicebus' -CIDR $CIDRToWhitelist
 
     # Only add if CIDR doesn't exist
     $existingCIDR = ((Invoke-Executable -AllowToFail az servicebus namespace network-rule list --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.ipRules.ipMask -eq "$CIDRToWhitelist" }

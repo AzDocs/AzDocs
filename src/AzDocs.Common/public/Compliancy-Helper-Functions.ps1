@@ -1,3 +1,22 @@
+<#
+.SYNOPSIS
+Helper for asserting CIDR
+.DESCRIPTION
+Helper for asserting CIDR
+#>
+function Assert-CIDR
+{
+    [CmdletBinding()]
+    param (
+        [Parameter()][string] $CIDR
+    )
+
+    if ($CIDR -like '0.0.0.0*')
+    {
+        throw "CIDR contains 0.0.0.0/0. This will open up any access. This is not allowed."   
+    }
+}
+
 
 <#
 .SYNOPSIS

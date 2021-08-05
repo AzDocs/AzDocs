@@ -34,6 +34,7 @@ else
 {
     # Autogenerate CIDR if no CIDR is passed
     $CIDRToRemove = Get-CIDRForWhitelist -CIDR:$CIDRToRemove
+    $CIDRToRemove = Confirm-CIDRForWhitelist -ServiceType 'servicebus' -CIDR $CIDRToRemove
 }
     
 $optionalParameters = @()

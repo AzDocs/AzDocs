@@ -2,6 +2,8 @@
 
 # Description
 
+Adding network whitelisting is only possible for Container Registries with the Premium tier at the moment. So deleting can only be done in Container Registries in the Premium Tier.
+
 This snippet will remove the specified IP Range from the Azure Container Registry. If you leave the `CIDRToRemoveFromWhitelist` parameter empty, it will use the outgoing IP from where you execute this script.
 
 > NOTE: It is strongly suggested to set the condition, of this task in the pipeline, to always run. Even if your previous steps have failed. This is to avoid unintended whitelists whenever pipelines crash in the middle of something.
