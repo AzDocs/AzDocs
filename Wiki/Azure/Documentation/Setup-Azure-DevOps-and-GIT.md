@@ -149,7 +149,7 @@ First of all, lets assume you are using Visual Studio Code. This example will ma
 
 ![Commit changes](../../../wiki_images/commit_changes_3.png)
 
-5. In the screenshot you see that the subproject commit id has changed. This is to reference the new version (commit) of your generic repository. Commit & Push this file to update your company specific repo. At this point, your automatic build-pipeline will start to run.
+5. In the screenshot you see that the subproject commit id has changed. This is to reference the new version (commit) of your generic repository. Commit & Push this file to update your company specific repo. When following this tutorial, later on, at the point of checking in your company specific repo with this new commit id, your automatically triggered build-pipeline will start to run.
 
 6. After the build-pipeline is done, you will have the new version of the AzDocs at your disposal.
 
