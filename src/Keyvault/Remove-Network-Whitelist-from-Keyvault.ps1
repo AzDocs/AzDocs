@@ -20,7 +20,7 @@ Confirm-ParametersForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -SubnetName:$Sub
 # Autogenerate CIDR if no CIDR or Subnet is passed
 $CIDRToRemoveFromWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToRemoveSubnetName -VnetName:$SubnetToRemoveVnetName -VnetResourceGroupName:$SubnetToRemoveVnetResourceGroupName 
 
-# Github issue for being able to add the same ip-addressess: https://github.com/Azure/azure-cli/issues/18479
+#TODO: Github issue for being able to add the same ip-addressess: https://github.com/Azure/azure-cli/issues/18479
 # Have to add suffix because of bug: 
 $CIDRToRemoveFromWhitelist = Confirm-CIDRForWhitelist -ServiceType 'keyvault' -CIDR:$CIDRToRemoveFromWhitelist
 

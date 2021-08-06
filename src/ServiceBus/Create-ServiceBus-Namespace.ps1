@@ -18,7 +18,10 @@ param (
     [Parameter()][string] $ServiceBusNamespacePrivateDnsZoneName = "privatelink.servicebus.windows.net",
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId, 
+
+    # Forcefully agree to this resource to be spun up to be publicly available
+    [Parameter()][switch] $ForcePublic
 )
 
 #region ===BEGIN IMPORTS===
@@ -26,6 +29,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$ServiceBusNamespacePrivateEndpointVnetName -or !$ServiceBusNamespacePrivateEndpointVnetResourceGroupName -or !$ServiceBusNamespacePrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$ServiceBusNamespacePrivateDnsZoneName))
+{
+    # Check if we are making this resource public intentionally
+    Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
+}
 
 Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags $ResourceTags
 $serviceBusNamespaceId = (Invoke-Executable az servicebus namespace show --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName | ConvertFrom-Json).id
@@ -61,7 +70,7 @@ if ($ServiceBusNamespacePrivateEndpointVnetName -and $ServiceBusNamespacePrivate
     Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $serviceBusNamespacePrivateEndpointSubnetId -PrivateEndpointName $serviceBusNamespacePrivateEndpointName -PrivateEndpointResourceGroupName $ServiceBusNamespaceResourceGroupName -TargetResourceId $serviceBusNamespaceId -PrivateEndpointGroupId namespace -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ServiceBusNamespacePrivateDnsZoneName -PrivateDnsLinkName "$($ServiceBusNamespacePrivateEndpointVnetName)-servicebusnamespace"
 }
 
-# Enable diagnostic settings for storage account
+# Enable diagnostic settings for servicebus namespace
 Set-DiagnosticSettings -ResourceId $serviceBusNamespaceId -ResourceName $ServiceBusNamespaceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"') 
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

@@ -22,6 +22,7 @@ Confirm-ParametersForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -SubnetName:$Sub
 if (!$AccessRuleName)
 {
     $CIDRToRemoveFromWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToRemoveFromWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToRemoveSubnetName -VnetName:$SubnetToRemoveVnetName -VnetResourceGroupName:$SubnetToRemoveVnetResourceGroupName 
+    $CIDRToRemoveFromWhitelist = Confirm-CIDRForWhitelist -ServiceType 'postgresql' -CIDR $CIDRToRemoveFromWhitelist
 }
 
 # Fetch Subnet ID when subnet option is given.

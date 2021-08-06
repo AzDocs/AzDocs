@@ -8,11 +8,12 @@ This snippet will create a ServiceBus namespace if it does not exist.
 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter                            | Required                        | Example Value                                    | Description                                                                                                             |
-| ------------------------------------ | ------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| ServiceBusNamespaceResourceGroupName | <input type="checkbox" checked> | `myteam-shared-$(Release.EnvironmentName)`       | ResourceGroupName where the ServiceBus Namespace should be created                                                      |
-| ServiceBusNamespaceName              | <input type="checkbox" checked> | `myteam-servicebusns-$(Release.EnvironmentName)` | This is the ServiceBus Namespace name to use.                                                                           |
-| ServiceBusNamespaceSku               | <input type="checkbox" checked> | `Standard`                                       | This is the sku you can choose for your ServiceBus Namespace. You have a choice between 'Basic', 'Standard', 'Premium'. |
+| Parameter                            | Required                        | Example Value                                    | Description                                                                                                                                                                                                                               |
+| ------------------------------------ | ------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ServiceBusNamespaceResourceGroupName | <input type="checkbox" checked> | `myteam-shared-$(Release.EnvironmentName)`       | ResourceGroupName where the ServiceBus Namespace should be created                                                                                                                                                                        |
+| ServiceBusNamespaceName              | <input type="checkbox" checked> | `myteam-servicebusns-$(Release.EnvironmentName)` | This is the ServiceBus Namespace name to use.                                                                                                                                                                                             |
+| ServiceBusNamespaceSku               | <input type="checkbox" checked> | `Standard`                                       | This is the sku you can choose for your ServiceBus Namespace. You have a choice between 'Basic', 'Standard', 'Premium'.                                                                                                                   |
+| ForcePublic                          | <input type="checkbox">         | n.a.                                             | If you are not using any networking settings, you need to pass this boolean to confirm you are willingly creating a public resource (to avoid unintended public resources). You can pass it as a switch without a value (`-ForcePublic`). |
 
 # VNET Whitelisting Parameters
 
@@ -45,14 +46,14 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-          displayName: "Create ServiceBus Namespace"
-          condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-          inputs:
-            azureSubscription: "${{ parameters.SubscriptionName }}"
-            scriptType: pscore
-            scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
-            arguments: "-ServiceBusNamespaceName '$(ServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ServiceBusApplicationSubnetName)' -ServiceBusNamespacePrivateEndpointVnetResourceGroupName '$(ServiceBusNamespacePrivateEndpointVnetResourceGroupName)' -ServiceBusNamespacePrivateEndpointVnetName '$(ServiceBusNamespacePrivateEndpointVnetName)' -ServiceBusNamespacePrivateEndpointSubnetName '$(ServiceBusNamespacePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -ServiceBusNamespacePrivateDnsZoneName '$(ServiceBusNamespacePrivateDnsZoneName)' -ResourceTags $(Resource.Tags)"
+- task: AzureCLI@2
+  displayName: "Create ServiceBus Namespace"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
+    arguments: "-ServiceBusNamespaceName '$(ServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ServiceBusApplicationSubnetName)' -ServiceBusNamespacePrivateEndpointVnetResourceGroupName '$(ServiceBusNamespacePrivateEndpointVnetResourceGroupName)' -ServiceBusNamespacePrivateEndpointVnetName '$(ServiceBusNamespacePrivateEndpointVnetName)' -ServiceBusNamespacePrivateEndpointSubnetName '$(ServiceBusNamespacePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -ServiceBusNamespacePrivateDnsZoneName '$(ServiceBusNamespacePrivateDnsZoneName)' -ResourceTags $(Resource.Tags)"
 ```
 
 # Code

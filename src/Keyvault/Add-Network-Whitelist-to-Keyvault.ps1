@@ -17,11 +17,13 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 # Confirm if the correct parameters are passed
 Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
 
-# Autogenerate CIDR if no CIDR or Subnet is passed
+# Check if CIDR is passed, it adheres to restrictions
+Assert-CIDR -CIDR:$CIDRToWhitelist
 
+# Autogenerate CIDR if no CIDR or Subnet is passed
 $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
 
-# Github issue for being able to add the same ip-addressess: https://github.com/Azure/azure-cli/issues/18479
+# TODO: Github issue for being able to add the same ip-addressess: https://github.com/Azure/azure-cli/issues/18479
 # Have to add suffix because of bug: 
 $CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'keyvault' -CIDR:$CIDRToWhitelist
 

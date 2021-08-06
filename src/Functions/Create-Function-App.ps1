@@ -15,6 +15,7 @@ param (
     [Parameter()][ValidateSet("dotnet-isolated", "dotnet", "node", "python", "custom", "java", "powershell")][string] $FunctionAppRuntime = "dotnet",
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][ValidateSet("Linux", "Windows")][string] $FunctionAppOSType,
+    [Parameter()][string][ValidateSet("1.0", "1.1", "1.2")] $FunctionAppMinimalTlsVersion = "1.2",
 
     # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
@@ -56,6 +57,9 @@ if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetNam
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
+# Check TLS Version
+Assert-TLSVersion -TlsVersion $FunctionAppMinimalTlsVersion
+
 # Fetch AppService Plan ID
 $appServicePlanId = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json).id
 
@@ -74,7 +78,7 @@ if (!$functionAppId)
 Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=true
 
 # Set Always On, the number of instances and the ftps-state to disable
-Invoke-Executable az functionapp config set --ids $functionAppId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled
+Invoke-Executable az functionapp config set --ids $functionAppId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled --min-tls-version $FunctionAppMinimalTlsVersion
 
 # Set some basic configs (including vnet route all)
 Invoke-Executable az functionapp config appsettings set --ids $functionAppId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
@@ -91,7 +95,7 @@ if ($EnableFunctionAppDeploymentSlot)
     # Create deployment slot 
     Invoke-Executable az functionapp deployment slot create --resource-group $FunctionAppResourceGroupName --name $FunctionAppName  --slot $FunctionAppDeploymentSlotName
     $functionAppStagingId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json).id
-    Invoke-Executable az functionapp config set --ids $functionAppStagingId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled
+    Invoke-Executable az functionapp config set --ids $functionAppStagingId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled --min-tls-version $FunctionAppMinimalTlsVersion
     Invoke-Executable az functionapp config appsettings set --ids $functionAppStagingId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
     Invoke-Executable az functionapp identity assign --ids $functionAppStagingId --slot $FunctionAppDeploymentSlotName
     

@@ -40,6 +40,9 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
+# Check TLS version
+Assert-TLSVersion -TlsVersion $SqlServerMinimalTlsVersion
+
 # Create SQL Server
 if (!(Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName))
 {

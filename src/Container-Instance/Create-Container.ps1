@@ -36,7 +36,7 @@ param (
     [Parameter()][string] $LogAnalyticsWorkspaceKey,
 
     # Forcefully agree to this resource to be spun up to be publicly available
-    [Parameter()][switch] $ForcePublic,
+    [Parameter()][switch] $ForcePublic
 )
 
 #region ===BEGIN IMPORTS===

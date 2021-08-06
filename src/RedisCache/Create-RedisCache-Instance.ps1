@@ -6,7 +6,7 @@ param (
     [Parameter(Mandatory)][ValidateSet('Basic', 'Standard', 'Premium')][string] $RedisInstanceSkuName,
     [Parameter(Mandatory)][ValidateSet('C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'P1', 'P2', 'P3', 'P4', 'P5')][string] $RedisInstanceVmSize,
     [Parameter()][bool] $RedisInstanceEnableNonSslPort = $false,
-    [Parameter()][ValidateSet('', '1.0', '1.1', '1.2')][string] $RedisInstanceMinimalTlsVersion = '1.2',
+    [Parameter()][ValidateSet('1.0', '1.1', '1.2')][string] $RedisInstanceMinimalTlsVersion = '1.2',
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
     
     # Private Endpoints
@@ -37,23 +37,22 @@ if (!$RedisInstancePrivateEndpointVnetResourceGroupName -or !$RedisInstancePriva
 
 # Create Redis Instance.
 $redisInstanceResourceId = (Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName | ConvertFrom-Json).id
-if (!$redisInstanceId)
+if (!$redisInstanceResourceId)
 {
+    # Assert TLS Version
+    Assert-TLSVersion -TlsVersion $RedisInstanceMinimalTlsVersion
+
     $additionalParameters = @()
     if ($RedisInstanceEnableNonSslPort)
     {
         $additionalParameters += '--enable-non-ssl-port'
-    }
-    if ($RedisInstanceMinimalTlsVersion)
-    {
-        $additionalParameters += '--minimum-tls-version', $RedisInstanceMinimalTlsVersion
     }
     if ($RedisInstanceSubnetId)
     {
         $additionalParameters += '--subnet-id', $RedisInstanceSubnetId
     }
     
-    $redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+    $redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --minimum-tls-version $RedisInstanceMinimalTlsVersion --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
     while (((Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json).provisioningState -eq 'Creating')
     {
         Write-Host "Redis still creating... waiting for it to complete..."
@@ -73,7 +72,7 @@ if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivat
     Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $redisInstancePrivateEndpointSubnetId -PrivateEndpointName $redisInstancePrivateEndpointName -PrivateEndpointResourceGroupName $RedisInstanceResourceGroupName -TargetResourceId $redisInstanceResourceId -PrivateEndpointGroupId redisCache -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $RedisInstancePrivateDnsZoneName -PrivateDnsLinkName "$($RedisInstancePrivateEndpointVnetName)-redis"
 }
 
-# Add diagnostic settings to PostgreSQL server
+# Add diagnostic settings to RedisCache server
 Set-DiagnosticSettings -ResourceId $redisInstanceResourceId -ResourceName $RedisInstanceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

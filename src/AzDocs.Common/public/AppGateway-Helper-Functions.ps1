@@ -776,16 +776,13 @@ function Remove-ApplicationGatewayEntrypoint
                 $sslCertIsUsed = $false
                 if ($sslCertFound)
                 {
-                    Write-Host "Found SSL Certificate for $dashedDomainName. Removing.."
-                    Invoke-Executable az network application-gateway ssl-cert delete --ids $sslCertFound.id
-            
                     Write-Host "Checking if certificate is being used by other entrypoints.."
                     $listenersCertificates = (Invoke-Executable az network application-gateway http-listener list --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).sslCertificate
                     foreach ($certificate in $listenersCertificates)
                     {
                         if ($certificate.id -eq $sslCertFound.id)
                         {
-                            Write-Host 'Certificate is being used by other entrypoints. Skipping removing from keyvault.'
+                            Write-Host 'Certificate is being used by other entrypoints. Skipping removing from gateway and keyvault.'
                             $sslCertIsUsed = $true
                             break
                         }
@@ -793,8 +790,11 @@ function Remove-ApplicationGatewayEntrypoint
             
                     if (!$sslCertIsUsed)
                     {
-                        Write-Host "Certificate is not being used by other entrypoints. Removing from keyvault.."
+                        Write-Host "Certificate is not being used by other entrypoints. Removing from gateway and keyvault.."
             
+                        Write-Host "Found SSL Certificate for $dashedDomainName. Removing.."
+                        Invoke-Executable az network application-gateway ssl-cert delete --ids $sslCertFound.id
+
                         Write-Host "Granting permissions on keyvault for executing user"
                         # Grant the current logged in user (service principal) rights to modify certificates in the keyvault (for uploading & fetching the certificate)
                         Grant-MePermissionsOnKeyvault -KeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName -KeyvaultName $CertificateKeyvaultName

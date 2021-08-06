@@ -35,6 +35,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Write-Warning 'This script is deprecated. Please use the Create-Function-App.ps1 and the Create-App-Service-Plan-Linux.ps1 instead.'
+Write-Host "##vso[task.complete result=SucceededWithIssues;]"
 
 # Create App Service Plan
 & "$PSScriptRoot\..\App-Services\Create-App-Service-Plan-Linux.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -AppServicePlanNumberOfWorkerInstances $AppServicePlanNumberOfWorkerInstances -ResourceTags ${ResourceTags}

@@ -12,6 +12,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
+# Check if CIDR is passed, it adheres to restrictions
+Assert-CIDR -CIDR:$CIDRToWhitelist
+
 # Autogenerate CIDR if no CIDR is passed
 $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32'
 $CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'redis' -CIDR:$CIDRToWhitelist
