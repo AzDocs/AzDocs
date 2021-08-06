@@ -46,8 +46,6 @@ steps:
     inputs:
       command: 'restore'
       projects: 'tests/Tests.Regression/TestApi/TestApi.csproj'
-      feedsToUse: 'select'
-      vstsFeed: '11abb7ea-e18b-4b92-a65d-556b1eb795a4'
   - task: DotNetCoreCLI@2
     displayName: Dotnet publish webapp
     inputs:
