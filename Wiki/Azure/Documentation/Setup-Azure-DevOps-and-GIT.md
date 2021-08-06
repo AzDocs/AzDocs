@@ -135,11 +135,11 @@ Whenever you work with submodules and you edit something in these submodules (in
 
 First of all, lets assume you are using Visual Studio Code. This example will make use of VsCode so that we can make it visual:
 
-1. Make your change in the generic repo. Let's assume you already have done this. In this example we changed the `Azure.md` file.
-
-2. In VsCode when you opened the company specific repo with the submodule as a folder (File --> Open Folder),
+1. First open the company specific repo with the submodule as a folder (File --> Open Folder)
 
 ![Commit changes](../../../wiki_images/commit_changes_1.png)
+
+2. Create a new branch (in our example we used the branch name `docs`) in your generic repo. In this example we will change the `Azure.md` file. Make sure to save your changes.
 
 3. Under the `Source Control` tab you will see two repositories. Commit & Push the generic repo content (in our case the `Azure.md` file.). This is the bottom one in the following screenshot.
 
@@ -159,15 +159,15 @@ _For the next procedure you will need an account at GitHub. Make sure to have th
 
 The generic repo will have 2 remote's if you also want to contribute to this project or get new updates from this project. So after mirroring [the upstream github repo](https://github.com/AzDocs/AzDocs) to your own Azure DevOps instance, you want to clone the repository to your local machine.
 
-> NOTE: Next to the working company repository with the generic repository inside (as explained in [the GIT paragraph](#working-with-this-setup-%26-git)) you daily use, we tend to keep the upstream in a separate folder on our computer aswell for syncing our origin with the upstream repo.
+> NOTE: Next to the working company repository with the generic repository inside (as explained in [the GIT paragraph](#working-with-this-setup-%26-git)) you daily use, we tend to keep the generic upstream in a separate folder on our computer aswell for syncing our origin with the github upstream repo.
 
-First clone the repo to your local disk with:
+First clone the generic repository to your local disk with:
 
-`git clone <upstream repo url>`
+`git clone <generic upstream repo url>`
 
-> The upstream repo url is the URL made in the [Mirroring the upstream repo to your own Azure DevOps instance](#mirroring-the-upstream-repo-to-your-own-azure-devops-instance) step.
+> The generic upstream repo url is the URL made in the [Mirroring the upstream repo to your own Azure DevOps instance](#mirroring-the-upstream-repo-to-your-own-azure-devops-instance) step.
 
-After doing this you enter the freshly created repo folder and use this command to add the upstream remote to your local repo:
+After doing this you enter the freshly created repo folder and use this command to add the github upstream remote to your local repo:
 
 `git remote add upstream https://github.com/AzDocs/AzDocs.git`
 
@@ -195,9 +195,9 @@ Your repository is now up to date.
 
 _Make sure you followed the information from [How to keep your repositories in sync with upstream](#how-to-keep-your-repositories-in-sync-with-upstream) first._
 
-Let's assume you've done some work on your `origin` and at some point in time you want to sync this back to the `upstream`. We do this by creating a new branch and pushing it to the upstream. We need to make sure we use the latest version of main to create our PR Branch from:
+Let's assume you've done some work on your `origin` and at some point in time you want to sync this back to the `upstream`. We do this by creating a new branch and pushing it to the remote upstream. We need to make sure we use the latest version of main to create our PR Branch from:
 
-> First navigate to the cloned upstream repo (the repo made in the [Mirroring the upstream repo to your own Azure DevOps instance](#mirroring-the-upstream-repo-to-your-own-azure-devops-instance) step). Then follow these steps:
+> First navigate to the cloned generic upstream repo (the repo made in the [Mirroring the upstream repo to your own Azure DevOps instance](#mirroring-the-upstream-repo-to-your-own-azure-devops-instance) step). Then follow these steps:
 
 ```batch
 git checkout main
@@ -206,7 +206,7 @@ git checkout -b 20210426
 git push upstream 20210426
 ```
 
-This will create a new branch in the upstream repo. After this you can [create a PR](https://github.com/AzDocs/AzDocs/compare) on github. Select the branch you just created from the "compare" list.
+This will create a new branch in the github upstream repo. After this you can [create a PR](https://github.com/AzDocs/AzDocs/compare) on github. Select the branch you just created from the "compare" list.
 
 ![Select the compare branch](../../../wiki_images/git_how_to_keep_repos_in_sync_with_upstream_1.png)
 
