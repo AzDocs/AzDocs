@@ -447,6 +447,7 @@ stages:
       name: ${{ parameters.EnvironmentName }}
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
