@@ -16,7 +16,8 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-function Add-VnetIntegration {
+function Add-VnetIntegration
+{
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
@@ -33,17 +34,20 @@ function Add-VnetIntegration {
     $fullFunctionAppName = $FunctionAppName
     $additionalParameters = @()
 
-    if ($FunctionAppServiceDeploymentSlotName) {
+    if ($FunctionAppServiceDeploymentSlotName)
+    {
         $additionalParameters += '--slot' , $FunctionAppServiceDeploymentSlotName
         $fullFunctionAppName += " [$FunctionAppServiceDeploymentSlotName]"
     }
 
     $vnetIntegrations = Invoke-Executable az functionapp vnet-integration list --resource-group $FunctionAppResourceGroupName --name $FunctionAppName @additionalParameters | ConvertFrom-Json
     $matchedIntegrations = $vnetIntegrations | Where-Object  vnetResourceId -like "*/providers/Microsoft.Network/virtualNetworks/$FunctionAppVnetIntegrationVnetName/subnets/$FunctionAppVnetIntegrationSubnetName"
-    if ($matchedIntegrations) {
+    if ($matchedIntegrations)
+    {
         Write-Host "VNET Integration found for $fullFunctionAppName"
     }
-    else {
+    else
+    {
         Write-Host "VNET Integration not found, adding it to $fullFunctionAppName"
         Invoke-Executable az functionapp vnet-integration add --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --vnet $FunctionAppVnetIntegrationVnetName --subnet $FunctionAppVnetIntegrationSubnetName @additionalParameters
         Invoke-Executable az functionapp restart --name $FunctionAppName --resource-group $FunctionAppResourceGroupName
@@ -56,7 +60,8 @@ function Add-VnetIntegration {
 }
 
 # Fetch available slots if we want to deploy all slots
-if ($ApplyToAllSlots) {
+if ($ApplyToAllSlots)
+{
     $availableSlots = Invoke-Executable -AllowToFail az functionapp deployment slot list --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json
 }
 
@@ -64,7 +69,8 @@ if ($ApplyToAllSlots) {
 Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $FunctionAppServiceDeploymentSlotName
 
 # Apply to all slots if desired
-foreach ($availableSlot in $availableSlots) {
+foreach ($availableSlot in $availableSlots)
+{
     Add-VnetIntegration -FunctionAppResourceGroupName $FunctionAppResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -FunctionAppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -FunctionAppServiceDeploymentSlotName $availableSlot.name
 }
 
