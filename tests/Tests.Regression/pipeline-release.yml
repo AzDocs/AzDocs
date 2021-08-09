@@ -823,12 +823,12 @@ stages:
                 targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= APP SERVICE =========================================
             - task: AzureCLI@2
-              displayName: 'Create Web App Linux (Private Endpoint)'
+              displayName: 'Create Web App (Private Endpoint)'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-Linux.ps1'
+                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App.ps1'
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -AppServicePrivateEndpointVnetResourceGroupName '$(AppServicePrivateEndpointVnetResourceGroupName)' -AppServicePrivateEndpointVnetName '$(AppServicePrivateEndpointVnetName)' -AppServicePrivateEndpointSubnetName '$(AppServicePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppServicePrivateDnsZoneName '$(AppServicePrivateDnsZoneName)'"
             - task: AzureCLI@2
               displayName: "Add VNet integration to (Private Endpoint) AppService"
@@ -865,12 +865,12 @@ stages:
                 targetPath: $(Pipeline.Workspace)/AzDocs
             # ========================================= APP SERVICE =========================================
             - task: AzureCLI@2
-              displayName: 'Create Web App Linux (VNet Whitelisting)'
+              displayName: 'Create Web App (VNet Whitelisting)'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-Linux.ps1'
+                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App.ps1'
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -GatewayVnetResourceGroupName '$(ApplicationGatewayVnetResourceGroupName)' -GatewayVnetName '$(ApplicationGatewayVnetName)' -GatewaySubnetName '$(ApplicationGatewaySubnetName)'"
             - task: AzureCLI@2
               displayName: "Add VNet integration to (VNet Whitelisting) AppService"
