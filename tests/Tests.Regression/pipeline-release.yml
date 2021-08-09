@@ -11,7 +11,6 @@ parameters:
 
 stages:
 - stage: ${{ parameters.EnvironmentName }}
-  condition: not(canceled())
   displayName: ${{ format('Deploy to {0}', parameters.EnvironmentName) }}
   pool:
     vmImage: $(Stage.Pool)
@@ -551,6 +550,7 @@ stages:
       name: ${{ parameters.EnvironmentName }}
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -615,6 +615,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -647,6 +648,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -680,6 +682,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -713,6 +716,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -743,6 +747,7 @@ stages:
       name: ${{ parameters.EnvironmentName }}
     variables:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
     strategy:
@@ -793,6 +798,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -833,6 +839,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -873,6 +880,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -905,6 +913,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -937,6 +946,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -969,6 +979,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1010,6 +1021,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1051,6 +1063,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1092,6 +1105,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MySQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1132,6 +1146,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MySQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1172,6 +1187,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MySQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1212,6 +1228,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.PostgreSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1252,6 +1269,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.PostgreSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1292,6 +1310,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.PostgreSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1332,6 +1351,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1364,6 +1384,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1403,6 +1424,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1444,6 +1466,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1485,6 +1508,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1519,6 +1543,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1559,6 +1584,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1599,6 +1625,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1639,6 +1666,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1715,6 +1743,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerRegistry.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1756,6 +1785,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerRegistry.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1797,6 +1827,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerRegistry.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1832,6 +1863,7 @@ stages:
       LogAnalyticsWorkspaceKey: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceKeyforPipeline.LogAnalyticsWorkspaceKey'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerInstance.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1865,6 +1897,7 @@ stages:
       LogAnalyticsWorkspaceKey: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceKeyforPipeline.LogAnalyticsWorkspaceKey'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerInstance.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1898,6 +1931,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1931,6 +1965,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1964,6 +1999,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1996,6 +2032,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -2038,6 +2075,7 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
+    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
