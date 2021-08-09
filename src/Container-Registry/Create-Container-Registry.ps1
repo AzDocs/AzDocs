@@ -34,21 +34,24 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$ContainerRegistryPrivateEndpointVnetResourceGroupName -or !$ContainerRegistryPrivateEndpointVnetName -or !$ContainerRegistryPrivateEndpointSubnetName -or !$PrivateEndpointGroupId -or !$DNSZoneResourceGroupName -or !$ContainerRegistryPrivateDnsZoneName)) {
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$ContainerRegistryPrivateEndpointVnetResourceGroupName -or !$ContainerRegistryPrivateEndpointVnetName -or !$ContainerRegistryPrivateEndpointSubnetName -or !$PrivateEndpointGroupId -or !$DNSZoneResourceGroupName -or !$ContainerRegistryPrivateDnsZoneName))
+{
     # Check if we are making this resource public intentionally
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
 
 $scriptArguments = @()
-if ($ContainerRegistryEnableAdminUser) {
+if ($ContainerRegistryEnableAdminUser)
+{
     $scriptArguments += "--admin-enabled", "true"
 }
 
 $containerRegistryId = (Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku $ContainerRegistrySku @scriptArguments | ConvertFrom-Json).id
 
 # Private Endpoint
-if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName) {
+if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName)
+{
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch basic info for pvt endpoint
     $vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerRegistryPrivateEndpointVnetResourceGroupName --name $ContainerRegistryPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -63,18 +66,19 @@ if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndp
 }
 
 # VNET Whitelisting
-
 if ($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResourceGroupName)
 {
-    if ($ContainerRegistrySku -ne "Premium")
-    {
-        throw "VNET Whitelisting only supported on Premium SKU. Current SKU: $ContainerRegistrySku"
-    }
-
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-Container-Registry.ps1" -ContainerRegistryName $ContainerRegistryName -ContainerRegistryResourceGroupName $ContainerRegistryResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 
     # Make sure the default action is "deny" which causes public traffic to be dropped.
+    Invoke-Executable az acr update --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --default-action Deny
+}
+
+# Add diagnostic settings to container registry
+Set-DiagnosticSettings -ResourceId $containerRegistryId -ResourceName $ContainerRegistryName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'ContainerRegistryRepositoryEvents', 'enabled': true }, { 'category': 'ContainerRegistryLoginEvents', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+
+Write-Footer -ScopedPSCmdlet $PSCmdlet"deny" which causes public traffic to be dropped.
     Invoke-Executable az acr update --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --default-action Deny
 }
 
