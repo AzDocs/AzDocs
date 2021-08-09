@@ -68,17 +68,15 @@ if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndp
 # VNET Whitelisting
 if ($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResourceGroupName)
 {
+    if ($ContainerRegistrySku -ne "Premium")
+    {
+        throw "VNET Whitelisting only supported on Premium SKU. Current SKU: $ContainerRegistrySku"
+    }
+
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-Container-Registry.ps1" -ContainerRegistryName $ContainerRegistryName -ContainerRegistryResourceGroupName $ContainerRegistryResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 
     # Make sure the default action is "deny" which causes public traffic to be dropped.
-    Invoke-Executable az acr update --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --default-action Deny
-}
-
-# Add diagnostic settings to container registry
-Set-DiagnosticSettings -ResourceId $containerRegistryId -ResourceName $ContainerRegistryName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'ContainerRegistryRepositoryEvents', 'enabled': true }, { 'category': 'ContainerRegistryLoginEvents', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
-
-Write-Footer -ScopedPSCmdlet $PSCmdlet"deny" which causes public traffic to be dropped.
     Invoke-Executable az acr update --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --default-action Deny
 }
 
