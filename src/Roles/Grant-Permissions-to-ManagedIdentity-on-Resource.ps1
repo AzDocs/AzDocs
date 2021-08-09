@@ -1,21 +1,21 @@
 [CmdletBinding()]
 param (
-        # Switches for which MSI resource we are talking about
-        [Parameter(Mandatory, ParameterSetName = 'webapp')][switch] $AppServiceManagedIdentity,
-        [Parameter(Mandatory, ParameterSetName = 'functionapp')][switch] $FunctionAppManagedIdentity,
-        [Parameter(Mandatory, ParameterSetName = 'appconfig')][switch] $AppConfigManagedIdentity,
-        [Parameter(Mandatory, ParameterSetName = 'other')][switch] $OtherIdentity,
-        # Parameters
-        [Parameter(Mandatory, ParameterSetName = 'webapp')][Parameter(Mandatory, ParameterSetName = 'functionapp')][Parameter(Mandatory, ParameterSetName = 'appconfig')][string] $ManagedIdentityResourceName,
-        [Parameter(Mandatory, ParameterSetName = 'webapp')][Parameter(Mandatory, ParameterSetName = 'functionapp')][Parameter(Mandatory, ParameterSetName = 'appconfig')][string] $ManagedIdentityResourceGroupName,
-        [Parameter(ParameterSetName = 'webapp')][Parameter(ParameterSetName = 'functionapp')][string] $ManagedIdentityAppServiceSlotName,
-        [Parameter(ParameterSetName = 'other')][ValidateNotNullOrEmpty()][string] $PrincipalId,
-        [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceName,
-		[Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceGroupName,
-		[Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceType,
-		[Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceNamespace,
-		[Parameter()][ValidateNotNullOrEmpty()][string] $TargetResourceParentPath,
-        [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $RoleToAssign
+    # Switches for which MSI resource we are talking about
+    [Parameter(Mandatory, ParameterSetName = 'webapp')][switch] $AppServiceManagedIdentity,
+    [Parameter(Mandatory, ParameterSetName = 'functionapp')][switch] $FunctionAppManagedIdentity,
+    [Parameter(Mandatory, ParameterSetName = 'appconfig')][switch] $AppConfigManagedIdentity,
+    [Parameter(Mandatory, ParameterSetName = 'other')][switch] $OtherIdentity,
+    # Parameters
+    [Parameter(Mandatory, ParameterSetName = 'webapp')][Parameter(Mandatory, ParameterSetName = 'functionapp')][Parameter(Mandatory, ParameterSetName = 'appconfig')][string] $ManagedIdentityResourceName,
+    [Parameter(Mandatory, ParameterSetName = 'webapp')][Parameter(Mandatory, ParameterSetName = 'functionapp')][Parameter(Mandatory, ParameterSetName = 'appconfig')][string] $ManagedIdentityResourceGroupName,
+    [Parameter(ParameterSetName = 'webapp')][Parameter(ParameterSetName = 'functionapp')][string] $ManagedIdentityAppServiceSlotName,
+    [Parameter(ParameterSetName = 'other')][ValidateNotNullOrEmpty()][string] $PrincipalId,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceName,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceGroupName,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceType,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceNamespace,
+    [Parameter()][ValidateNotNullOrEmpty()][string] $TargetResourceParentPath,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $RoleToAssign
 )
 
 #region ===BEGIN IMPORTS===
@@ -41,6 +41,6 @@ if (!$PrincipalId)
     throw "Could not find Managed Identity or no PrincipalId specified"
 }
 
-Create-ScopedRoleAssignment -Resource -ResourceName $TargetResourceName -ResourceGroup $TargetResourceGroupName -ResourceType $TargetResourceType -ResourceNamespace $TargetResourceNamespace -ParentResourcePath $TargetResourceParentPath -RoleToAssign $RoleToAssign -AssigneeObjectId $PrincipalId
+Add-ScopedRoleAssignment -Resource -ResourceName $TargetResourceName -ResourceGroup $TargetResourceGroupName -ResourceType $TargetResourceType -ResourceNamespace $TargetResourceNamespace -ParentResourcePath $TargetResourceParentPath -RoleToAssign $RoleToAssign -AssigneeObjectId $PrincipalId
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

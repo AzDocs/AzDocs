@@ -12,6 +12,7 @@ param (
     [Parameter()][bool] $StopAppServiceImmediatelyAfterCreation = $false,
     [Parameter()][bool] $StopAppServiceSlotImmediatelyAfterCreation = $false,
     [Parameter()][bool] $AppServiceAlwaysOn = $true,
+    [Parameter()][string][ValidateSet("1.0", "1.1", "1.2")] $AppServiceMinimalTlsVersion = "1.2",
     
     # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
@@ -57,6 +58,9 @@ if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetNam
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
+# Check TLS Version
+Assert-TLSVersion -TlsVersion $AppServiceMinimalTlsVersion
+
 # Fetch AppService Plan ID
 $appServicePlanId = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json).id
 
@@ -64,7 +68,6 @@ $appServicePlanId = (Invoke-Executable az appservice plan show --resource-group 
 $optionalParameters = @()
 
 # This only works with app services running in Linux
-# TODO: Fix documentation for this
 if ($ContainerImageName)
 {
     $optionalParameters += '--deployment-container-image-name', "$ContainerImageName"
@@ -91,7 +94,7 @@ $webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-
 Invoke-Executable az webapp update --ids $webAppId --https-only true
 
 # Set Always On, the number of instances and the ftps-state to disable
-Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled
+Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --min-tls-version $AppServiceMinimalTlsVersion
 
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
@@ -113,7 +116,7 @@ if ($EnableAppServiceDeploymentSlot)
     }
 
     $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json).id
-    Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --slot $AppServiceDeploymentSlotName
+    Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --min-tls-version $AppServiceMinimalTlsVersion --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceDeploymentSlotName
 

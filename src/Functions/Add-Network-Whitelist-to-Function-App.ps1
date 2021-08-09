@@ -35,6 +35,9 @@ if (!$AccessRestrictionRuleName)
 # Confirm if the correct parameters are passed
 Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
 
+# Check if CIDR is passed, it adheres to restrictions
+Assert-CIDR -CIDR:$CIDRToWhitelist
+
 # Autogenerate CIDR if no CIDR or Subnet is passed
 $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
 $CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'functionapp' -CIDR:$CIDRToWhitelist

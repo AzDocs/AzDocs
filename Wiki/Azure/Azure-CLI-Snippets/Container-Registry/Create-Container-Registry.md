@@ -3,6 +3,7 @@
 # Description
 
 This snippet will create an Azure Container Instances instance for you. It will be integrated into the given subnet.
+Adding VNet whitelisting is only possible for Container Registries with Premium tier.
 
 # Parameters
 

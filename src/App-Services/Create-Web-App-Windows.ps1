@@ -46,6 +46,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Write-Warning 'This script is deprecated. Please use the Create-Web-App.ps1 instead.'
+Write-Host "##vso[task.complete result=SucceededWithIssues;]"
 
 # Create Web App
 & "$PSScriptRoot\Create-Web-App.ps1" @PSBoundParameters

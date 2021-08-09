@@ -47,6 +47,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Write-Warning 'This script is deprecated. Please use the Create-Function-App.ps1 instead.'
+Write-Host "##vso[task.complete result=SucceededWithIssues;]"
 
 # Create Function App
 & "$PSScriptRoot\Create-Function-App.ps1" -FunctionAppOSType 'Linux' @PSBoundParameters

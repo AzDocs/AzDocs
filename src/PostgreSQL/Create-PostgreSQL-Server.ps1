@@ -14,6 +14,7 @@ param (
     [Alias("SqlServerVersion")]
     [Parameter()][string] $PostgreSqlServerVersion = "11",
     [Parameter()][ValidateSet('Enabled', 'Disabled')][string] $PostgreSqlServerPublicNetworkAccess = 'Disabled',
+    [Parameter()][ValidateSet('TLS1_0', 'TLS1_1', 'TLS1_2', 'TLSEnforcementDisabled')][string] $PostgreSqlServerMinimalTlsVersion = "TLS1_2",
 
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetName,
@@ -34,6 +35,9 @@ param (
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
 
+    # Forcefully agree to spin up this resource with TLS disabled
+    [Parameter()][switch] $ForceDisableTLS,
+
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
@@ -50,8 +54,10 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-$resourceGroupLocation = (az group show --name $PostgreSqlServerResourceGroupName | ConvertFrom-Json).location
+# Check TLS version
+Assert-TLSVersion -TlsVersion $PostgreSqlServerMinimalTlsVersion -ForceDisableTLS $ForceDisableTLS
 
+$resourceGroupLocation = (az group show --name $PostgreSqlServerResourceGroupName | ConvertFrom-Json).location
 Write-Host "Found location $($resourceGroupLocation)"
 # Create PSQL Server if it does not exist
 $postgreSqlServerId = (Invoke-Executable -AllowToFail az postgres server show --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName | ConvertFrom-Json).Id
@@ -63,8 +69,9 @@ if (!$postgreSqlServerId)
         $PostgreSqlServerPublicNetworkAccess = 'Enabled'
         Write-Warning "You are trying to use VNet whitelisting with public access disabled. This is impossible. The public endpoint will be forcefully enabled."
     }
+
     Write-Host "Creating Postgres server"
-    $postgreSqlServerId = (Invoke-Executable az postgres server create --admin-password $PostgreSqlServerPassword --admin-user $PostgreSqlServerUsername --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName --location $resourceGroupLocation --sku-name $PostgreSqlServerSku --backup-retention $BackupRetentionInDays --assign-identity --public-network-access $PostgreSqlServerPublicNetworkAccess --version $PostgreSqlServerVersion | ConvertFrom-Json).id
+    $postgreSqlServerId = (Invoke-Executable az postgres server create --admin-password $PostgreSqlServerPassword --admin-user $PostgreSqlServerUsername --name $PostgreSqlServerName --resource-group $PostgreSqlServerResourceGroupName --location $resourceGroupLocation --sku-name $PostgreSqlServerSku --backup-retention $BackupRetentionInDays --assign-identity --public-network-access $PostgreSqlServerPublicNetworkAccess --version $PostgreSqlServerVersion --minimal-tls-version $PostgreSqlServerMinimalTlsVersion | ConvertFrom-Json).id
 }
 
 # VNet Whitelisting

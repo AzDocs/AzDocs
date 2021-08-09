@@ -2,6 +2,7 @@
 
 # Description
 
+Adding network whitelisting is only possible for Container Registries with the Premium tier.
 This snippet will whitelist the specified IP Range from the Azure Container Registry. If you leave the `CIDRToWhitelist` parameter empty, it will use the outgoing IP from where you execute this script.
 
 # Parameters

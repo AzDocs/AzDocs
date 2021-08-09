@@ -19,6 +19,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | StorageAccountKind                  | <input type="checkbox">         | `StorageV2`                                                                                                                                     | This is the storage kind you can choose. You have a choice between: 'BlobStorage', 'BlockBlobStorage', 'FileStorage', 'Storage', 'StorageV2'. This has a default value of 'StorageV2'.                                                                             |
 | StorageAccountSku                   | <input type="checkbox">         | `Standard_LRS`                                                                                                                                  | This is the sku you can choose for your storage account. You have a choice between 'Premium_LRS', 'Premium_ZRS', 'Standard_GRS', 'Standard_GZRS', 'Standard_LRS', 'Standard_RAGRS', 'Standard_RAGZRS', 'Standard_ZRS'. This has a default value of 'Standard_LRS'. |
 | StorageAccountAllowBlobPublicAccess | <input type="checkbox">         | `true` / `false`                                                                                                                                | Enabling public access on the storage account. This has default value of 'false'.                                                                                                                                                                                  |
+| StorageAccountMinimalTlsVersion     | <input type="checkbox">         | `TLS1_2`                                                                                                                                        | The possibility to enable a specific TLS version on your storage account. Defaults to TLS1_2.                                                                                                                                                                      |
 | LogAnalyticsWorkspaceResourceId     | <input type="checkbox" checked> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The Log Analytics Workspace the diagnostic setting will be linked to.                                                                                                                                                                                              |
 | ForcePublic                         | <input type="checkbox">         | n.a.                                                                                                                                            | If you are not using any networking settings, you need to pass this boolean to confirm you are willingly creating a public resource (to avoid unintended public resources). You can pass it as a switch without a value (`-ForcePublic`).                          |
 
@@ -54,14 +55,14 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create Storage account'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1'
-               arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(StorageAccountName)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -StorageAccountAllowBlobPublicAccess '$(StorageAccountAllowBlobPublicAccess)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -StorageAccountPrivateEndpointVnetName '$(StorageAccountPrivateEndpointVnetName)' -StorageAccountPrivateEndpointVnetResourceGroupName '$(StorageAccountPrivateEndpointVnetResourceGroupName)' -StorageAccountPrivateEndpointSubnetName '$(StorageAccountPrivateEndpointSubnetName)' -PrivateEndpointGroupId '$(PrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -StorageAccountPrivateDnsZoneName '$(StorageAccountPrivateDnsZoneName)'"
+- task: AzureCLI@2
+  displayName: "Create Storage account"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1"
+    arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(StorageAccountName)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -StorageAccountAllowBlobPublicAccess '$(StorageAccountAllowBlobPublicAccess)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -StorageAccountPrivateEndpointVnetName '$(StorageAccountPrivateEndpointVnetName)' -StorageAccountPrivateEndpointVnetResourceGroupName '$(StorageAccountPrivateEndpointVnetResourceGroupName)' -StorageAccountPrivateEndpointSubnetName '$(StorageAccountPrivateEndpointSubnetName)' -PrivateEndpointGroupId '$(PrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -StorageAccountPrivateDnsZoneName '$(StorageAccountPrivateDnsZoneName)' -StorageAccountMinimalTlsVersion '$(StorageAccountMinimalTlsVersion)'"
 ```
 
 # Code

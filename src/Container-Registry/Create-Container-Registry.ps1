@@ -63,7 +63,14 @@ if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndp
 }
 
 # VNET Whitelisting
-if ($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResourceGroupName) {
+
+if ($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResourceGroupName)
+{
+    if ($ContainerRegistrySku -ne "Premium")
+    {
+        throw "VNET Whitelisting only supported on Premium SKU. Current SKU: $ContainerRegistrySku"
+    }
+
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-Container-Registry.ps1" -ContainerRegistryName $ContainerRegistryName -ContainerRegistryResourceGroupName $ContainerRegistryResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 
