@@ -24,7 +24,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 ```yaml
        - task: AzureCLI@2
-              displayName: "Get Log Analytics Workspace Id"
+              displayName: "Get Log Analytics Workspace Resource Id"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
