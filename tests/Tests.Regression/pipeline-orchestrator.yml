@@ -144,6 +144,7 @@ variables:
     value: 'ubuntu-20.04'
 stages:
 - stage: 'Build'
+  condition: eq(variables['ResourceCreation.AppService.Enabled'], 'true')
   jobs:
     - job: Build
       displayName: 'Build'
