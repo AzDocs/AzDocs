@@ -98,6 +98,24 @@ stages:
     - name: AppServiceConnectionStringsInJson
       value: '[{"name": "MyConnectionString", "value": "Server=test;Initial Catalog=MyDatabase;User ID=$(DbUserName);Password=$(DbPassword);", "type": "Custom"}, {"name": "MyConnectionString2", "value": "Server=test;Initial Catalog=MyDatabase2;User ID=$(DbUserName);Password=$(DbPassword);", "type": "SQLAzure"}]'
 
+    # App Configuration
+    - name: PublicAppConfigName
+      value: $(ResourceBaseName)-papc-${{ parameters.EnvironmentName }}
+    - name: PrivateEndpointAppConfigName
+      value: $(ResourceBaseName)-eapc-${{ parameters.EnvironmentName }}
+    - name: AppConfigLocation
+      value: $(Location)
+    - name: AppConfigResourceGroupName
+      value: $(ResourceGroupName)
+    - name: AppConfigSku
+      value: Standard
+    - name: AppConfigPrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: AppConfigPrivateEndpointVnetName
+      value: $(VnetName)
+    - name: AppConfigPrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
+
     # Application Gateway
     - name: ApplicationGatewayName
       value: $(ResourceBaseName)-appgw-${{ parameters.EnvironmentName }}
@@ -359,6 +377,24 @@ stages:
       value: blob
     - name: StorageAccountPrivateDnsZoneName
       value: privatelink.blob.core.windows.net
+
+    # Service Bus
+    - name: PublicServiceBusNamespaceName
+      value: $(ResourceBaseName)-psb-${{ parameters.EnvironmentName }}
+    - name: PrivateEndpointServiceBusNamespaceName
+      value: $(ResourceBaseName)-esb-${{ parameters.EnvironmentName }}
+    - name: VnetWhitelistingServiceBusNamespaceName
+      value: $(ResourceBaseName)-vsb-${{ parameters.EnvironmentName }}
+    - name: ServiceBusNamespaceResourceGroupName
+      value: $(ResourceGroupName)
+    - name: ServiceBusNamespaceSku
+      value: Premium
+    - name: ServiceBusNamespacePrivateEndpointVnetResourceGroupName
+      value: $(VnetResourceGroupName)
+    - name: ServiceBusNamespacePrivateEndpointVnetName
+      value: $(VnetName)
+    - name: ServiceBusNamespacePrivateEndpointSubnetName
+      value: $(PrivateEndpointSubnetName)
 
     # Container Registry
     - name: PublicContainerRegistryName
@@ -633,6 +669,72 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Create-App-Service-Plan-Linux.ps1'
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServicePlanSkuName '$(AppServicePlanSkuName)' -AppServicePlanNumberOfWorkerInstances '$(AppServicePlanNumberOfWorkerInstances)' -ResourceTags $(ResourceTags)"
+  - deployment: "Public_AppConfig"
+    displayName: "AppConfig (Public)"
+    dependsOn: [ "ResourceGroup", "BaseResources" ]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= APP CONFIG =========================================
+            - task: AzureCLI@2
+              displayName: 'Create (Public) App Configuration'
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
+              inputs:
+                azureSubscription: '${{ parameters.SubscriptionName }}'
+                scriptType: pscore
+                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Create-App-Configuration.ps1'
+                arguments: "-AppConfigName '$(PublicAppConfigName)' -AppConfigLocation '$(AppConfigLocation)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppConfigSku '$(AppConfigSku)' -AppConfigAllowPublicAccess $true"
+  - deployment: "PrivateEndpoint_AppConfig"
+    displayName: "AppConfig (Private Endpoint)"
+    dependsOn: [ "ResourceGroup", "BaseResources" ]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= APP CONFIG =========================================
+            - task: AzureCLI@2
+              displayName: 'Create (Private Endpoint) App Configuration'
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
+              inputs:
+                azureSubscription: '${{ parameters.SubscriptionName }}'
+                scriptType: pscore
+                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Create-App-Configuration.ps1'
+                arguments: "-AppConfigPrivateEndpointVnetResourceGroupName '$(AppConfigPrivateEndpointVnetResourceGroupName)' -AppConfigPrivateEndpointVnetName '$(AppConfigPrivateEndpointVnetName)' -AppConfigPrivateEndpointSubnetName '$(AppConfigPrivateEndpointSubnetName)' -AppConfigName '$(PrivateEndpointAppConfigName)' -AppConfigLocation '$(AppConfigLocation)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppConfigSku '$(AppConfigSku)' -AppConfigAllowPublicAccess $false"
   - deployment: "Public_AppService"
     dependsOn: [ "ResourceGroup", "BaseResources", "AppServicePlan" ]
     environment:
@@ -1785,6 +1887,105 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Instance/Create-Container.ps1'
                 arguments: "-ContainerName '$(PrivateContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -ContainerIpAddressType 'Private' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)'"
+  - deployment: "Public_ServiceBus"
+    displayName: Service Bus (Public)
+    dependsOn: [ "ResourceGroup", "BaseResources" ]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= SERVICE BUS =========================================
+            - task: AzureCLI@2
+              displayName: "Create (Public) ServiceBus Namespace"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'])
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
+                arguments: "-ServiceBusNamespaceName '$(PublicServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ResourceTags $(ResourceTags) -ForcePublic"
+  - deployment: "PrivateEndpoint_ServiceBus"
+    displayName: Service Bus (Private Endpoint)
+    dependsOn: [ "ResourceGroup", "BaseResources" ]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= SERVICE BUS =========================================
+            - task: AzureCLI@2
+              displayName: "Create (Private Endpoint) ServiceBus Namespace"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'])
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
+                arguments: "-ServiceBusNamespaceName '$(PrivateEndpointServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ServiceBusNamespacePrivateEndpointVnetResourceGroupName '$(ServiceBusNamespacePrivateEndpointVnetResourceGroupName)' -ServiceBusNamespacePrivateEndpointVnetName '$(ServiceBusNamespacePrivateEndpointVnetName)' -ServiceBusNamespacePrivateEndpointSubnetName '$(ServiceBusNamespacePrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -ResourceTags $(ResourceTags)"
+  - deployment: "VnetWhitelisting_ServiceBus"
+    displayName: Service Bus (VNet Whitelisting)
+    dependsOn: [ "ResourceGroup", "BaseResources" ]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= SERVICE BUS =========================================
+            - task: AzureCLI@2
+              displayName: "Create (VNet Whitelisting) ServiceBus Namespace"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'])
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
+                arguments: "-ServiceBusNamespaceName '$(VnetWhitelistingServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -ResourceTags $(ResourceTags)"
   - deployment: "AppService_SwapSlots"
     dependsOn: [ "ResourceGroup", "BaseResources", "Public_AppService", "AppService_PostConfiguration"]
     environment:

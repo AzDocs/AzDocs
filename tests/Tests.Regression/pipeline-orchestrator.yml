@@ -61,6 +61,14 @@ parameters:
   - name: ResourceCreation.ApplicationGateway.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.ServiceBus.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.AppConfiguration.Enabled
+    type: boolean
+    default: true
+
+    
 
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
@@ -108,6 +116,10 @@ variables:
     value: ${{ parameters['ResourceCreation.ContainerInstance.Enabled'] }}
   - name: ResourceCreation.ApplicationGateway.Enabled
     value: ${{ parameters['ResourceCreation.ApplicationGateway.Enabled'] }}
+  - name: ResourceCreation.ServiceBus.Enabled
+    value: ${{ parameters['ResourceCreation.ServiceBus.Enabled'] }}
+  - name: ResourceCreation.AppConfiguration.Enabled
+    value: ${{ parameters['ResourceCreation.AppConfiguration.Enabled'] }}
 
   # Tags
   - name: Tag.ApplicationId
