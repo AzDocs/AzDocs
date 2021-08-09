@@ -446,7 +446,6 @@ stages:
       name: ${{ parameters.EnvironmentName }}
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    #condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -454,6 +453,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ResourceGroup.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -550,7 +550,6 @@ stages:
       name: ${{ parameters.EnvironmentName }}
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -558,6 +557,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Networking.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -615,7 +615,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -623,6 +622,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -648,7 +648,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -656,6 +655,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -682,7 +682,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -690,6 +689,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -716,7 +716,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -724,6 +723,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -747,7 +747,6 @@ stages:
       name: ${{ parameters.EnvironmentName }}
     variables:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
     strategy:
@@ -757,6 +756,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -798,7 +798,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -806,6 +805,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -839,7 +839,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -847,6 +846,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -880,7 +880,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -888,6 +887,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -913,7 +913,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -921,6 +920,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -946,7 +946,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -954,6 +953,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -979,7 +979,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -987,6 +986,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1021,7 +1021,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1029,6 +1028,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1063,7 +1063,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1071,6 +1070,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1105,7 +1105,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MySQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1113,6 +1112,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MySQL.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1146,7 +1146,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MySQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1154,6 +1153,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MySQL.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1187,7 +1187,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MySQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1195,6 +1194,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MySQL.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1228,7 +1228,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.PostgreSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1236,6 +1235,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.PostgreSQL.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1269,7 +1269,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.PostgreSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1277,6 +1276,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.PostgreSQL.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1310,7 +1310,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.PostgreSQL.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1318,6 +1317,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.PostgreSQL.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1351,7 +1351,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1359,6 +1358,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1384,7 +1384,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1392,6 +1391,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1543,7 +1543,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1551,6 +1550,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1584,7 +1584,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1592,6 +1591,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1625,7 +1625,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1633,6 +1632,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.FunctionApp.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1666,7 +1666,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1674,6 +1673,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1863,7 +1863,6 @@ stages:
       LogAnalyticsWorkspaceKey: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceKeyforPipeline.LogAnalyticsWorkspaceKey'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerInstance.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1871,6 +1870,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerInstance.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1897,7 +1897,6 @@ stages:
       LogAnalyticsWorkspaceKey: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceKeyforPipeline.LogAnalyticsWorkspaceKey'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerInstance.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1905,6 +1904,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ContainerInstance.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1931,7 +1931,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1939,6 +1938,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1965,7 +1965,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -1973,6 +1972,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -1999,7 +1999,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -2007,6 +2006,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
@@ -2032,7 +2032,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -2075,7 +2074,6 @@ stages:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
-    condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -2083,6 +2081,7 @@ stages:
             # ========================================= DOWNLOAD AZDOCS =========================================
             - task: DownloadPipelineArtifact@2
               displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true'))
               inputs:
                 buildType: specific
                 project: $(AzDocsTeamProjectId)
