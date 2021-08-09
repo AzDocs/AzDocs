@@ -11,6 +11,7 @@ parameters:
 
 stages:
 - stage: ${{ parameters.EnvironmentName }}
+  condition: not(canceled())
   displayName: ${{ format('Deploy to {0}', parameters.EnvironmentName) }}
   pool:
     vmImage: $(Stage.Pool)
