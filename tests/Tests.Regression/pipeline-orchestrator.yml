@@ -68,14 +68,11 @@ parameters:
     type: boolean
     default: true
 
-    
-
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
     include:
-    #- 'main'
-    - more-regression-tests
+    - main
 
 pool:
     vmImage: 'ubuntu-20.04'
