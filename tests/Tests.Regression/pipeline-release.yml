@@ -1914,7 +1914,7 @@ stages:
             # ========================================= SERVICE BUS =========================================
             - task: AzureCLI@2
               displayName: "Create (Public) ServiceBus Namespace"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'])
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
@@ -1947,7 +1947,7 @@ stages:
             # ========================================= SERVICE BUS =========================================
             - task: AzureCLI@2
               displayName: "Create (Private Endpoint) ServiceBus Namespace"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'])
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
@@ -1980,7 +1980,7 @@ stages:
             # ========================================= SERVICE BUS =========================================
             - task: AzureCLI@2
               displayName: "Create (VNet Whitelisting) ServiceBus Namespace"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'])
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ServiceBus.Enabled'], 'true'))
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
