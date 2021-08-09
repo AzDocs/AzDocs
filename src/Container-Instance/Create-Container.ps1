@@ -47,8 +47,10 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $ContainerName = $ContainerName.ToLower()
 $optionalParameters = @()
-if ($ContainerIpAddressType -eq "Private") {
-    if (!$ContainerVnetName -or !$ContainerVnetResourceGroupName -or !$ContainerSubnetName) {
+if ($ContainerIpAddressType -eq "Private")
+{
+    if (!$ContainerVnetName -or !$ContainerVnetResourceGroupName -or !$ContainerSubnetName)
+    {
         throw 'You have specified the container to be Private. Make sure to provide the values for ContainerVnetName, ContainerVnetResourceGroupName and ContainerSubnetName.'
     }
 
@@ -56,41 +58,50 @@ if ($ContainerIpAddressType -eq "Private") {
     $containerSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerVnetResourceGroupName --name $ContainerSubnetName --vnet-name $ContainerVnetName | ConvertFrom-Json).id
     $optionalParameters += "--vnet", "$vnetId", "--subnet", "$containerSubnetId"
 }
-else {
+else
+{
     # Check if we are making this resource public intentionally
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-if ($ContainerPorts) {
+if ($ContainerPorts)
+{
     # Add the ports (nasty hack)
     $optionalParameters += "--ports"
-    foreach ($port in ($ContainerPorts -split ' ')) {
+    foreach ($port in ($ContainerPorts -split ' '))
+    {
         $optionalParameters += $port
     }
 }
 
-if ($ImageRegistryLoginServer) {
+if ($ImageRegistryLoginServer)
+{
     $optionalParameters += "--registry-login-server", "$ImageRegistryLoginServer"
 }
 
-if ($ImageRegistryUserName) {
+if ($ImageRegistryUserName)
+{
     $optionalParameters += "--registry-username", "$ImageRegistryUserName"
 }
 
-if ($ImageRegistryPassword) {
+if ($ImageRegistryPassword)
+{
     $optionalParameters += "--registry-password", "$ImageRegistryPassword"
 }
 
-if ($ContainerEnvironmentVariables) {
+if ($ContainerEnvironmentVariables)
+{
     $optionalParameters += "--environment-variables", $ContainerEnvironmentVariables -split $ContainerEnvironmentVariablesDelimiter
 }
 
-if ($StorageAccountFileShareName -and $FileShareStorageAccountName -and $FileShareStorageAccountResourceGroupName -and $StorageAccountFileShareMountPath) {
+if ($StorageAccountFileShareName -and $FileShareStorageAccountName -and $FileShareStorageAccountResourceGroupName -and $StorageAccountFileShareMountPath)
+{
     $storageKey = Invoke-Executable az storage account keys list --resource-group $FileShareStorageAccountResourceGroupName --account-name $FileShareStorageAccountName --query=[0].value --output tsv
     $optionalParameters += "--azure-file-volume-share-name", "$StorageAccountFileShareName", "--azure-file-volume-account-name", "$FileShareStorageAccountName", "--azure-file-volume-account-key", "$storageKey", "--azure-file-volume-mount-path", "$StorageAccountFileShareMountPath"
 }
 
-if ($LogAnalyticsWorkspaceId -and $LogAnalyticsWorkspaceKey) {
+if ($LogAnalyticsWorkspaceId -and $LogAnalyticsWorkspaceKey)
+{
     $optionalParameters += '--log-analytics-workspace', "$LogAnalyticsWorkspaceId"
     $optionalParameters += '--log-analytics-workspace-key', "$LogAnalyticsWorkspaceKey"
 }
