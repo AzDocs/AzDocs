@@ -841,14 +841,15 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
                 arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -EnableExtensiveDiagnostics $true -ApplyToAllSlots $(ApplyToAllSlots)"
-            - task: AzureCLI@2
-              displayName: 'Add binding to App Service'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
-              inputs:
-                azureSubscription: '${{ parameters.SubscriptionName }}'
-                scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Add-Binding-To-App-Service.ps1'
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -DomainNameToBind 'public.dummy.com'"
+            # Add binding to App Service is impossible to run, because we have DNS involved.
+            #- task: AzureCLI@2
+            #  displayName: 'Add binding to App Service'
+            #  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+            #  inputs:
+            #    azureSubscription: '${{ parameters.SubscriptionName }}'
+            #    scriptType: pscore
+            #    scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Add-Binding-To-App-Service.ps1'
+            #    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -DomainNameToBind 'public.dummy.com'"
             - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
             - task: AzurePowerShell@5
               displayName: "Add Public Certificate to App Service"
