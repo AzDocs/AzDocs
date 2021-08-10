@@ -835,7 +835,7 @@ stages:
                 arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -EnableExtensiveDiagnostics $true -ApplyToAllSlots $(ApplyToAllSlots)"
             - task: AzureCLI@2
               displayName: 'Add binding to App Service'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
@@ -843,7 +843,7 @@ stages:
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -DomainNameToBind 'public.dummy.com'"
             - task: AzureCLI@2
               displayName: 'Add Public Certificate to App Service'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
@@ -901,7 +901,7 @@ stages:
                 arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -EnableExtensiveDiagnostics $true -ApplyToAllSlots $(ApplyToAllSlots)"
             - task: AzureCLI@2
               displayName: 'Add Public Certificate to App Service'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
@@ -959,7 +959,7 @@ stages:
                 arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -EnableExtensiveDiagnostics $true -ApplyToAllSlots $(ApplyToAllSlots)"
             - task: AzureCLI@2
               displayName: 'Add Public Certificate to App Service'
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
