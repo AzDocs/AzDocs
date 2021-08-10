@@ -55,7 +55,7 @@ parameters:
     default: false
   - name: ResourceCreation.FunctionApp.Enabled
     type: boolean
-    default: false
+    default: true
   - name: ResourceCreation.ContainerRegistry.Enabled
     type: boolean
     default: false
