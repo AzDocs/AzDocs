@@ -716,6 +716,7 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Create-App-Configuration.ps1'
                 arguments: "-AppConfigName '$(PublicAppConfigName)' -AppConfigLocation '$(AppConfigLocation)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppConfigSku '$(AppConfigSku)' -AppConfigAllowPublicAccess $true -ForcePublic"
+            - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
             - task: AzureCLI@2
               displayName: 'Import Json Configuration File'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
@@ -758,6 +759,7 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Create-App-Configuration.ps1'
                 arguments: "-AppConfigPrivateEndpointVnetResourceGroupName '$(AppConfigPrivateEndpointVnetResourceGroupName)' -AppConfigPrivateEndpointVnetName '$(AppConfigPrivateEndpointVnetName)' -AppConfigPrivateEndpointSubnetName '$(AppConfigPrivateEndpointSubnetName)' -AppConfigName '$(PrivateEndpointAppConfigName)' -AppConfigLocation '$(AppConfigLocation)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppConfigSku '$(AppConfigSku)' -AppConfigAllowPublicAccess $false"
+            - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
             - task: AzureCLI@2
               displayName: 'Import Json Configuration File'
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
