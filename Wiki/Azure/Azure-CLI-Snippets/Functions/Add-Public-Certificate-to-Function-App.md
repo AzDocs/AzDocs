@@ -19,14 +19,16 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Add Public Certificate to Function App'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-Public-Certificate-to-Function-App.ps1'
-               arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -CertificateNameForFunctionApp '$(CertificateNameForFunctionApp)' -CertificateFilePath '$(CertificateFilePath)'"
+- task: AzurePowerShell@5
+  displayName: "Add Public Certificate to Function App"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    ScriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Add-Public-Certificate-to-Function-App.ps1"
+    ScriptArguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -CertificateNameForFunctionApp '$(CertificateNameForFunctionApp)' -CertificateFilePath '$(CertificateFilePath)'"
+    FailOnStandardError: true
+    azurePowerShellVersion: LatestVersion
+    pwsh: true
 ```
 
 # Code

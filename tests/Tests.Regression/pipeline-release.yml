@@ -841,14 +841,16 @@ stages:
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Add-Binding-To-App-Service.ps1'
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -DomainNameToBind 'public.dummy.com'"
-            - task: AzureCLI@2
-              displayName: 'Add Public Certificate to App Service'
+            - task: AzurePowerShell@5
+              displayName: "Add Public Certificate to App Service"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
-                azureSubscription: '${{ parameters.SubscriptionName }}'
-                scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Add-Public-Certificate-to-App-Service.ps1'
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceCertificateName '$(AppServiceCertificateName)' -AppServiceCertificateFilePath '$(AppServiceCertificateFilePath)'"
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                ScriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Public-Certificate-to-App-Service.ps1"
+                ScriptArguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceCertificateName '$(AppServiceCertificateName)' -AppServiceCertificateFilePath '$(AppServiceCertificateFilePath)'"
+                FailOnStandardError: true
+                azurePowerShellVersion: LatestVersion
+                pwsh: true
   - deployment: "PrivateEndpoint_AppService"
     displayName: "App Service (Private Endpoint)"
     dependsOn: [ "ResourceGroup", "BaseResources", "AppServicePlan" ]
@@ -899,14 +901,16 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
                 arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -EnableExtensiveDiagnostics $true -ApplyToAllSlots $(ApplyToAllSlots)"
-            - task: AzureCLI@2
-              displayName: 'Add Public Certificate to App Service'
+            - task: AzurePowerShell@5
+              displayName: "Add Public Certificate to App Service"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
-                azureSubscription: '${{ parameters.SubscriptionName }}'
-                scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Add-Public-Certificate-to-App-Service.ps1'
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -AppServiceCertificateName '$(AppServiceCertificateName)' -AppServiceCertificateFilePath '$(AppServiceCertificateFilePath)'"
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                ScriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Public-Certificate-to-App-Service.ps1"
+                ScriptArguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -AppServiceCertificateName '$(AppServiceCertificateName)' -AppServiceCertificateFilePath '$(AppServiceCertificateFilePath)'"
+                FailOnStandardError: true
+                azurePowerShellVersion: LatestVersion
+                pwsh: true
   - deployment: "VNetWhitelist_AppService"
     displayName: "App Service (VNet Whitelisting)"
     dependsOn: [ "ResourceGroup", "BaseResources", "AppServicePlan" ]
@@ -957,14 +961,16 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
                 arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -EnableExtensiveDiagnostics $true -ApplyToAllSlots $(ApplyToAllSlots)"
-            - task: AzureCLI@2
-              displayName: 'Add Public Certificate to App Service'
+            - task: AzurePowerShell@5
+              displayName: "Add Public Certificate to App Service"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
               inputs:
-                azureSubscription: '${{ parameters.SubscriptionName }}'
-                scriptType: pscore
-                scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Add-Public-Certificate-to-App-Service.ps1'
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceCertificateName '$(AppServiceCertificateName)' -AppServiceCertificateFilePath '$(AppServiceCertificateFilePath)'"
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                ScriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Public-Certificate-to-App-Service.ps1"
+                ScriptArguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceCertificateName '$(AppServiceCertificateName)' -AppServiceCertificateFilePath '$(AppServiceCertificateFilePath)'"
+                FailOnStandardError: true
+                azurePowerShellVersion: LatestVersion
+                pwsh: true
   - deployment: "Public_Keyvault"
     displayName: "Keyvault (Public)"
     dependsOn: [ "ResourceGroup", "BaseResources" ]
