@@ -28,7 +28,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if (!$AppConfigPrivateEndpointVnetResourceGroupName -or !$AppConfigPrivateEndpointVnetName -or !$AppConfigPrivateEndpointSubnetName -or !$PrivateEndpointGroupId -or !$DNSZoneResourceGroupName -or !$AppConfigPrivateDnsZoneName)
+if (!$AppConfigPrivateEndpointVnetResourceGroupName -or !$AppConfigPrivateEndpointVnetName -or !$AppConfigPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$AppConfigPrivateDnsZoneName)
 {
     # Check if we are making this resource public intentionally
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic

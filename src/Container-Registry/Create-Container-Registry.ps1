@@ -2,8 +2,8 @@
 param (
     [Parameter(Mandatory)][string] $ContainerRegistryName,
     [Parameter(Mandatory)][string] $ContainerRegistryResourceGroupName,
-    [Parameter(Mandatory)][ValidateSet('', 'Basic', 'Standard', 'Premium')][string] $ContainerRegistrySku = 'Premium',
-    [Parameter(Mandatory)][bool] $ContainerRegistryEnableAdminUser = $false,
+    [Parameter()][ValidateSet('Basic', 'Standard', 'Premium')][string] $ContainerRegistrySku = 'Premium',
+    [Parameter()][bool] $ContainerRegistryEnableAdminUser = $false,
     
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -16,10 +16,10 @@ param (
     [Alias("VnetResourceGroupName")]
     [Parameter()][string] $ContainerRegistryPrivateEndpointVnetResourceGroupName,
     [Parameter()][string] $ContainerRegistryPrivateEndpointSubnetName,
-    [Parameter()][string] $PrivateEndpointGroupId,
     [Parameter()][string] $DNSZoneResourceGroupName,
+    [Parameter()][string] $PrivateEndpointGroupId = "registry",
     [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $ContainerRegistryPrivateDnsZoneName,
+    [Parameter()][string] $ContainerRegistryPrivateDnsZoneName = "privatelink.azurecr.io",
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
