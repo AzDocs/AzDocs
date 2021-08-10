@@ -724,7 +724,7 @@ stages:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Import-Json-Configuration-File.ps1'
-                arguments: "-AppConfigName '$(PublicAppConfigName)' -Label '$(AppConfigLabel)' -JsonFilePath 'tests/Test.Regression/Pipeline.TestFiles/appconfig.json' -KeyPrefix '$(AppConfigKeyPrefix)'"
+                arguments: "-AppConfigName '$(PublicAppConfigName)' -Label '$(AppConfigLabel)' -JsonFilePath '$(Pipeline.Workspace)/s/tests/Test.Regression/Pipeline.TestFiles/appconfig.json' -KeyPrefix '$(AppConfigKeyPrefix)'"
   - deployment: "PrivateEndpoint_AppConfig"
     displayName: "AppConfig (Private Endpoint)"
     dependsOn: [ "ResourceGroup", "BaseResources" ]
@@ -767,7 +767,7 @@ stages:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Import-Json-Configuration-File.ps1'
-                arguments: "-AppConfigName '$(PrivateEndpointAppConfigName)' -Label '$(AppConfigLabel)' -JsonFilePath 'tests/Test.Regression/Pipeline.TestFiles/appconfig.json' -KeyPrefix '$(AppConfigKeyPrefix)'"
+                arguments: "-AppConfigName '$(PrivateEndpointAppConfigName)' -Label '$(AppConfigLabel)' -JsonFilePath '$(Pipeline.Workspace)/s/tests/Test.Regression/Pipeline.TestFiles/appconfig.json' -KeyPrefix '$(AppConfigKeyPrefix)'"
   - deployment: "Public_AppService"
     displayName: "App Service (Public)"
     dependsOn: [ "ResourceGroup", "BaseResources", "AppServicePlan" ]
