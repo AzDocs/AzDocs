@@ -4,6 +4,7 @@
 #
 # Make sure to have the following vars in your pipeline variables:
 #   CompanyName: Your company name. This will be used to randomize url's to avoid collision with other companies' deployments. Please stick to only alphanumeric characters (no hyphens, spaces or dots etc).
+#   ResourcePassword: The password you want to use for several resources like MSSQL, MySQL & PostgreSQL
 #   AzDocsTeamProjectId: Azure DevOps Project ID (GUID) for your AzDocs TeamProject
 #   AzDocsBuildDefinitionId: The build definition id of your AzDocs build (int)
 #   GatewayIngressDomainName: The domainname you want to use as your entrypoint for this test application. This should be matching the certificate details below.

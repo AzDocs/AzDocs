@@ -222,7 +222,7 @@ stages:
     - name: PublicSqlServerName
       value: $(ResourceBaseName)-psql-${{ parameters.EnvironmentName }}
     - name: SqlServerPassword
-      value: s0m3Nic3Passw0rd123
+      value: $(ResourcePassword)
     - name: SqlServerResourceGroupName
       value: $(ResourceGroupName)
     - name: SqlServerUsername
@@ -286,7 +286,7 @@ stages:
     - name: MySqlServerUsername
       value: mysqluser
     - name: MySqlServerPassword
-      value: s0m3Nic3Passw0rd123
+      value: $(ResourcePassword)
     - name: MySqlServerResourceGroupName
       value: $(ResourceGroupName)
     - name: MySqlServerSkuName
@@ -314,7 +314,7 @@ stages:
     - name: PostgreSqlServerUsername
       value: postgresqluser
     - name: PostgreSqlServerPassword
-      value: s0m3Nic3Passw0rd123
+      value: $(ResourcePassword)
     - name: PostgreSqlServerSku
       value: GP_Gen5_2
     - name: BackupRetentionInDays
