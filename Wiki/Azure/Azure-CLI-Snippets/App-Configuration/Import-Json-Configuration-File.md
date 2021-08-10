@@ -8,13 +8,13 @@ This snippet will import a JSON file into the AppConfiguration resource.
 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter             | Example Value                            | Description                                                                                                                                              |
-| --------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AppConfigName         | `myappconfig-$(Release.EnvironmentName)` | This is the app configuration name to use.                                                                                                               |
-| Label                 | `$(Release.EnvironmentName)`             | This label will be applied to all imported keyvaluepairs. Can be kept empty for no label.                                                                |
-| JsonFilePath          | `/some/path/appsettings.json`            | Path to the JSON file to be imported.                                                                                                                    |
-| KeyValuePairSeparator | `:`                                      | Delimiter for flattening the json or yaml file to key-value pairs.                                                                                       |
-| KeyPrefix             | `myapplicationname`                      | This prefix will be appended to the front of imported keys. With this prefix you can separate the configurations for different applications for example. |
+| Parameter             | Required                        | Example Value                            | Description                                                                                                                                              |
+| --------------------- | ------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AppConfigName         | <input type="checkbox" checked> | `myappconfig-$(Release.EnvironmentName)` | This is the app configuration name to use.                                                                                                               |
+| Label                 | <input type="checkbox" checked> | `$(Release.EnvironmentName)`             | This label will be applied to all imported keyvaluepairs. Can be kept empty for no label.                                                                |
+| JsonFilePath          | <input type="checkbox" checked> | `/some/path/appsettings.json`            | Path to the JSON file to be imported.                                                                                                                    |
+| KeyValuePairSeparator | <input type="checkbox">         | `:`                                      | Delimiter for flattening the json or yaml file to key-value pairs.                                                                                       |
+| KeyPrefix             | <input type="checkbox" checked> | `myapplicationname`                      | This prefix will be appended to the front of imported keys. With this prefix you can separate the configurations for different applications for example. |
 
 # YAML
 
