@@ -74,6 +74,7 @@ trigger:
   branches:
     include:
     - main
+    - more-regression-tests
 
 pool:
     vmImage: 'ubuntu-20.04'
