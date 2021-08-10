@@ -88,7 +88,8 @@ stages:
     - name: AppServiceCertificateName
       value: MyRootCA
     - name: AppServiceCertificateFilePath
-      value: tests/Tests.Regresion/Pipeline.TestFiles/AzDocsDummyRootCA.cer
+      value: tests/Tests.Regression/Pipeline.TestFiles/AzDocsDummyRootCA.cer
+      
 
     # App Service AppSettings
     - name: AppServiceAppSettings
@@ -206,7 +207,7 @@ stages:
     - name: FunctionAppCertificateName
       value: MyRootCA
     - name: FunctionAppCertificateFilePath
-      value: tests/Tests.Regresion/Pipeline.TestFiles/AzDocsDummyRootCA.cer
+      value: tests/Tests.Regression/Pipeline.TestFiles/AzDocsDummyRootCA.cer
 
 
     # Keyvault
