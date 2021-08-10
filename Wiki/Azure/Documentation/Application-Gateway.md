@@ -18,16 +18,14 @@ Minimal TLS Version: `1.2`
 
 Ciphers in order:
 
-- `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384` <-- Strong
-- `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256` <-- Strong
-- `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384` <-- Strong
-- `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` <-- Strong
-- `TLS_DHE_RSA_WITH_AES_256_GCM_SHA384` <-- Strong
-- `TLS_DHE_RSA_WITH_AES_128_GCM_SHA256` <-- Strong
-- `TLS_RSA_WITH_AES_256_GCM_SHA384` <-- Fallback. Strong enough, but mainly for backwards compatibility
-- `TLS_RSA_WITH_AES_128_GCM_SHA256` <-- Fallback. Strong enough, but mainly for backwards compatibility
+- `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`
+- `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`
+- `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384`
+- `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256`
+- `TLS_DHE_RSA_WITH_AES_256_GCM_SHA384`
+- `TLS_DHE_RSA_WITH_AES_128_GCM_SHA256`
 
-The strong ciphers are supported by mainly all devices since 2014.
+The above ciphers are supported by mainly all devices since 2014.
 
 If you are still using Windows Server 2012 R2 machines, follow [this link](https://docs.microsoft.com/nl-nl/mem/configmgr/core/plan-design/security/enable-tls-1-2-client) to make TLS 1.2 work with this OS. To be able to reach Azure through the application gateways, you will need to add support for TLS 1.2 to Windows Server 2012 R2 machines.
 
