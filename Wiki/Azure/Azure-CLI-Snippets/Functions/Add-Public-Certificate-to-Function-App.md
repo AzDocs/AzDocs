@@ -11,8 +11,8 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 |--|--|--|
 | FunctionAppName | `myteamtestapi$(Release.EnvironmentName)` | The name of the function app. It's recommended to stick to lowercase alphanumeric characters. |
 | FunctionAppResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The resourcegroup where the function app resides in
-| CertificateNameForFunctionApp | `My Root CA` | The name which the certificate will have once it is uploaded in the function app (this doesn't have to be the same as the filename). A smart reference to the contents of the certificate is advised. |
-| CertificateFilePath | `$(my_pfx.secureFilePath)` |The path where the .cer file can be found. In a release, use the .cer you uploaded in (It's recommended to stick to lowercase alphanumeric characters when naming the .cer files in the portal) "secure files" (Pipelines\Library) and use the task "download a secure file". Set the certificatePath in the task output variables Reference name |
+| FunctionAppCertificateName | `My Root CA` | The name which the certificate will have once it is uploaded in the function app (this doesn't have to be the same as the filename). A smart reference to the contents of the certificate is advised. |
+| FunctionAppCertificateFilePath | `$(my_pfx.secureFilePath)` |The path where the .cer file can be found. In a release, use the .cer you uploaded in (It's recommended to stick to lowercase alphanumeric characters when naming the .cer files in the portal) "secure files" (Pipelines\Library) and use the task "download a secure file". Set the certificatePath in the task output variables Reference name |
 
 # YAML
 
@@ -25,7 +25,7 @@ Be aware that this YAML example contains all parameters that can be used with th
   inputs:
     azureSubscription: "${{ parameters.SubscriptionName }}"
     ScriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Add-Public-Certificate-to-Function-App.ps1"
-    ScriptArguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -CertificateNameForFunctionApp '$(CertificateNameForFunctionApp)' -CertificateFilePath '$(CertificateFilePath)'"
+    ScriptArguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppCertificateName '$(FunctionAppCertificateName)' -FunctionAppCertificateFilePath '$(FunctionAppCertificateFilePath)'"
     FailOnStandardError: true
     azurePowerShellVersion: LatestVersion
     pwsh: true
