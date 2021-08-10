@@ -723,6 +723,7 @@ stages:
               inputs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
+                failOnStandardError: true
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Import-Json-Configuration-File.ps1'
                 arguments: "-AppConfigName '$(PublicAppConfigName)' -Label '$(AppConfigLabel)' -JsonFilePath 'tests/Tests.Regression/Pipeline.TestFiles/appconfig.json' -KeyPrefix '$(AppConfigKeyPrefix)'"
   - deployment: "PrivateEndpoint_AppConfig"
@@ -766,6 +767,7 @@ stages:
               inputs:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
+                failOnStandardError: true
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Import-Json-Configuration-File.ps1'
                 arguments: "-AppConfigName '$(PrivateEndpointAppConfigName)' -Label '$(AppConfigLabel)' -JsonFilePath 'tests/Tests.Regression/Pipeline.TestFiles/appconfig.json' -KeyPrefix '$(AppConfigKeyPrefix)'"
   - deployment: "Public_AppService"
@@ -860,6 +862,14 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-VNet-integration-to-AppService.ps1"
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -AppServiceVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -AppServiceVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: AzureCLI@2
+              displayName: "Create Application Insights Extension for WebApps codeless"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
+                arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(PrivateEndpointAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -ApplyToAllSlots $(ApplyToAllSlots)"
   - deployment: "VNetWhitelist_AppService"
     displayName: "App Service (VNet Whitelisting)"
     dependsOn: [ "ResourceGroup", "BaseResources", "AppServicePlan" ]
@@ -902,6 +912,14 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-VNet-integration-to-AppService.ps1"
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceVnetIntegrationVnetName '$(AppServiceVnetIntegrationVnetName)' -AppServiceVnetIntegrationSubnetName '$(AppServiceVnetIntegrationSubnetName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: AzureCLI@2
+              displayName: "Create Application Insights Extension for WebApps codeless"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-Application-Insights-Extension-for-WebApps-codeless.ps1"
+                arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(VNetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -ApplyToAllSlots $(ApplyToAllSlots)"
   - deployment: "Public_Keyvault"
     displayName: "Keyvault (Public)"
     dependsOn: [ "ResourceGroup", "BaseResources" ]
