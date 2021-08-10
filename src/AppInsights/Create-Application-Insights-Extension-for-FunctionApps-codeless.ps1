@@ -56,12 +56,12 @@ if ($ApplyToAllSlots)
 }
 
 # Setup AppInsights for the given deployment slot (or default production slot)
-SetupAppInsights -AppInsightsName $AppInsightsName -AppInsightsResourceGroupName $AppInsightsResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppResourceGroupName $FunctionAppResourceGroupName -AppServiceSlotName $AppServiceSlotName
+SetupAppInsights -AppInsightsName $AppInsightsName -AppInsightsResourceGroupName $AppInsightsResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppResourceGroupName $FunctionAppResourceGroupName -EnableExtensiveDiagnostics $EnableExtensiveDiagnostics -AppServiceSlotName $AppServiceSlotName
 
 # Apply to all slots if desired
 foreach ($availableSlot in $availableSlots)
 {
-    SetupAppInsights -AppInsightsName $AppInsightsName -AppInsightsResourceGroupName $AppInsightsResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppResourceGroupName $FunctionAppResourceGroupName -AppServiceSlotName $availableSlot.name
+    SetupAppInsights -AppInsightsName $AppInsightsName -AppInsightsResourceGroupName $AppInsightsResourceGroupName -FunctionAppName $FunctionAppName -FunctionAppResourceGroupName $FunctionAppResourceGroupName -EnableExtensiveDiagnostics $EnableExtensiveDiagnostics -AppServiceSlotName $availableSlot.name
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
