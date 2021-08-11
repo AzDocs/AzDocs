@@ -87,10 +87,6 @@ $webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $a
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $webAppId -ResourceTags ${ResourceTags}
 
-## Update RunTime
-#Set-AppServiceRunTime -AppServiceName $AppServiceName -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceRunTime $AppServiceRunTime
-
-
 # Stop immediately if desired
 if ($StopAppServiceImmediatelyAfterCreation)
 {
