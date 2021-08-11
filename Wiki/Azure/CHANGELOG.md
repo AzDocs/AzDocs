@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.08.10]
+
+- Fix for backwards-compatibility with diagnostic settings.
+- Forcing that the log retention on a Log Analytics Workspace is set to 180 days.
+- Forcing that the expiry date of a key or secret is not longer thant 397 days.
+- Added `KeyExpiresInDays` to `Create-Keyvault-Key.ps1`. Defaults to 397 days.
+- Added `KeyNotBeforeInDays` to `Create-Keyvault-Key.ps1`.
+
+## Breaking Changes
+
+- In script `Create-Keyvault-Secret` changed parameter `SecretExpires` in `SecretExpiresInDays` and `SecretNotBefore` in `SecretNotBeforeInDays`. This means the expiration date will now be calculated for you, and you are able to specify this by using days.
+
 ## [2021.08.09]
 
 - Renamed `Get-Log-Analytics-Workspace-Id-for-Pipeline` to `Get-Log-Analytics-Workspace-ResourceId-for-Pipeline` because this script retrieves the resource id instead of the (Customer) ID.

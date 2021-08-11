@@ -5,7 +5,7 @@ param (
     [Alias("LawName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
     [Alias("LawRetentionInDays")]
-    [Parameter()][int] $LogAnalyticsWorkspaceRetentionInDays = 30,
+    [Parameter()][int][ValidateRange(180, 730)] $LogAnalyticsWorkspaceRetentionInDays = 180,
     [Parameter()][switch] $PublicInterfaceIngestionEnabled,
     [Parameter()][switch] $PublicInterfaceQueryAccess,
     [Parameter(Mandatory)][System.Object[]] $ResourceTags,
