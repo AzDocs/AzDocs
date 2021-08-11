@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.08.11]
+
+- Added support for updating Tags on resources (`Set-ResourceTagsForResource`).
+- Added support for updating runtimes on app services (`Set-AppServiceRunTime`).
+
 ## [2021.08.09]
 
 - Renamed `Get-Log-Analytics-Workspace-Id-for-Pipeline` to `Get-Log-Analytics-Workspace-ResourceId-for-Pipeline` because this script retrieves the resource id instead of the (Customer) ID.

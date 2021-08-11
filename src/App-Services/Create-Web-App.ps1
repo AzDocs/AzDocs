@@ -78,17 +78,24 @@ if ($AppServiceRunTime)
     $optionalParameters += '--runtime', "$AppServiceRunTime"
 }
 
-# Create AppService
-Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters
+# Fetch the ID from the AppService
+$webAppId = (Invoke-Executable -AllowToFail az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
+
+# Create/Update AppService
+$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters | ConvertFrom-Json).id
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $webAppId -ResourceTags ${ResourceTags}
+
+## Update RunTime
+#Set-AppServiceRunTime -AppServiceName $AppServiceName -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceRunTime $AppServiceRunTime
+
 
 # Stop immediately if desired
 if ($StopAppServiceImmediatelyAfterCreation)
 {
     Invoke-Executable az webapp stop --name $AppServiceName --resource-group $AppServiceResourceGroupName
 }
-
-# Fetch the ID from the AppService
-$webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
 
 # Enforce HTTPS
 Invoke-Executable az webapp update --ids $webAppId --https-only true
