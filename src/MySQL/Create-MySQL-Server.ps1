@@ -50,17 +50,22 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
 Assert-TLSVersion -TlsVersion $MySqlServerMinimalTlsVersion -ForceDisableTls $ForceDisableTLS
 
 # Create MySQL Server.
-#$mySqlServerId = (Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id
-#if (!$mySqlServerId)
-#{
-#    $additionalParameters = @()
-#    if ($MySqlServerMinimalTlsVersion)
-#    {
-#        $additionalParameters += '--minimal-tls-version', $MySqlServerMinimalTlsVersion
-#    }
-#
-$mySqlServerId = (Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
-#}
+$mySqlServerId = (Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id
+
+$additionalParameters = @()
+if ($MySqlServerMinimalTlsVersion)
+{
+    $additionalParameters += '--minimal-tls-version', $MySqlServerMinimalTlsVersion
+}
+
+if (!$mySqlServerId)
+{
+    $mySqlServerId = (Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+}
+else
+{
+    Invoke-Executable az mysql server update --admin-password $MySqlServerPassword --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags ${ResourceTags} @additionalParameters
+}
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $mySqlServerId -ResourceTags ${ResourceTags}
