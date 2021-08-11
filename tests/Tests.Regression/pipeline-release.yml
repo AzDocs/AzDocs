@@ -886,7 +886,7 @@ stages:
                 FailOnStandardError: true
                 azurePowerShellVersion: LatestVersion
                 pwsh: true
-  - deployment: "VNetWhitelist_AppService"
+  - deployment: "VNetWhitelisting_AppService"
     displayName: "App Service (VNet Whitelisting)"
     dependsOn: [ "ResourceGroup", "BaseResources", "AppServicePlan" ]
     environment:
@@ -1844,8 +1844,8 @@ stages:
                 FailOnStandardError: true
                 azurePowerShellVersion: LatestVersion
                 pwsh: true
-  - deployment: "AppService_PostConfiguration"
-    displayName: "App Service (Post Configuration)"
+  - deployment: "Public_AppService_PostConfiguration"
+    displayName: "App Service (Public) Post Configuration"
     dependsOn: [ "ResourceGroup", "BaseResources", "Public_AppService"]
     environment:
       name: ${{ parameters.EnvironmentName }}
@@ -1911,6 +1911,77 @@ stages:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 appType: "webAppLinux"
                 WebAppName: "$(PublicAppServiceName)"
+                deployToSlotOrASE: true
+                ResourceGroupName: "$(AppServiceResourceGroupName)"
+                SlotName: "$(AppServiceDeploymentSlotName)"
+                packageForLinux: "$(System.ArtifactsDirectory)/Website_zip/website.zip"
+  - deployment: "VnetWhitelisting_AppService_PostConfiguration"
+    displayName: "App Service (VNet Whitelisting) Post Configuration"
+    dependsOn: [ "ResourceGroup", "BaseResources", "VnetWhitelisting_AppService"]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= APP SERVICE POST-CREATION CONFIGURATION =========================================
+            - task: AzureCLI@2
+              displayName: "Set AppSettings For AppService"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -ApplyToAllSlots $(ApplyToAllSlots)"
+            - task: AzureCLI@2
+              displayName: "Set ConnectionStrings For AppService"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-ConnectionStrings-For-AppService.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -ApplyToAllSlots $(ApplyToAllSlots)"
+            # ========================================= APP SERVICE CONTENT DEPLOYMENT =========================================
+            - task: AzureCLI@2
+              displayName: "Add Network Whitelist to App Service"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Network-Whitelist-to-App-Service.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
+            - task: DownloadBuildArtifacts@0
+              displayName: Download Application Binaries to deploy
+              condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                buildType: "current"
+                downloadType: "single"
+                artifactName: "Website_zip"
+                downloadPath: "$(System.ArtifactsDirectory)"
+            - task: AzureRmWebAppDeployment@4
+              displayName: Deploy Application Binaries to Azure App Service
+              condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                ConnectionType: "AzureRM"
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                appType: "webAppLinux"
+                WebAppName: "$(VnetWhitelistingAppServiceName)"
                 deployToSlotOrASE: true
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SlotName: "$(AppServiceDeploymentSlotName)"
@@ -2216,9 +2287,9 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
                 arguments: "-ServiceBusNamespaceName '$(VnetWhitelistingServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
-  - deployment: "AppService_SwapSlots"
-    displayName: App Service (Swap Slots)
-    dependsOn: [ "ResourceGroup", "BaseResources", "Public_AppService", "AppService_PostConfiguration"]
+  - deployment: "Public_AppService_SwapSlots"
+    displayName: App Service (Public) Swap Slots
+    dependsOn: [ "ResourceGroup", "BaseResources", "Public_AppService", "Public_AppService_PostConfiguration"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
@@ -2251,9 +2322,44 @@ stages:
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SourceSlot: "$(AppServiceDeploymentSlotName)"
                 PreserveVnet: true
+  - deployment: "VnetWhitelisting_AppService_SwapSlots"
+    displayName: App Service (VNet Whitelisting) Swap Slots
+    dependsOn: [ "ResourceGroup", "BaseResources", "VnetWhitelisting_AppService", "VnetWhitelisting_AppService_PostConfiguration"]
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= SWAP APPSERVICE SLOTS =========================================
+            - task: AzureAppServiceManage@0
+              displayName: Swap Staging slot to Production
+              condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                Action: "Swap Slots"
+                WebAppName: "$(VnetWhitelistingAppServiceName)"
+                ResourceGroupName: "$(AppServiceResourceGroupName)"
+                SourceSlot: "$(AppServiceDeploymentSlotName)"
+                PreserveVnet: true
   - deployment: "Remove_AppService_Network_Whitelist"
     displayName: App Service (Remove Network Whitelist)
-    dependsOn: [ "AppService_SwapSlots" ]
+    dependsOn: [ "VnetWhitelisting_AppService_SwapSlots" ]
     condition: always()
     environment:
       name: ${{ parameters.EnvironmentName }}
@@ -2284,10 +2390,10 @@ stages:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -ApplyToAllSlots $true"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -ApplyToAllSlots $true"
   - deployment: "ApplicationGateway_PostConfiguration"
     displayName: Application Gateway (Post Configuration)
-    dependsOn: [ "ResourceGroup", "BaseResources", "ApplicationGateway", "AppService_SwapSlots"]
+    dependsOn: [ "ResourceGroup", "BaseResources", "ApplicationGateway", "Public_AppService_SwapSlots"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
