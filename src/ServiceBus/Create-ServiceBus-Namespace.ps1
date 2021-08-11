@@ -36,8 +36,10 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags $ResourceTags
-$serviceBusNamespaceId = (Invoke-Executable az servicebus namespace show --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName | ConvertFrom-Json).id
+$serviceBusNamespaceId = (Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags $ResourceTags).id
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $serviceBusNamespaceId -ResourceTags ${ResourceTags}
 
 # VNET Whitelisting (only supported in SKU Premium)
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)

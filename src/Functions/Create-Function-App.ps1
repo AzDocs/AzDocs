@@ -74,6 +74,9 @@ if (!$functionAppId)
     $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 }
 
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $functionAppId -ResourceTags ${ResourceTags}
+
 # Enforce HTTPS
 Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=true
 

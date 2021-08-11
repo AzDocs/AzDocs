@@ -50,6 +50,9 @@ Assert-TLSVersion -TlsVersion $StorageAccountMinimalTlsVersion
 # Create StorageAccount with the appropriate tags
 $storageAccountId = (Invoke-Executable az storage account create --name $StorageAccountName --resource-group $StorageAccountResourceGroupName --kind $StorageAccountKind --sku $StorageAccountSku --allow-blob-public-access $StorageAccountAllowBlobPublicAccess --tags ${ResourceTags} --min-tls-version $StorageAccountMinimalTlsVersion | ConvertFrom-Json).id
 
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $storageAccountId -ResourceTags ${ResourceTags}
+
 # VNET Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {

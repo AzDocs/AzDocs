@@ -50,17 +50,20 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
 Assert-TLSVersion -TlsVersion $MySqlServerMinimalTlsVersion -ForceDisableTls $ForceDisableTLS
 
 # Create MySQL Server.
-$mySqlServerId = (Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id
-if (!$mySqlServerId)
-{
-    $additionalParameters = @()
-    if ($MySqlServerMinimalTlsVersion)
-    {
-        $additionalParameters += '--minimal-tls-version', $MySqlServerMinimalTlsVersion
-    }
+#$mySqlServerId = (Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id
+#if (!$mySqlServerId)
+#{
+#    $additionalParameters = @()
+#    if ($MySqlServerMinimalTlsVersion)
+#    {
+#        $additionalParameters += '--minimal-tls-version', $MySqlServerMinimalTlsVersion
+#    }
+#
+$mySqlServerId = (Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+#}
 
-    $mySqlServerId = (Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
-}
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $mySqlServerId -ResourceTags ${ResourceTags}
 
 if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEndpointVnetName -and $MySqlServerPrivateEndpointSubnetName -and $MySqlServerPrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {

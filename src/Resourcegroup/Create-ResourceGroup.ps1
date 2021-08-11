@@ -12,6 +12,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-Invoke-Executable az group create --location $ResourceGroupLocation --name $ResourceGroupName --tags @ResourceTags
+$resourceGroupId = (Invoke-Executable az group create --location $ResourceGroupLocation --name $ResourceGroupName --tags @ResourceTags).id
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $resourceGroupId -ResourceTags ${ResourceTags}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

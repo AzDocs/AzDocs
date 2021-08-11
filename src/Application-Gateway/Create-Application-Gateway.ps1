@@ -14,7 +14,8 @@ param (
     [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName,
     [Parameter()][bool] $EnableWafPreventionMode = $false,
     [Parameter()][string] $WafRuleSetType = "OWASP",
-    [Parameter()][string] $WafRuleSetVersion = "3.0", 
+    [Parameter()][string] $WafRuleSetVersion = "3.0",
+    [Parameter()][System.Object[]] $ResourceTags,
 
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
@@ -35,7 +36,13 @@ $publicIpId = (Invoke-Executable az network public-ip show --resource-group $App
 
 Write-Host "PublicIp: $publicIpId"
 
-Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId
+$applicationGatewayId = (Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId | ConvertFrom-Json).id
+
+# Update Tags
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $applicationGatewayId -ResourceTags ${ResourceTags}
+}
 
 if ($ApplicationGatewaySku -contains "WAF")
 {
@@ -62,7 +69,6 @@ Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointSer
 Invoke-Executable az keyvault network-rule add --resource-group $CertificateKeyvaultResourceGroupName --name $CertificateKeyvaultName --subnet $gatewaySubnetId
 
 # Add diagnostic settings to Application Gateway
-$applicationGatewayId = (Invoke-Executable az network application-gateway show --resource-group $ApplicationGatewayResourceGroupName --name $ApplicationGatewayName | ConvertFrom-Json).id
 Set-DiagnosticSettings -ResourceId $applicationGatewayId -ResourceName $ApplicationGatewayName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'ApplicationGatewayAccessLog', 'enabled': true }, { 'category': 'ApplicationGatewayPerformanceLog', 'enabled': true }, { 'category': 'ApplicationGatewayFirewallLog', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

@@ -78,10 +78,7 @@ if ($AppServiceRunTime)
     $optionalParameters += '--runtime', "$AppServiceRunTime"
 }
 
-# Fetch the ID from the AppService
-$webAppId = (Invoke-Executable -AllowToFail az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
-
-# Create/Update AppService
+# Create/Update AppService & Fetch the ID from the AppService
 $webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters | ConvertFrom-Json).id
 
 # Update Tags
