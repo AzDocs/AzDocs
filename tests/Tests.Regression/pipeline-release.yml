@@ -2286,6 +2286,40 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
+  - deployment: "Remove_AppService_Network_Whitelist"
+    displayName: App Service (Remove Network Whitelist)
+    dependsOn: [ "AppService_SwapSlots" ]
+    condition: always()
+    environment:
+      name: ${{ parameters.EnvironmentName }}
+    variables:
+      LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 1
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # ========================================= DOWNLOAD AZDOCS =========================================
+            - task: DownloadPipelineArtifact@2
+              displayName: Download AzDocs
+              inputs:
+                buildType: specific
+                project: $(AzDocsTeamProjectId)
+                definition: $(AzDocsBuildDefinitionId)
+                buildVersionToDownload: latestFromBranch
+                branchName: $(Build.SourceBranch)
+                artifactName: azdocs-src
+                targetPath: $(Pipeline.Workspace)/AzDocs
+            # ========================================= SWAP APPSERVICE SLOTS =========================================
+            - task: AzureCLI@2
+              displayName: "Remove Network Whitelist from App Service"
+              condition: always()
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
+                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -ApplyToAllSlots $true"
   - deployment: "ApplicationGateway_PostConfiguration"
     displayName: Application Gateway (Post Configuration)
     dependsOn: [ "ResourceGroup", "BaseResources", "ApplicationGateway", "VnetWhitelist_AppService", "AppService_PostConfiguration", "AppService_SwapSlots"]
