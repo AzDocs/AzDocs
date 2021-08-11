@@ -24,14 +24,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Set Keyvault Permissions for AppService Identity'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Set-Keyvault-Permissions-for-AppService-Identity.ps1'
-               arguments: "-AppServiceName '$(AppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -KeyvaultCertificatePermissions '$(KeyvaultCertificatePermissions)' -KeyvaultKeyPermissions '$(KeyvaultKeyPermissions)' -KeyvaultSecretPermissions '$(KeyvaultSecretPermissions)' -KeyvaultStoragePermissions '$(KeyvaultStoragePermissions)' -KeyvaultName '$(KeyvaultName)' -AppServiceSlotName '$(AppServiceSlotName)'"
+- task: AzureCLI@2
+  displayName: "Set Keyvault Permissions for AppService Identity"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Set-Keyvault-Permissions-for-AppService-Identity.ps1"
+    arguments: "-AppServiceName '$(AppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -KeyvaultCertificatePermissions '$(KeyvaultCertificatePermissions)' -KeyvaultKeyPermissions '$(KeyvaultKeyPermissions)' -KeyvaultSecretPermissions '$(KeyvaultSecretPermissions)' -KeyvaultStoragePermissions '$(KeyvaultStoragePermissions)' -KeyvaultName '$(KeyvaultName)' -AppServiceSlotName '$(AppServiceSlotName)'"
 ```
 
 # Code
