@@ -19,52 +19,52 @@
 parameters:
   - name: ResourceCreation.ResourceGroup.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.AppInsights.Enabled
     type: boolean
     default: true
   - name: ResourceCreation.Networking.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.AppService.Enabled
     type: boolean
     default: true
   - name: ResourceCreation.AppConfiguration.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.Keyvault.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.MSSQL.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.MySQL.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.PostgreSQL.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.RedisCache.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.StorageAccounts.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.FunctionApp.Enabled
     type: boolean
     default: true
   - name: ResourceCreation.ContainerRegistry.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.ContainerInstance.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.ServiceBus.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.ApplicationGateway.Enabled
     type: boolean
     default: true
