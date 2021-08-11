@@ -38,15 +38,15 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-## TODO: Check if keyvault needs to be created. Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/issues/13752
-#$keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }
-#if (!$keyvaultExists)
-#{
-$keyvaultId = (Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku standard --bypass None --tags ${ResourceTags} | ConvertFrom-Json).id
-#}
+# TODO: Check if keyvault needs to be created. Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/issues/13752
+$keyvaultId = (Invoke-Executable -AllowToFail az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
+if (!$keyvaultId)
+{
+    $keyvaultId = (Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku standard --bypass None --tags ${ResourceTags} | ConvertFrom-Json).id
+}
 
-## Fetch the Keyvault ID to use while creating the Diagnostics settings in the next step
-#$keyvaultId = (Invoke-Executable az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
+# Fetch the Keyvault ID to use while creating the Diagnostics settings in the next step
+$keyvaultId = (Invoke-Executable az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $keyvaultId -ResourceTags ${ResourceTags}

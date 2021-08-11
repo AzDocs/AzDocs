@@ -36,7 +36,14 @@ $publicIpId = (Invoke-Executable az network public-ip show --resource-group $App
 
 Write-Host "PublicIp: $publicIpId"
 
-$applicationGatewayId = (Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId | ConvertFrom-Json).id
+$applicationGatewayId = (Invoke-Executable az network application-gateway show --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
+
+if (!$applicationGatewayId)
+{
+    Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId
+}
+
+$applicationGatewayId = (Invoke-Executable az network application-gateway show --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
 
 # Update Tags
 if ($ResourceTags)
