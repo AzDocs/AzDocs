@@ -42,7 +42,7 @@ else
     $scriptArguments += "--query-access", "Disabled"
 }
 
-$logAnalyticsWorkspaceId = (Invoke-Executable az monitor log-analytics workspace create @scriptArguments).id
+$logAnalyticsWorkspaceId = (Invoke-Executable az monitor log-analytics workspace create @scriptArguments | ConvertFrom-Json).id
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $logAnalyticsWorkspaceId -ResourceTags ${ResourceTags}

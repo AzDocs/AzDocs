@@ -15,10 +15,10 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-#if(!$(Invoke-Executable -AllowToFail az network vnet show --resource-group $VnetResourceGroupName --name $VnetName))
-#{
-Invoke-Executable az network vnet create --resource-group $VnetResourceGroupName --name $VnetName --dns-servers $DNSServers --address-prefixes $VnetCidr --tags ${ResourceTags}
-#}
+if (!$(Invoke-Executable -AllowToFail az network vnet show --resource-group $VnetResourceGroupName --name $VnetName))
+{
+    Invoke-Executable az network vnet create --resource-group $VnetResourceGroupName --name $VnetName --dns-servers $DNSServers --address-prefixes $VnetCidr --tags ${ResourceTags}
+}
 
 #if(!$(Invoke-Executable -AllowToFail az network vnet subnet show --resource-group $VnetResourceGroupName --name $SubnetName --vnet-name $VnetName))
 #{
