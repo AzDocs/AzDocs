@@ -25,7 +25,7 @@ parameters:
     default: false
   - name: ResourceCreation.AppInsights.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.Networking.Enabled
     type: boolean
     default: false
@@ -55,7 +55,7 @@ parameters:
     default: false
   - name: ResourceCreation.FunctionApp.Enabled
     type: boolean
-    default: true
+    default: false
   - name: ResourceCreation.ContainerRegistry.Enabled
     type: boolean
     default: false

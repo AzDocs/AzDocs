@@ -2286,14 +2286,6 @@ stages:
                 ResourceGroupName: "$(AppServiceResourceGroupName)"
                 SourceSlot: "$(AppServiceDeploymentSlotName)"
                 PreserveVnet: true
-            - task: AzureCLI@2
-              displayName: "Remove Network Whitelist from App Service"
-              condition: always()
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
-                arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
   - deployment: "Remove_AppService_Network_Whitelist"
     displayName: App Service (Remove Network Whitelist)
     dependsOn: [ "AppService_SwapSlots" ]
@@ -2319,7 +2311,7 @@ stages:
                 branchName: $(Build.SourceBranch)
                 artifactName: azdocs-src
                 targetPath: $(Pipeline.Workspace)/AzDocs
-            # ========================================= SWAP APPSERVICE SLOTS =========================================
+            # ========================================= REMOVE NETWORK WHITELIST FROM APPSERVICE =========================================
             - task: AzureCLI@2
               displayName: "Remove Network Whitelist from App Service"
               condition: always()
@@ -2330,7 +2322,7 @@ stages:
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -ApplyToAllSlots $true"
   - deployment: "ApplicationGateway_PostConfiguration"
     displayName: Application Gateway (Post Configuration)
-    dependsOn: [ "ResourceGroup", "BaseResources", "ApplicationGateway", "VnetWhitelist_AppService", "AppService_PostConfiguration", "AppService_SwapSlots"]
+    dependsOn: [ "AppService_SwapSlots"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
@@ -2364,7 +2356,7 @@ stages:
                 retryCount: "5"
             - task: AzureCLI@2
               displayName: "Add Agent IP to Keyvaultwhitelist"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true'))
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
@@ -2380,7 +2372,7 @@ stages:
                 arguments: '-CertificatePath "$(certificateDownload.secureFilePath)" -DomainName "$(GatewayIngressDomainName)" -Gatewayname "$(ApplicationGatewayName)" -gatewayType "$(GatewayType)" -CertificateKeyvaultName "$(VNetWhitelistingKeyvaultName)" -certificatePassword "$(GatewayCertificatePassword)" -backendDomainName "$(BackendDomainName)" -healthProbePath "$(HealthProbePath)" -gatewayruletype "$(GatewayRuleType)" -healthProbeInterval "$(HealthProbeInterval)" -healthProbeThreshold "$(HealthProbeThreshold)" -healthProbeTimeout "$(HealthProbeTimeout)" -healthProbeProtocol "$(HealthProbeProtocol)" -httpsSettingsProtocol "$(HttpsSettingsProtocol)" -httpsSettingsPort "$(HttpsSettingsPort)" -httpsSettingsCookieAffinity "$(HttpsSettingsCookieAffinity)" -httpsSettingsConnectionDrainingTimeout "$(HttpsSettingsConnectionDrainingTimeout)" -httpsSettingsTimeout "$(HttpsSettingsTimeout)" -matchStatusCodes "$(MatchStatusCodes)" -ApplicationGatewayResourceGroupName "$(ApplicationGatewayResourceGroupName)" -CertificateKeyvaultResourceGroupName "$(KeyvaultResourceGroupName)"'
             - task: AzureCLI@2
               displayName: "Remove Agent IP to Keyvaultwhitelist"
-              condition: always()
+              condition: eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true')
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
