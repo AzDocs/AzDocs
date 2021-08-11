@@ -28,12 +28,12 @@ function Set-DiagnosticSettings
 
     # For backwards compatibility, remove the old diagnostic settings 
     $oldDiagnosticSettings = Invoke-Executable az monitor diagnostic-settings list --resource $ResourceId | ConvertFrom-Json
-    foreach ($oldDiagnosticSettingName in $oldDiagnosticSettings.value.name)
+    foreach ($oldDiagnosticSetting in $oldDiagnosticSettings.value)
     {
-        if ($oldDiagnosticSettingName -and $oldDiagnosticSettingName -ne $diagnosticSettingName)
+        if ($oldDiagnosticSetting.name -and $oldDiagnosticSetting.name -ne $diagnosticSettingName -and $oldDiagnosticSetting.workspaceId -eq $LogAnalyticsWorkspaceResourceId)
         {
             # remove old diagnostic setting
-            Invoke-Executable az monitor diagnostic-settings delete --name $oldDiagnosticSettingName --resource $ResourceId
+            Invoke-Executable az monitor diagnostic-settings delete --name $oldDiagnosticSetting.name --resource $ResourceId
         }
     }
 
