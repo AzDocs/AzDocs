@@ -36,7 +36,7 @@ $publicIpId = (Invoke-Executable az network public-ip show --resource-group $App
 
 Write-Host "PublicIp: $publicIpId"
 
-$applicationGatewayId = (Invoke-Executable az network application-gateway show --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
+$applicationGatewayId = (Invoke-Executable -AllowToFail az network application-gateway show --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
 
 if (!$applicationGatewayId)
 {
