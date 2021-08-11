@@ -149,7 +149,7 @@ stages:
     - name: BackendDomainName
       value: $(VNetWhitelistingAppServiceName).azurewebsites.net
     - name: HealthProbePath
-      value: "/HealthCheck"
+      value: "/"
     - name: GatewayRuleType
       value: "Basic"
     - name: HealthProbeInterval
