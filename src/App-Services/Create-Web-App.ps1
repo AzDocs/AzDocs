@@ -119,6 +119,10 @@ if ($EnableAppServiceDeploymentSlot)
     }
 
     $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json).id
+
+    # Update Tags
+    Set-ResourceTagsForResource -ResourceId $webAppStagingId -ResourceTags ${ResourceTags}
+
     Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --min-tls-version $AppServiceMinimalTlsVersion --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceDeploymentSlotName
