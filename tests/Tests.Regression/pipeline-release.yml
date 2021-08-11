@@ -2287,7 +2287,7 @@ stages:
                 arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -ApplyToAllSlots $true"
   - deployment: "ApplicationGateway_PostConfiguration"
     displayName: Application Gateway (Post Configuration)
-    dependsOn: [ "AppService_SwapSlots"]
+    dependsOn: [ "ResourceGroup", "BaseResources", "ApplicationGateway", "AppService_SwapSlots"]
     environment:
       name: ${{ parameters.EnvironmentName }}
     variables:
