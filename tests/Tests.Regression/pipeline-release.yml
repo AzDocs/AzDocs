@@ -1560,7 +1560,7 @@ stages:
             # ========================================= STORAGE ACCOUNTS =========================================
             - task: PowerShell@2
               displayName: Generate StorageAccountNames
-              name: GenerateStorageAccountNames
+              name: GeneratePublicStorageAccountName
               inputs:
                 targetType: "inline"
                 script: |
@@ -1574,7 +1574,7 @@ stages:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1'
-                arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(GenerateStorageAccountNames.PublicStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -StorageAccountAllowBlobPublicAccess $true -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ForcePublic"
+                arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(GeneratePublicStorageAccountName.PublicStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -StorageAccountAllowBlobPublicAccess $true -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ForcePublic"
   - deployment: "PrivateEndpoint_StorageAccount"
     displayName: "Storage Account (Private Endpoint)"
     dependsOn: [ "ResourceGroup", "BaseResources" ]
@@ -1603,7 +1603,7 @@ stages:
             # ========================================= STORAGE ACCOUNTS =========================================
             - task: PowerShell@2
               displayName: Generate StorageAccountNames
-              name: GenerateStorageAccountNames
+              name: GeneratePrivateEndpointStorageAccountName
               inputs:
                 targetType: "inline"
                 script: |
@@ -1617,7 +1617,7 @@ stages:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1'
-                arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(GenerateStorageAccountNames.PrivateEndpointStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -StorageAccountPrivateEndpointVnetName '$(StorageAccountPrivateEndpointVnetName)' -StorageAccountPrivateEndpointVnetResourceGroupName '$(StorageAccountPrivateEndpointVnetResourceGroupName)' -StorageAccountPrivateEndpointSubnetName '$(StorageAccountPrivateEndpointSubnetName)' -PrivateEndpointGroupId '$(StorageAccountPrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -StorageAccountPrivateDnsZoneName '$(StorageAccountPrivateDnsZoneName)'"
+                arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(GeneratePrivateEndpointStorageAccountName.PrivateEndpointStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -StorageAccountPrivateEndpointVnetName '$(StorageAccountPrivateEndpointVnetName)' -StorageAccountPrivateEndpointVnetResourceGroupName '$(StorageAccountPrivateEndpointVnetResourceGroupName)' -StorageAccountPrivateEndpointSubnetName '$(StorageAccountPrivateEndpointSubnetName)' -PrivateEndpointGroupId '$(StorageAccountPrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -StorageAccountPrivateDnsZoneName '$(StorageAccountPrivateDnsZoneName)'"
   - deployment: "VNetWhitelisting_StorageAccount"
     displayName: "Storage Account (VNet Whitelisting)"
     dependsOn: [ "ResourceGroup", "BaseResources" ]
@@ -1646,7 +1646,7 @@ stages:
             # ========================================= STORAGE ACCOUNTS =========================================
             - task: PowerShell@2
               displayName: Generate StorageAccountNames
-              name: GenerateStorageAccountNames
+              name: GenerateVnetWhitelistingStorageAccountName
               inputs:
                 targetType: "inline"
                 script: |
@@ -1660,7 +1660,7 @@ stages:
                 azureSubscription: '${{ parameters.SubscriptionName }}'
                 scriptType: pscore
                 scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1'
-                arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(GenerateStorageAccountNames.VNetWhitelistingStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+                arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
   - deployment: "Public_FunctionApp"
     displayName: "Function App (Public)"
     dependsOn: [ "ResourceGroup", "BaseResources", "Public_StorageAccount"]
@@ -1668,6 +1668,7 @@ stages:
       name: ${{ parameters.EnvironmentName }}
     variables:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+      PublicStorageAccountNameToLower: $[ dependencies.Public_StorageAccount.outputs['Public_StorageAccount.GeneratePublicStorageAccountName.PublicStorageAccountNameToLower'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
     strategy:
@@ -1729,6 +1730,7 @@ stages:
       name: ${{ parameters.EnvironmentName }}
     variables:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+      PrivateEndpointStorageAccountNameToLower: $[ dependencies.PrivateEndpoint_StorageAccount.outputs['PrivateEndpoint_StorageAccount.GeneratePrivateEndpointStorageAccountName.PrivateEndpointStorageAccountNameToLower'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
     strategy:
@@ -1790,6 +1792,7 @@ stages:
       name: ${{ parameters.EnvironmentName }}
     variables:
       LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+      VNetWhitelistingStorageAccountNameToLower: $[ dependencies.VNetWhitelisting_StorageAccount.outputs['VNetWhitelisting_StorageAccount.GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower'] ]
     timeoutInMinutes: 360
     cancelTimeoutInMinutes: 1
     strategy:
@@ -2425,6 +2428,14 @@ stages:
                 secureFile: $(GatewayCertificateSecureFileName)
                 retryCount: "5"
             - task: AzureCLI@2
+              displayName: "Add Network Whitelist to Keyvault"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Add-Network-Whitelist-to-Keyvault.ps1"
+                arguments: "-KeyvaultName '$(PublicKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)'"
+            - task: AzureCLI@2
               displayName: "Create Application Gateway Entrypoint for DomainName"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true'))
               inputs:
@@ -2432,3 +2443,11 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1"
                 arguments: '-CertificatePath "$(certificateDownload.secureFilePath)" -DomainName "$(GatewayIngressDomainName)" -Gatewayname "$(ApplicationGatewayName)" -gatewayType "$(GatewayType)" -CertificateKeyvaultName "$(PublicKeyvaultName)" -certificatePassword "$(GatewayCertificatePassword)" -backendDomainName "$(BackendDomainName)" -healthProbePath "$(HealthProbePath)" -gatewayruletype "$(GatewayRuleType)" -healthProbeInterval "$(HealthProbeInterval)" -healthProbeThreshold "$(HealthProbeThreshold)" -healthProbeTimeout "$(HealthProbeTimeout)" -healthProbeProtocol "$(HealthProbeProtocol)" -httpsSettingsProtocol "$(HttpsSettingsProtocol)" -httpsSettingsPort "$(HttpsSettingsPort)" -httpsSettingsCookieAffinity "$(HttpsSettingsCookieAffinity)" -httpsSettingsConnectionDrainingTimeout "$(HttpsSettingsConnectionDrainingTimeout)" -httpsSettingsTimeout "$(HttpsSettingsTimeout)" -matchStatusCodes "$(MatchStatusCodes)" -ApplicationGatewayResourceGroupName "$(ApplicationGatewayResourceGroupName)" -CertificateKeyvaultResourceGroupName "$(KeyvaultResourceGroupName)"'
+            - task: AzureCLI@2
+              displayName: "Remove Network Whitelist from Keyvault"
+              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              inputs:
+                azureSubscription: "${{ parameters.SubscriptionName }}"
+                scriptType: pscore
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Remove-Network-Whitelist-from-Keyvault.ps1"
+                arguments: "-KeyvaultName '$(PublicKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)'"
