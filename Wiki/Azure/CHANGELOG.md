@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.08.11]
+
+- Added support for updating Tags on resources in a generic way (`Set-ResourceTagsForResource`).
+- Refactored some code and removed some unneeded CLI statements.
+
 ## [2021.08.10]
 
 - Fix for backwards-compatibility with diagnostic settings.

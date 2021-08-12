@@ -3,6 +3,7 @@ param (
     [Parameter(Mandatory)][string] $AppConfigResourceGroupName,
     [Parameter(Mandatory)][string] $AppConfigName,
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter()][string] $AppConfigLocation = "westeurope",
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter()][ValidateSet("Free", "Standard")][string] $AppConfigSku = 'Standard',
@@ -34,12 +35,14 @@ if (!$AppConfigPrivateEndpointVnetResourceGroupName -or !$AppConfigPrivateEndpoi
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
+# Create AppConfig with the appropriate tags & Fetch the App Config ID to use while creating the Diagnostics settings in the next step
+$appConfigId = (Invoke-Executable az appconfig create --resource-group $AppConfigResourceGroupName --name $AppConfigName --location $AppConfigLocation --sku $AppConfigSku | ConvertFrom-Json).id
 
-# Create AppConfig with the appropriate tags
-Invoke-Executable az appconfig create --resource-group $AppConfigResourceGroupName --name $AppConfigName --location $AppConfigLocation --sku $AppConfigSku
-
-# Fetch the App Config ID to use while creating the Diagnostics settings in the next step
-$appConfigId = (Invoke-Executable az appconfig show --name $AppConfigName --resource-group $AppConfigResourceGroupName | ConvertFrom-Json).id
+# Update Tags
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $appConfigId -ResourceTags ${ResourceTags}
+}
 
 # Create diagnostics settings for the App Config resource
 Set-DiagnosticSettings -ResourceId $appConfigId -ResourceName $AppConfigName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')

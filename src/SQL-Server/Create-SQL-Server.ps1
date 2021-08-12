@@ -24,6 +24,8 @@ param (
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $SqlServerPrivateDnsZoneName = "privatelink.database.windows.net",
 
+    [Parameter()][System.Object[]] $ResourceTags,
+
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic
 )
@@ -44,13 +46,22 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
 Assert-TLSVersion -TlsVersion $SqlServerMinimalTlsVersion
 
 # Create SQL Server
-if (!(Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName))
+$sqlServerId = (Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).id
+if (!$sqlServerId)
 {
     Invoke-Executable az sql server create --admin-password $SqlServerPassword --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName --enable-public-network $SqlServerEnablePublicNetwork --minimal-tls-version $SqlServerMinimalTlsVersion
+    $sqlServerId = (Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).id
+}
+else
+{
+    Invoke-Executable az sql server update --admin-password $SqlServerPassword --name $SqlServerName --resource-group $SqlServerResourceGroupName --enable-public-network $SqlServerEnablePublicNetwork --minimal-tls-version $SqlServerMinimalTlsVersion
 }
 
-# Fetch the resource id for the just created SQL Server
-$sqlServerId = (Invoke-Executable az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).id
+# Update Tags
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $sqlServerId -ResourceTags ${ResourceTags}
+}
 
 if ($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpointVnetName -and $SqlServerPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $SqlServerPrivateDnsZoneName)
 {

@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $KeyvaultName,
     [Parameter(Mandatory)][string] $KeyvaultResourceGroupName,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
 
@@ -39,14 +39,17 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
 }
 
 # TODO: Check if keyvault needs to be created. Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/issues/13752
-$keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }
-if (!$keyvaultExists)
+$keyvaultId = (Invoke-Executable -AllowToFail az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
+if (!$keyvaultId)
 {
-    Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku standard --bypass None --tags ${ResourceTags}
+    $keyvaultId = (Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku standard --bypass None --tags ${ResourceTags} | ConvertFrom-Json).id
 }
 
 # Fetch the Keyvault ID to use while creating the Diagnostics settings in the next step
 $keyvaultId = (Invoke-Executable az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $keyvaultId -ResourceTags ${ResourceTags}
 
 # Create diagnostics settings for the Keyvault resource
 Set-DiagnosticSettings -ResourceId $keyvaultId -ResourceName $KeyvaultName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AuditEvent', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')

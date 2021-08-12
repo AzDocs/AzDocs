@@ -7,7 +7,7 @@ param (
     [Parameter(Mandatory)][ValidateSet('C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'P1', 'P2', 'P3', 'P4', 'P5')][string] $RedisInstanceVmSize,
     [Parameter()][bool] $RedisInstanceEnableNonSslPort = $false,
     [Parameter()][ValidateSet('1.0', '1.1', '1.2')][string] $RedisInstanceMinimalTlsVersion = '1.2',
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     
     # Private Endpoints
     [Parameter()][string] $RedisInstancePrivateEndpointVnetResourceGroupName,
@@ -35,30 +35,28 @@ if (!$RedisInstancePrivateEndpointVnetResourceGroupName -or !$RedisInstancePriva
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-# Create Redis Instance.
-$redisInstanceResourceId = (Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName | ConvertFrom-Json).id
-if (!$redisInstanceResourceId)
-{
-    # Assert TLS Version
-    Assert-TLSVersion -TlsVersion $RedisInstanceMinimalTlsVersion
+# Assert TLS Version
+Assert-TLSVersion -TlsVersion $RedisInstanceMinimalTlsVersion
 
-    $additionalParameters = @()
-    if ($RedisInstanceEnableNonSslPort)
-    {
-        $additionalParameters += '--enable-non-ssl-port'
-    }
-    if ($RedisInstanceSubnetId)
-    {
-        $additionalParameters += '--subnet-id', $RedisInstanceSubnetId
-    }
-    
-    $redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --minimum-tls-version $RedisInstanceMinimalTlsVersion --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
-    while (((Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json).provisioningState -eq 'Creating')
-    {
-        Write-Host "Redis still creating... waiting for it to complete..."
-        Start-Sleep -Seconds 60
-    }
+$additionalParameters = @()
+if ($RedisInstanceEnableNonSslPort)
+{
+    $additionalParameters += '--enable-non-ssl-port'
 }
+if ($RedisInstanceSubnetId)
+{
+    $additionalParameters += '--subnet-id', $RedisInstanceSubnetId
+}
+    
+$redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --minimum-tls-version $RedisInstanceMinimalTlsVersion --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+while (((Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json).provisioningState -eq 'Creating')
+{
+    Write-Host "Redis still creating... waiting for it to complete..."
+    Start-Sleep -Seconds 60
+}
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $redisInstanceResourceId -ResourceTags ${ResourceTags}
 
 if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivateEndpointVnetName -and $RedisInstancePrivateEndpointSubnetName -and $RedisInstancePrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {

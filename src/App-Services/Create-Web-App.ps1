@@ -8,7 +8,7 @@ param (
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter(Mandatory, ParameterSetName = 'default')][Parameter(Mandatory, ParameterSetName = 'DeploymentSlot')][string] $AppServiceRunTime,
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter()][bool] $StopAppServiceImmediatelyAfterCreation = $false,
     [Parameter()][bool] $StopAppServiceSlotImmediatelyAfterCreation = $false,
     [Parameter()][bool] $AppServiceAlwaysOn = $true,
@@ -78,17 +78,17 @@ if ($AppServiceRunTime)
     $optionalParameters += '--runtime', "$AppServiceRunTime"
 }
 
-# Create AppService
-Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters
+# Create/Update AppService & Fetch the ID from the AppService
+$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters | ConvertFrom-Json).id
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $webAppId -ResourceTags ${ResourceTags}
 
 # Stop immediately if desired
 if ($StopAppServiceImmediatelyAfterCreation)
 {
     Invoke-Executable az webapp stop --name $AppServiceName --resource-group $AppServiceResourceGroupName
 }
-
-# Fetch the ID from the AppService
-$webAppId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).id
 
 # Enforce HTTPS
 Invoke-Executable az webapp update --ids $webAppId --https-only true
@@ -116,6 +116,10 @@ if ($EnableAppServiceDeploymentSlot)
     }
 
     $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json).id
+
+    # Update Tags
+    Set-ResourceTagsForResource -ResourceId $webAppStagingId -ResourceTags ${ResourceTags}
+
     Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --min-tls-version $AppServiceMinimalTlsVersion --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceDeploymentSlotName
     Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceDeploymentSlotName

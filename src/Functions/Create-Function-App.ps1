@@ -13,7 +13,7 @@ param (
     [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT,
     [Parameter()][string] $FunctionAppNumberOfInstances = 2,
     [Parameter()][ValidateSet("dotnet-isolated", "dotnet", "node", "python", "custom", "java", "powershell")][string] $FunctionAppRuntime = "dotnet",
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][ValidateSet("Linux", "Windows")][string] $FunctionAppOSType,
     [Parameter()][string][ValidateSet("1.0", "1.1", "1.2")] $FunctionAppMinimalTlsVersion = "1.2",
 
@@ -73,6 +73,9 @@ if (!$functionAppId)
     Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlanId --os-type $FunctionAppOSType --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime $FunctionAppRuntime --functions-version 3 --disable-app-insights --tags ${ResourceTags}
     $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 }
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $functionAppId -ResourceTags ${ResourceTags}
 
 # Enforce HTTPS
 Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=true
