@@ -2428,14 +2428,6 @@ stages:
                 secureFile: $(GatewayCertificateSecureFileName)
                 retryCount: "5"
             - task: AzureCLI@2
-              displayName: "Add Network Whitelist to Keyvault"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Add-Network-Whitelist-to-Keyvault.ps1"
-                arguments: "-KeyvaultName '$(PublicKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)'"
-            - task: AzureCLI@2
               displayName: "Create Application Gateway Entrypoint for DomainName"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.ApplicationGateway.Enabled'], 'true'))
               inputs:
@@ -2443,11 +2435,3 @@ stages:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1"
                 arguments: '-CertificatePath "$(certificateDownload.secureFilePath)" -DomainName "$(GatewayIngressDomainName)" -Gatewayname "$(ApplicationGatewayName)" -gatewayType "$(GatewayType)" -CertificateKeyvaultName "$(PublicKeyvaultName)" -certificatePassword "$(GatewayCertificatePassword)" -backendDomainName "$(BackendDomainName)" -healthProbePath "$(HealthProbePath)" -gatewayruletype "$(GatewayRuleType)" -healthProbeInterval "$(HealthProbeInterval)" -healthProbeThreshold "$(HealthProbeThreshold)" -healthProbeTimeout "$(HealthProbeTimeout)" -healthProbeProtocol "$(HealthProbeProtocol)" -httpsSettingsProtocol "$(HttpsSettingsProtocol)" -httpsSettingsPort "$(HttpsSettingsPort)" -httpsSettingsCookieAffinity "$(HttpsSettingsCookieAffinity)" -httpsSettingsConnectionDrainingTimeout "$(HttpsSettingsConnectionDrainingTimeout)" -httpsSettingsTimeout "$(HttpsSettingsTimeout)" -matchStatusCodes "$(MatchStatusCodes)" -ApplicationGatewayResourceGroupName "$(ApplicationGatewayResourceGroupName)" -CertificateKeyvaultResourceGroupName "$(KeyvaultResourceGroupName)"'
-            - task: AzureCLI@2
-              displayName: "Remove Network Whitelist from Keyvault"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-              inputs:
-                azureSubscription: "${{ parameters.SubscriptionName }}"
-                scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Remove-Network-Whitelist-from-Keyvault.ps1"
-                arguments: "-KeyvaultName '$(PublicKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)'"
