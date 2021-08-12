@@ -13,7 +13,7 @@ param (
     [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT,
     [Parameter()][string] $FunctionAppNumberOfInstances = 2,
     [Parameter()][ValidateSet("dotnet-isolated", "dotnet", "node", "python", "custom", "java", "powershell")][string] $FunctionAppRuntime = "dotnet",
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][ValidateSet("Linux", "Windows")][string] $FunctionAppOSType,
     [Parameter()][string][ValidateSet("1.0", "1.1", "1.2")] $FunctionAppMinimalTlsVersion = "1.2",
 

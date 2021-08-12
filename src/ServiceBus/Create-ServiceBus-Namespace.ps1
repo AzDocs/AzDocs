@@ -3,7 +3,7 @@ param (
     [Parameter(Mandatory)][string] $ServiceBusNamespaceName,
     [Parameter(Mandatory)][string] $ServiceBusNamespaceResourceGroupName,
     [Parameter(Mandatory)][ValidateSet("Basic", "Standard", "Premium")][string] $ServiceBusNamespaceSku,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,

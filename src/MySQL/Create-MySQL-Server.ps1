@@ -7,7 +7,7 @@ param (
     [Parameter(Mandatory)][string] $MySqlServerResourceGroupName,
     [Parameter(Mandatory)][string] $MySqlServerSkuName,
     [Parameter(Mandatory)][string] $MySqlServerStorageSizeInMB,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter()][ValidateSet('TLS1_0', 'TLS1_1', 'TLS1_2', 'TLSEnforcementDisabled')][string] $MySqlServerMinimalTlsVersion = 'TLS1_2',
     # YES I KNOW. BUT THE CLI DOES NOT UNDERSTAND $FALSE & $TRUE :(
     [Parameter()][ValidateSet('Enabled', 'Disabled')][string] $MySqlServerSslEnforcement = 'Enabled',
