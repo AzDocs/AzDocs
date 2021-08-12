@@ -7,7 +7,7 @@ param (
     [Parameter(Mandatory)][ValidateSet('C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'P1', 'P2', 'P3', 'P4', 'P5')][string] $RedisInstanceVmSize,
     [Parameter()][bool] $RedisInstanceEnableNonSslPort = $false,
     [Parameter()][ValidateSet('1.0', '1.1', '1.2')][string] $RedisInstanceMinimalTlsVersion = '1.2',
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     
     # Private Endpoints
     [Parameter()][string] $RedisInstancePrivateEndpointVnetResourceGroupName,

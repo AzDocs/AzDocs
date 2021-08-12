@@ -2,7 +2,7 @@
 param (
     [Alias("StorageResourceGroupName")]
     [Parameter(Mandatory)][string] $StorageAccountResourceGroupName,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][string] $StorageAccountName,
     [Parameter()][string][ValidateSet("BlobStorage", "BlockBlobStorage", "FileStorage", "Storage", "StorageV2")] $StorageAccountKind = "StorageV2",
     [Parameter()][string][ValidateSet("Premium_LRS", "Premium_ZRS", "Standard_GRS", "Standard_GZRS", "Standard_LRS", "Standard_RAGRS", "Standard_RAGZRS", "Standard_ZRS")] $StorageAccountSku = "Standard_LRS",

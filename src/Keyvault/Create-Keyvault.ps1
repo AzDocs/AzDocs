@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $KeyvaultName,
     [Parameter(Mandatory)][string] $KeyvaultResourceGroupName,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
 

@@ -3,7 +3,7 @@ param (
     [Alias("Location")]
     [Parameter(Mandatory)][string] $ResourceGroupLocation,
     [Parameter(Mandatory)][string] $ResourceGroupName,
-    [Parameter(Mandatory)][string[]] $ResourceTags
+    [Parameter()][string[]] $ResourceTags
 )
 
 #region ===BEGIN IMPORTS===

@@ -8,7 +8,7 @@ param (
     [Parameter()][int] $LogAnalyticsWorkspaceRetentionInDays = 30,
     [Parameter()][switch] $PublicInterfaceIngestionEnabled,
     [Parameter()][switch] $PublicInterfaceQueryAccess,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter()][string[]] $LogAnalyticsWorkspaceSolutionTypes
 )
 

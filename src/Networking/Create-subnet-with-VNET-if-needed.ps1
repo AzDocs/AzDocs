@@ -6,7 +6,7 @@ param (
     [Parameter(Mandatory)][string] $SubnetName,
     [Parameter(Mandatory)][string] $Subnet,
     [Parameter()][string] $DNSServers = "168.63.129.16", #Defaults to Azure Private Endpoint DNS
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags
+    [Parameter()][System.Object[]] $ResourceTags
 )
 
 #region ===BEGIN IMPORTS===

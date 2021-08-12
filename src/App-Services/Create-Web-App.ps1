@@ -8,7 +8,7 @@ param (
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter(Mandatory, ParameterSetName = 'default')][Parameter(Mandatory, ParameterSetName = 'DeploymentSlot')][string] $AppServiceRunTime,
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter()][bool] $StopAppServiceImmediatelyAfterCreation = $false,
     [Parameter()][bool] $StopAppServiceSlotImmediatelyAfterCreation = $false,
     [Parameter()][bool] $AppServiceAlwaysOn = $true,
