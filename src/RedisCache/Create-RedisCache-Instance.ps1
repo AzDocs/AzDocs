@@ -35,10 +35,6 @@ if (!$RedisInstancePrivateEndpointVnetResourceGroupName -or !$RedisInstancePriva
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-# Create Redis Instance.
-#$redisInstanceResourceId = (Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName | ConvertFrom-Json).id
-#if (!$redisInstanceResourceId)
-#{
 # Assert TLS Version
 Assert-TLSVersion -TlsVersion $RedisInstanceMinimalTlsVersion
 
@@ -58,7 +54,6 @@ while (((Invoke-Executable az redis show --name $RedisInstanceName --resource-gr
     Write-Host "Redis still creating... waiting for it to complete..."
     Start-Sleep -Seconds 60
 }
-#}
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $redisInstanceResourceId -ResourceTags ${ResourceTags}
