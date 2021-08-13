@@ -7,7 +7,7 @@ param (
     [Parameter(Mandatory)][string] $MySqlServerResourceGroupName,
     [Parameter(Mandatory)][string] $MySqlServerSkuName,
     [Parameter(Mandatory)][string] $MySqlServerStorageSizeInMB,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter()][ValidateSet('TLS1_0', 'TLS1_1', 'TLS1_2', 'TLSEnforcementDisabled')][string] $MySqlServerMinimalTlsVersion = 'TLS1_2',
     # YES I KNOW. BUT THE CLI DOES NOT UNDERSTAND $FALSE & $TRUE :(
     [Parameter()][ValidateSet('Enabled', 'Disabled')][string] $MySqlServerSslEnforcement = 'Enabled',
@@ -51,16 +51,24 @@ Assert-TLSVersion -TlsVersion $MySqlServerMinimalTlsVersion -ForceDisableTls $Fo
 
 # Create MySQL Server.
 $mySqlServerId = (Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id
+
+$additionalParameters = @()
+if ($MySqlServerMinimalTlsVersion)
+{
+    $additionalParameters += '--minimal-tls-version', $MySqlServerMinimalTlsVersion
+}
+
 if (!$mySqlServerId)
 {
-    $additionalParameters = @()
-    if ($MySqlServerMinimalTlsVersion)
-    {
-        $additionalParameters += '--minimal-tls-version', $MySqlServerMinimalTlsVersion
-    }
-
     $mySqlServerId = (Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
 }
+else
+{
+    Invoke-Executable az mysql server update --admin-password $MySqlServerPassword --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --tags ${ResourceTags} @additionalParameters
+}
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $mySqlServerId -ResourceTags ${ResourceTags}
 
 if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEndpointVnetName -and $MySqlServerPrivateEndpointSubnetName -and $MySqlServerPrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {

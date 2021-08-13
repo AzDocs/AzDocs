@@ -3,7 +3,7 @@ param (
     [Parameter(Mandatory)][string] $ServiceBusNamespaceName,
     [Parameter(Mandatory)][string] $ServiceBusNamespaceResourceGroupName,
     [Parameter(Mandatory)][ValidateSet("Basic", "Standard", "Premium")][string] $ServiceBusNamespaceSku,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -36,8 +36,10 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags $ResourceTags
-$serviceBusNamespaceId = (Invoke-Executable az servicebus namespace show --name $ServiceBusNamespaceName --resource-group $ServiceBusNamespaceResourceGroupName | ConvertFrom-Json).id
+$serviceBusNamespaceId = (Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags $ResourceTags | ConvertFrom-Json).id
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $serviceBusNamespaceId -ResourceTags ${ResourceTags}
 
 # VNET Whitelisting (only supported in SKU Premium)
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)

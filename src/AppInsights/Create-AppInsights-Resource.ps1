@@ -4,7 +4,9 @@ param (
     [Parameter(Mandatory)][string] $AppInsightsResourceGroupName,
     [Alias("Location")]
     [Parameter(Mandatory)][string] $AppInsightsLocation, 
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+
+    [Parameter()][System.Object[]] $ResourceTags
 )
 
 #region ===BEGIN IMPORTS===
@@ -18,6 +20,12 @@ Invoke-Executable az extension add --name application-insights
 
 # Create Application Insights
 $applicationInsightsId = (Invoke-Executable az monitor app-insights component create --app $AppInsightsName --resource-group $AppInsightsResourceGroupName --location $AppInsightsLocation --workspace $LogAnalyticsWorkspaceResourceId | ConvertFrom-Json).id
+
+# Update Tags
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $applicationInsightsId -ResourceTags ${ResourceTags}
+}
 
 # Add diagnostic settings to Application Insights
 Set-DiagnosticSettings -ResourceId $applicationInsightsId -ResourceName $AppInsightsName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')

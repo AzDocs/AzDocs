@@ -35,6 +35,8 @@ param (
     [Parameter()][Guid] $LogAnalyticsWorkspaceId,
     [Parameter()][string] $LogAnalyticsWorkspaceKey,
 
+    [Parameter()][System.Object[]] $ResourceTags,
+
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic
 )
@@ -108,6 +110,12 @@ if ($LogAnalyticsWorkspaceId -and $LogAnalyticsWorkspaceKey)
 
 # TODO: Add managed identity when it's GA. https://docs.microsoft.com/en-us/azure/container-instances/container-instances-managed-identity
 # Create container instance
-Invoke-Executable az container create --name $ContainerName --resource-group $ContainerResourceGroupName --ip-address $ContainerIpAddressType --os-type $ContainerOS --cpu $ContainerCpuCount --memory $ContainerMemoryInGB --image $ContainerImageName @optionalParameters
+$containerId = (Invoke-Executable az container create --name $ContainerName --resource-group $ContainerResourceGroupName --ip-address $ContainerIpAddressType --os-type $ContainerOS --cpu $ContainerCpuCount --memory $ContainerMemoryInGB --image $ContainerImageName @optionalParameters | ConvertFrom-Json).id
+
+# Update Tags
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $containerId -ResourceTags ${ResourceTags}
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

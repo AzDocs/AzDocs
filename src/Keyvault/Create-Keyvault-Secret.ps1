@@ -3,8 +3,8 @@ param (
     [Parameter(Mandatory)][string] $KeyVaultName,
     [Parameter(Mandatory)][string] $SecretName,
     [Parameter()][string] $SecretDescription,
-    [Parameter()][string] $SecretExpires,
-    [Parameter()][string] $SecretNotBefore,
+    [Parameter()][int][ValidateRange(1, 397)]  $SecretExpiresInDays = 397,
+    [Parameter()][int][ValidateRange(0, [int]::MaxValue)] $SecretNotBeforeInDays = 0,
     [Alias("FilePath")]
     [Parameter(Mandatory, ParameterSetName = "File")][string] $SecretFilePath,
     [Alias("FileEncoding")]
@@ -19,27 +19,44 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$scriptArguments = "--vault-name", "$KeyVaultName", "--name", "$SecretName"
+Write-Host 'Check if secret exists in deleted state'
+if ($(Invoke-Executable -AllowToFail az keyvault secret show-deleted --vault-name $KeyVaultName --name $SecretName | ConvertFrom-Json))
+{
+    throw "Exception: Secret already exists in deleted state with name: $SecretName"
+}
 
-switch ($PSCmdlet.ParameterSetName) {
-    "File" {
+$scriptArguments = "--vault-name", "$KeyVaultName", "--name", "$SecretName"
+switch ($PSCmdlet.ParameterSetName)
+{
+    "File"
+    {
         $scriptArguments += "--encoding", "$SecretFileFileEncoding", "--file", "$SecretFilePath"
     }
-    "Value" {
+    "Value"
+    {
         $scriptArguments += "--value", "$SecretValue"
     }
 }
 
-if ($SecretDescription) {
+if ($SecretDescription)
+{
     $scriptArguments += "--description", "$SecretDescription"
 }
 
-if ($SecretExpires) {
-    $scriptArguments += "--expires", "$SecretExpires"
+if ($SecretExpiresInDays)
+{
+    # Calculate the date based upon the days
+    $expirationDate = Get-UtcDateStringFromNow -Days $SecretExpiresInDays
+    Write-Host "Expiration date: $expirationDate"
+    $scriptArguments += "--expires", "$expirationDate"
 }
 
-if ($SecretNotBefore) {
-    $scriptArguments += "--not-before", "$SecretNotBefore"
+if ($SecretNotBeforeInDays)
+{
+    # Calculate the date based upon the days
+    $beforeDate = Get-UtcDateStringFromNow -Days $SecretNotBeforeInDays
+    Write-Host "Not before date: $beforeDate"
+    $scriptArguments += "--not-before", "$beforeDate"
 }
 
 Invoke-Executable az keyvault secret set @scriptArguments

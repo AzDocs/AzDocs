@@ -10,7 +10,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | Parameter | Example Value | Description |
 |--|--|--|
 | FunctionAppName | `myteamtestapi$(Release.EnvironmentName)` | The name of the function app. It's recommended to stick to lowercase alphanumeric characters. |
-| FunctionAppVnetIntegrationName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET where to place the vnet-integration in. |
+| FunctionAppVnetIntegrationVnetName | `my-vnet-$(Release.EnvironmentName)` | The name of the VNET where to place the vnet-integration in. |
 | FunctionAppResourceGroupName | `MyTeam-TestApi-$(Release.EnvironmentName)` | The resourcegroup where the function app resides in
 | FunctionAppVnetIntegrationSubnetName | `app-subnet-4` | The name of the subnet to place the vnet-integration in. Note: Adding a function app vnetintegration to a subnet will delegate that entire subnet to the function apps. This means that no other resources can be placed inside this vnet (even no other appserviceplans). This has to be an empty subnet. |
 | FunctionAppServiceDeploymentSlotName | `staging` | OPTIONAL By default the production slot is used, use this variable to use a different slot. |
@@ -28,7 +28,7 @@ Be aware that this YAML example contains all parameters that can be used with th
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
                scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Add-VNet-integration-to-Function-App.ps1'
-               arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppVnetIntegrationName '$(FunctionAppVnetIntegrationName)' -FunctionAppVnetIntegrationSubnetName '$(FunctionAppVnetIntegrationSubnetName)' -FunctionAppServiceDeploymentSlotName '$(FunctionAppServiceDeploymentSlotName)' -ApplyToAllSlots $(ApplyToAllSlots) -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppVnetIntegrationName '$(FunctionAppVnetIntegrationName)' -FunctionAppVnetIntegrationSubnetName '$(FunctionAppVnetIntegrationSubnetName)' -FunctionAppServiceDeploymentSlotName '$(FunctionAppServiceDeploymentSlotName)'"
+               arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppVnetIntegrationVnetName '$(FunctionAppVnetIntegrationVnetName)' -FunctionAppVnetIntegrationSubnetName '$(FunctionAppVnetIntegrationSubnetName)' -FunctionAppServiceDeploymentSlotName '$(FunctionAppServiceDeploymentSlotName)' -ApplyToAllSlots $(ApplyToAllSlots)"
 ```
 
 # Code

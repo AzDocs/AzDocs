@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.08.11]
+
+- Added support for updating Tags on resources in a generic way (`Set-ResourceTagsForResource`).
+- Refactored some code and removed some unneeded CLI statements.
+
+## [2021.08.10]
+
+- Fix for backwards-compatibility with diagnostic settings.
+- Forcing that the log retention on a Log Analytics Workspace is set to 180 days.
+- Forcing that the expiry date of a key or secret is not longer thant 397 days.
+- Added `KeyExpiresInDays` to `Create-Keyvault-Key.ps1`. Defaults to 397 days.
+- Added `KeyNotBeforeInDays` to `Create-Keyvault-Key.ps1`.
+
+## Breaking Changes
+
+- In script `Create-Keyvault-Secret` changed parameter `SecretExpires` in `SecretExpiresInDays` and `SecretNotBefore` in `SecretNotBeforeInDays`. This means the expiration date will now be calculated for you, and you are able to specify this by using days.
+
+## [2021.08.09]
+
+- Renamed `Get-Log-Analytics-Workspace-Id-for-Pipeline` to `Get-Log-Analytics-Workspace-ResourceId-for-Pipeline` because this script retrieves the resource id instead of the (Customer) ID.
+- Added a new `Get-Log-Analytics-Workspace-Id-for-Pipeline` script which actually gets the (Customer) ID.
+- Expanded Regression Tests pipeline
+- Made Regression Tests pipeline parallel executable
+- Added toggles for enabling/disabling Regression Tests pipeline
+- Changed the behaviour for the `PostgreSqlServerPublicNetworkAccess` flag in `Create-PostgreSQL-Server` in combination with VNet whitelisting. From now on if you choose VNet whitelisting, the `PostgreSqlServerPublicNetworkAccess` will forcefully be enabled (this is needed for VNet whitelisting to work)
+- Loads of docs fixes
+
 ## [2021.08.05]
 
 ### Added
@@ -12,7 +39,7 @@ All notable changes to this project will be documented in this file.
 - Added parameter `FunctionAppMinimalTlsVersion` to `Create-Function-App.ps1`.
 - Added warnings when not using TLS version 1.2 or higher.
 - Added `-ForceDisableTLS` to the scripts which spin up resources that can allow this to avoid creating resources without TLS enforcement unintentionally.
-- Added a extra check for not allowing all access when setting the "Any" network whitelisting (0.0.0.0/*).
+- Added a extra check for not allowing all access when setting the "Any" network whitelisting (0.0.0.0/\*).
 
 ## [2021.07.30]
 

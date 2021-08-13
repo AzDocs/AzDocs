@@ -14,18 +14,10 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if ($ApplyToAllSlots)
-{
-    $availableSlots = Invoke-Executable -AllowToFail az webapp deployment slot list --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json
-}
+Write-Warning 'This script is deprecated. Please use the Create-Application-Insights-Extension-for-WebApps-codeless.ps1 instead.'
+Write-Host "##vso[task.complete result=SucceededWithIssues;]"
 
-# Set the AppInsights connection information on the AppService
-SetAppInsightsForAppService -AppInsightsName $AppInsightsName -AppInsightsResourceGroupName $AppInsightsResourceGroupName -AppServiceName $AppServiceName -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceSlotName $AppServiceSlotName
-
-# Apply to all slots if desired
-foreach($availableSlot in $availableSlots)
-{
-    SetAppInsightsForAppService -AppInsightsName $AppInsightsName -AppInsightsResourceGroupName $AppInsightsResourceGroupName -AppServiceName $AppServiceName -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceSlotName $availableSlot.name
-}
+# Create Web App
+& "$PSScriptRoot\Create-Application-Insights-Extension-for-WebApps-codeless.ps1" @PSBoundParameters
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

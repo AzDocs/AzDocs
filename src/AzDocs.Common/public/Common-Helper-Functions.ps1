@@ -118,3 +118,23 @@ function Get-Range($min, $max)
     
     Write-Output "$min-$max"
 }
+
+<#
+.SYNOPSIS
+Helper for calculating utc dates
+.DESCRIPTION
+Helper for calculating utc dates
+#>
+function Get-UtcDateStringFromNow
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][int] $Days
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    Write-Output (Get-Date -AsUTC).AddDays($Days) | Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}

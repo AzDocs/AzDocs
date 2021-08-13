@@ -2,6 +2,8 @@
 
 # Description
 
+<font color="red">NOTE: This script is now legacy. Please use `Create-Application-Insights-Extension-for-FunctionApps-(codeless)` instead of this task.</font>
+
 This snippet will add an existing AppInsights resource to your Function App.
 
 # Parameters

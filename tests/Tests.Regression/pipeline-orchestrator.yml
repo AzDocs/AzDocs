@@ -4,7 +4,7 @@
 #
 # Make sure to have the following vars in your pipeline variables:
 #   CompanyName: Your company name. This will be used to randomize url's to avoid collision with other companies' deployments. Please stick to only alphanumeric characters (no hyphens, spaces or dots etc).
-#   AzDocsBranch: the AzDocs branch to use. make sure this defaults to master. Optionally make this overridable at runtime.
+#   ResourcePassword: The password you want to use for several resources like MSSQL, MySQL & PostgreSQL
 #   AzDocsTeamProjectId: Azure DevOps Project ID (GUID) for your AzDocs TeamProject
 #   AzDocsBuildDefinitionId: The build definition id of your AzDocs build (int)
 #   GatewayIngressDomainName: The domainname you want to use as your entrypoint for this test application. This should be matching the certificate details below.
@@ -16,11 +16,65 @@
 #
 ##############################################################################################################################################################################################################################
 
+parameters:
+  - name: ResourceCreation.ResourceGroup.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.AppInsights.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.Networking.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.AppService.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.AppConfiguration.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.Keyvault.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.MSSQL.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.MySQL.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.PostgreSQL.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.RedisCache.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.StorageAccounts.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.FunctionApp.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.ContainerRegistry.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.ContainerInstance.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.ServiceBus.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.ApplicationGateway.Enabled
+    type: boolean
+    default: true
+
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
     include:
-    - 'more-regression-tests'
+    - main
+    - more-regression-tests
 
 pool:
     vmImage: 'ubuntu-20.04'
@@ -29,6 +83,42 @@ variables:
   # Basic
   - name: ProjectName 
     value: TestApi
+
+  # Switches
+  - name: ResourceCreation.ResourceGroup.Enabled
+    value: ${{ parameters['ResourceCreation.ResourceGroup.Enabled'] }}
+  - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
+    value: ${{ parameters['ResourceCreation.LogAnalyticsWorkspace.Enabled'] }}
+  - name: ResourceCreation.AppInsights.Enabled
+    value: ${{ parameters['ResourceCreation.AppInsights.Enabled'] }}
+  - name: ResourceCreation.Networking.Enabled
+    value: ${{ parameters['ResourceCreation.Networking.Enabled'] }}
+  - name: ResourceCreation.AppService.Enabled
+    value: ${{ parameters['ResourceCreation.AppService.Enabled'] }}
+  - name: ResourceCreation.Keyvault.Enabled
+    value: ${{ parameters['ResourceCreation.Keyvault.Enabled'] }}
+  - name: ResourceCreation.MSSQL.Enabled
+    value: ${{ parameters['ResourceCreation.MSSQL.Enabled'] }}
+  - name: ResourceCreation.MySQL.Enabled
+    value: ${{ parameters['ResourceCreation.MySQL.Enabled'] }}
+  - name: ResourceCreation.PostgreSQL.Enabled
+    value: ${{ parameters['ResourceCreation.PostgreSQL.Enabled'] }}
+  - name: ResourceCreation.RedisCache.Enabled
+    value: ${{ parameters['ResourceCreation.RedisCache.Enabled'] }}
+  - name: ResourceCreation.StorageAccounts.Enabled
+    value: ${{ parameters['ResourceCreation.StorageAccounts.Enabled'] }}
+  - name: ResourceCreation.FunctionApp.Enabled
+    value: ${{ parameters['ResourceCreation.FunctionApp.Enabled'] }}
+  - name: ResourceCreation.ContainerRegistry.Enabled
+    value: ${{ parameters['ResourceCreation.ContainerRegistry.Enabled'] }}
+  - name: ResourceCreation.ContainerInstance.Enabled
+    value: ${{ parameters['ResourceCreation.ContainerInstance.Enabled'] }}
+  - name: ResourceCreation.ApplicationGateway.Enabled
+    value: ${{ parameters['ResourceCreation.ApplicationGateway.Enabled'] }}
+  - name: ResourceCreation.ServiceBus.Enabled
+    value: ${{ parameters['ResourceCreation.ServiceBus.Enabled'] }}
+  - name: ResourceCreation.AppConfiguration.Enabled
+    value: ${{ parameters['ResourceCreation.AppConfiguration.Enabled'] }}
 
   # Tags
   - name: Tag.ApplicationId
@@ -55,16 +145,12 @@ stages:
 - stage: 'Build'
   jobs:
     - job: Build
+      condition: eq(variables['ResourceCreation.AppService.Enabled'], 'true')
       displayName: 'Build'
       steps:
        - template: pipeline-build.yml 
 
-- stage: 'dev'
-  displayName: 'Deploy to dev'
-  pool:
-    vmImage: $(Stage.Pool)
-  jobs:
-  - template: pipeline-release.yml 
-    parameters:
-      EnvironmentName: dev
-      SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION
+- template: pipeline-release.yml
+  parameters:
+    EnvironmentName: dev
+    SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION

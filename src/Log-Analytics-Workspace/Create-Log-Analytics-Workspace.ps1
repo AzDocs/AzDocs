@@ -5,10 +5,10 @@ param (
     [Alias("LawName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
     [Alias("LawRetentionInDays")]
-    [Parameter()][int] $LogAnalyticsWorkspaceRetentionInDays = 30,
+    [Parameter()][int][ValidateRange(180, 730)] $LogAnalyticsWorkspaceRetentionInDays = 180,
     [Parameter()][switch] $PublicInterfaceIngestionEnabled,
     [Parameter()][switch] $PublicInterfaceQueryAccess,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter()][string[]] $LogAnalyticsWorkspaceSolutionTypes
 )
 
@@ -42,7 +42,10 @@ else
     $scriptArguments += "--query-access", "Disabled"
 }
 
-Invoke-Executable az monitor log-analytics workspace create @scriptArguments
+$logAnalyticsWorkspaceId = (Invoke-Executable az monitor log-analytics workspace create @scriptArguments | ConvertFrom-Json).id
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $logAnalyticsWorkspaceId -ResourceTags ${ResourceTags}
 
 if ($LogAnalyticsWorkspaceSolutionTypes)
 {

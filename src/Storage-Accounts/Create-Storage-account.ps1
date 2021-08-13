@@ -2,7 +2,7 @@
 param (
     [Alias("StorageResourceGroupName")]
     [Parameter(Mandatory)][string] $StorageAccountResourceGroupName,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
+    [Parameter()][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][string] $StorageAccountName,
     [Parameter()][string][ValidateSet("BlobStorage", "BlockBlobStorage", "FileStorage", "Storage", "StorageV2")] $StorageAccountKind = "StorageV2",
     [Parameter()][string][ValidateSet("Premium_LRS", "Premium_ZRS", "Standard_GRS", "Standard_GZRS", "Standard_LRS", "Standard_RAGRS", "Standard_RAGZRS", "Standard_ZRS")] $StorageAccountSku = "Standard_LRS",
@@ -49,6 +49,9 @@ Assert-TLSVersion -TlsVersion $StorageAccountMinimalTlsVersion
 
 # Create StorageAccount with the appropriate tags
 $storageAccountId = (Invoke-Executable az storage account create --name $StorageAccountName --resource-group $StorageAccountResourceGroupName --kind $StorageAccountKind --sku $StorageAccountSku --allow-blob-public-access $StorageAccountAllowBlobPublicAccess --tags ${ResourceTags} --min-tls-version $StorageAccountMinimalTlsVersion | ConvertFrom-Json).id
+
+# Update Tags
+Set-ResourceTagsForResource -ResourceId $storageAccountId -ResourceTags ${ResourceTags}
 
 # VNET Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)

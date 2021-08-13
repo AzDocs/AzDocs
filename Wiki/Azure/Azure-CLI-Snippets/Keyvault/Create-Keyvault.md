@@ -54,14 +54,14 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create Keyvault'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1'
-               arguments: "-KeyvaultName '$(KeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -KeyvaultPrivateEndpointVnetResourceGroupName '$(KeyvaultPrivateEndpointVnetResourceGroupName)' -KeyvaultPrivateEndpointVnetName '$(KeyvaultPrivateEndpointVnetName)' -KeyvaultPrivateEndpointSubnetName '$(KeyvaultPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -KeyvaultPrivateDnsZoneName '$(KeyvaultPrivateDnsZoneName)'"
+- task: AzureCLI@2
+  displayName: "Create Keyvault"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1"
+    arguments: "-KeyvaultName '$(KeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -KeyvaultPrivateEndpointVnetResourceGroupName '$(KeyvaultPrivateEndpointVnetResourceGroupName)' -KeyvaultPrivateEndpointVnetName '$(KeyvaultPrivateEndpointVnetName)' -KeyvaultPrivateEndpointSubnetName '$(KeyvaultPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -KeyvaultPrivateDnsZoneName '$(KeyvaultPrivateDnsZoneName)'"
 ```
 
 # Code

@@ -6,7 +6,7 @@ param (
     [Parameter(Mandatory)][string] $SubnetName,
     [Parameter(Mandatory)][string] $Subnet,
     [Parameter()][string] $DNSServers = "168.63.129.16", #Defaults to Azure Private Endpoint DNS
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags
+    [Parameter()][System.Object[]] $ResourceTags
 )
 
 #region ===BEGIN IMPORTS===
@@ -15,12 +15,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if(!$(Invoke-Executable -AllowToFail az network vnet show --resource-group $VnetResourceGroupName --name $VnetName))
+if (!$(Invoke-Executable -AllowToFail az network vnet show --resource-group $VnetResourceGroupName --name $VnetName))
 {
     Invoke-Executable az network vnet create --resource-group $VnetResourceGroupName --name $VnetName --dns-servers $DNSServers --address-prefixes $VnetCidr --tags ${ResourceTags}
 }
 
-if(!$(Invoke-Executable -AllowToFail az network vnet subnet show --resource-group $VnetResourceGroupName --name $SubnetName --vnet-name $VnetName))
+if (!$(Invoke-Executable -AllowToFail az network vnet subnet show --resource-group $VnetResourceGroupName --name $SubnetName --vnet-name $VnetName))
 {
     Invoke-Executable az network vnet subnet create --resource-group $VnetResourceGroupName --vnet-name $VnetName --name $SubnetName --address-prefixes $Subnet
 }

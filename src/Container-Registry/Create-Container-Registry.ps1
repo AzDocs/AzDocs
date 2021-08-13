@@ -2,8 +2,8 @@
 param (
     [Parameter(Mandatory)][string] $ContainerRegistryName,
     [Parameter(Mandatory)][string] $ContainerRegistryResourceGroupName,
-    [Parameter(Mandatory)][ValidateSet('', 'Basic', 'Standard', 'Premium')][string] $ContainerRegistrySku = 'Premium',
-    [Parameter(Mandatory)][bool] $ContainerRegistryEnableAdminUser = $false,
+    [Parameter()][ValidateSet('Basic', 'Standard', 'Premium')][string] $ContainerRegistrySku = 'Premium',
+    [Parameter()][bool] $ContainerRegistryEnableAdminUser = $false,
     
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -16,13 +16,15 @@ param (
     [Alias("VnetResourceGroupName")]
     [Parameter()][string] $ContainerRegistryPrivateEndpointVnetResourceGroupName,
     [Parameter()][string] $ContainerRegistryPrivateEndpointSubnetName,
-    [Parameter()][string] $PrivateEndpointGroupId,
     [Parameter()][string] $DNSZoneResourceGroupName,
+    [Parameter()][string] $PrivateEndpointGroupId = "registry",
     [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $ContainerRegistryPrivateDnsZoneName,
+    [Parameter()][string] $ContainerRegistryPrivateDnsZoneName = "privatelink.azurecr.io",
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
+
+    [Parameter()][System.Object[]] $ResourceTags,
 
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
@@ -49,6 +51,12 @@ if ($ContainerRegistryEnableAdminUser)
 
 $containerRegistryId = (Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku $ContainerRegistrySku @scriptArguments | ConvertFrom-Json).id
 
+# Update Tags
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $containerRegistryId -ResourceTags ${ResourceTags}
+}
+
 # Private Endpoint
 if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName)
 {
@@ -57,9 +65,6 @@ if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndp
     $vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerRegistryPrivateEndpointVnetResourceGroupName --name $ContainerRegistryPrivateEndpointVnetName | ConvertFrom-Json).id
     $containerRegistryPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerRegistryPrivateEndpointVnetResourceGroupName --name $ContainerRegistryPrivateEndpointSubnetName --vnet-name $ContainerRegistryPrivateEndpointVnetName | ConvertFrom-Json).id
     $containerRegistryPrivateEndpointName = "$($ContainerRegistryName)-pvtacr-$($PrivateEndpointGroupId)"
-
-    # Fetch the ContainerRegistry ID to use while creating the Private Endpoint in the next step
-    $containerRegistryId = (Invoke-Executable az acr show --name $ContainerRegistryName --resource-group $ContainerRegistryResourceGroupName | ConvertFrom-Json).id
 
     # Add private endpoint & Setup Private DNS
     Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $containerRegistryPrivateEndpointSubnetId -PrivateEndpointName $containerRegistryPrivateEndpointName -PrivateEndpointResourceGroupName $ContainerRegistryResourceGroupName -TargetResourceId $containerRegistryId -PrivateEndpointGroupId $PrivateEndpointGroupId -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ContainerRegistryPrivateDnsZoneName -PrivateDnsLinkName "$($ContainerRegistryPrivateEndpointVnetName)-acr"

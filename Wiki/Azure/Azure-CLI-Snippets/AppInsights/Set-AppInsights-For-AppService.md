@@ -2,6 +2,8 @@
 
 # Description
 
+<font color="red">NOTE: This script is now legacy. Please use `Create-Application-Insights-Extension-for-WebApps-(codeless)` instead of this task.</font>
+
 This snippet will add an existing AppInsights resource to your AppService.
 
 # Parameters

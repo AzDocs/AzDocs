@@ -71,7 +71,7 @@ if ($ApplicationGatewayMinimalProtocolVersion)
 if ($ApplicationGatewayCipherSuites)
 {
     $optionalParameters += "--cipher-suites"
-    foreach($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
+    foreach ($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
     {
         $optionalParameters += $ApplicationGatewayCipherSuite
     }

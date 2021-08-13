@@ -36,14 +36,14 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 
 > NOTE: These parameters are only required when you want to use a private endpoint for this resource.
 
-| Parameter                                             | Required for Pvt Endpoint       | Example Value                                  | Description                                                                                            |
-| ----------------------------------------------------- | ------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| ContainerRegistryPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                            | The ResourceGroup where your VNET, for your Container Registry Private Endpoint, resides in.           |
-| ContainerRegistryPrivateEndpointVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`           | The name of the VNET to place the Container Registry Private Endpoint in.                              |
-| ContainerRegistryPrivateEndpointSubnetName            | <input type="checkbox" checked> | `app-subnet-3`                                 | The subnetname where the private endpoint for this container registry should be created.               |
-| PrivateEndpointGroupId                                | <input type="checkbox" checked> | `registry`                                     | The Group ID for the registry. You can safely use `registry` here.                                     |
-| DNSZoneResourceGroupName                              | <input type="checkbox" checked> | `Customer-DNSZones-$(Release.EnvironmentName)` | The resourcegroup where the DNS Zones reside in. This is generally a tenant-wide shared resourcegroup. |
-| ContainerRegistryPrivateDnsZoneName                   | <input type="checkbox" checked> | `privatelink.azurecr.io`                       | The privatelink DNS Zone to use. `privatelink.azurecr.io` can be safely used here.                     |
+| Parameter                                             | Required for Pvt Endpoint       | Example Value                                  | Description                                                                                                              |
+| ----------------------------------------------------- | ------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| ContainerRegistryPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                            | The ResourceGroup where your VNET, for your Container Registry Private Endpoint, resides in.                             |
+| ContainerRegistryPrivateEndpointVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`           | The name of the VNET to place the Container Registry Private Endpoint in.                                                |
+| ContainerRegistryPrivateEndpointSubnetName            | <input type="checkbox" checked> | `app-subnet-3`                                 | The subnetname where the private endpoint for this container registry should be created.                                 |
+| DNSZoneResourceGroupName                              | <input type="checkbox" checked> | `Customer-DNSZones-$(Release.EnvironmentName)` | The resourcegroup where the DNS Zones reside in. This is generally a tenant-wide shared resourcegroup.                   |
+| PrivateEndpointGroupId                                | <input type="checkbox">         | `registry`                                     | The Group ID for the registry. You can safely use `registry` here. This defaults to `registry`.                          |
+| ContainerRegistryPrivateDnsZoneName                   | <input type="checkbox">         | `privatelink.azurecr.io`                       | The privatelink DNS Zone to use. `privatelink.azurecr.io` can be safely used here. Defaults to `privatelink.azurecr.io`. |
 
 # YAML
 
