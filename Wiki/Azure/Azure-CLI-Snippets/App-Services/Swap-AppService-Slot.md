@@ -2,6 +2,8 @@
 
 # Description
 
+<font color="red">NOTE: This script is now legacy. Please use the standard task `Azure App Service Manage` instead of this task.</font>
+
 This snippet will swap the Web Applications slots
 
 # Parameters

@@ -44,7 +44,7 @@ Creating entrypoints can be done using [Create Application Gateway Entrypoint fo
 
 ## Removing Entrypoints
 
-Removing entrypoints can be done using [Remove Application Gateway Entrypoint](/Azure/Azure-CLI-Snippet/Application-Gateway/Remove-Application-Gateway-Entrypoint). This script will more or less do the following for you:
+Removing entrypoints can be done using [Remove Application Gateway Entrypoint](/Azure/Azure-CLI-Snippets/Application-Gateway/Remove-Application-Gateway-Entrypoint). This script will more or less do the following for you:
 
 - Removes the following components for you (automatically based on the ingress domainname): Backendpool, Healthprobe, HTTP Settings, HTTPS/HTTP Listeners, Routing Rules and Rewrite rule sets.
 - Removes the certificate (Only when no other entry point is making use of the certificate) from the keyvault and removes the link between your gateway and your https listener.

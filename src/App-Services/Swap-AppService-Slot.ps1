@@ -14,6 +14,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
+Write-Warning 'This script is deprecated. Please use the standard task Azure App Service Manage instead.'
+Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+
 Invoke-Executable az webapp deployment slot swap --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceSourceSlot --target-slot $AppServiceTargetSlot
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
