@@ -94,3 +94,31 @@ function Assert-ForceDisableTLS($tlsVersion, $forceDisableTls)
         return $true;
     }
 }
+
+<#
+.SYNOPSIS
+Helper for asserting if disabling keyvault purge protection is allowed
+.DESCRIPTION
+Helper for asserting if disabling keyvault purge protection is allowed
+#>
+function Assert-ForceDisableKeyvaultPurgeProtection
+{
+    [CmdletBinding()]
+    param (
+        [Parameter()][bool] $ForceDisablePurgeProtection, 
+        [Parameter()][bool] $KeyvaultPurgeProtectionEnabled
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+    if ($ForceDisablePurgeProtection -eq $false -and $KeyvaultPurgeProtectionEnabled -eq $false)
+    {
+        Write-Host "##vso[task.complete result=Failed;] You are creating a keyvault for which you want to disable purge protection. This is NOT recommended. If this was intentional, please pass the -ForceDisablePurgeProtection flag."
+        throw "You are creating a keyvault for which you want to disable purge protection. This is NOT recommended. If this was intentional, please pass the -ForceDisablePurgeProtection flag."
+    }
+    else
+    {
+        Write-Warning "You are creating a keyvault for which you want to disable purge protection. This is NOT recommended."
+    }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
