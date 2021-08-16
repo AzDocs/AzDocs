@@ -20,9 +20,15 @@ param (
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $KeyvaultPrivateDnsZoneName = "privatelink.vaultcore.azure.net",
+    [Parameter()][bool] $KeyvaultPurgeProtectionEnabled = $true,
+    [Parameter()][string][ValidateSet("Premium", "Standard")] $KeyvaultSku = "Standard",
+    [Parameter()][int][ValidateRange(7, 90)] $KeyvaultRetentionInDays = 90,
 
     # Forcefully agree to this resource to be spun up to be publicly available
-    [Parameter()][switch] $ForcePublic
+    [Parameter()][switch] $ForcePublic,
+    
+    # Forcefully agree to this resource to be spun up without purge protection
+    [Parameter()][switch] $ForceDisablePurgeProtection
     
 )
 
@@ -38,11 +44,35 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-# TODO: Check if keyvault needs to be created. Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/issues/13752
-$keyvaultId = (Invoke-Executable -AllowToFail az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
-if (!$keyvaultId)
+$optionalParameters = @()
+if (!$KeyvaultPurgeProtectionEnabled)
 {
-    $keyvaultId = (Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku standard --bypass None --tags ${ResourceTags} | ConvertFrom-Json).id
+    # Check if we are agreeing that this resource is being spinned up without purge protection enabled
+    Assert-ForceDisableKeyvaultPurgeProtection -ForceDisablePurgeProtection $ForceDisablePurgeProtection -KeyvaultPurgeProtectionEnabled $KeyvaultPurgeProtectionEnabled
+}
+else
+{
+    $optionalParameters += '--enable-purge-protection', $KeyvaultPurgeProtectionEnabled    
+}
+
+$optionalParameters += '--retention-days', $KeyvaultRetentionInDays
+
+# Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/pull/18520
+$keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }
+if (!$keyvaultExists)
+{
+
+    # check if keyvault exists soft-deleted
+    $softDeletedKeyvault = Invoke-Executable -AllowToFail az keyvault show-deleted --name $KeyvaultName
+    if ($softDeletedKeyvault)
+    {
+        Write-Host "Found soft-deleted keyvault. Recovering.."
+        Invoke-Executable az keyvault recover --name $KeyvaultName
+    }
+    else
+    {
+        Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku $KeyvaultSku --bypass None --tags ${ResourceTags} @optionalParameters
+    }
 }
 
 # Fetch the Keyvault ID to use while creating the Diagnostics settings in the next step

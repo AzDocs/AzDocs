@@ -96,7 +96,8 @@ function Get-CertificateFromApplicationGateway
         }
     }
 
-    Write-Host "Geen certificaat gevonden die aan de eisen voldoet."
+
+    Write-Host "Did not find a certificate that meets the requirements."
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
@@ -152,6 +153,57 @@ function Get-ApplicationGatewayPortName (
     {
         throw "Port could not be found"
     }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+<#
+.SYNOPSIS
+    Fetches the soft-deleted certificates from Keyvault
+.DESCRIPTION
+    Fetches the soft-deleted certificates from Keyvault
+#>
+function Get-SoftDeletedCertificateFromKeyvault(
+    [Parameter(Mandatory)][string] $KeyvaultName,
+    [Parameter(Mandatory)][string] $DomainName,
+    [Parameter(Mandatory)][string] $ExpectedCertificateThumbprint )
+{
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+    
+    $softDeletedCertificateFound = $null
+    # Check if there are certificates in soft-deleted state
+    $softDeletedCertificates = Invoke-Executable az keyvault certificate list-deleted --vault-name $KeyvaultName --query="[?x509ThumbprintHex=='$ExpectedCertificateThumbprint']" | ConvertFrom-Json
+    if ($softDeletedCertificates -and $softDeletedCertificates.Length -eq 1)
+    {
+        Write-Host "Found soft-deleted certificate."
+        $softDeletedCertificateFound = $softDeletedCertificates[0]
+    }
+    elseif ($softDeletedCertificates -and $softDeletedCertificates.Length -gt 1)
+    {
+        throw "Multiple soft-deleted certificates were found with the same thumbprint."
+    }
+
+    if (!$softDeletedCertificateFound)
+    {
+        $softDeletedCertList = Invoke-Executable az keyvault certificate list-deleted --vault-name $KeyvaultName --include-pending $false | ConvertFrom-Json
+        if ($softDeletedCertList)
+        {
+            foreach ($cert in $softDeletedCertList)
+            {
+                $subject = (Invoke-Executable az keyvault certificate show-deleted --id $cert.recoveryId | ConvertFrom-Json).policy.x509CertificateProperties.subject
+        
+                $cn = $subject -replace '(CN=)(.*?),.*', '$2'
+                $regexcn = '^' + $cn.replace('.', '\.').Replace('*', '[A-Za-z0-9\-]+') + '$'
+                if ($DomainName -match $regexcn)
+                {
+                    Write-Host "Found soft-deleted certificate."
+                    $softDeletedCertificateFound = $cert
+                }
+            }
+        }
+    }
+   
+    Write-Output $softDeletedCertificateFound
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
@@ -216,7 +268,7 @@ function Grant-MePermissionsOnKeyvault (
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
     $identityId = (Invoke-Executable az account show | ConvertFrom-Json).user.name
-    Invoke-Executable az keyvault set-policy --name $KeyvaultName --certificate-permissions get list create update import purge delete --key-permissions get list create update import purge --secret-permissions get list set purge --storage-permissions get list update set purge --spn $identityId --resource-group $KeyvaultResourceGroupName | Out-Null
+    Invoke-Executable az keyvault set-policy --name $KeyvaultName --certificate-permissions get list create update import delete recover --key-permissions get list create update import recover --secret-permissions get list set recover --storage-permissions get list update set recover --spn $identityId --resource-group $KeyvaultResourceGroupName | Out-Null
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
@@ -806,17 +858,6 @@ function Remove-ApplicationGatewayEntrypoint
                         {
                             Write-Host "Removing certificate from keyvault."
                             Invoke-Executable az keyvault certificate delete --name $sslCertFound.name --vault-name $CertificateKeyvaultName
-                            
-                            $result = Invoke-Executable -AllowToFail az keyvault certificate show-deleted --vault-name $CertificateKeyvaultName --name $sslCertFound.name
-                            while (!$result)
-                            {
-                                Write-Host "Waiting for the certificate to be deleted before purging."
-                                $result = Invoke-Executable -AllowToFail az keyvault certificate show-deleted --vault-name $CertificateKeyvaultName --name $sslCertFound.name
-                                Start-Sleep -Seconds 20
-                            }
-                            
-                            Write-Host "Purging certificate from keyvault."
-                            Invoke-Executable az keyvault certificate purge --name $sslCertFound.name --vault-name $CertificateKeyvaultName
                         }            
                     }
                 }
@@ -942,6 +983,21 @@ function New-ApplicationGatewayEntrypoint
     else
     {
         Write-Host "Keyvault certificate not found."
+        Write-Host "Checking if keyvault certificate exists in soft-deleted state."
+
+        $softDeletedCertificate = Get-SoftDeletedCertificateFromKeyvault -KeyvaultName $CertificateKeyvaultName -DomainName $IngressDomainName -ExpectedCertificateThumbprint $sourceCertificate.Thumbprint
+        if ($softDeletedCertificate)
+        {
+            Write-Host "Found soft-deleted certificate. Recovering.."
+            Invoke-Executable az keyvault certificate recover --id $softDeletedCertificate.recoveryId
+
+            # Find restored certificate in keyvault
+            $keyvaultCertificate = Get-CertificateFromKeyvault -KeyvaultName $CertificateKeyvaultName -DomainName $IngressDomainName -ExpectedCertificateThumbprint $sourceCertificate.Thumbprint
+        }
+        else
+        {
+            Write-Host "Did not find a soft-deleted certificate. Continueing.."
+        }
     }
 
     # Check if our source (Azure DevOps) certificate is newer than what we have in Keyvault (and therefore AppGw)
@@ -975,7 +1031,7 @@ function New-ApplicationGatewayEntrypoint
         Add-KeyvaultCertificateToApplicationGateway -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -KeyvaultName $CertificateKeyvaultName -ApplicationGatewayName $ApplicationGatewayName -KeyvaultCertificateName $CertificateName 
        
         $appgatewayCertificate = (Invoke-Executable az network application-gateway ssl-cert show --gateway-name $ApplicationGatewayName --name $CertificateName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
-        Write-Host "Cert added/replaced to appgateway with the following id $sslCreatedId"
+        Write-Host "Cert added/replaced to appgateway"
     }
     Write-Host "Cert is in place!"
 

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.08.12]
+
+- Added parameter `KeyvaultSku`,`KeyvaultPurgeProtectionEnabled` and `KeyvaultRetentionInDays` to `Create-Keyvault.ps1`.
+- Added `-ForceDisablePurgeProtection` to avoid creating keyvaults without purge-protection enabled unintentionally.
+- Added fixes to the `Create-Application-Gateway-Entrypoint` scripts and to the `Remove-Application-Gateway-Entrypoint` script.
+
 ## [2021.08.11]
 
 - Added support for updating Tags on resources in a generic way (`Set-ResourceTagsForResource`).
