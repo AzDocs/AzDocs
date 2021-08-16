@@ -1,11 +1,10 @@
 [CmdletBinding()]
 param (
+    # Basic Parameters
     [Parameter(Mandatory)][string] $SqlServerPassword,
     [Parameter(Mandatory)][string] $SqlServerUsername,
     [Parameter(Mandatory)][string] $SqlServerName,
     [Parameter(Mandatory)][string] $SqlServerResourceGroupName,
-    [Alias("LogAnalyticsWorkspaceId")]
-    [Parameter()][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter()][ValidateSet('1.0', '1.1', '1.2')][string] $SqlServerMinimalTlsVersion = '1.2',
     [Parameter()][bool] $SqlServerEnablePublicNetwork = $true,
 
@@ -24,7 +23,16 @@ param (
     [Alias("PrivateDnsZoneName")]
     [Parameter()][string] $SqlServerPrivateDnsZoneName = "privatelink.database.windows.net",
 
+    # Diagnostics
+    [Alias("LogAnalyticsWorkspaceId")]
+    [Parameter()][string] $LogAnalyticsWorkspaceResourceId,
+
+    # Resource Tags
     [Parameter()][System.Object[]] $ResourceTags,
+
+    # Azure AD SQL Admin
+    [Parameter()][string] $SqlServerAzureAdAdminDisplayName,
+    [Parameter()][string] $SqlServerAzureAdAdminObjectId,
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic
@@ -49,12 +57,39 @@ Assert-TLSVersion -TlsVersion $SqlServerMinimalTlsVersion
 $sqlServerId = (Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).id
 if (!$sqlServerId)
 {
-    Invoke-Executable az sql server create --admin-password $SqlServerPassword --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName --enable-public-network $SqlServerEnablePublicNetwork --minimal-tls-version $SqlServerMinimalTlsVersion
+    Invoke-Executable az sql server create --admin-password $SqlServerPassword --assign-identity --identity-type SystemAssigned --admin-user $SqlServerUsername --name $SqlServerName --resource-group $SqlServerResourceGroupName --enable-public-network $SqlServerEnablePublicNetwork --minimal-tls-version $SqlServerMinimalTlsVersion
     $sqlServerId = (Invoke-Executable -AllowToFail az sql server show --name $SqlServerName --resource-group $SqlServerResourceGroupName | ConvertFrom-Json).id
 }
 else
 {
-    Invoke-Executable az sql server update --admin-password $SqlServerPassword --name $SqlServerName --resource-group $SqlServerResourceGroupName --enable-public-network $SqlServerEnablePublicNetwork --minimal-tls-version $SqlServerMinimalTlsVersion
+    # Check if we need to enable Public Networking
+    if ($SqlServerEnablePublicNetwork -and $SqlServerEnablePublicNetwork -eq $true)
+    {
+        $publicNetworkAccess = "Enabled"
+    }
+    else
+    {
+        $publicNetworkAccess = "Disabled"
+    }
+
+    $body = @{
+        identity   = @{
+            type = "SystemAssigned"
+        };
+        properties = @{
+            administratorLogin         = $SqlServerUsername;
+            administratorLoginPassword = $SqlServerPassword;
+            publicNetworkAccess        = $publicNetworkAccess;
+            minimalTlsVersion          = $SqlServerMinimalTlsVersion
+        }
+    }
+
+    if ($SqlServerAzureAdAdminObjectId -and $SqlServerAzureAdAdminDisplayName)
+    {
+        $body.properties += @{ administrators = @{ administratorType = 'ActiveDirectory' } }
+    }
+
+    Invoke-AzRestCall -Method PATCH -ResourceId $sqlServerId -ApiVersion "2021-02-01-preview" -Body $body
 }
 
 # Update Tags
@@ -87,6 +122,12 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-Sql-Server.ps1" -SqlServerName $SqlServerName -SqlServerResourceGroupName $SqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
+}
+
+# Add AD Admin
+if ($SqlServerAzureAdAdminObjectId -and $SqlServerAzureAdAdminDisplayName)
+{
+    Invoke-Executable az sql server ad-admin create --resource-group $SqlServerResourceGroupName --server $SqlServerName --object-id $SqlServerAzureAdAdminObjectId --display-name $SqlServerAzureAdAdminDisplayName
 }
 
 if ($LogAnalyticsWorkspaceResourceId)
