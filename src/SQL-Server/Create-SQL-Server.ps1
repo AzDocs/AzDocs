@@ -132,17 +132,8 @@ if ($SqlServerAzureAdAdminObjectId -and $SqlServerAzureAdAdminDisplayName)
 
 if ($LogAnalyticsWorkspaceResourceId)
 {
-    # Fetch subscription name
-    $subscriptionName = (Invoke-Executable az account show | ConvertFrom-Json).name
-    Write-Host "Found subscriptionName: $subscriptionName"
-
     # Set auditing policy on SQL server
-    Install-Module PowerShellGet -Force
-    Install-Module -Name Az.Sql -Force
-    $encryptedPassword = ConvertTo-SecureString -String $env:servicePrincipalKey -AsPlainText
-    $pscredential = [PSCredential]::new($env:servicePrincipalId, $encryptedPassword)
-    Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $env:tenantId -Subscription $subscriptionName
-    Set-AzSqlServerAudit -ResourceGroupName $SqlServerResourceGroupName -ServerName $SqlServerName -LogAnalyticsTargetState Enabled -WorkspaceResourceId $LogAnalyticsWorkspaceResourceId
+    Invoke-Executable az sql server audit-policy update --resource-group $SqlServerResourceGroupName --name $SqlServerName --state Enabled --lats Enabled --lawri $LogAnalyticsWorkspaceResourceId
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

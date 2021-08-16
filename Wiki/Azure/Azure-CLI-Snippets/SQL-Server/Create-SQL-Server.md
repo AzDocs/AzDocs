@@ -2,18 +2,7 @@
 
 # Description
 
-This snippet will create a SQL Server if it does not exist. There are two options of connecting your application to this SQL Server.
-
-## VNET Whitelisting (uses the "public interface")
-
-Microsoft does some neat tricks where you can whitelist your vnet/subnet op the SQL server without your sql server having to be inside the vnet itself (public/private address translation).
-This script will whitelist the application subnet so your app can connect to the SQL Server over the public endpoint, while blocking all other traffic (internet traffic for example). Service Endpoints will also be provisioned if needed on the subnet.
-
-## Private Endpoints
-
-There is an option where it will create private endpoints for you & also disables public access if desired. All the needed components (private endpoint, DNS etc.) will be created too.
-
-IMPORTANT NOTE: If you use the EnableSqlServerAuditing option, make sure to enable the `Access service principal details in script` checkbox in the Azure CLI step in your Azure DevOps pipeline. This is needed for the last few lines of script which are built in Azure PowerShell (Azure PowerShell needs to login separate to the Azure CLI).
+This snippet will create a SQL Server if it does not exist. It will also enable auditlogging towards LogAnalyticsWorkspace. Optionally it will enable Azure AD Admin support if you pass the parameters for it.
 
 # Parameters
 
@@ -69,7 +58,6 @@ Be aware that this YAML example contains all parameters that can be used with th
   inputs:
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
-    addSpnToEnvironment: True
     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Server.ps1"
     arguments: "-SqlServerPassword '$(SqlServerPassword)' -SqlServerUsername '$(SqlServerUsername)' -SqlServerName '$(SqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -SqlServerMinimalTlsVersion '$(SqlServerMinimalTlsVersion)' -SqlServerEnablePublicNetwork '$(SqlServerEnablePublicNetwork)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -SqlServerPrivateEndpointVnetResourceGroupName '$(SqlServerPrivateEndpointVnetResourceGroupName)' -SqlServerPrivateEndpointVnetName '$(SqlServerPrivateEndpointVnetName)' -SqlServerPrivateEndpointSubnetName '$(SqlServerPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -SqlServerPrivateDnsZoneName '$(SqlServerPrivateDnsZoneName)' -SqlServerAzureAdAdminObjectId '$(SqlServerAzureAdAdminObjectId)' -SqlServerAzureAdAdminDisplayName '$(SqlServerAzureAdAdminDisplayName)'"
 ```
