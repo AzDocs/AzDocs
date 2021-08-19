@@ -576,7 +576,7 @@ function Confirm-CIDRForWhitelist
     }
 
     $serviceTypesWithNoSuffix = @('storage', 'servicebus')
-    if ($ServiceType -contains $serviceTypesWithNoSuffix)
+    if ($serviceTypesWithNoSuffix -contains $ServiceType)
     {
         $CIDRToSplit = $CIDR.Split('/')[1]
         if ($CIDRToSplit)
@@ -586,6 +586,7 @@ function Confirm-CIDRForWhitelist
         }
         else
         {
+            Write-Host "$CIDR"
             return $CIDR
         }
     }
