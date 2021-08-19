@@ -70,25 +70,19 @@ $optionalParameters = @()
 
 if ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Predefined')
 {
-    if ($ApplicationGatewayPredefinedPolicyName)
-    {
-        $optionalParameters += "--name", "$ApplicationGatewayPredefinedPolicyName"
-    }
+    $optionalParameters += "--name", "$ApplicationGatewayPredefinedPolicyName"
 }
 elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Custom')
 {
-    if ($ApplicationGatewayMinimalProtocolVersion)
-    {
-        $optionalParameters += "--min-protocol-version", "$ApplicationGatewayMinimalProtocolVersion"
-    }
+    # Check TLS Version
+    Assert-TLSVersion -TlsVersion $ApplicationGatewayMinimalProtocolVersion
 
-    if ($ApplicationGatewayCipherSuites)
+    $optionalParameters += "--min-protocol-version", "$ApplicationGatewayMinimalProtocolVersion"
+
+    $optionalParameters += "--cipher-suites"
+    foreach ($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
     {
-        $optionalParameters += "--cipher-suites"
-        foreach ($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
-        {
-            $optionalParameters += $ApplicationGatewayCipherSuite
-        }
+        $optionalParameters += $ApplicationGatewayCipherSuite
     }
 }
 else

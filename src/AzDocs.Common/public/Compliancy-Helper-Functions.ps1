@@ -39,6 +39,13 @@ function Assert-TLSVersion
 
     if (!$result)
     {
+        # Strip TLSv from TlsVersion if it's there (AppGw)
+        if ($TlsVersion.StartsWith("TLSv"))
+        {
+            $TlsVersion = $TlsVersion.Replace("TLSv", "").Replace("_", ".")
+            Write-Host "TLS version is $TlsVersion"
+        }
+
         # Strip TLS from TlsVersion if it's there
         if ($TlsVersion.StartsWith("TLS"))
         {
