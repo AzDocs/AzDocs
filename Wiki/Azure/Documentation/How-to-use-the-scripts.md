@@ -523,6 +523,7 @@ NB. contrary to Hosted agents, you must clean your workspace!
 
 Voilà! You can now deploy the same way as you would using Azure Hosted Pools.
 
+
 ### Run your scripts with a different Azure CLI version
 
 Sometimes, when Microsoft pushes a new version of Azure CLI, they introduce new bugs. This means that whenever the Azure CLI version on the hosted agents get updated, your pipelines might break. This can be very inconvenient whenever you need to run a pipeline which has this broken statement inside.

@@ -70,7 +70,10 @@ $optionalParameters = @()
 
 if ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Predefined')
 {
-    $optionalParameters += "--name", "$ApplicationGatewayPredefinedPolicyName"
+    if ($ApplicationGatewayPredefinedPolicyName)
+    {
+        $optionalParameters += "--name", "$ApplicationGatewayPredefinedPolicyName"
+    }
 }
 elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Custom')
 {
@@ -82,7 +85,11 @@ elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Cu
     $optionalParameters += "--cipher-suites"
     foreach ($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
     {
-        $optionalParameters += $ApplicationGatewayCipherSuite
+        $optionalParameters += "--cipher-suites"
+        foreach ($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
+        {
+            $optionalParameters += $ApplicationGatewayCipherSuite
+        }
     }
 }
 else
