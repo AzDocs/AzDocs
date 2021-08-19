@@ -111,7 +111,7 @@ stages:
 
 ![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_7.png)
 
-11. Enter `GIT_AUTH_HEADER` under the name and fill the value with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`. Click `Ok`.
+11. Enter `GIT_AUTH_HEADER` under the name and fill the value with the `base64` value from step 2 (So `cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`. Click `Ok`.
 
 ![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_8.png)
 
