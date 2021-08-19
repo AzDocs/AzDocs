@@ -42,7 +42,7 @@ Be aware that this YAML example contains all parameters that can be used with th
                azureSubscription: '${{ parameters.SubscriptionName }}'
                scriptType: pscore
                scriptPath: '$(Pipeline.Workspace)/AzDocs/Application-Gateway/Set-Application-Gateway-SSLTLS-Settings.ps1'
-               arguments: "-ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayPolicyType '$(ApplicationGatewayPolicyType)' -ApplicationGatewayPredefinedPolicyName '$(ApplicationGatewayPredefinedPolicyName)' -ApplicationGatewayMinimalProtocolVersion '$(ApplicationGatewayMinimalProtocolVersion)'"
+               arguments: "-ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayPolicyType '$(ApplicationGatewayPolicyType)' -ApplicationGatewayPredefinedPolicyName '$(ApplicationGatewayPredefinedPolicyName)' -ApplicationGatewayMinimalProtocolVersion '$(ApplicationGatewayMinimalProtocolVersion)' -ApplicationGatewayCipherSuites $(ApplicationGatewayCipherSuites)"
 ```
 
 # Code
