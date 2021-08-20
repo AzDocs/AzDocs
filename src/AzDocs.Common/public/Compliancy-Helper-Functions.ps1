@@ -129,3 +129,26 @@ function Assert-ForceDisableKeyvaultPurgeProtection
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
+
+<#
+.SYNOPSIS
+Helper for asserting if the ciphersuite has the correct security level
+.DESCRIPTION
+Helper for asserting if the ciphersuite has the correct security level
+#>
+function Assert-CipherSuite
+{
+    [CmdletBinding()]
+    param (
+        [Parameter()][string] $CipherSuite
+    )
+
+    $approvedSecurityLevel = @('recommended', 'secure')
+    $response = Invoke-WebRequest "https://ciphersuite.info/api/cs/$CipherSuite/" | ConvertFrom-Json
+    
+    if (!($approvedSecurityLevel -contains $response.$CipherSuite.security))
+    {
+        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+        Write-Warning "Please be warned that you are using a ciphersuite that has the status $($response.$CipherSuite.security). This is NOT recommended. We advise you to update your cipher suites to one of the recommended ciphers."
+    }
+}
