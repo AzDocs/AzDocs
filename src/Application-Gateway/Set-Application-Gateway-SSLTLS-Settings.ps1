@@ -85,11 +85,7 @@ elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Cu
     $optionalParameters += "--cipher-suites"
     foreach ($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
     {
-        $optionalParameters += "--cipher-suites"
-        foreach ($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
-        {
-            $optionalParameters += $ApplicationGatewayCipherSuite
-        }
+        $optionalParameters += $ApplicationGatewayCipherSuite
     }
 }
 else
