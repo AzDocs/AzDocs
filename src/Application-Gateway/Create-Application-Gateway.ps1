@@ -73,7 +73,7 @@ Invoke-Executable az network application-gateway identity assign --resource-grou
 Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointServiceIdentifier 'Microsoft.KeyVault'
 
 # Check if we need to add network rules to our keyvault
-$keyvaultNetworkRules = Invoke-Executable az keyvault network-rule list --resource-group KPNKPNKPN-TestApi-dev --name KPNKPNKPN-TestApipkvdev | ConvertFrom-Json
+$keyvaultNetworkRules = Invoke-Executable az keyvault network-rule list --resource-group $CertificateKeyvaultResourceGroupName --name $CertificateKeyvaultName | ConvertFrom-Json
 if ($keyvaultNetworkRules.virtualNetworkRules.count -gt 0 -or $keyvaultNetworkRules.virtualNetworkRules.count -gt 0)
 {
     # Whitelist our Gateway's subnet in the Certificate Keyvault so we can connect

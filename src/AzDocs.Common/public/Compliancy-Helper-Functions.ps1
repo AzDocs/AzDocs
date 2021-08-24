@@ -39,6 +39,13 @@ function Assert-TLSVersion
 
     if (!$result)
     {
+        # Strip TLSv from TlsVersion if it's there (AppGw)
+        if ($TlsVersion.StartsWith("TLSv"))
+        {
+            $TlsVersion = $TlsVersion.Replace("TLSv", "").Replace("_", ".")
+            Write-Host "TLS version is $TlsVersion"
+        }
+
         # Strip TLS from TlsVersion if it's there
         if ($TlsVersion.StartsWith("TLS"))
         {
@@ -92,5 +99,56 @@ function Assert-ForceDisableTLS($tlsVersion, $forceDisableTls)
     {
         Write-Warning "You are creating a resource for which you want to disable TLS. This is NOT recommended."
         return $true;
+    }
+}
+
+<#
+.SYNOPSIS
+Helper for asserting if disabling keyvault purge protection is allowed
+.DESCRIPTION
+Helper for asserting if disabling keyvault purge protection is allowed
+#>
+function Assert-ForceDisableKeyvaultPurgeProtection
+{
+    [CmdletBinding()]
+    param (
+        [Parameter()][bool] $ForceDisablePurgeProtection, 
+        [Parameter()][bool] $KeyvaultPurgeProtectionEnabled
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+    if ($ForceDisablePurgeProtection -eq $false -and $KeyvaultPurgeProtectionEnabled -eq $false)
+    {
+        Write-Host "##vso[task.complete result=Failed;] You are creating a keyvault for which you want to disable purge protection. This is NOT recommended. If this was intentional, please pass the -ForceDisablePurgeProtection flag."
+        throw "You are creating a keyvault for which you want to disable purge protection. This is NOT recommended. If this was intentional, please pass the -ForceDisablePurgeProtection flag."
+    }
+    else
+    {
+        Write-Warning "You are creating a keyvault for which you want to disable purge protection. This is NOT recommended."
+    }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+<#
+.SYNOPSIS
+Helper for asserting if the ciphersuite has the correct security level
+.DESCRIPTION
+Helper for asserting if the ciphersuite has the correct security level
+#>
+function Assert-CipherSuite
+{
+    [CmdletBinding()]
+    param (
+        [Parameter()][string] $CipherSuite
+    )
+
+    $approvedSecurityLevel = @('recommended', 'secure')
+    $response = Invoke-WebRequest "https://ciphersuite.info/api/cs/$CipherSuite/" | ConvertFrom-Json
+    
+    if (!($approvedSecurityLevel -contains $response.$CipherSuite.security))
+    {
+        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+        Write-Warning "Please be warned that you are using a ciphersuite ($($CipherSuite)) that has the status $($response.$CipherSuite.security). This is NOT recommended. We advise you to update your cipher suites to one of the recommended ciphers."
     }
 }

@@ -62,7 +62,7 @@ if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetNam
 Assert-TLSVersion -TlsVersion $AppServiceMinimalTlsVersion
 
 # Fetch AppService Plan ID
-$appServicePlanId = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json).id
+$appServicePlan = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json)
 
 #adding additional parameters
 $optionalParameters = @()
@@ -79,7 +79,7 @@ if ($AppServiceRunTime)
 }
 
 # Create/Update AppService & Fetch the ID from the AppService
-$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters | ConvertFrom-Json).id
+$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlan.id --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters | ConvertFrom-Json).id
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $webAppId -ResourceTags ${ResourceTags}
@@ -99,8 +99,17 @@ Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppS
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
 
-#  Create diagnostics settings
-Set-DiagnosticSettings -ResourceId $webAppId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+#  Create diagnostics settings & make sure to check which categories can be accessed based upon the SKU of the app service plan
+# https://docs.microsoft.com/en-us/azure/app-service/troubleshoot-diagnostic-logs#send-logs-to-azure-monitor-preview
+$appServiceFileAuditLogAvailableTiers = @("Premium", "PremiumV2")
+if ($appServiceFileAuditLogAvailableTiers -contains $appServicePlan.sku.tier)
+{
+    Set-DiagnosticSettings -ResourceId $webAppId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $webAppId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+}
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az webapp identity assign --ids $webAppId
@@ -125,7 +134,15 @@ if ($EnableAppServiceDeploymentSlot)
     Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceDeploymentSlotName
 
     # Set diagnostic settings for deployment slot
-    Set-DiagnosticSettings -ResourceId $webAppStagingId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+    $appServiceFileAuditLogAvailableTiers = @("Premium", "PremiumV2")
+    if ($appServiceFileAuditLogAvailableTiers -contains $appServicePlan.sku.tier)
+    {
+        Set-DiagnosticSettings -ResourceId $webAppStagingId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+    }
+    else
+    {
+        Set-DiagnosticSettings -ResourceId $webAppStagingId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+    }
     
     if ($DisablePublicAccessForAppServiceDeploymentSlot)
     {

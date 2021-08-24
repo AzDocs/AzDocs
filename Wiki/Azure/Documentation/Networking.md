@@ -68,7 +68,7 @@ Another thing to know when you use private endpoints, in combination with the Az
 
 ### How to deploy to private resources: Azure DevOps Private Agents
 
-A challenge you will be facing when you use private endpoints, is that your Azure DevOps hosted agents are unable to connect to your (now) private resource. This means that, for example, an application deploy to an appservice or adding a file to your storage account will fail. This means that you will have to host a private Azure DevOps agent inside your VNet to connect through the private endpoints.
+A challenge you will be facing when you use private endpoints, is that your Azure DevOps hosted agents are unable to connect to your (now) private resource. This means that, for example, an application deploy to an appservice or adding a file to your storage account will fail. This means that you will have to host a private Azure DevOps agent inside your VNet to connect through the private endpoints. Instructions for creating can be found in [How to use the scripts](/Azure/Documentation/How-to-use-the-scripts.md).
 
 ## VNet whitelisting
 

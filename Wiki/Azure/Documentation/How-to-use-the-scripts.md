@@ -103,7 +103,7 @@ stages:
 
 ![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_5.png)
 
-9. Click on `Variables` and add the `GIT_AUTH_HEADER` variable with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`.
+9. Click on `Variables`.
 
 ![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_6.png)
 
@@ -111,7 +111,7 @@ stages:
 
 ![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_7.png)
 
-11. Enter `GIT_AUTH_HEADER` under the name and fill the value with the `base64` value from step 2 (So `GIT_AUTH_HEADER=cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`. Click `Ok`.
+11. Enter `GIT_AUTH_HEADER` under the name and fill the value with the `base64` value from step 2 (So `cGF0OmxlNWpqbjR5c2tmZnVmbGpvdm50ampqcnRmenF5ZmZ2aGVjMmI3NzRhM3pxYXVva2JwNGE=`) and mark the variable as `Secret`. Click `Ok`.
 
 ![Create AzDocs Build Pipeline](../../../wiki_images/azdocs_build_create_new_pipeline_8.png)
 
@@ -474,6 +474,54 @@ After onboarding your machine you can use this machine from your YAML pipeline. 
 ```
 
 Voilà! You can now deploy to your virtual machines the same way as you deploy to Azure PaaS resources!
+
+### Deploying to SelfHosted Agents in Pool
+
+You even may want to deploy to your own (Selfhosted) agents in an Azure DevOps Pool. These can be used in your classic or yaml pipelines for deployments or even builds. The agents may run on a Windows/Linux/MAC VM or a container. If you need a proxy to reach the URL of Azure DevOps, make sure you can reach this proxy from the VM or container.
+
+Before you start installing the agent, make sure you already created a Pool in you project or organisation under: `settings - Agent Pools`.
+Instructions can also be found online:
+
+[Self-hosted Linux agents](https://docs.microsoft.com/nl-nl/azure/devops/pipelines/agents/v2-linux?view=azure-devops)
+
+[Self-hosted Windows agents](https://docs.microsoft.com/nl-nl/azure/devops/pipelines/agents/v2-windows?view=azure-devops)
+
+Currently we've only documented the onboarding of an agent in a pool only for Windows machines. For linux you will need to do something similar to the following procedure:
+
+For windows you can use this oneliner to onboard your machine:
+
+```powershell
+$AgentVersion='2.190.0';$URL='https://dev.azure.com/<your_organisation>';$AgentDisk='C';$ServiceAccountUserName='NT AUTHORITY\SYSTEM';$ServiceAccountPassword='[MYSERVICEPASSWORD]';$PersonalAccessToken='[MYPERSONALPAT]';$Pool='MyDevOpsPool';$ErrorActionPreference='Stop';If(-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent() ).IsInRole( [Security.Principal.WindowsBuiltInRole] “Administrator”)){ throw "Run command in an administrator PowerShell prompt"};If($PSVersionTable.PSVersion -lt (New-Object System.Version("3.0"))){ throw "The minimum version of Windows PowerShell that is required by the script (3.0) does not match the currently running version of Windows PowerShell." };If(-NOT (Test-Path $AgentDisk':\azagent')){mkdir $AgentDisk':\azagent'}; cd $AgentDisk':\azagent'; for($i=1; $i -lt 100; $i++){$destFolder="A"+$i.ToString();if(-NOT (Test-Path ($destFolder))){mkdir $destFolder;cd $destFolder;break;}};Write-Host "Dest folder: $destFolder"; $agentZip="$PWD\agent.zip";$DefaultProxy=[System.Net.WebRequest]::DefaultWebProxy;$securityProtocol=@();$securityProtocol+=[Net.ServicePointManager]::SecurityProtocol;$securityProtocol+=[Net.SecurityProtocolType]::Tls12;[Net.ServicePointManager]::SecurityProtocol=$securityProtocol;$WebClient=New-Object Net.WebClient; $Uri='https://vstsagentpackage.azureedge.net/agent/$($AgentVersion)/vsts-agent-win-x64-$($AgentVersion).zip';$WebClient.Proxy=New-Object Net.WebProxy($ProxyUrl, $True); $WebClient.DownloadFile($Uri, $agentZip);Add-Type -AssemblyName System.IO.Compression.FileSystem;[System.IO.Compression.ZipFile]::ExtractToDirectory($agentZip, "$PWD");.\config.cmd --unattended --url $URL --auth PAT --token $PersonalAccessToken --pool $Pool --agent "$($env:COMPUTERNAME)-$destFolder" --work '_work' --disableloguploads --runasservice --windowsLogonAccount $ServiceAccountUserName  --windowsLogonPassword $ServiceAccountPassword; Remove-Item $agentZip;
+```
+
+These variables at the start of this script can be edited:
+
+| Parameter               | Required                        | Example Value                 | Description                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------- | ------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| $URL                    | <input type="checkbox" checked> | `https://dev.azure.com/myorg` | The URL of Azure DevOps appended with your Azure DevOps organization.                                                                                                                                                                                                                                                                                 |
+| $AgentDisk              | <input type="checkbox" checked> | `C`                           | Which disk you want to use to put the AzDo agent files on.                                                                                                                                                                                                                                                                                            |
+| $Pool                   | <input type="checkbox" checked> | `MyDevOpsPool`                | The Azure DevOps Pool you want want to onboard the agent on..                                                                                                                                                                                                                                                                                         |
+| $ServiceAccountUserName | <input type="checkbox" checked> | `MYDOMAIN\svc_SomeUser`       | The Windows user under which the Azure DevOps agent should run in the format domain\userName or userName@domain.com. You can also pass NT AUTHORITY\SYSTEM and pass a fake password to the ServiceAccountPassword parameter (e.g. somethingsomething). Make sure this user has the right permissions to do the stuff you want to do in your pipeline. |
+| $ServiceAccountPassword | <input type="checkbox" checked> | `passwordpassword`            | The password of the ServiceAccountUserName.                                                                                                                                                                                                                                                                                                           |
+| $PersonalAccessToken    | <input type="checkbox" checked> | `ashoiuwjojwnfnsfljsfj`       | The PAT which you can create under your account in Azure DevOps.                                                                                                                                                                                                                                                                                      |
+| $ProxyUrl               | <input type="checkbox">         | `http://my.proxy.nl:8080`     | The Proxy URL. This has been tested with using a HTTP proxy. Leave out in order to NOT use a proxy at all. Fill and add the parameter --proxyurl if you do (for download and running the agent).                                                                                                                                                      |
+| $AgentVersion           | <input type="checkbox" checked> | `2.190.0`                     | The version of the agent. Check [Github](https://github.com/microsoft/azure-pipelines-agent/releases) for the latest version.                                                                                                                                                                                                                         |
+
+After onboarding the agent in the Pool, you can use it from the Pool in your YAML or Classic pipeline. You can run a stage using the following YAML:
+
+```yaml
+  jobs:
+  - deployment: Deploy
+    pool: myPool
+      vmImage: 'windows-2019'
+    workspace:
+      clean: all
+    environment: dev
+```
+
+NB. contrary to Hosted agents, you must clean your workspace!
+
+Voilà! You can now deploy the same way as you would using Azure Hosted Pools.
 
 ### Run your scripts with a different Azure CLI version
 

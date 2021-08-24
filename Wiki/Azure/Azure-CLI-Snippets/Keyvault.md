@@ -1,7 +1,5 @@
 [[_TOC_]]
 
-# TODO: Fix links
-
 # Keyvault
 
 When creating a [Keyvault](/Azure/Azure-CLI-Snippets/Keyvault/Create-Keyvault), you have some options to choose from:
