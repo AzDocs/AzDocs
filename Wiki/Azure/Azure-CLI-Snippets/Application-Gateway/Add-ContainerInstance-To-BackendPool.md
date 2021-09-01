@@ -20,14 +20,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Add ContainerInstance To BackendPool'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Application-Gateway/Add-ContainerInstance-To-BackendPool.ps1'
-               arguments: "-IngressDomainName '$(IngressDomainName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)'"
+- task: AzureCLI@2
+  displayName: "Add ContainerInstance To BackendPool"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Add-ContainerInstance-To-BackendPool.ps1"
+    arguments: "-IngressDomainName '$(IngressDomainName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)'"
 ```
 
 # Code

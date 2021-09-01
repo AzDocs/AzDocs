@@ -20,14 +20,14 @@ This snippet will whitelist the specified IP Range from the Azure Storage Accoun
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Add Network Whitelist to StorageAccount'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Add-Network-Whitelist-to-StorageAccount.ps1'
-               arguments: "-StorageAccountName '$(StorageAccountName)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -SubnetToWhitelistSubnetName '$(SubnetToWhitelistSubnetName)' -SubnetToWhitelistVnetName '$(SubnetToWhitelistVnetName)' -SubnetToWhitelistVnetResourceGroupName '$(SubnetToWhitelistVnetResourceGroupName)'"
+- task: AzureCLI@2
+  displayName: "Add Network Whitelist to StorageAccount"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Add-Network-Whitelist-to-StorageAccount.ps1"
+    arguments: "-StorageAccountName '$(StorageAccountName)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -SubnetToWhitelistSubnetName '$(SubnetToWhitelistSubnetName)' -SubnetToWhitelistVnetName '$(SubnetToWhitelistVnetName)' -SubnetToWhitelistVnetResourceGroupName '$(SubnetToWhitelistVnetResourceGroupName)'"
 ```
 
 # Code

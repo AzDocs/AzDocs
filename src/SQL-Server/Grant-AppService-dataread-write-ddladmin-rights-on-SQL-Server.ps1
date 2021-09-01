@@ -20,22 +20,26 @@ Invoke-Executable az sql server ad-admin create --resource-group $SqlServerResou
 
 $altIdProfilePath = Join-Path ([io.path]::GetTempPath()) '.azure-altId'
 $AccessToken = $null
-try {
+try
+{
     $env:AZURE_CONFIG_DIR = $altIdProfilePath
 
     Invoke-Executable az login --username $ServiceUserEmail --password $ServiceUserPassword --allow-no-subscriptions
     $AccessToken = (Invoke-Executable az account get-access-token --resource https://database.windows.net | ConvertFrom-Json).accessToken
 }
-finally {
+finally
+{
     $env:AZURE_CONFIG_DIR = $null
     Remove-Item -Recurse -Force $altIdProfilePath
 }
-if(!$AccessToken){
+if (!$AccessToken)
+{
     throw 'Could not fetch access token, something went wrong.'
 }
 
 $appServicePrincipalName = $AppServiceName
-if ($AppServiceSlotName) {
+if ($AppServiceSlotName)
+{
     $appServicePrincipalName += "/slots/$AppServiceSlotName"
 }
 
@@ -52,16 +56,19 @@ IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = '$appServic
 "@
 
 $conn = [System.Data.SqlClient.SqlConnection]::new()
-try {
+try
+{
     $conn.ConnectionString = "Server=tcp:$($SqlServerName).database.windows.net,1433;Initial Catalog=$($SqlDatabaseName);Persist Security Info=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
     $conn.AccessToken = $AccessToken
     $conn.Open()
     $cmd = [System.Data.SqlClient.SqlCommand]::new($sql, $conn);
-    if ($cmd.ExecuteNonQuery() -ne -1) {
+    if ($cmd.ExecuteNonQuery() -ne -1)
+    {
         Write-Host "Failed to add the managed identity for $appServicePrincipalName"
     }
 }
-finally {
+finally
+{
     $conn.Close();
 }
 

@@ -63,14 +63,14 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create MySQL Server'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/MySQL/Create-MySQL-Server.ps1'
-               arguments: "-MySqlServerLocation '$(MySqlServerLocation)' -MySqlServerName '$(MySqlServerName)' -MySqlServerUsername '$(MySqlServerUsername)' -MySqlServerPassword '$(MySqlServerPassword)' -MySqlServerResourceGroupName '$(MySqlServerResourceGroupName)' -MySqlServerSkuName '$(MySqlServerSkuName)' -MySqlServerStorageSizeInMB '$(MySqlServerStorageSizeInMB)' -ResourceTags $(ResourceTags) -MySqlServerMinimalTlsVersion '$(MySqlServerMinimalTlsVersion)' -MySqlServerSslEnforcement '$(MySqlServerSslEnforcement)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -MySqlServerPrivateEndpointVnetResourceGroupName '$(MySqlServerPrivateEndpointVnetResourceGroupName)' -MySqlServerPrivateEndpointVnetName '$(MySqlServerPrivateEndpointVnetName)' -MySqlServerPrivateEndpointSubnetName '$(MySqlServerPrivateEndpointSubnetName)' -MySqlServerPrivateDnsZoneName '$(MySqlServerPrivateDnsZoneName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+- task: AzureCLI@2
+  displayName: "Create MySQL Server"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/MySQL/Create-MySQL-Server.ps1"
+    arguments: "-MySqlServerLocation '$(MySqlServerLocation)' -MySqlServerName '$(MySqlServerName)' -MySqlServerUsername '$(MySqlServerUsername)' -MySqlServerPassword '$(MySqlServerPassword)' -MySqlServerResourceGroupName '$(MySqlServerResourceGroupName)' -MySqlServerSkuName '$(MySqlServerSkuName)' -MySqlServerStorageSizeInMB '$(MySqlServerStorageSizeInMB)' -ResourceTags $(ResourceTags) -MySqlServerMinimalTlsVersion '$(MySqlServerMinimalTlsVersion)' -MySqlServerSslEnforcement '$(MySqlServerSslEnforcement)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -MySqlServerPrivateEndpointVnetResourceGroupName '$(MySqlServerPrivateEndpointVnetResourceGroupName)' -MySqlServerPrivateEndpointVnetName '$(MySqlServerPrivateEndpointVnetName)' -MySqlServerPrivateEndpointSubnetName '$(MySqlServerPrivateEndpointSubnetName)' -MySqlServerPrivateDnsZoneName '$(MySqlServerPrivateDnsZoneName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
 ```
 
 # Code

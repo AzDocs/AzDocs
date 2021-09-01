@@ -42,14 +42,14 @@ This snippet will add a log alert rule with type log search. This can be used to
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create Log Alert Rule'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Monitor/Create-Log-Alert-Rule.ps1'
-               arguments: "-MonitorAlertActionGroupName '$(MonitorAlertActionGroupName)' -MonitorAlertActionGroupResourceGroupName '$(MonitorAlertActionGroupResourceGroupName)' -MonitorAlertQuery '$(MonitorAlertQuery)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -MonitorAlertFrequencyInMinutes '$(MonitorAlertFrequencyInMinutes)' -MonitorAlertTimeWindowInMinutes '$(MonitorAlertTimeWindowInMinutes)' -MonitorAlertMetricTriggerThresholdOperator '$(MonitorAlertMetricTriggerThresholdOperator)' -MonitorAlertMetricTriggerThreshold '$(MonitorAlertMetricTriggerThreshold)' -MonitorAlertMetricTriggerType '$(MonitorAlertMetricTriggerType)' -MonitorAlertMetricColumn '$(MonitorAlertMetricColumn)' -MonitorAlertTriggerThresholdOperator '$(MonitorAlertTriggerThresholdOperator)' -MonitorAlertTriggerThreshold '$(MonitorAlertTriggerThreshold)' -MonitorAlertingActionSeverity '$(MonitorAlertingActionSeverity)' -MonitorAlertingActionSuppressThrottlingInMinutes '$(MonitorAlertingActionSuppressThrottlingInMinutes)' -MonitorAlertRuleResourceGroupName '$(MonitorAlertRuleResourceGroupName)' -MonitorAlertRuleResourceGroupLocation '$(MonitorAlertRuleResourceGroupLocation)' -MonitorAlertRuleEnabled '$(MonitorAlertRuleEnabled)' -MonitorAlertRuleName '$(MonitorAlertRuleName)' -MonitorAlertRuleDescription '$(MonitorAlertRuleDescription)' -MonitorAlertCustomActionEmailSubject '$(MonitorAlertCustomActionEmailSubject)'"
+- task: AzureCLI@2
+  displayName: "Create Log Alert Rule"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Log-Alert-Rule.ps1"
+    arguments: "-MonitorAlertActionGroupName '$(MonitorAlertActionGroupName)' -MonitorAlertActionGroupResourceGroupName '$(MonitorAlertActionGroupResourceGroupName)' -MonitorAlertQuery '$(MonitorAlertQuery)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -MonitorAlertFrequencyInMinutes '$(MonitorAlertFrequencyInMinutes)' -MonitorAlertTimeWindowInMinutes '$(MonitorAlertTimeWindowInMinutes)' -MonitorAlertMetricTriggerThresholdOperator '$(MonitorAlertMetricTriggerThresholdOperator)' -MonitorAlertMetricTriggerThreshold '$(MonitorAlertMetricTriggerThreshold)' -MonitorAlertMetricTriggerType '$(MonitorAlertMetricTriggerType)' -MonitorAlertMetricColumn '$(MonitorAlertMetricColumn)' -MonitorAlertTriggerThresholdOperator '$(MonitorAlertTriggerThresholdOperator)' -MonitorAlertTriggerThreshold '$(MonitorAlertTriggerThreshold)' -MonitorAlertingActionSeverity '$(MonitorAlertingActionSeverity)' -MonitorAlertingActionSuppressThrottlingInMinutes '$(MonitorAlertingActionSuppressThrottlingInMinutes)' -MonitorAlertRuleResourceGroupName '$(MonitorAlertRuleResourceGroupName)' -MonitorAlertRuleResourceGroupLocation '$(MonitorAlertRuleResourceGroupLocation)' -MonitorAlertRuleEnabled '$(MonitorAlertRuleEnabled)' -MonitorAlertRuleName '$(MonitorAlertRuleName)' -MonitorAlertRuleDescription '$(MonitorAlertRuleDescription)' -MonitorAlertCustomActionEmailSubject '$(MonitorAlertCustomActionEmailSubject)'"
 ```
 
 # Code

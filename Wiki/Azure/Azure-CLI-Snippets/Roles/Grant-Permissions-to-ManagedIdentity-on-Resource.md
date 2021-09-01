@@ -78,15 +78,14 @@ To assign the `Azure Service Bus Data Sender` role to an identity (other than a 
 # YAML task
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Grant permissions'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Roles/Grant-permissions-to-ManagedIdentity-on-Resource.ps1'
-               arguments: "-AppServiceManagedIdentity -ManagedIdentityResourceName $(AppServiceName) -ManagedIdentityResourceGroupName $(ResourceGroupName) -TargetResourceName $(ServiceBusName) -TargetResourceGroupName $(ServiceBusResourceGroupName) -TargetResourceType $(ServiceBusResourceType) -TargetResourceNamespace $(ServiceBusResourceNamespace) -RoleToAssign $(RoleToAssign)"
-
+- task: AzureCLI@2
+  displayName: "Grant permissions"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Roles/Grant-permissions-to-ManagedIdentity-on-Resource.ps1"
+    arguments: "-AppServiceManagedIdentity -ManagedIdentityResourceName $(AppServiceName) -ManagedIdentityResourceGroupName $(ResourceGroupName) -TargetResourceName $(ServiceBusName) -TargetResourceGroupName $(ServiceBusResourceGroupName) -TargetResourceType $(ServiceBusResourceType) -TargetResourceNamespace $(ServiceBusResourceNamespace) -RoleToAssign $(RoleToAssign)"
 ```
 
 # Code

@@ -10,7 +10,7 @@
 #   GatewayIngressDomainName: The domainname you want to use as your entrypoint for this test application. This should be matching the certificate details below.
 #   GatewayCertificateSecureFileName: The name of the secure file containing your pfx for the AppGw certificate
 #   GatewayCertificatePassword: The password for the AppGw certificate pfx
-# 
+#
 # And finally add a Service Connection to your Azure DevOps Project to your Azure Subscription with the Service Connection Name "AZDOCSREGRESSIONTESTSUBSCRIPTION".
 # Unfortunately theres a technical limitation in Azure DevOps which prevents us from making this a pipeline variable.
 #
@@ -73,15 +73,14 @@ name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
     include:
-    - main
-    - more-regression-tests
+      - main
 
 pool:
-    vmImage: 'ubuntu-20.04'
+  vmImage: "ubuntu-20.04"
 
 variables:
   # Basic
-  - name: ProjectName 
+  - name: ProjectName
     value: TestApi
 
   # Switches
@@ -123,9 +122,9 @@ variables:
   # Tags
   - name: Tag.ApplicationId
     value: 0000
-  - name: Tag.ApplicationName 
+  - name: Tag.ApplicationName
     value: MyApplication
-  - name: Tag.ApplicationOwner 
+  - name: Tag.ApplicationOwner
     value: someuser@company.com
   - name: Tag.AppTechOwner
     value: myteam@company.com
@@ -135,22 +134,22 @@ variables:
     value: My Business Unit
   - name: Tag.CostType
     value: Platform
-  - name: Tag.Tier 
+  - name: Tag.Tier
     value: App
 
   # Stage Pool
   - name: Stage.Pool
-    value: 'ubuntu-20.04'
+    value: "ubuntu-20.04"
 stages:
-- stage: 'Build'
-  jobs:
-    - job: Build
-      condition: eq(variables['ResourceCreation.AppService.Enabled'], 'true')
-      displayName: 'Build'
-      steps:
-       - template: pipeline-build.yml 
+  - stage: "Build"
+    jobs:
+      - job: Build
+        condition: eq(variables['ResourceCreation.AppService.Enabled'], 'true')
+        displayName: "Build"
+        steps:
+          - template: pipeline-build.yml
 
-- template: pipeline-release.yml
-  parameters:
-    EnvironmentName: dev
-    SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION
+  - template: pipeline-release.yml
+    parameters:
+      EnvironmentName: dev
+      SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION

@@ -20,14 +20,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Set App Configuration Connectionstring For AppService'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Configuration/Set-App-Configuration-Connectionstring-For-AppService.ps1'
-               arguments: "-AppConfigName '$(AppConfigName)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceSlotName '$(AppServiceSlotName)' -ReadOnlyConnectionString '$(ReadOnlyConnectionString)'"
+- task: AzureCLI@2
+  displayName: "Set App Configuration Connectionstring For AppService"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Configuration/Set-App-Configuration-Connectionstring-For-AppService.ps1"
+    arguments: "-AppConfigName '$(AppConfigName)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceSlotName '$(AppServiceSlotName)' -ReadOnlyConnectionString '$(ReadOnlyConnectionString)'"
 ```
 
 # Code

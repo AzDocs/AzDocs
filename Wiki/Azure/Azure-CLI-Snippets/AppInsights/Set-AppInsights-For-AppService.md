@@ -23,19 +23,19 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Set AppInsights For AppService'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/AppInsights/Set-AppInsights-For-AppService.ps1'
-               arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(AppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppServiceSlotName '$(AppServiceSlotName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+- task: AzureCLI@2
+  displayName: "Set AppInsights For AppService"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Set-AppInsights-For-AppService.ps1"
+    arguments: "-AppInsightsName '$(AppInsightsName)' -AppServiceName '$(AppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppServiceSlotName '$(AppServiceSlotName)' -ApplyToAllSlots $(ApplyToAllSlots)"
 ```
 
 # Code
 
-[Click here to download this script](../../../../src/AppInsights/Set-AppInsights-For-AppService.ps1)
+[Click here to download this script](../../../../../src/AppInsights/Set-AppInsights-For-AppService.ps1)
 
 # Links
 

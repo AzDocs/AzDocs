@@ -23,14 +23,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Grant Permissions for AppService to StorageAccount'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Permissions-for-AppService-to-StorageAccount.ps1'
-               arguments: "-StorageResourceGroupName '$(StorageResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -StorageAccountName '$(StorageAccountName)' -RoleToAssign '$(RoleToAssign)' -AppServiceSlotName '$(AppServiceSlotName)' -ApplyToAllSlots $(ApplyToAllSlots) -StorageResourceGroupName '$(StorageResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -StorageAccountName '$(StorageAccountName)' -RoleToAssign '$(RoleToAssign)' -AppServiceSlotName '$(AppServiceSlotName)'"
+- task: AzureCLI@2
+  displayName: "Grant Permissions for AppService to StorageAccount"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Permissions-for-AppService-to-StorageAccount.ps1"
+    arguments: "-StorageResourceGroupName '$(StorageResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -StorageAccountName '$(StorageAccountName)' -RoleToAssign '$(RoleToAssign)' -AppServiceSlotName '$(AppServiceSlotName)' -ApplyToAllSlots $(ApplyToAllSlots)"
 ```
 
 # Code

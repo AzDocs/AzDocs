@@ -20,14 +20,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Set AppSettings For Function App'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Functions/Set-AppSettings-For-Function-App.ps1'
-               arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppAppSettings $(FunctionAppAppSettings) -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+- task: AzureCLI@2
+  displayName: "Set AppSettings For Function App"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Set-AppSettings-For-Function-App.ps1"
+    arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppAppSettings $(FunctionAppAppSettings) -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -ApplyToAllSlots $(ApplyToAllSlots)"
 ```
 
 # Code

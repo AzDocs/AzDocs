@@ -20,14 +20,14 @@ This snippet will remove the specified IP Range from the Azure Cache for Redis. 
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Remove Network Whitelist from RedisCache'
-           condition: always()
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/RedisCache/Remove-Network-Whitelist-from-RedisCache.ps1'
-               arguments: "-RedisInstanceName '$(RedisInstanceName)' -RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' -AccessRuleName '$(AccessRuleName)' -CIDRToRemoveFromWhitelist '$(CIDRToRemoveFromWhitelist)'"
+- task: AzureCLI@2
+  displayName: "Remove Network Whitelist from RedisCache"
+  condition: always()
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/RedisCache/Remove-Network-Whitelist-from-RedisCache.ps1"
+    arguments: "-RedisInstanceName '$(RedisInstanceName)' -RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' -AccessRuleName '$(AccessRuleName)' -CIDRToRemoveFromWhitelist '$(CIDRToRemoveFromWhitelist)'"
 ```
 
 # Code

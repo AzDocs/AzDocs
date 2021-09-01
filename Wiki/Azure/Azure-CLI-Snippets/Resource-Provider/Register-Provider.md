@@ -15,14 +15,14 @@ Sometimes you need to register a so called "provider" before you can use a certa
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Register Provider'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Resource-Provider/Register-Provider.ps1'
-               arguments: "-ResourceProviderNamespace '$(ResourceProviderNamespace)'"
+- task: AzureCLI@2
+  displayName: "Register Provider"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Resource-Provider/Register-Provider.ps1"
+    arguments: "-ResourceProviderNamespace '$(ResourceProviderNamespace)'"
 ```
 
 # Code
