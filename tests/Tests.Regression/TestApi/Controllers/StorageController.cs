@@ -26,6 +26,17 @@ namespace TestApi.Controllers
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Returns the content of a blob container in a Storage Account.
+        /// </summary>
+        /// <returns>A string response.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /storage/blob
+        ///
+        /// </remarks>
+        /// <response code="200">Returns the content of a blob container.</response>
         [HttpGet]
         [Route("blob")]
         public string GetBlob()
@@ -42,6 +53,17 @@ namespace TestApi.Controllers
             return $"This file is part of the blob container: {fileContent}";
         }
 
+        /// <summary>
+        /// Returns the content of a message in a queue in a Storage Account.
+        /// </summary>
+        /// <returns>A string response.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /storage/queue
+        ///
+        /// </remarks>
+        /// <response code="200">Returns the content of a message in the queue.</response>
         [HttpGet]
         [Route("queue")]
         public async Task<string> GetQueue()
@@ -67,6 +89,17 @@ namespace TestApi.Controllers
             return "There are no messages on the queue available. Run the /queue/add first.";
         }
 
+        /// <summary>
+        /// Adds a message in a queue of a storage account.
+        /// </summary>
+        /// <returns>A string response.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /storage/queue/add
+        ///
+        /// </remarks>
+        /// <response code="200">Message is added in the queue.</response>
         [HttpGet]
         [Route("queue/add")]
         public async Task<string> AddToQueue()
@@ -91,6 +124,20 @@ namespace TestApi.Controllers
             return $"Added message to queue {Environment.GetEnvironmentVariable("QueueName")}";
         }
 
+        /// <summary>
+        /// Returns the content of a file in a fileshare of a storage account.
+        /// </summary>
+        /// <returns>
+        /// A string response.
+        /// </returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /storage/fileshare
+        ///
+        /// </remarks>
+        /// <response code="200">Returns the content of the file in the fileshare.</response>
+        /// <response code="500">Returns 500 if it is unable to perform the request.</response>
         [HttpGet]
         [Route("fileshare")]
         public async Task<string> GetFileshare()
@@ -111,7 +158,7 @@ namespace TestApi.Controllers
                     {
                         await UploadFile(fileClient, fileName);
                     }
-                    
+
                     var result = await ReadFileFromFileShare(fileClient, fileName);
                     return !string.IsNullOrEmpty(result) ? result : "Something went wrong. Check the logs for more information.";
                 }

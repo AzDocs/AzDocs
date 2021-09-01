@@ -16,7 +16,17 @@ namespace TestApi.Controllers
         {
             Configuration = configuration;
         }
-
+        /// <summary>
+        /// Returns numbers from a configured table of the PostGreSQL database. The table is created if it does not exist. Random numbers are added automatically.
+        /// </summary>
+        /// <returns>A string response.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /postgresql
+        ///
+        /// </remarks>
+        /// <response code="200">Returns the result of a query.</response>
         [HttpGet]
         public IEnumerable<int> Get()
         {
