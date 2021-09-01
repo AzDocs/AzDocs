@@ -136,6 +136,8 @@ variables:
     value: Platform
   - name: Tag.Tier
     value: App
+  - name: Tag.TeamName
+    value: teamname
 
   # Stage Pool
   - name: Stage.Pool
