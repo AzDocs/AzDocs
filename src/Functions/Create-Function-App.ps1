@@ -70,7 +70,7 @@ $functionAppId = (Invoke-Executable -AllowToFail az functionapp show --name $Fun
 if (!$functionAppId)
 {
     # Create FunctionApp
-    Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlanId --os-type $FunctionAppOSType --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime $FunctionAppRuntime --functions-version 3 --disable-app-insights --tags ${ResourceTags}
+    Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlanId --os-type $FunctionAppOSType --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime $FunctionAppRuntime --functions-version 3 --disable-app-insights --tags @ResourceTags
     $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 }
 

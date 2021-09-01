@@ -79,7 +79,7 @@ if ($AppServiceRunTime)
 }
 
 # Create/Update AppService & Fetch the ID from the AppService
-$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlan.id --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters | ConvertFrom-Json).id
+$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlan.id --resource-group $AppServiceResourceGroupName --tags @ResourceTags @optionalParameters | ConvertFrom-Json).id
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $webAppId -ResourceTags ${ResourceTags}
