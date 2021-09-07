@@ -10,6 +10,7 @@ using Serilog;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
+using TestApi.Models;
 
 namespace TestApi
 {
@@ -35,6 +36,14 @@ namespace TestApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //adding this section to use during debug and use Azure Identity (instead of connectionstrings)
+#if DEBUG
+            var msiEnvironment = new MSIEnvironment();
+            Configuration.Bind("MSIEnvironment", msiEnvironment);
+            Environment.SetEnvironmentVariable("AZURE_TENANT_ID", msiEnvironment.TenantId);
+            Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", msiEnvironment.ClientId);
+            Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", msiEnvironment.ClientSecret);
+#endif
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

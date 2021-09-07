@@ -39,18 +39,31 @@ namespace TestApi.Controllers
         /// <response code="200">Returns the content of a blob container.</response>
         [HttpGet]
         [Route("blob")]
-        public string GetBlob()
+        public async Task<string> GetBlob()
         {
-            var storageUrl =
-                new Uri($"https://{Environment.GetEnvironmentVariable("StorageAccount")}.blob.core.windows.net");
+            var storageUrl = new Uri($"https://{Environment.GetEnvironmentVariable("StorageAccount")}.blob.core.windows.net");
             var storageClient = new BlobServiceClient(storageUrl, new DefaultAzureCredential());
+            var containerClient = storageClient.GetBlobContainerClient($"{Environment.GetEnvironmentVariable("BlobContainer")}");
+            
+            string blobName = "test.txt";
+            BlobClient blobClient = containerClient.GetBlobClient(blobName); // Get a reference to a blob
 
-            var containerClient = storageClient.GetBlobContainerClient("myblobcontainer");
-            var blobClient = containerClient.GetBlobClient("test.txt");
-            var reader = new StreamReader(blobClient.Download().Value.Content);
-            var fileContent = reader.ReadToEnd();
+            try
+            {
+                // read contents from assembly and upload to new file
+                var assembly = Assembly.GetExecutingAssembly();
+                var resourceName = assembly.GetManifestResourceNames().Single(str => str.EndsWith(blobName));
+                using Stream stream = assembly.GetManifestResourceStream(resourceName);
+                
+                await blobClient.UploadAsync(stream, true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("The upload of the file to blob failed.", ex);
+            }
 
-            return $"This file is part of the blob container: {fileContent}";
+            var blob = await blobClient.DownloadContentAsync();
+            return blob.Value.Content.ToString();
         }
 
         /// <summary>
@@ -68,60 +81,27 @@ namespace TestApi.Controllers
         [Route("queue")]
         public async Task<string> GetQueue()
         {
-            var queueUrl =
-                new Uri(
-                    $"https://{Environment.GetEnvironmentVariable("StorageAccount")}.queue.core.windows.net/{Environment.GetEnvironmentVariable("QueueName")}");
-            var queueClient = new QueueClient(queueUrl, new DefaultAzureCredential());
-
-            try
-            {
-                var message = await queueClient.ReceiveMessageAsync();
-                if (message != null)
-                {
-                    return $"This is a message from the queue: {message.Value.MessageText}";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Error while getting message from the queue", ex);
-            }
-
-            return "There are no messages on the queue available. Run the /queue/add first.";
-        }
-
-        /// <summary>
-        /// Adds a message in a queue of a storage account.
-        /// </summary>
-        /// <returns>A string response.</returns>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     Get /storage/queue/add
-        ///
-        /// </remarks>
-        /// <response code="200">Message is added in the queue.</response>
-        [HttpGet]
-        [Route("queue/add")]
-        public async Task<string> AddToQueue()
-        {
-            var queueUrl =
-                new Uri(
-                    $"https://{Environment.GetEnvironmentVariable("StorageAccount")}.queue.core.windows.net/{Environment.GetEnvironmentVariable("QueueName")}");
+            var queueUrl = new Uri($"https://{Environment.GetEnvironmentVariable("StorageAccount")}.queue.core.windows.net/{Environment.GetEnvironmentVariable("QueueName")}");
             var queueClient = new QueueClient(queueUrl, new DefaultAzureCredential());
             var queueMessage = "This is a test message";
 
             try
             {
+                // first send a message on the queue
                 await queueClient.SendMessageAsync(queueMessage);
+
+                // get message from the queue
+                var message = await queueClient.ReceiveMessageAsync();
+                if (message != null)
+                    return $"This is a message from the queue: {message.Value.MessageText}";
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while sending message to queue", ex.Message);
-                return
-                    $"Something went wrong while adding message to queue {Environment.GetEnvironmentVariable("QueueName")}";
+                _logger.LogError($"Error while getting message from the queue with Message {ex.Message} and StackTrace: {ex.StackTrace}");
+                return "Something went wrong.";
             }
 
-            return $"Added message to queue {Environment.GetEnvironmentVariable("QueueName")}";
+            return "No messages were found and no messages were inserted.";
         }
 
         /// <summary>
@@ -179,7 +159,6 @@ namespace TestApi.Controllers
         {
             try
             {
-                // read contents from assembly and upload to new file
                 var assembly = Assembly.GetExecutingAssembly();
                 var resourceName = assembly.GetManifestResourceNames().Single(str => str.EndsWith(fileName));
 
