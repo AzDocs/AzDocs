@@ -48,7 +48,7 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
 Assert-TLSVersion -TlsVersion $StorageAccountMinimalTlsVersion
 
 # Create StorageAccount with the appropriate tags
-$storageAccountId = (Invoke-Executable az storage account create --name $StorageAccountName --resource-group $StorageAccountResourceGroupName --kind $StorageAccountKind --sku $StorageAccountSku --allow-blob-public-access $StorageAccountAllowBlobPublicAccess --tags ${ResourceTags} --min-tls-version $StorageAccountMinimalTlsVersion | ConvertFrom-Json).id
+$storageAccountId = (Invoke-Executable az storage account create --name $StorageAccountName --resource-group $StorageAccountResourceGroupName --kind $StorageAccountKind --sku $StorageAccountSku --allow-blob-public-access $StorageAccountAllowBlobPublicAccess --min-tls-version $StorageAccountMinimalTlsVersion | ConvertFrom-Json).id
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $storageAccountId -ResourceTags ${ResourceTags}

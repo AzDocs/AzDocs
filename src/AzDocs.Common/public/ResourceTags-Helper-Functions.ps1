@@ -10,7 +10,6 @@ function Set-ResourceTagsForResource
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
-    # Update Tags
     Invoke-Executable az tag create --resource-id $ResourceId --tags @ResourceTags
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
