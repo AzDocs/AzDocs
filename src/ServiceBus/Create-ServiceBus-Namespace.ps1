@@ -36,7 +36,7 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-$serviceBusNamespaceId = (Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags $ResourceTags | ConvertFrom-Json).id
+$serviceBusNamespaceId = (Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags @ResourceTags | ConvertFrom-Json).id
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $serviceBusNamespaceId -ResourceTags ${ResourceTags}

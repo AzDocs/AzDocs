@@ -71,7 +71,7 @@ if (!$keyvaultExists)
     }
     else
     {
-        Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku $KeyvaultSku --bypass None --tags ${ResourceTags} @optionalParameters
+        Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku $KeyvaultSku --bypass None --tags @ResourceTags @optionalParameters
     }
 }
 

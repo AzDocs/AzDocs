@@ -60,11 +60,11 @@ if ($MySqlServerMinimalTlsVersion)
 
 if (!$mySqlServerId)
 {
-    $mySqlServerId = (Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+    $mySqlServerId = (Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags @ResourceTags @additionalParameters | ConvertFrom-Json).id
 }
 else
 {
-    Invoke-Executable az mysql server update --admin-password $MySqlServerPassword --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --tags ${ResourceTags} @additionalParameters
+    Invoke-Executable az mysql server update --admin-password $MySqlServerPassword --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --tags @ResourceTags @additionalParameters
 }
 
 # Update Tags
