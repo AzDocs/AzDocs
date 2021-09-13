@@ -80,6 +80,8 @@ VNet whitelisting described in an image looks something like this:
 
 _In this example you see that the outbound traffic from the calling parties (for the App Service this is the Application Gateway and for the SQL Server this is the App Service) are being done through private routes. VNet whitelisting allows you to whitelist private subnets on your public Azure resource endpoint. This way your resources no longer need private endpoints to be able to get called securely from other Azure resources. The connectivity to your public Azure resource endpoint will be limited to the whitelisted subnets. All other traffic will be dropped before being processed. Small note is that your calling services (again; for the App Service this is the Application Gateway and for the SQL Server this is the App Service) should have outgoing network connectivity to your VNet. For App Services & Functions this can be done using VNet integration._
 
+_Note: If you are using a storage account, you need to take extra steps to deploy to the storage account when using VNet whitelisting. For more information, see [Storage-Accounts](../Azure-CLI-Snippets/Storage-Accounts)._
+
 ## On-premises networks
 
 There are several ways of connecting your resources in azure from & to on-premises resources:
