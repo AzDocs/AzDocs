@@ -7,7 +7,7 @@ param (
     [Parameter(Mandatory)][string] $AppServiceVnetIntegrationSubnetName,
     [Parameter()][string] $AppServiceSlotName,
     [Parameter()][bool] $ApplyToAllSlots = $false,
-    [Parameter(Mandatory)][bool] $RouteAllTrafficThroughVnet = $true
+    [Parameter()][bool] $RouteAllTrafficThroughVnet = $true
 )
 
 #region ===BEGIN IMPORTS===
