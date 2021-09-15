@@ -10,12 +10,13 @@ function Assert-CIDR
     param (
         [Parameter()][string] $CIDR,
         # Forcefully agree to this resource to be spun up to be publicly available
-        [Parameter()][bool] $ForcePublic = $false
+        [Parameter()][bool] $ForcePublic = $false, 
+        [Parameter()][ValidateSet("Allow", "Deny")][string] $AccessRestrictionAction = "Allow"
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
     
-    if ($CIDR -like '0.0.0.0*')
+    if ($CIDR -like '0.0.0.0*' -and $AccessRestrictionAction -eq 'Allow')
     {
         if ($ForcePublic -and $ForcePublic -eq $true)
         {

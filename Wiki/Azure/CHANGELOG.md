@@ -2,12 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2021.09.14]
+## [2021.09.15]
 
 ### Breaking Changes
-In the case of using vnet integrated webapps or function apps, the default for the `RouteAllTrafficThroughVnet` is set to `true`.
 
-### Added 
+- In the case of using vnet integrated webapps or function apps, the default for the `RouteAllTrafficThroughVnet` is set to `true`.
+- Changed `$FunctionAppAlwaysOn` parameter from string to boolean. This means that in your pipelines you will have to specify it as a boolean e.g. `$true` or `$false`.
+
+### Added
+
+- Added parameters `DisableVNetWhitelistForDeploymentSlot` and `DisablePrivateEndpointForDeploymentSlot` to Create-WebApp
+- Added parameters to Create Function App `DisableVNetWhitelistForDeploymentSlot`, `DisablePrivateEndpointForDeploymentSlot`, `StopFunctionAppImmediatelyAfterCreation` and `StopFunctionAppSlotImmediatelyAfterCreation`
+- Added functionality to automatically create deployment slots including VNet whitelisting or Private endpoints
 - Added optional parameter `RouteAllTrafficThroughVnet` for `Add-VNet-integration-to-AppService.ps1`.
 - Added optional parameter `RouteAllTrafficThroughVnet` for `Add-VNet-integration-to-Function-App.ps1`.
 - Added migration script [Move-VnetRouteAllSettings.ps1](../../migration/Move-VnetRouteAllSettings.ps1) in the `migration` directory for moving the vnet route all setting to the vnet integration settings.
