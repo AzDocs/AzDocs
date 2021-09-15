@@ -50,7 +50,6 @@ function Get-DiagnosticSettingBasedOnTier
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)][ValidateSet("webapp")][string] $ResourceType,
-        [Parameter(Mandatory)][string[]] $AllowedResourceTiers,
         [Parameter(Mandatory)][string] $CurrentResourceTier
     )
 
