@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.09.14]
+
+### Breaking Changes
+In the case of using vnet integrated webapps or function apps, the default for the `RouteAllTrafficThroughVnet` is set to `true`.
+
+### Added 
+- Added optional parameter `RouteAllTrafficThroughVnet` for `Add-VNet-integration-to-AppService.ps1`.
+- Added optional parameter `RouteAllTrafficThroughVnet` for `Add-VNet-integration-to-Function-App.ps1`.
+- Added migration script [Move-VnetRouteAllSettings.ps1](../../migration/Move-VnetRouteAllSettings.ps1) in the `migration` directory for moving the vnet route all setting to the vnet integration settings.
+
 ## [2021.08.12]
 
 - Added parameter `KeyvaultSku`,`KeyvaultPurgeProtectionEnabled` and `KeyvaultRetentionInDays` to `Create-Keyvault.ps1`.
