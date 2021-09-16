@@ -2615,3 +2615,50 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1"
                     arguments: '-CertificatePath "$(certificateDownload.secureFilePath)" -DomainName "$(GatewayIngressDomainName)" -Gatewayname "$(ApplicationGatewayName)" -gatewayType "$(GatewayType)" -CertificateKeyvaultName "$(PublicKeyvaultName)" -certificatePassword "$(GatewayCertificatePassword)" -backendDomainName "$(BackendDomainName)" -healthProbePath "$(HealthProbePath)" -gatewayruletype "$(GatewayRuleType)" -healthProbeInterval "$(HealthProbeInterval)" -healthProbeThreshold "$(HealthProbeThreshold)" -healthProbeTimeout "$(HealthProbeTimeout)" -healthProbeProtocol "$(HealthProbeProtocol)" -httpsSettingsProtocol "$(HttpsSettingsProtocol)" -httpsSettingsPort "$(HttpsSettingsPort)" -httpsSettingsCookieAffinity "$(HttpsSettingsCookieAffinity)" -httpsSettingsConnectionDrainingTimeout "$(HttpsSettingsConnectionDrainingTimeout)" -httpsSettingsTimeout "$(HttpsSettingsTimeout)" -matchStatusCodes "$(MatchStatusCodes)" -ApplicationGatewayResourceGroupName "$(ApplicationGatewayResourceGroupName)" -CertificateKeyvaultResourceGroupName "$(KeyvaultResourceGroupName)"'
+  - stage: delete
+    displayName: ${{ format('Delete RG from {0}', parameters.EnvironmentName) }}
+    pool:
+      vmImage: $(Stage.Pool)
+    variables:
+      # Basic
+      - name: Location
+        value: westeurope
+      - name: DeployInfra
+        value: "${{ parameters.DeployInfra }}"
+      - name: ResourceBaseName
+        value: $(CompanyName)-$(ProjectName)
+      - name: ResourceGroupName
+        value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
+
+    jobs:
+      - deployment: Delete
+        displayName: Delete Resource Group
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: eq(variables['ResourceDeletion.ResourceGroup.Enabled'], 'true')
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= DELETE RESOURCEGROUP =========================================
+                - task: AzureCLI@2
+                  displayName: "Remove ResourceGroup"
+                  condition: eq(variables['ResourceDeletion.ResourceGroup.Enabled'], 'true')
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Resourcegroup/Remove-ResourceGroup.ps1"
+                    arguments: "-ResourceGroupName '$(ResourceGroupName)'"

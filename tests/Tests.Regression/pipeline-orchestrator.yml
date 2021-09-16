@@ -68,6 +68,9 @@ parameters:
   - name: ResourceCreation.ApplicationGateway.Enabled
     type: boolean
     default: true
+  - name: ResourceDeletion.ResourceGroup.Enabled
+    type: boolean
+    default: true
 
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
@@ -118,6 +121,8 @@ variables:
     value: ${{ parameters['ResourceCreation.ServiceBus.Enabled'] }}
   - name: ResourceCreation.AppConfiguration.Enabled
     value: ${{ parameters['ResourceCreation.AppConfiguration.Enabled'] }}
+  - name: ResourceDeletion.ResourceGroup.Enabled
+    value: ${{ parameters['ResourceDeletion.ResourceGroup.Enabled'] }}
 
   # Tags
   - name: Tag.ApplicationId
