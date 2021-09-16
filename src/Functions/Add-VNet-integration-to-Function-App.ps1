@@ -24,12 +24,12 @@ if ($ApplyToAllSlots)
 }
 
 # Set VNET Integration on the main given slot (normally production)
-Add-VnetIntegration -AppType 'functionapp' -AppResourceGroupName $FunctionAppResourceGroupName -AppName $FunctionAppName -AppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -AppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -AppServiceDeploymentSlotName $FunctionAppServiceDeploymentSlotName -RouteAllTrafficThroughVnet:$RouteAllTrafficThroughVnet
+Add-VnetIntegration -AppType 'functionapp' -AppResourceGroupName $FunctionAppResourceGroupName -AppName $FunctionAppName -AppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -AppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -AppSlotName $FunctionAppServiceDeploymentSlotName -RouteAllTrafficThroughVnet:$RouteAllTrafficThroughVnet
 
 # Apply to all slots if desired
 foreach ($availableSlot in $availableSlots)
 {
-    Add-VnetIntegration -AppType 'functionapp' -AppResourceGroupName $FunctionAppResourceGroupName -AppName $FunctionAppName -AppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -AppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -AppServiceDeploymentSlotName $availableSlot.name -RouteAllTrafficToVNet:$RouteAllTrafficToVNet
+    Add-VnetIntegration -AppType 'functionapp' -AppResourceGroupName $FunctionAppResourceGroupName -AppName $FunctionAppName -AppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -AppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -AppSlotName $availableSlot.name -RouteAllTrafficThroughVnet:$RouteAllTrafficThroughVnet
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
