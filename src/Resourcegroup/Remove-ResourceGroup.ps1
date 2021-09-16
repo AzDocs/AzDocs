@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)][string] $ResourceGroupName,
-    [Parameter][int] $RetryDeletionCount = 3
+    [Parameter()][int] $RetryDeletionCount = 3
 )
 
 #region ===BEGIN IMPORTS===
