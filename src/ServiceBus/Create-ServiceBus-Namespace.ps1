@@ -20,6 +20,9 @@ param (
     # Diagnostic Settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId, 
 
+    [Parameter()][bool] $ServiceBusNamespaceZoneRedundancy = $false,
+    [Parameter()][ValidateSet(1, 2, 4, 8)][int] $ServiceBusNamespaceCapacityInMessageUnits = 1,
+
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic
 )
@@ -36,10 +39,54 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
-$serviceBusNamespaceId = (Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags @ResourceTags | ConvertFrom-Json).id
+$optionalParameters = @()
+if ($ServiceBusNamespaceCapacityInMessageUnits -and $ServiceBusNamespaceSku -eq 'Premium')
+{
+    $optionalParameters += '--capacity', $ServiceBusNamespaceCapacityInMessageUnits
+}
+
+# There is no support for zone redundancy in the az cli or azure powershell modules.
+# This can only be used with premium sku and since the api version is in preview, we'll only use it in this situation
+if ($ServiceBusNamespaceSku -eq 'Premium' -and $ServicebusNamespaceZoneRedundancy -eq $true)
+{
+    $resourceGroupLocation = (Invoke-Executable az group show --resource-group $ServiceBusNamespaceResourceGroupName | ConvertFrom-Json).location
+    
+    $body = @{ 
+        name       = $ServiceBusNamespaceName;
+        location   = $resourceGroupLocation;
+        sku        = @{
+            capacity = $ServiceBusNamespaceCapacityInMessageUnits;
+            name     = $ServiceBusNamespaceSku;
+            tier     = $ServiceBusNamespaceSku;
+        }
+        properties = @{
+            zoneRedundant = $ServiceBusNamespaceZoneRedundancy;
+        }
+    }
+
+    # The create call is a PUT instead of a POST ¯\_(ツ)_/¯
+    $subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
+    $url = "https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$ServiceBusNamespaceResourceGroupName/providers/Microsoft.ServiceBus/namespaces/$ServiceBusNamespaceName"
+    Invoke-AzRestCall -Method PUT -ResourceUrl $url -ApiVersion "2021-01-01-preview" -Body $body
+
+    $serviceBusNamespace = Invoke-Executable az servicebus namespace show --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName | ConvertFrom-Json
+}
+else
+{
+    Invoke-Executable az servicebus namespace create --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName --sku $ServiceBusNamespaceSku --tags @ResourceTags @optionalParameters | ConvertFrom-Json
+    $serviceBusNamespace = Invoke-Executable az servicebus namespace show --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName | ConvertFrom-Json
+}
+
+# Need to wait for the provisioning to succeed, so we can update the tags
+while ($serviceBusNamespace.provisioningState -ne 'Succeeded')
+{
+    Write-Host "Waiting for 30 seconds till the servicebus is provisioned"
+    Start-Sleep -Seconds 30
+    $serviceBusNamespace = Invoke-Executable az servicebus namespace show --resource-group $ServiceBusNamespaceResourceGroupName --name $ServiceBusNamespaceName | ConvertFrom-Json
+}
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $serviceBusNamespaceId -ResourceTags ${ResourceTags}
+Set-ResourceTagsForResource -ResourceId $serviceBusNamespace.id -ResourceTags ${ResourceTags}
 
 # VNET Whitelisting (only supported in SKU Premium)
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
@@ -48,6 +95,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     {
         throw "VNET Whitelisting only supported on Premium SKU. Current SKU: $ServiceBusNamespaceSku"
     }
+
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
     
     # Whitelist VNET
@@ -69,10 +117,10 @@ if ($ServiceBusNamespacePrivateEndpointVnetName -and $ServiceBusNamespacePrivate
     $serviceBusNamespacePrivateEndpointName = "$($ServiceBusNamespaceName)-pvtsbns"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $serviceBusNamespacePrivateEndpointSubnetId -PrivateEndpointName $serviceBusNamespacePrivateEndpointName -PrivateEndpointResourceGroupName $ServiceBusNamespaceResourceGroupName -TargetResourceId $serviceBusNamespaceId -PrivateEndpointGroupId namespace -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ServiceBusNamespacePrivateDnsZoneName -PrivateDnsLinkName "$($ServiceBusNamespacePrivateEndpointVnetName)-servicebusnamespace"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $serviceBusNamespacePrivateEndpointSubnetId -PrivateEndpointName $serviceBusNamespacePrivateEndpointName -PrivateEndpointResourceGroupName $ServiceBusNamespaceResourceGroupName -TargetResourceId $serviceBusNamespace.id -PrivateEndpointGroupId namespace -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ServiceBusNamespacePrivateDnsZoneName -PrivateDnsLinkName "$($ServiceBusNamespacePrivateEndpointVnetName)-servicebusnamespace"
 }
 
 # Enable diagnostic settings for servicebus namespace
-Set-DiagnosticSettings -ResourceId $serviceBusNamespaceId -ResourceName $ServiceBusNamespaceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"') 
+Set-DiagnosticSettings -ResourceId $serviceBusNamespace.id -ResourceName $ServiceBusNamespaceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"') 
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
