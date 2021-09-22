@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added metric alert rule script [Create-Metric-Alert-Rule.ps1](../../src/Monitor/Create-Metric-Alert-Rule.ps1) in the `monitor` directory.
 - Created `Get-Storage-Account-ConnectionString.ps1`.
 - Created `Grant-Public-Access-to-StorageAccount.ps1` because of bug (ip from agent in the same region whitelisted is being ignored).
 - Created `Remove-Public-Access-from-StorageAccount.ps1`.
