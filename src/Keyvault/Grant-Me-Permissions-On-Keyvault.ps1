@@ -16,15 +16,12 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $identityId = (Invoke-Executable az account show | ConvertFrom-Json).user.name
 
-$kvcp = $KeyvaultCertificatePermissions -split ' '
-$kvkp = $KeyvaultKeyPermissions -split ' '
-$kvsp = $KeyvaultSecretPermissions -split ' '
-$kvstp = $KeyvaultStoragePermissions -split ' '
-
-if (!$identityId) {
+if (!$identityId)
+{
     throw "Identity not found"
 }
+
 Write-Host "Identity ID: $identityId"
-Invoke-Executable az keyvault set-policy --name $KeyvaultName --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --spn $identityId --resource-group $KeyvaultResourceGroupName | Out-Null
+Set-KeyvaultPermissions -KeyvaultName $KeyvaultName -ManagedIdentityId $identityId -KeyvaultCertificatePermissions $KeyvaultCertificatePermissions -KeyvaultKeyPermissions $KeyvaultKeyPermissions -KeyvaultSecretPermissions $KeyvaultSecretPermissions -KeyvaultStoragePermissions $KeyvaultStoragePermissions
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

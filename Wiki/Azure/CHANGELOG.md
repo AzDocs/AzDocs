@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.09.22]
+
+### Added
+
+- Created `Get-Storage-Account-ConnectionString.ps1`.
+- Created `Grant-Public-Access-to-StorageAccount.ps1` because of bug (ip from agent in the same region whitelisted is being ignored).
+- Created `Remove-Public-Access-from-StorageAccount.ps1`.
+
+### Updated
+
+- Refactored `Set-Keyvault-permissions-for-AppService-Identity.ps1` to also have the ApplyToAllSlots possibility.
+- Updated `Add-Network-Whitelist-to-Sql-Server.ps1` to be able to open it up publicly.
+- Updated `Get-ObjectID-for-ServiceUser.ps1` to be able to output it as pipeline variable.
+- Updated `pipeline-release.yml` to be able to run the regression test with both agents (windows, linux) for the variant that is spinned up publicly.
+- Updated `pipeline-orchestrator.yml` to be able to tag the resources correctly.
+
 ## [2021.09.15]
 
 ### Breaking Changes

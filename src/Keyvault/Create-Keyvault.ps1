@@ -61,7 +61,6 @@ $optionalParameters += '--retention-days', $KeyvaultRetentionInDays
 $keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }
 if (!$keyvaultExists)
 {
-
     # check if keyvault exists soft-deleted
     $softDeletedKeyvault = Invoke-Executable -AllowToFail az keyvault show-deleted --name $KeyvaultName
     if ($softDeletedKeyvault)

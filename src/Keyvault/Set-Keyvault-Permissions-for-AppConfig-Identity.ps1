@@ -16,12 +16,6 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $identityId = Get-ManagedIdentity -AppConfig -ResourceName $AppConfigName -ResourceGroupName $AppConfigResourceGroupName
-
-$kvcp = $KeyvaultCertificatePermissions -split ' '
-$kvkp = $KeyvaultKeyPermissions -split ' '
-$kvsp = $KeyvaultSecretPermissions -split ' '
-$kvstp = $KeyvaultStoragePermissions -split ' '
-
-Invoke-Executable az keyvault set-policy --certificate-permissions @kvcp --key-permissions @kvkp --secret-permissions @kvsp --storage-permissions @kvstp --object-id $identityId --name $KeyvaultName
+Set-KeyvaultPermissions -KeyvaultName $KeyvaultName -ManagedIdentityId $identityId -KeyvaultCertificatePermissions $KeyvaultCertificatePermissions -KeyvaultKeyPermissions $KeyvaultKeyPermissions -KeyvaultSecretPermissions $KeyvaultSecretPermissions -KeyvaultStoragePermissions $KeyvaultStoragePermissions
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

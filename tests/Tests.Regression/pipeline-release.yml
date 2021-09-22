@@ -8,6 +8,33 @@ parameters:
   - name: DeployInfra
     type: boolean
     default: true
+  - name: TagApplicationId
+    type: string
+    default: 0000
+  - name: TagApplicationName
+    type: string
+    default: MyApplication
+  - name: TagApplicationOwner
+    type: string
+    default: someuser@company.com
+  - name: TagAppTechOwner
+    type: string
+    default: myteam@company.com
+  - name: TagBillingIdentifier
+    type: string
+    default: 0000
+  - name: TagBusinessUnit
+    type: string
+    default: My Business Unit
+  - name: TagCostType
+    type: string
+    default: Platform
+  - name: TagTier
+    type: string
+    default: App
+  - name: TagTeamName
+    type: string
+    default: teamname
 
 stages:
   - stage: ${{ parameters.EnvironmentName }}
@@ -15,6 +42,26 @@ stages:
     pool:
       vmImage: $(Stage.Pool)
     variables:
+      # Tags
+      - name: Tag.ApplicationId
+        value: ${{ parameters['TagApplicationId'] }}
+      - name: Tag.ApplicationName
+        value: ${{ parameters['TagApplicationName'] }}
+      - name: Tag.ApplicationOwner
+        value: ${{ parameters['TagApplicationOwner'] }}
+      - name: Tag.AppTechOwner
+        value: ${{ parameters['TagAppTechOwner'] }}
+      - name: Tag.BillingIdentifier
+        value: ${{ parameters['TagBillingIdentifier'] }}
+      - name: Tag.BusinessUnit
+        value: ${{ parameters['TagBusinessUnit'] }}
+      - name: Tag.CostType
+        value: ${{ parameters['TagCostType'] }}
+      - name: Tag.Tier
+        value: ${{ parameters['TagTier'] }}
+      - name: Tag.TeamName
+        value: ${{ parameters['TagTeamName'] }}
+
       # Basic
       - name: Location
         value: westeurope
@@ -78,6 +125,7 @@ stages:
         value: 10.0.1.0/24
       - name: AppServiceVnetIntegrationVnetName
         value: $(VnetName)
+
       # Private Endpoint AppService
       - name: AppServicePrivateEndpointVnetResourceGroupName
         value: $(VnetResourceGroupName)
@@ -100,6 +148,7 @@ stages:
           'StorageAccount=$(PublicStorageAccountNameToLower)';
           'QueueName=$(StorageAccountQueueName)';
           'FileShareName=$(StorageAccountFileShareName)';
+          'BlobContainer=$(StorageAccountBlobContainerName)';
           )
 
       # App Service ConnectionStrings
@@ -124,7 +173,7 @@ stages:
       - name: StorageConnectionString
         value: '{"name": "StorageConnectionString", "value": "$(ConnectionStrings__Storage)", "type": "Custom", "slotSetting": false}'
       - name: ConnectionStrings__Storage
-        value: "DefaultEndpointsProtocol=https;AccountName=$(PublicStorageAccountNameToLower);EndpointSuffix=core.windows.net"
+        value: "$(GetStorageAccountConnectionStringforPipeline.StorageAccountConnectionString)"
 
       # App Configuration
       - name: PublicAppConfigName
@@ -300,21 +349,7 @@ stages:
       - name: SqlDatabaseName
         value: testdb
       - name: SqlDatabaseEdition
-        value: GeneralPurpose
-      - name: SqlDatabaseFamily
-        value: Gen5
-      - name: SqlDatabaseComputeModel
-        value: Serverless
-      - name: SqlDatabaseAutoPauseDelayInMinutes
-        value: 60
-      - name: SqlDatabaseMinCapacity
-        value: 2
-      - name: SqlDatabaseMaxCapacity
-        value: 8
-      - name: SqlDatabaseBackupStorageRedundancy
-        value: Zone
-      - name: SqlDatabaseMaxStorageSize
-        value: 50GB
+        value: Basic
 
       # MySQL
       - name: MySqlServerLocation
@@ -423,6 +458,10 @@ stages:
         value: mytestqueue
       - name: StorageAccountFileShareName
         value: mytestshare
+      - name: StorageAccountBlobContainerName
+        value: myblobcontainer
+      - name: StorageAccountFileShareDirectoryPath
+        value: folders
 
       # Service Bus
       - name: PublicServiceBusNamespaceName
@@ -820,7 +859,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App.ps1"
-                    arguments: "-AppServicePlanName '$(LinuxAppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -ForcePublic -DisablePublicAccessForAppServiceDeploymentSlot $false -ContainerImageName 'nginxdemos/hello'"
+                    arguments: "-AppServicePlanName '$(LinuxAppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -EnableAppServiceDeploymentSlot -ForcePublic -DisablePublicAccessForAppServiceDeploymentSlot $false"
                 - task: AzureCLI@2
                   displayName: "Create Application Insights Extension for WebApps codeless"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
@@ -1029,14 +1068,6 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault-Secret.ps1"
                     arguments: "-KeyVaultName '$(PublicKeyvaultName)' -SecretName '$(KeyvaultSecretName)' -SecretDescription 'Dummy secret' -SecretValue 'Ultrasecretvalue!'"
-                - task: AzureCLI@2
-                  displayName: "Set (Public) Keyvault Permissions for (Public) AppService Identity"
-                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.Keyvault.Enabled'], 'true'))
-                  inputs:
-                    azureSubscription: "${{ parameters.SubscriptionName }}"
-                    scriptType: pscore
-                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Set-Keyvault-Permissions-for-AppService-Identity.ps1"
-                    arguments: "-AppServiceName '$(PublicAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -KeyvaultCertificatePermissions 'get list' -KeyvaultKeyPermissions 'list get' -KeyvaultSecretPermissions 'get list' -KeyvaultStoragePermissions 'get list' -KeyvaultName '$(PublicKeyvaultName)' -AppServiceSlotName 'staging'"
       - deployment: "PrivateEndpoint_Keyvault"
         displayName: "Keyvault (Private Endpoint)"
         dependsOn: ["ResourceGroup", "BaseResources"]
@@ -1181,7 +1212,15 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Database.ps1"
-                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(PublicSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)' -SqlDatabaseFamily '$(SqlDatabaseFamily)' -SqlDatabaseComputeModel '$(SqlDatabaseComputeModel)' -SqlDatabaseAutoPauseDelayInMinutes '$(SqlDatabaseAutoPauseDelayInMinutes)' -SqlDatabaseMinCapacity '$(SqlDatabaseMinCapacity)' -SqlDatabaseMaxCapacity '$(SqlDatabaseMaxCapacity)' -SqlDatabaseBackupStorageRedundancy '$(SqlDatabaseBackupStorageRedundancy)' -SqlDatabaseMaxStorageSize '$(SqlDatabaseMaxStorageSize)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ResourceTags $(ResourceTags)"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(PublicSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ResourceTags $(ResourceTags)"
+                - task: AzureCLI@2
+                  displayName: "Add Network Whitelist to Sql Server"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Add-Network-Whitelist-to-Sql-Server.ps1"
+                    arguments: "-SqlServerName '$(PublicSqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -CIDRToWhitelist '0.0.0.0/0' -ForcePublic"
       - deployment: "PrivateEndpoint_MSSQL"
         displayName: "MSSQL (Private Endpoint)"
         dependsOn: ["ResourceGroup", "BaseResources"]
@@ -1223,7 +1262,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Database.ps1"
-                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(PrivateEndpointSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)' -SqlDatabaseFamily '$(SqlDatabaseFamily)' -SqlDatabaseComputeModel '$(SqlDatabaseComputeModel)' -SqlDatabaseAutoPauseDelayInMinutes '$(SqlDatabaseAutoPauseDelayInMinutes)' -SqlDatabaseMinCapacity '$(SqlDatabaseMinCapacity)' -SqlDatabaseMaxCapacity '$(SqlDatabaseMaxCapacity)' -SqlDatabaseBackupStorageRedundancy '$(SqlDatabaseBackupStorageRedundancy)' -SqlDatabaseMaxStorageSize '$(SqlDatabaseMaxStorageSize)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ResourceTags $(ResourceTags)"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(PrivateEndpointSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)'-LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ResourceTags $(ResourceTags)"
       - deployment: "VNetWhitelisting_MSSQL"
         displayName: "MSSQL (VNet Whitelisting)"
         dependsOn: ["ResourceGroup", "BaseResources"]
@@ -1265,7 +1304,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Database.ps1"
-                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)' -SqlDatabaseFamily '$(SqlDatabaseFamily)' -SqlDatabaseComputeModel '$(SqlDatabaseComputeModel)' -SqlDatabaseAutoPauseDelayInMinutes '$(SqlDatabaseAutoPauseDelayInMinutes)' -SqlDatabaseMinCapacity '$(SqlDatabaseMinCapacity)' -SqlDatabaseMaxCapacity '$(SqlDatabaseMaxCapacity)' -SqlDatabaseBackupStorageRedundancy '$(SqlDatabaseBackupStorageRedundancy)' -SqlDatabaseMaxStorageSize '$(SqlDatabaseMaxStorageSize)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ResourceTags $(ResourceTags)"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -SqlDatabaseEdition '$(SqlDatabaseEdition)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ResourceTags $(ResourceTags)"
       - deployment: "Public_MySQL"
         displayName: "MySQL (Public)"
         dependsOn: ["ResourceGroup", "BaseResources"]
@@ -1652,7 +1691,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Blobcontainer-in-StorageAccount.ps1"
-                    arguments: "-StorageAccountName '$(GeneratePublicStorageAccountName.PublicStorageAccountNameToLower)' -BlobContainerName 'myblobcontainer' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+                    arguments: "-StorageAccountName '$(GeneratePublicStorageAccountName.PublicStorageAccountNameToLower)' -BlobContainerName '$(StorageAccountBlobContainerName)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
                 - task: AzureCLI@2
                   displayName: "Create Queue in (Public) StorageAccount"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
@@ -1670,21 +1709,13 @@ stages:
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Fileshare-in-StorageAccount.ps1"
                     arguments: "-StorageAccountResourceGroupname '$(StorageAccountResourceGroupname)' -StorageAccountName '$(GeneratePublicStorageAccountName.PublicStorageAccountNameToLower)' -FileshareName '$(StorageAccountFileShareName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
                 - task: AzureCLI@2
-                  displayName: "Grant Permissions for (Public) AppService to (Public) StorageAccount Blob Container"
+                  displayName: "Create Directory on Fileshare"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
-                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Permissions-for-AppService-to-StorageAccount.ps1"
-                    arguments: "-StorageResourceGroupName '$(StorageAccountResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -StorageAccountName '$(GeneratePublicStorageAccountName.PublicStorageAccountNameToLower)' -RoleToAssign 'Storage Blob Data Contributor' -ApplyToAllSlots $true"
-                - task: AzureCLI@2
-                  displayName: "Grant Permissions for (Public) AppService to (Public) StorageAccount Blob Container"
-                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
-                  inputs:
-                    azureSubscription: "${{ parameters.SubscriptionName }}"
-                    scriptType: pscore
-                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Permissions-for-AppService-to-StorageAccount.ps1"
-                    arguments: "-StorageResourceGroupName '$(StorageAccountResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -StorageAccountName '$(GeneratePublicStorageAccountName.PublicStorageAccountNameToLower)' -RoleToAssign 'Storage Queue Data Contributor' -ApplyToAllSlots $true"
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Directory-On-Fileshare.ps1"
+                    arguments: "-StorageAccountName '$(GeneratePublicStorageAccountName.PublicStorageAccountNameToLower)' -FileshareName '$(StorageAccountFileShareName)' -DirectoryPath '$(StorageAccountFileShareDirectoryPath)' -StorageAccountResourceGroupname '$(StorageAccountResourceGroupname)'"
       - deployment: "PrivateEndpoint_StorageAccount"
         displayName: "Storage Account (Private Endpoint)"
         dependsOn: ["ResourceGroup", "BaseResources"]
@@ -1744,7 +1775,7 @@ stages:
                 # ========================================= DOWNLOAD AZDOCS =========================================
                 - task: DownloadPipelineArtifact@2
                   displayName: Download AzDocs
-                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
                   inputs:
                     buildType: specific
                     project: $(AzDocsTeamProjectId)
@@ -1771,6 +1802,59 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Storage-account.ps1"
                     arguments: "-StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ResourceTags $(ResourceTags) -StorageAccountName '$(GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower)' -StorageAccountKind '$(StorageAccountKind)'-StorageAccountSku '$(StorageAccountSku)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+                - task: AzureCLI@2
+                  displayName: "Grant public access to storage account (this is not recommended)" # since whitelisting does not work if the hosted agent is from the same region (and we have no self-hosted agent just yet), open up the storage account
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Public-Access-To-StorageAccount.ps1"
+                    arguments: "-StorageAccountName '$(GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ForcePublic"
+                - task: PowerShell@2 # sleep, so the above task can take effect. This can take up to 60 seconds.
+                  displayName: "Sleep"
+                  inputs:
+                    targetType: "inline"
+                    script: "Start-Sleep -Seconds 60"
+                - task: AzureCLI@2
+                  displayName: "Create Blobcontainer in (VNET Whitelisting) StorageAccount"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Blobcontainer-in-StorageAccount.ps1"
+                    arguments: "-StorageAccountName '$(GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower)' -BlobContainerName 'myblobcontainer' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+                - task: AzureCLI@2
+                  displayName: "Create Queue in (VNET Whitelisting) StorageAccount"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Queue-in-StorageAccount.ps1"
+                    arguments: "-StorageAccountName '$(GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower)' -QueueName '$(StorageAccountQueueName)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+                - task: AzureCLI@2
+                  displayName: "Create Fileshare in (VNET Whitelisting) StorageAccount"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Fileshare-in-StorageAccount.ps1"
+                    arguments: "-StorageAccountResourceGroupname '$(StorageAccountResourceGroupname)' -StorageAccountName '$(GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower)' -FileshareName '$(StorageAccountFileShareName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+                - task: AzureCLI@2
+                  displayName: "Create Directory in (VNET Whitelisting) Fileshare"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Directory-On-Fileshare.ps1"
+                    arguments: "-StorageAccountName '$(GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower)' -FileshareName '$(StorageAccountFileShareName)' -DirectoryPath '$(StorageAccountFileShareDirectoryPath)' -StorageAccountResourceGroupname '$(StorageAccountResourceGroupname)'"
+                - task: AzureCLI@2
+                  displayName: "Remove public access to Storage Account"
+                  condition: succeededOrFailed()
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Remove-Public-Access-from-StorageAccount.ps1"
+                    arguments: "-StorageAccountName '$(GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)'"
       - deployment: "Public_FunctionApp"
         displayName: "Function App (Public)"
         dependsOn: ["ResourceGroup", "BaseResources", "Public_StorageAccount"]
@@ -1967,6 +2051,7 @@ stages:
             "BaseResources",
             "Public_AppService",
             "Public_StorageAccount",
+            "Public_Keyvault",
           ]
         environment:
           name: ${{ parameters.EnvironmentName }}
@@ -1982,7 +2067,7 @@ stages:
                 # ========================================= DOWNLOAD AZDOCS =========================================
                 - task: DownloadPipelineArtifact@2
                   displayName: Download AzDocs
-                  condition: and(succeeded(), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  condition: succeeded()
                   inputs:
                     buildType: specific
                     project: $(AzDocsTeamProjectId)
@@ -2003,12 +2088,21 @@ stages:
                 - task: AzureCLI@2
                   name: GetRedisCacheConnectionStringforPipeline
                   displayName: "Get RedisCache ConnectionString for Pipeline"
-                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], 'true'))
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/RedisCache/Get-RedisCache-ConnectionString-for-Pipeline.ps1"
                     arguments: "-RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' -RedisInstanceName '$(PublicRedisInstanceName)'"
+                - task: AzureCLI@2
+                  name: GetStorageAccountConnectionStringforPipeline
+                  displayName: "Get Storage Account ConnectionString for Pipeline"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Get-StorageAccount-ConnectionString-for-Pipeline.ps1"
+                    arguments: "-StorageAccountName '$(PublicStorageAccountNameToLower)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)'"
                 - task: AzureCLI@2
                   displayName: "Set ConnectionStrings For AppService"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
@@ -2038,14 +2132,65 @@ stages:
                     ResourceGroupName: "$(AppServiceResourceGroupName)"
                     SlotName: "$(AppServiceDeploymentSlotName)"
                     packageForLinux: "$(System.ArtifactsDirectory)/Website_zip/website.zip"
+                # ========================================= GRANT PERMISSIONS TO STORAGE ACCOUNT =========================================
+                - task: AzureCLI@2
+                  displayName: "Grant Permissions for (Public) AppService to (Public) StorageAccount Blob Container"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Permissions-for-AppService-to-StorageAccount.ps1"
+                    arguments: "-StorageResourceGroupName '$(StorageAccountResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -StorageAccountName '$(PublicStorageAccountNameToLower)' -RoleToAssign 'Storage Blob Data Contributor' -ApplyToAllSlots $true"
+                - task: AzureCLI@2
+                  displayName: "Grant Permissions for (Public) AppService to (Public) StorageAccount Queue"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Permissions-for-AppService-to-StorageAccount.ps1"
+                    arguments: "-StorageResourceGroupName '$(StorageAccountResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -StorageAccountName '$(PublicStorageAccountNameToLower)' -RoleToAssign 'Storage Queue Data Contributor' -ApplyToAllSlots $true"
+                # ========================================= GRANT PERMISSIONS TO KEYVAULT ========================================= # TODO: CLEAN UP CONDITIONS
+                - task: AzureCLI@2
+                  displayName: "Set (Public) Keyvault Permissions for (Public) AppService Identity"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Set-Keyvault-Permissions-for-AppService-Identity.ps1"
+                    arguments: "-AppServiceName '$(PublicAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -KeyvaultCertificatePermissions 'get list' -KeyvaultKeyPermissions 'list get' -KeyvaultSecretPermissions 'get list' -KeyvaultStoragePermissions 'get list' -KeyvaultName '$(PublicKeyvaultName)' -ApplyToAllSlots $true"
+                # ========================================= GRANT PERMISSIONS TO SQL SERVER =========================================
+                - task: AzureCLI@2
+                  displayName: "Get ObjectID for ServiceUser"
+                  name: GetObjectIdServiceUser
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Users-and-Accounts/Get-ObjectID-for-ServiceUser.ps1"
+                    arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)'"
+                - task: AzureCLI@2
+                  displayName: "Grant AppService dataread write ddladmin rights on SQL Server"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(PublicSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(GetObjectIdServiceUser.ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(PublicAppServiceName)' -AppServiceSlotName 'staging'"
       - deployment: "VnetWhitelisting_AppService_PostConfiguration"
         displayName: "App Service (VNet Whitelisting) Post Configuration"
         dependsOn:
-          ["ResourceGroup", "BaseResources", "VnetWhitelisting_AppService"]
+          [
+            "ResourceGroup",
+            "BaseResources",
+            "VnetWhitelisting_AppService",
+            "VNetWhitelisting_StorageAccount",
+            "VNetWhitelisting_Keyvault",
+          ]
         environment:
           name: ${{ parameters.EnvironmentName }}
         variables:
           LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+          VNetWhitelistingStorageAccountNameToLower: $[ dependencies.VNetWhitelisting_StorageAccount.outputs['VNetWhitelisting_StorageAccount.GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower'] ]
         timeoutInMinutes: 360
         cancelTimeoutInMinutes: 1
         strategy:
@@ -2073,6 +2218,15 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
                     arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -AppServiceDeploymentSlotName 'staging'"
+                - task: AzureCLI@2
+                  name: GetStorageAccountConnectionStringforPipeline
+                  displayName: "Get Storage Account ConnectionString for Pipeline"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Get-StorageAccount-ConnectionString-for-Pipeline.ps1"
+                    arguments: "-StorageAccountName '$(VNetWhitelistingStorageAccountNameToLower)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)'"
                 - task: AzureCLI@2
                   displayName: "Set ConnectionStrings For AppService"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
@@ -2110,14 +2264,57 @@ stages:
                     ResourceGroupName: "$(AppServiceResourceGroupName)"
                     SlotName: "$(AppServiceDeploymentSlotName)"
                     packageForLinux: "$(System.ArtifactsDirectory)/Website_zip/website.zip"
+                  # ========================================= GRANT PERMISSIONS TO STORAGE ACCOUNT =========================================
                 - task: AzureCLI@2
-                  displayName: "Remove Network Whitelist from App Service"
+                  displayName: "Grant Permissions for (VNET whitelisting) AppService to (VNET whitelisting) StorageAccount Blob Container"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Permissions-for-AppService-to-StorageAccount.ps1"
+                    arguments: "-StorageResourceGroupName '$(StorageAccountResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -StorageAccountName '$(VNetWhitelistingStorageAccountNameToLower)' -RoleToAssign 'Storage Blob Data Contributor' -ApplyToAllSlots $true"
+                - task: AzureCLI@2
+                  displayName: "Grant Permissions for (VNET whitelisting) AppService to (VNET whitelisting) StorageAccount Queue"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Permissions-for-AppService-to-StorageAccount.ps1"
+                    arguments: "-StorageResourceGroupName '$(StorageAccountResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -StorageAccountName '$(VNetWhitelistingStorageAccountNameToLower)' -RoleToAssign 'Storage Queue Data Contributor' -ApplyToAllSlots $true"
+                  # ========================================= GRANT PERMISSIONS TO KEYVAULT =========================================
+                - task: AzureCLI@2
+                  displayName: "Set (VNet whitelisting) Keyvault Permissions for (VNet whitelisting) AppService Identity"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Set-Keyvault-Permissions-for-AppService-Identity.ps1"
+                    arguments: "-AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -KeyvaultCertificatePermissions 'get list' -KeyvaultKeyPermissions 'list get' -KeyvaultSecretPermissions 'get list' -KeyvaultStoragePermissions 'get list' -KeyvaultName '$(VNetWhitelistingKeyvaultName)' -AppServiceSlotName 'staging'"
+                # ========================================= GRANT PERMISSIONS TO SQL SERVER =========================================
+                - task: AzureCLI@2
+                  displayName: "Add Network Whitelist to Sql Server"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Add-Network-Whitelist-to-Sql-Server.ps1"
+                    arguments: "-SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)'"
+                - task: AzureCLI@2
+                  displayName: "Grant AppService dataread write ddladmin rights on SQL Server"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceSlotName 'staging'"
+                - task: AzureCLI@2
+                  displayName: "Remove Network Whitelist from Sql Server"
                   condition: always()
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
-                    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
-                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)' -ApplyToAllSlots $true"
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Remove-Network-Whitelist-from-Sql-Server.ps1"
+                    arguments: "-SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)'"
       - deployment: "Public_ContainerRegistry"
         displayName: "Container Registry (Public)"
         dependsOn: ["ResourceGroup", "BaseResources"]
@@ -2419,6 +2616,72 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Create-ServiceBus-Namespace.ps1"
                     arguments: "-ServiceBusNamespaceName '$(VnetWhitelistingServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+      # - deployment: "Playwright_Test_On_Public_AppService"
+      #   displayName: Playwright Tests on (Public) App Service
+      #   dependsOn:
+      #     [
+      #       "ResourceGroup",
+      #       "BaseResources",
+      #       "Public_AppService",
+      #       "Public_AppService_PostConfiguration",
+      #     ]
+      #   environment:
+      #     name: ${{ parameters.EnvironmentName }}
+      #   variables:
+      #     LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+      #     PLAYWRIGHT_BROWSERS_PATH: "0"
+      #     DISPLAY: ":0.0"
+      #   timeoutInMinutes: 360
+      #   cancelTimeoutInMinutes: 1
+      #   pool:
+      #     vmImage: "windows-latest"
+      #   strategy:
+      #     runOnce:
+      #       deploy:
+      #         steps:
+      #           # ========================================= RUN PLAYWRIGHT TESTS =========================================
+      #           - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
+      #           - task: PowerShell@2
+      #             displayName: "Prepare Playwright env"
+      #             inputs:
+      #               pwsh: true
+      #               targetType: "inline"
+      #               script: |
+      #                 #following the steps in https://playwright.dev/dotnet/docs/intro/
+      #                 cd tests/Tests.Regression/TestApiTests/
+      #                 dotnet tool install --global Microsoft.Playwright.CLI
+      #                 dotnet add package Microsoft.Playwright
+      #                 dotnet build
+      #                 playwright install
+      #           - task: PowerShell@2
+      #             displayName: "Update test.runsettings"
+      #             inputs:
+      #               pwsh: true
+      #               targetType: "inline"
+      #               script: |
+      #                 $path = 'tests/Tests.Regression/test.runsettings'
+      #                 $text = Get-Content $path
+      #                 $newText = $text.Replace('http://localhost','https://$(PublicStagingDomainName)')
+      #                 Write-Host $newText
+      #                 $newText | out-file -FilePath $path -Force
+      #           - task: DotNetCoreCLI@2
+      #             displayName: "dotnet test $(PublicStagingDomainName)"
+      #             inputs:
+      #               command: test
+      #               projects: "tests/Tests.Regression/TestApiTests/TestApi.Tests.csproj"
+      #               arguments: '--settings test.runsettings --collect "Code coverage"'
+      #               testRunTitle: RegressionTest
+      #               workingDirectory: "tests/Tests.Regression"
+      #           - task: PublishTestResults@2
+      #             condition: always()
+      #             displayName: "Publish Test Results To Test Plan module"
+      #             inputs:
+      #               testResultsFormat: NUnit
+      #               testResultsFiles: log.html
+      #               searchFolder: "$(Agent.TempDirectory)/"
+      #               mergeTestResults: true
+      #               failTaskOnFailedTests: true
+      #               testRunTitle: RegressionTest
       - deployment: "Playwright_Test_On_Public_AppService"
         displayName: Playwright Tests on (Public) App Service
         dependsOn:
@@ -2432,49 +2695,51 @@ stages:
           name: ${{ parameters.EnvironmentName }}
         variables:
           LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
-          PLAYWRIGHT_BROWSERS_PATH: "0"
-          DISPLAY: ":0.0"
         timeoutInMinutes: 360
         cancelTimeoutInMinutes: 1
-        pool:
-          vmImage: "windows-latest"
         strategy:
           runOnce:
             deploy:
               steps:
                 # ========================================= RUN PLAYWRIGHT TESTS =========================================
                 - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
-                - task: PowerShell@2
-                  displayName: "Prepare Playwright env"
+                - task: DotNetCoreCLI@2
+                  displayName: Install Playwright CLI
                   inputs:
-                    pwsh: true
+                    command: "custom"
+                    custom: "tool"
+                    arguments: "install --global Microsoft.Playwright.CLI"
+                - task: DotNetCoreCLI@2
+                  displayName: DOTNET build
+                  inputs:
+                    command: "build"
+                    projects: "**/*.csproj"
+                    arguments: "--configuration release"
+                - task: PowerShell@2
+                  displayName: Install Playwright chromium
+                  inputs:
                     targetType: "inline"
                     script: |
-                      #following the steps in https://playwright.dev/dotnet/docs/intro/
-                      cd tests/Tests.Regression/TestApiTests/
-                      dotnet tool install --global Microsoft.Playwright.CLI
-                      dotnet add package Microsoft.Playwright
-                      dotnet build
-                      playwright install
+                      (Get-ChildItem -Path '*.tests.csproj' -Recurse).Directory|Set-Location
+                      playwright install chromium
+                    workingDirectory: "$(Pipeline.Workspace)"
                 - task: PowerShell@2
-                  displayName: "Update test.runsettings"
+                  displayName: adjust test.runsettings file
                   inputs:
-                    pwsh: true
                     targetType: "inline"
                     script: |
-                      $path = 'tests/Tests.Regression/test.runsettings'
+                      $path = (Get-ChildItem -Path 'test.runsettings' -Recurse).FullName
+
                       $text = Get-Content $path
                       $newText = $text.Replace('http://localhost','https://$(PublicStagingDomainName)')
-                      Write-Host $newText
                       $newText | out-file -FilePath $path -Force
+                    workingDirectory: "$(Pipeline.Workspace)"
                 - task: DotNetCoreCLI@2
-                  displayName: "dotnet test $(PublicStagingDomainName)"
+                  displayName: DOTNET test
                   inputs:
-                    command: test
-                    projects: "tests/Tests.Regression/TestApiTests/TestApi.Tests.csproj"
-                    arguments: '--settings test.runsettings --collect "Code coverage"'
-                    testRunTitle: RegressionTest
-                    workingDirectory: "tests/Tests.Regression"
+                    command: "test"
+                    projects: "$(Pipeline.Workspace)/**/*.csproj"
+                    arguments: "--configuration release --settings tests/Tests.Regression/test.runsettings"
                 - task: PublishTestResults@2
                   condition: always()
                   displayName: "Publish Test Results To Test Plan module"
