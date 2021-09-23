@@ -24,14 +24,14 @@ If the given CIDR is already present, the script will not re-add the same CIDR.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Add Network Whitelist to ServiceBus Namespace'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/ServiceBus/Add-Network-Whitelist-to-ServiceBus-Namespace.ps1'
-               arguments: "-ServiceBusNamespaceName '$(ServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -SubnetToWhitelistSubnetName '$(SubnetToWhitelistSubnetName)' -SubnetToWhitelistVnetName '$(SubnetToWhitelistVnetName)' -SubnetToWhitelistVnetResourceGroupName '$(SubnetToWhitelistVnetResourceGroupName)'"
+- task: AzureCLI@2
+  displayName: "Add Network Whitelist to ServiceBus Namespace"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/ServiceBus/Add-Network-Whitelist-to-ServiceBus-Namespace.ps1"
+    arguments: "-ServiceBusNamespaceName '$(ServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -SubnetToWhitelistSubnetName '$(SubnetToWhitelistSubnetName)' -SubnetToWhitelistVnetName '$(SubnetToWhitelistVnetName)' -SubnetToWhitelistVnetResourceGroupName '$(SubnetToWhitelistVnetResourceGroupName)'"
 ```
 
 # Code

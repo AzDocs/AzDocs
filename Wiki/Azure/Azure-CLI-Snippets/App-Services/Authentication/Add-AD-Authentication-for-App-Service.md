@@ -50,14 +50,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Add AD Authentication for App Service'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/App-Services/Authentication/Add-AD-Authentication-for-App-Service.ps1'
-               arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppRegistrationName '$(AppRegistrationName)' -AppRegistrationRedirectUri '$(AppRegistrationRedirectUri)' -ApplicationGatewayRewriteRuleSetName '$(ApplicationGatewayRewriteRuleSetName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayRequestRoutingRuleName '$(ApplicationGatewayRequestRoutingRuleName)' -ApplicationGatewayHealthProbeName '$(ApplicationGatewayHealthProbeName)'"
+- task: AzureCLI@2
+  displayName: "Add AD Authentication for App Service"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Authentication/Add-AD-Authentication-for-App-Service.ps1"
+    arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -AppRegistrationName '$(AppRegistrationName)' -AppRegistrationRedirectUri '$(AppRegistrationRedirectUri)' -ApplicationGatewayRewriteRuleSetName '$(ApplicationGatewayRewriteRuleSetName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayRequestRoutingRuleName '$(ApplicationGatewayRequestRoutingRuleName)' -ApplicationGatewayHealthProbeName '$(ApplicationGatewayHealthProbeName)'"
 ```
 
 # Code

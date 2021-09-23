@@ -16,14 +16,14 @@ This snippet will create a SQL Admin AD user. This is needed to enable Managed I
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create SQL Admin'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Admin.ps1'
-               arguments: "-AdUserName '$(AdUserName)' -AdPassword '$(AdPassword)'"
+- task: AzureCLI@2
+  displayName: "Create SQL Admin"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Admin.ps1"
+    arguments: "-AdUserName '$(AdUserName)' -AdPassword '$(AdPassword)'"
 ```
 
 # Code

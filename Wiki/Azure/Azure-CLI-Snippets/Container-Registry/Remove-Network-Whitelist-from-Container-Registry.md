@@ -24,14 +24,14 @@ This snippet will remove the specified IP Range from the Azure Container Registr
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Remove Network Whitelist from Container Registry'
-           condition: always()
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Registry/Remove-Network-Whitelist-from-Container-Registry.ps1'
-               arguments: "-ContainerRegistryName '$(ContainerRegistryName)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -CIDRToRemoveFromWhitelist '$(CIDRToRemoveFromWhitelist)' -SubnetToRemoveSubnetName '$(SubnetToRemoveSubnetName)' -SubnetToRemoveVnetName '$(SubnetToRemoveVnetName)' -SubnetToRemoveVnetResourceGroupName '$(SubnetToRemoveVnetResourceGroupName)'"
+- task: AzureCLI@2
+  displayName: "Remove Network Whitelist from Container Registry"
+  condition: always()
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Container-Registry/Remove-Network-Whitelist-from-Container-Registry.ps1"
+    arguments: "-ContainerRegistryName '$(ContainerRegistryName)' -ContainerRegistryResourceGroupName '$(ContainerRegistryResourceGroupName)' -CIDRToRemoveFromWhitelist '$(CIDRToRemoveFromWhitelist)' -SubnetToRemoveSubnetName '$(SubnetToRemoveSubnetName)' -SubnetToRemoveVnetName '$(SubnetToRemoveVnetName)' -SubnetToRemoveVnetResourceGroupName '$(SubnetToRemoveVnetResourceGroupName)'"
 ```
 
 # Code

@@ -38,14 +38,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-       - task: AzureCLI@2
-           displayName: 'Create Application Gateway Entrypoint for DomainName'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1'
-               arguments: "-CertificatePath '$(CertificatePath)' -CertificatePassword '$(CertificatePassword)' -IngressDomainName '$(IngressDomainName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayFacingType '$(ApplicationGatewayFacingType)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -CertificateKeyvaultResourceGroupName '$(CertificateKeyvaultResourceGroupName)' -CertificateKeyvaultName '$(CertificateKeyvaultName)' -BackendDomainname '$(BackendDomainname)' -HealthProbeUrlPath '$(HealthProbeUrlPath)' -HealthProbeIntervalInSeconds '$(HealthProbeIntervalInSeconds)' -HealthProbeNumberOfTriesBeforeMarkedDown '$(HealthProbeNumberOfTriesBeforeMarkedDown)' -HealthProbeTimeoutInSeconds '$(HealthProbeTimeoutInSeconds)' -HealthProbeProtocol '$(HealthProbeProtocol)' -HttpsSettingsRequestToBackendProtocol '$(HttpsSettingsRequestToBackendProtocol)' -HttpsSettingsRequestToBackendPort '$(HttpsSettingsRequestToBackendPort)' -HttpsSettingsRequestToBackendCookieAffinity '$(HttpsSettingsRequestToBackendCookieAffinity)' -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds '$(HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds)' -HttpsSettingsRequestToBackendTimeoutInSeconds '$(HttpsSettingsRequestToBackendTimeoutInSeconds)' -HealthProbeMatchStatusCodes '$(HealthProbeMatchStatusCodes)' -ApplicationGatewayRuleType '$(ApplicationGatewayRuleType)'"
+- task: AzureCLI@2
+  displayName: "Create Application Gateway Entrypoint for DomainName"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1"
+    arguments: "-CertificatePath '$(CertificatePath)' -CertificatePassword '$(CertificatePassword)' -IngressDomainName '$(IngressDomainName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayFacingType '$(ApplicationGatewayFacingType)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -CertificateKeyvaultResourceGroupName '$(CertificateKeyvaultResourceGroupName)' -CertificateKeyvaultName '$(CertificateKeyvaultName)' -BackendDomainname '$(BackendDomainname)' -HealthProbeUrlPath '$(HealthProbeUrlPath)' -HealthProbeIntervalInSeconds '$(HealthProbeIntervalInSeconds)' -HealthProbeNumberOfTriesBeforeMarkedDown '$(HealthProbeNumberOfTriesBeforeMarkedDown)' -HealthProbeTimeoutInSeconds '$(HealthProbeTimeoutInSeconds)' -HealthProbeProtocol '$(HealthProbeProtocol)' -HttpsSettingsRequestToBackendProtocol '$(HttpsSettingsRequestToBackendProtocol)' -HttpsSettingsRequestToBackendPort '$(HttpsSettingsRequestToBackendPort)' -HttpsSettingsRequestToBackendCookieAffinity '$(HttpsSettingsRequestToBackendCookieAffinity)' -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds '$(HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds)' -HttpsSettingsRequestToBackendTimeoutInSeconds '$(HttpsSettingsRequestToBackendTimeoutInSeconds)' -HealthProbeMatchStatusCodes '$(HealthProbeMatchStatusCodes)' -ApplicationGatewayRuleType '$(ApplicationGatewayRuleType)'"
 ```
 
 # Code

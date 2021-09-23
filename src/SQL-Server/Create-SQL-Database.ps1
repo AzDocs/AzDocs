@@ -68,7 +68,10 @@ if ($SqlServerElasticPoolName)
 }
 
 # Create SQL database
-$sqlDatabaseId = (Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+$sqlDatabaseId = (Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags @ResourceTags @additionalParameters | ConvertFrom-Json).id
+
+# Set resource tags
+Set-ResourceTagsForResource -ResourceId $sqlDatabaseId -ResourceTags ${ResourceTags}
 
 # Add diagnostic settings to SQL database
 $sqlDiagnosticSettingLogs = "[{ 'category': 'SQLInsights', 'enabled': true }, { 'category': 'AutomaticTuning', 'enabled': true }, { 'category': 'QueryStoreRuntimeStatistics', 'enabled': true }, { 'category': 'QueryStoreWaitStatistics', 'enabled': true }, { 'category': 'Errors', 'enabled': true }, { 'category': 'DatabaseWaitStatistics', 'enabled': true },  { 'category': 'Timeouts', 'enabled': true }, { 'category': 'Blocks', 'enabled': true }, { 'category': 'Deadlocks', 'enabled': true }]"

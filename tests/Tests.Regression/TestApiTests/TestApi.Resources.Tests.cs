@@ -7,17 +7,18 @@ using System.IO;
 
 namespace TestApi.Tests
 {
+
     [TestFixture]
     public class TestApiResourcesTests
     {
-        private static bool _enableVideo;
-        private static bool _enableScreenshots;
+        private bool _enableVideo;
+        private bool _enableScreenshots;
 
-        private static IBrowser _browser;
-        private static IBrowserContext _context;
-        private static IPage _page;
+        private IBrowser _browser;
+        private IBrowserContext _context;
+        private IPage _page;
 
-        private static List<TestResult> _testResults;
+        private List<TestResult> _testResults;
 
         [SetUp]
         public async Task Setup()
@@ -34,9 +35,11 @@ namespace TestApi.Tests
             //set options
             _browser = await chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
+#if DEBUG
                 Headless = false,
                 Devtools = true,
                 SlowMo = 1000
+#endif
             });
 
             _context = await _browser.NewContextAsync(new BrowserNewContextOptions
@@ -49,6 +52,7 @@ namespace TestApi.Tests
 
             if (_enableVideo)
             {
+                //a video (when enabled) is always made
                 var videoPath = await _page.Video.PathAsync();
                 _testResults.Add(new TestResult { Description = "videorecording", Path = videoPath });
             }
@@ -69,34 +73,37 @@ namespace TestApi.Tests
         [Test]
         [TestCase("textOnHomepage", "")]
         [TestCase("textOnKeyvaultPage", "keyvault")]
-        [TestCase("textOnSqlPage", "sql")]
+        [TestCase("textOnSQLPage", "sql")]
         [TestCase("textOnPostgreSql", "postgresql")]
         [TestCase("textOnMySql", "mysql")]
         [TestCase("textOnRedis", "redis")]
         [TestCase("textOnBlob", "storage/blob")]
         [TestCase("textOnQueue", "storage/queue")]
         [TestCase("textOnFileshare", "storage/fileshare")]
-        public static async Task Page_Should_Return_Text(string paramName, string url)
+        public async Task Page_Should_Return_Text(string paramName, string relUrl)
         {
-            // because we cannot setup automatic screenshot on failure, we're using (at the moment) this instead. 
             // Todo: investigate if we could better use the tracing option + check how to use this in the test overview in devops
+
+
             try
             {
                 // Arrange
                 string checkTextOnPage = TestContext.Parameters[paramName];
 
                 // Act
-                await _page.GotoAsync(url);
+                await _page.GotoAsync(relUrl);
                 var textContent = await _page.ContentAsync();
 
                 // Assert
-                StringAssert.Contains(checkTextOnPage, textContent);
+                StringAssert.IsMatch(checkTextOnPage, textContent);
+
             }
             catch
             {
                 if (_enableScreenshots)
                 {
-                    var screenshotName = $"screenshot_{url}_{DateTime.Now.ToLongDateString()}.png";
+                    //a screenshot is only created when assertion is not matched.
+                    var screenshotName = $"screenshot_{relUrl}_{DateTime.Now.ToLongDateString()}.png";
                     string screenshotFile = Path.Combine(TestContext.CurrentContext.WorkDirectory, screenshotName);
                     await _page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotName, FullPage = true });
                     _testResults.Add(new TestResult { Description = screenshotName.Replace(".png", ""), Path = screenshotFile });
@@ -105,13 +112,16 @@ namespace TestApi.Tests
                 throw;
             }
         }
+
+        public class TestResult
+        {
+            public string Path { get; set; }
+            public string Description { get; set; }
+        }
+
     }
 
-    public class TestResult
-    {
-        public string Path { get; set; }
-        public string Description { get; set; }
-    }
+
 
     #region Login
 

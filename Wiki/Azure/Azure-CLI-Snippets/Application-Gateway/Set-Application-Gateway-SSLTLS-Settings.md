@@ -35,14 +35,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Set Application Gateway SSLTLS Settings'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Application-Gateway/Set-Application-Gateway-SSLTLS-Settings.ps1'
-               arguments: "-ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayPolicyType '$(ApplicationGatewayPolicyType)' -ApplicationGatewayPredefinedPolicyName '$(ApplicationGatewayPredefinedPolicyName)' -ApplicationGatewayMinimalProtocolVersion '$(ApplicationGatewayMinimalProtocolVersion)' -ApplicationGatewayCipherSuites $(ApplicationGatewayCipherSuites)"
+- task: AzureCLI@2
+  displayName: "Set Application Gateway SSLTLS Settings"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Set-Application-Gateway-SSLTLS-Settings.ps1"
+    arguments: "-ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayPolicyType '$(ApplicationGatewayPolicyType)' -ApplicationGatewayPredefinedPolicyName '$(ApplicationGatewayPredefinedPolicyName)' -ApplicationGatewayMinimalProtocolVersion '$(ApplicationGatewayMinimalProtocolVersion)' -ApplicationGatewayCipherSuites $(ApplicationGatewayCipherSuites)"
 ```
 
 # Code

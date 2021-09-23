@@ -23,7 +23,17 @@
 //            _logger = logger;
 //            _cassandraService = cassandraService;
 //        }
-
+//        /// <summary>
+//        /// Returns data in a Cassandra keyspace table. The keyspace and table are created if they do not exist.
+//        /// </summary>
+//        /// <returns>A string status.</returns>
+//        /// <remarks>
+//        /// Sample request:
+//        ///
+//        ///     Get /cassandra
+//        ///
+//        /// </remarks>
+//        /// <response code="200">Returns data in a table.</response>
 //        [HttpGet]
 //        public string Get()
 //        {

@@ -10,7 +10,21 @@
 #   GatewayIngressDomainName: The domainname you want to use as your entrypoint for this test application. This should be matching the certificate details below.
 #   GatewayCertificateSecureFileName: The name of the secure file containing your pfx for the AppGw certificate
 #   GatewayCertificatePassword: The password for the AppGw certificate pfx
-# 
+#   ServiceUserEmail: The service user to grant permissions to the SQL server
+#   ServiceUserObjectId: The object id of the service user to grant permissions to the SQL server
+#   ServiceUserPassword: The password of the service user to grant permissions to SQL Server
+#
+# The following vars can be optional in your pipeline-variable:
+#     TagApplicationId: A tag for the ApplicationId. If not added, defaults to: 0000.
+#     TagApplicationName: A tag for the ApplicationName. If not added, defaults to: MyApplication.
+#     TagApplicationOwner: A tag for the ApplicationOwner. If not added, defaults to: someuser@company.com.
+#     TagAppTechOwner: A tag for the AppTechOwner. If not added, defaults to: myteam@company.com.
+#     TagBillingIdentifier: A tag for the BillingIdentifier. If not added, defaults to: 0000.
+#     TagBusinessUnit: A tag for the BusinessUnit. If not added, defaults to: My Business Unit.
+#     TagCostType: A tag for the CostType. If not added, defaults to: Platform.
+#     TagTier: A tag for the Tier. If not added, defaults to: App.
+#     TagTeamName: A tag for the TeamName. If not added, defaults to: teamname.
+
 # And finally add a Service Connection to your Azure DevOps Project to your Azure Subscription with the Service Connection Name "AZDOCSREGRESSIONTESTSUBSCRIPTION".
 # Unfortunately theres a technical limitation in Azure DevOps which prevents us from making this a pipeline variable.
 #
@@ -68,20 +82,22 @@ parameters:
   - name: ResourceCreation.ApplicationGateway.Enabled
     type: boolean
     default: true
+  - name: ResourceDeletion.ResourceGroup.Enabled
+    type: boolean
+    default: true
 
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
     include:
-    - main
-    - more-regression-tests
+      - main
 
 pool:
-    vmImage: 'ubuntu-20.04'
+  vmImage: "ubuntu-20.04"
 
 variables:
   # Basic
-  - name: ProjectName 
+  - name: ProjectName
     value: TestApi
 
   # Switches
@@ -119,38 +135,31 @@ variables:
     value: ${{ parameters['ResourceCreation.ServiceBus.Enabled'] }}
   - name: ResourceCreation.AppConfiguration.Enabled
     value: ${{ parameters['ResourceCreation.AppConfiguration.Enabled'] }}
-
-  # Tags
-  - name: Tag.ApplicationId
-    value: 0000
-  - name: Tag.ApplicationName 
-    value: MyApplication
-  - name: Tag.ApplicationOwner 
-    value: someuser@company.com
-  - name: Tag.AppTechOwner
-    value: myteam@company.com
-  - name: Tag.BillingIdentifier
-    value: 0000
-  - name: Tag.BusinessUnit
-    value: My Business Unit
-  - name: Tag.CostType
-    value: Platform
-  - name: Tag.Tier 
-    value: App
+  - name: ResourceDeletion.ResourceGroup.Enabled
+    value: ${{ parameters['ResourceDeletion.ResourceGroup.Enabled'] }}
 
   # Stage Pool
   - name: Stage.Pool
-    value: 'ubuntu-20.04'
+    value: "ubuntu-20.04"
 stages:
-- stage: 'Build'
-  jobs:
-    - job: Build
-      condition: eq(variables['ResourceCreation.AppService.Enabled'], 'true')
-      displayName: 'Build'
-      steps:
-       - template: pipeline-build.yml 
+  - stage: "Build"
+    jobs:
+      - job: Build
+        condition: eq(variables['ResourceCreation.AppService.Enabled'], 'true')
+        displayName: "Build"
+        steps:
+          - template: pipeline-build.yml
 
-- template: pipeline-release.yml
-  parameters:
-    EnvironmentName: dev
-    SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION
+  - template: pipeline-release.yml
+    parameters:
+      EnvironmentName: dev
+      SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION
+      TagApplicationId: $(TagApplicationId)
+      TagApplicationName: $(TagApplicationName)
+      TagApplicationOwner: $(TagApplicationOwner)
+      TagAppTechOwner: $(TagAppTechOwner)
+      TagBillingIdentifier: $(TagBillingIdentifier)
+      TagBusinessUnit: $(TagBusinessUnit)
+      TagCostType: $(TagCostType)
+      TagTier: $(TagTier)
+      TagTeamName: $(TagTeamName)

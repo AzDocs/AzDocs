@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.09.22]
+
+### Added
+
+- Added metric alert rule script [Create-Metric-Alert-Rule.ps1](../../src/Monitor/Create-Metric-Alert-Rule.ps1) in the `monitor` directory.
+- Created `Get-Storage-Account-ConnectionString.ps1`.
+- Created `Grant-Public-Access-to-StorageAccount.ps1` because of bug (ip from agent in the same region whitelisted is being ignored).
+- Created `Remove-Public-Access-from-StorageAccount.ps1`.
+
+### Updated
+
+- Refactored `Set-Keyvault-permissions-for-AppService-Identity.ps1` to also have the ApplyToAllSlots possibility.
+- Updated `Add-Network-Whitelist-to-Sql-Server.ps1` to be able to open it up publicly.
+- Updated `Get-ObjectID-for-ServiceUser.ps1` to be able to output it as pipeline variable.
+- Updated `pipeline-release.yml` to be able to run the regression test with both agents (windows, linux) for the variant that is spinned up publicly.
+- Updated `pipeline-orchestrator.yml` to be able to tag the resources correctly.
+
+## [2021.09.15]
+
+### Breaking Changes
+
+- In the case of using vnet integrated webapps or function apps, the default for the `RouteAllTrafficThroughVnet` is set to `true`.
+- Changed `$FunctionAppAlwaysOn` parameter from string to boolean. This means that in your pipelines you will have to specify it as a boolean e.g. `$true` or `$false`.
+
+### Added
+
+- Added parameters `DisableVNetWhitelistForDeploymentSlot` and `DisablePrivateEndpointForDeploymentSlot` to Create-WebApp
+- Added parameters to Create Function App `DisableVNetWhitelistForDeploymentSlot`, `DisablePrivateEndpointForDeploymentSlot`, `StopFunctionAppImmediatelyAfterCreation` and `StopFunctionAppSlotImmediatelyAfterCreation`
+- Added functionality to automatically create deployment slots including VNet whitelisting or Private endpoints
+- Added optional parameter `RouteAllTrafficThroughVnet` for `Add-VNet-integration-to-AppService.ps1`.
+- Added optional parameter `RouteAllTrafficThroughVnet` for `Add-VNet-integration-to-Function-App.ps1`.
+- Added migration script [Move-VnetRouteAllSettings.ps1](../../migration/Move-VnetRouteAllSettings.ps1) in the `migration` directory for moving the vnet route all setting to the vnet integration settings.
+
 ## [2021.08.12]
 
 - Added parameter `KeyvaultSku`,`KeyvaultPurgeProtectionEnabled` and `KeyvaultRetentionInDays` to `Create-Keyvault.ps1`.

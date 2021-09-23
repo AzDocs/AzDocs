@@ -1,5 +1,9 @@
-[[_TOC_]]
-
+- [Guidelines for creating new scripts](#guidelines-for-creating-new-scripts)
+  - [Coding Convention](#coding-convention)
+    - [Naming](#naming)
+    - [Code conventions checklist](#code-conventions-checklist)
+  - [Wiki Markdown file](#wiki-markdown-file)
+    - [Table of contents](#table-of-contents)
 # Guidelines for creating new scripts
 
 If you want to create new scripts and PR them into this repo, make sure to follow the [Azure CLI unless](/Azure/Documentation#azure-cli-unless) rule. We make use of creating [powershell advanced functions](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.1). A general advise is to take a look at other scripts and copy those and go from there.
@@ -77,3 +81,24 @@ Whenever submitting new scripts, please make sure it is checked against the chec
 - <input type="checkbox"> When a script will be deprecated add a warning to the wiki page that the script will be deprecated.
 - <input type="checkbox"> When a script will be deprecated add a warning with a message that the script is deprecated.
 - <input type="checkbox"> When a script will be deprecated add a warning with the following so the task will complete with issues: `Write-Host "##vso[task.complete result=SucceededWithIssues;]"`
+
+
+## Wiki Markdown file 
+Every script file should also have a wiki markdown file that should explain how the script should be used.
+
+### Table of contents
+For creating Table of contents for markdown files, you could use visual studio code with the 
+[Markdown All in One extension](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one) with the [Table of content feature](
+https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one#table-of-contents)
+
+For adding a table of content in a markdown file, go to the command palette:
+
+Menu item `View` -> `Command Palette...`  
+
+or
+
+<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>p</kbd>
+
+search for `markdown all in one: create table of contents`
+
+The Table of content is inserted and automatically updated when saved.

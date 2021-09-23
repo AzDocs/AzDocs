@@ -48,7 +48,7 @@ if ($RedisInstanceSubnetId)
     $additionalParameters += '--subnet-id', $RedisInstanceSubnetId
 }
     
-$redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --minimum-tls-version $RedisInstanceMinimalTlsVersion --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+$redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --minimum-tls-version $RedisInstanceMinimalTlsVersion --tags @ResourceTags @additionalParameters | ConvertFrom-Json).id
 while (((Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json).provisioningState -eq 'Creating')
 {
     Write-Host "Redis still creating... waiting for it to complete..."

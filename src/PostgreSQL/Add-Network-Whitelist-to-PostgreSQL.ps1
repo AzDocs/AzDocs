@@ -6,7 +6,8 @@ param (
     [Parameter()][ValidatePattern('^$|^(?:(?:\d{1,3}.){3}\d{1,3})(?:\/(?:\d{1,2}))?$', ErrorMessage = "The text '{0}' does not match with the CIDR notation, like '1.2.3.4/32'")][string] $CIDRToWhitelist,
     [Parameter()][string] $SubnetToWhitelistSubnetName,
     [Parameter()][string] $SubnetToWhitelistVnetName,
-    [Parameter()][string] $SubnetToWhitelistVnetResourceGroupName
+    [Parameter()][string] $SubnetToWhitelistVnetResourceGroupName,
+    [Parameter()][switch] $ForcePublic
 )
 
 #region ===BEGIN IMPORTS===
@@ -19,7 +20,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
 
 # Check if CIDR is passed, it adheres to restrictions
-Assert-CIDR -CIDR:$CIDRToWhitelist
+Assert-CIDR -CIDR:$CIDRToWhitelist -ForcePublic:$ForcePublic
 
 # Autogenerate CIDR if no CIDR or Subnet is passed
 $CIDRToWhiteList = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName 

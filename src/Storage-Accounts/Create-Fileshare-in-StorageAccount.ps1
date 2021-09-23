@@ -6,7 +6,6 @@ param (
     [Parameter(Mandatory)][string] $StorageAccountName,
     [Alias("ShareName")]
     [Parameter(Mandatory)][string] $FileshareName,
-    # [Parameter(Mandatory)][string] $FileshareDiagnosticsName,
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
 )
 

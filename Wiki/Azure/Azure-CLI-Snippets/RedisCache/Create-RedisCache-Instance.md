@@ -47,14 +47,14 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create RedisCache Instance'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/RedisCache/Create-RedisCache-Instance.ps1'
-               arguments: "-RedisInstanceLocation '$(RedisInstanceLocation)' -RedisInstanceName '$(RedisInstanceName)' -RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' -RedisInstanceSkuName '$(RedisInstanceSkuName)' -RedisInstanceVmSize '$(RedisInstanceVmSize)' -RedisInstanceEnableNonSslPort '$(RedisInstanceEnableNonSslPort)' -RedisInstanceMinimalTlsVersion '$(RedisInstanceMinimalTlsVersion)' -ResourceTags $(ResourceTags) -RedisInstancePrivateEndpointVnetResourceGroupName '$(RedisInstancePrivateEndpointVnetResourceGroupName)' -RedisInstancePrivateEndpointVnetName '$(RedisInstancePrivateEndpointVnetName)' -RedisInstancePrivateEndpointSubnetName '$(RedisInstancePrivateEndpointSubnetName)' -RedisInstancePrivateDnsZoneName '$(RedisInstancePrivateDnsZoneName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+- task: AzureCLI@2
+  displayName: "Create RedisCache Instance"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/RedisCache/Create-RedisCache-Instance.ps1"
+    arguments: "-RedisInstanceLocation '$(RedisInstanceLocation)' -RedisInstanceName '$(RedisInstanceName)' -RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' -RedisInstanceSkuName '$(RedisInstanceSkuName)' -RedisInstanceVmSize '$(RedisInstanceVmSize)' -RedisInstanceEnableNonSslPort '$(RedisInstanceEnableNonSslPort)' -RedisInstanceMinimalTlsVersion '$(RedisInstanceMinimalTlsVersion)' -ResourceTags $(ResourceTags) -RedisInstancePrivateEndpointVnetResourceGroupName '$(RedisInstancePrivateEndpointVnetResourceGroupName)' -RedisInstancePrivateEndpointVnetName '$(RedisInstancePrivateEndpointVnetName)' -RedisInstancePrivateEndpointSubnetName '$(RedisInstancePrivateEndpointSubnetName)' -RedisInstancePrivateDnsZoneName '$(RedisInstancePrivateDnsZoneName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
 ```
 
 # Code

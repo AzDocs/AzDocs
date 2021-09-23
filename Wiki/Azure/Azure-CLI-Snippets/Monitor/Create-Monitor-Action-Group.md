@@ -19,14 +19,14 @@ NOTE: An action group belongs to a resourcegroup. It is not bound to a specific 
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create Monitor Action Group'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Monitor/Create-Monitor-Action-Group.ps1'
-               arguments: "-MonitorAlertActionGroupName '$(MonitorAlertActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -AlertAction '$(AlertAction)'"
+- task: AzureCLI@2
+  displayName: "Create Monitor Action Group"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Monitor-Action-Group.ps1"
+    arguments: "-MonitorAlertActionGroupName '$(MonitorAlertActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -AlertAction '$(AlertAction)'"
 ```
 
 # Code

@@ -53,7 +53,7 @@ if ($ElasticPoolZoneRedundancy)
 }
 
 # Create Elastic Pool
-$elasticPoolId = (Invoke-Executable az sql elastic-pool create --name $ElasticPoolName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+$elasticPoolId = (Invoke-Executable az sql elastic-pool create --name $ElasticPoolName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags @ResourceTags @additionalParameters | ConvertFrom-Json).id
 
 # Add diagnostic settings to Elastic Pool
 Set-DiagnosticSettings -ResourceId $elasticPoolId -ResourceName $ElasticPoolName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'Basic', 'enabled': true }, { 'category': 'InstanceAndAppAdvanced', 'enabled': true } ]".Replace("'", '\"')

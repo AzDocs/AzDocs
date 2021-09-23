@@ -2,9 +2,9 @@
 
 # Description
 
-You need to use a manual process to acquire a SSL certificate (Internal or External). Mostly the Service Now process is used for this. This article assumes you have gone through this process and have a .pfx at your disposal including a possible password for this file.
+You need to use a manual process to acquire a SSL certificate (Internal or External). This article assumes you have gone through this process and have a .pfx at your disposal including a possible password for this file.
 
-This code will allow you to upload/import this pfx on the given (existing) Keyvault for which you have the necessary access rights to do so. You can alter or check these rights when going to the Keyvault and click "Access Policies". Select "Add Access Policy". Select the correct permissions (or use a template) and add your bhr\_ account at "Select Principal". Save.
+This code will allow you to upload/import this pfx on the given (existing) Keyvault for which you have the necessary access rights to do so. You can alter or check these rights when going to the Keyvault and click "Access Policies". Select "Add Access Policy". Select the correct permissions (or use a template) and add your account at "Select Principal". Save.
 
 Assuming you have the .pfx on your local disk, the easiest way is to upload this file to the Cloud Shell in the Azure Portal. From there you run below snippets (where you replace the variables with your own values.
 

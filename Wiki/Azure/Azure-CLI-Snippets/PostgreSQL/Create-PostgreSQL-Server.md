@@ -54,14 +54,14 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create PostgreSQL Server'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/PostgreSQL/Create-PostgreSQL-Server.ps1'
-               arguments: "-PostgreSqlServerPassword '$(PostgreSqlServerPassword)' -PostgreSqlServerUsername '$(PostgreSqlServerUsername)' -PostgreSqlServerName '$(PostgreSqlServerName)' -PostgreSqlServerResourceGroupName '$(PostgreSqlServerResourceGroupName)' -PostgreSqlServerSku '$(PostgreSqlServerSku)' -BackupRetentionInDays '$(BackupRetentionInDays)' -PostgreSqlServerVersion '$(PostgreSqlServerVersion)' -PostgreSqlServerPublicNetworkAccess '$(PostgreSqlServerPublicNetworkAccess)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -PostgreSqlServerPrivateEndpointVnetResourceGroupName '$(PostgreSqlServerPrivateEndpointVnetResourceGroupName)' -PostgreSqlServerPrivateEndpointVnetName '$(PostgreSqlServerPrivateEndpointVnetName)' -PostgreSqlServerPrivateEndpointSubnetName '$(PostgreSqlServerPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -PostgreSqlServerPrivateDnsZoneName '$(PostgreSqlServerPrivateDnsZoneName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -PostgreSqlServerMinimalTlsVersion '$(PostgreSqlServerMinimalTlsVersion)'"
+- task: AzureCLI@2
+  displayName: "Create PostgreSQL Server"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/PostgreSQL/Create-PostgreSQL-Server.ps1"
+    arguments: "-PostgreSqlServerPassword '$(PostgreSqlServerPassword)' -PostgreSqlServerUsername '$(PostgreSqlServerUsername)' -PostgreSqlServerName '$(PostgreSqlServerName)' -PostgreSqlServerResourceGroupName '$(PostgreSqlServerResourceGroupName)' -PostgreSqlServerSku '$(PostgreSqlServerSku)' -BackupRetentionInDays '$(BackupRetentionInDays)' -PostgreSqlServerVersion '$(PostgreSqlServerVersion)' -PostgreSqlServerPublicNetworkAccess '$(PostgreSqlServerPublicNetworkAccess)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -PostgreSqlServerPrivateEndpointVnetResourceGroupName '$(PostgreSqlServerPrivateEndpointVnetResourceGroupName)' -PostgreSqlServerPrivateEndpointVnetName '$(PostgreSqlServerPrivateEndpointVnetName)' -PostgreSqlServerPrivateEndpointSubnetName '$(PostgreSqlServerPrivateEndpointSubnetName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -PostgreSqlServerPrivateDnsZoneName '$(PostgreSqlServerPrivateDnsZoneName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -PostgreSqlServerMinimalTlsVersion '$(PostgreSqlServerMinimalTlsVersion)'"
 ```
 
 # Code

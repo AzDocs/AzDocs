@@ -6,6 +6,11 @@ function Get-StartIpInIpv4Network
 		[Parameter(Mandatory)][string] $SubnetCidr
 	)
 
+	if ($SubnetCidr -eq '0.0.0.0/0')
+	{
+		return "0.0.0.0"
+	}
+
 	$splittedIpAddress = $SubnetCidr -split '/'
 	$subnetMask = ConvertTo-IPv4MaskString -MaskBits $splittedIpAddress[1]
 
@@ -34,6 +39,11 @@ function Get-EndIpInIpv4Network
 	param (
 		[Parameter(Mandatory)][string] $SubnetCidr
 	)
+
+	if ($SubnetCidr -eq '0.0.0.0/0')
+	{
+		return "255.255.255.255"
+	}
 
 	$splittedIpAddress = $SubnetCidr -split '/'
 	$subnetMask = ConvertTo-IPv4MaskString -MaskBits $splittedIpAddress[1]
