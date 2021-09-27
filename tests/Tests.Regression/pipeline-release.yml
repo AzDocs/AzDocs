@@ -2776,6 +2776,7 @@ stages:
             "ApplicationGateway",
             "Public_AppService_SwapSlots",
           ]
+
         environment:
           name: ${{ parameters.EnvironmentName }}
         variables:

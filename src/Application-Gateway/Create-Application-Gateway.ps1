@@ -74,9 +74,10 @@ Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointSer
 
 # Check if we need to add network rules to our keyvault
 $keyvaultNetworkRules = Invoke-Executable az keyvault network-rule list --resource-group $CertificateKeyvaultResourceGroupName --name $CertificateKeyvaultName | ConvertFrom-Json
-if ($keyvaultNetworkRules.virtualNetworkRules.count -gt 0 -or $keyvaultNetworkRules.virtualNetworkRules.count -gt 0)
+if (!$keyvaultNetworkRules.virtualNetworkRules.id -contains $gatewaySubnetId)
 {
     # Whitelist our Gateway's subnet in the Certificate Keyvault so we can connect
+    Write-Host 'Adding gateway subnet to the corresponding keyvault'
     Invoke-Executable az keyvault network-rule add --resource-group $CertificateKeyvaultResourceGroupName --name $CertificateKeyvaultName --subnet $gatewaySubnetId
 }
 
