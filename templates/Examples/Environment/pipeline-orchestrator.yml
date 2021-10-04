@@ -37,6 +37,8 @@ variables:
     value: Application
   - name: Tag.Tier
     value: App
+  - name: Tag.TeamName
+    value: Team
 
   # Stage Pool
   - name: Stage.Pool
