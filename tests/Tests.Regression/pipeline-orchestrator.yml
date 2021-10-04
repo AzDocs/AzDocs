@@ -58,6 +58,9 @@ parameters:
   - name: ResourceCreation.MySQL.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.CosmosDB.Enabled
+    type: boolean
+    default: true
   - name: ResourceCreation.PostgreSQL.Enabled
     type: boolean
     default: true
@@ -117,6 +120,8 @@ variables:
     value: ${{ parameters['ResourceCreation.MSSQL.Enabled'] }}
   - name: ResourceCreation.MySQL.Enabled
     value: ${{ parameters['ResourceCreation.MySQL.Enabled'] }}
+  - name: ResourceCreation.CosmosDB.Enabled
+    value: ${{ parameters['ResourceCreation.CosmosDB.Enabled'] }}
   - name: ResourceCreation.PostgreSQL.Enabled
     value: ${{ parameters['ResourceCreation.PostgreSQL.Enabled'] }}
   - name: ResourceCreation.RedisCache.Enabled
