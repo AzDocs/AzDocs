@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.09.24]
+
+### Updated
+
+- Updated `Create-Application-Gateway-Entrypoint-for-DomainName.ps1` to be able to update keyvault values in a VNet whitelisted keyvault.
+
 ## [2021.09.22]
 
 ### Added

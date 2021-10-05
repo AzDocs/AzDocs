@@ -379,6 +379,28 @@ stages:
       - name: MySqlDatabaseName
         value: mymysqldb
 
+      # CosmosDB Cassandra
+      - name: PublicCosmosDbAccountName
+        value: $(ResourceBaseName)-pcm-${{ parameters.EnvironmentName }}
+      - name: PrivateEndpointCosmosDbAccountName
+        value: $(ResourceBaseName)-ecm-${{ parameters.EnvironmentName }}
+      - name: VNetWhitelistingCosmosDbAccountName
+        value: $(ResourceBaseName)-vcm-${{ parameters.EnvironmentName }}
+      - name: CosmosDbAccountResourceGroupName
+        value: $(ResourceGroupName)
+      - name: CosmosDbKind
+        value: Cassandra
+      - name: CosmosDbPrivateEndpointVnetName
+        value: $(VnetName)
+      - name: CosmosDbPrivateEndpointVnetResourceGroupName
+        value: $(VnetResourceGroupName)
+      - name: CosmosDbPrivateEndpointSubnetName
+        value: $(PrivateEndpointSubnetName)
+      - name: CosmosDbPrivateEndpointGroupId
+        value: Cassandra
+      - name: CosmosDbAccountPrivateDnsZoneName
+        value: privatelink.cassandra.cosmos.azure.com
+
       # PostgreSQL
       - name: PostgreSqlServerResourceGroupName
         value: $(ResourceGroupName)
@@ -1573,6 +1595,108 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/PostgreSQL/Create-PostgreSQL-Database.ps1"
                     arguments: "-PostgreSqlServerResourceGroupName '$(PostgreSqlServerResourceGroupName)' -PostgreSqlServerName '$(VNetWhitelistingPostgreSqlServerName)' -PostgreSqlDatabaseName '$(PostgreSqlDatabaseName)'"
+      - deployment: "Public_CosmosDB_Cassandra"
+        displayName: "CosmosDB Cassandra (Public)"
+        dependsOn: ["ResourceGroup", "BaseResources"]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        variables:
+          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= COSMOSDB CASSANDRA =========================================
+                - task: AzureCLI@2
+                  displayName: "Create CosmosDB Account"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbAccount.ps1"
+                    arguments: "-CosmosDbAccountName '$(PublicCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CosmosDbKind '$(CosmosDbKind)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ForcePublic"
+      - deployment: "PrivateEndpoint_CosmosDB_Cassandra"
+        displayName: "CosmosDB Cassandra (Private Endpoint)"
+        dependsOn: ["ResourceGroup", "BaseResources"]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        variables:
+          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= COSMOSDB CASSANDRA =========================================
+                - task: AzureCLI@2
+                  displayName: "Create CosmosDB Account"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbAccount.ps1"
+                    arguments: "-CosmosDbAccountName '$(PrivateEndpointCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CosmosDbKind '$(CosmosDbKind)' -CosmosDbPrivateEndpointVnetName '$(CosmosDbPrivateEndpointVnetName)' -CosmosDbPrivateEndpointVnetResourceGroupName '$(CosmosDbPrivateEndpointVnetResourceGroupName)' -CosmosDbPrivateEndpointSubnetName '$(CosmosDbPrivateEndpointSubnetName)' -CosmosDbPrivateEndpointGroupId '$(CosmosDbPrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -CosmosDbAccountPrivateDnsZoneName '$(CosmosDbAccountPrivateDnsZoneName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+      - deployment: "VNetWhitelisting_CosmosDB_Cassandra"
+        displayName: "CosmosDB Cassandra (VNet Whitelisting)"
+        dependsOn: ["ResourceGroup", "BaseResources"]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        variables:
+          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= COSMOSDB CASSANDRA =========================================
+                - task: AzureCLI@2
+                  displayName: "Create CosmosDB Account"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbAccount.ps1"
+                    arguments: "-CosmosDbAccountName '$(VNetWhitelistingCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CosmosDbKind '$(CosmosDbKind)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
       - deployment: "Public_RedisCache"
         displayName: "RedisCache (Public)"
         dependsOn: ["ResourceGroup", "BaseResources"]
