@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.10.06]
+
+## Updated
+
+- Updated `Create-CosmosDbCassandraKeyspace.ps1` with throughput functionality.
+- Updated `Create-CosmosDbCassandraTable.ps1` with throughput functionality.
+- Fixed Availability Zones in `Create-CosmosDbAccount.ps1`.
+
 ## [2021.09.24]
 
 ### Updated

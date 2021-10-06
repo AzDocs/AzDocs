@@ -400,6 +400,20 @@ stages:
         value: Cassandra
       - name: CosmosDbAccountPrivateDnsZoneName
         value: privatelink.cassandra.cosmos.azure.com
+      - name: CassandraKeySpaceName
+        value: "keyspace1"
+      - name: CassandraKeyspaceThroughputType
+        value: "Manual"
+      - name: CassandraKeyspaceThroughputAmount
+        value: 400
+      - name: CassandraTableName
+        value: "test"
+      - name: CassandraTableSchema
+        value: '{"columns":[{"name":"Name","type":"Ascii"},{"name":"Alias","type":"Ascii"},{"name":"Region","type":"Ascii"}],"partitionKeys":[{"name":"Region"}]}'
+      - name: CassandraTableThroughputType
+        value: "Manual"
+      - name: CassandraTableThroughputAmount
+        value: 400
 
       # PostgreSQL
       - name: PostgreSqlServerResourceGroupName
@@ -1629,6 +1643,22 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbAccount.ps1"
                     arguments: "-CosmosDbAccountName '$(PublicCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CosmosDbKind '$(CosmosDbKind)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ForcePublic"
+                - task: AzureCLI@2
+                  displayName: "Create Keyspace in CosmosDB Account"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbCassandraKeyspace.ps1"
+                    arguments: "-CosmosDbAccountName '$(PublicCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CassandraKeySpaceName '$(CassandraKeySpaceName)' -CassandraKeyspaceThroughputType '$(CassandraKeyspaceThroughputType)' -CassandraKeyspaceThroughputAmount '$(CassandraKeyspaceThroughputAmount)'"
+                - task: AzureCLI@2
+                  displayName: "Create Table in Cassandra Keyspace (CosmosDb)"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbCassandraTable.ps1"
+                    arguments: "-CosmosDbAccountName '$(PublicCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CassandraKeySpaceName '$(CassandraKeySpaceName)' -CassandraTableName '$(CassandraTableName)' -CassandraTableSchema '$(CassandraTableSchema)' -CassandraTableThroughputType '$(CassandraTableThroughputType)' -CassandraTableThroughputAmount '$(CassandraTableThroughputAmount)'"
       - deployment: "PrivateEndpoint_CosmosDB_Cassandra"
         displayName: "CosmosDB Cassandra (Private Endpoint)"
         dependsOn: ["ResourceGroup", "BaseResources"]
@@ -1663,6 +1693,22 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbAccount.ps1"
                     arguments: "-CosmosDbAccountName '$(PrivateEndpointCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CosmosDbKind '$(CosmosDbKind)' -CosmosDbPrivateEndpointVnetName '$(CosmosDbPrivateEndpointVnetName)' -CosmosDbPrivateEndpointVnetResourceGroupName '$(CosmosDbPrivateEndpointVnetResourceGroupName)' -CosmosDbPrivateEndpointSubnetName '$(CosmosDbPrivateEndpointSubnetName)' -CosmosDbPrivateEndpointGroupId '$(CosmosDbPrivateEndpointGroupId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -CosmosDbAccountPrivateDnsZoneName '$(CosmosDbAccountPrivateDnsZoneName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+                - task: AzureCLI@2
+                  displayName: "Create Keyspace in CosmosDB Account"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbCassandraKeyspace.ps1"
+                    arguments: "-CosmosDbAccountName '$(PrivateEndpointCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CassandraKeySpaceName '$(CassandraKeySpaceName)' -CassandraKeyspaceThroughputType '$(CassandraKeyspaceThroughputType)' -CassandraKeyspaceThroughputAmount '$(CassandraKeyspaceThroughputAmount)'"
+                - task: AzureCLI@2
+                  displayName: "Create Table in Cassandra Keyspace (CosmosDb)"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbCassandraTable.ps1"
+                    arguments: "-CosmosDbAccountName '$(PrivateEndpointCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CassandraKeySpaceName '$(CassandraKeySpaceName)' -CassandraTableName '$(CassandraTableName)' -CassandraTableSchema '$(CassandraTableSchema)' -CassandraTableThroughputType '$(CassandraTableThroughputType)' -CassandraTableThroughputAmount '$(CassandraTableThroughputAmount)'"
       - deployment: "VNetWhitelisting_CosmosDB_Cassandra"
         displayName: "CosmosDB Cassandra (VNet Whitelisting)"
         dependsOn: ["ResourceGroup", "BaseResources"]
@@ -1697,6 +1743,22 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbAccount.ps1"
                     arguments: "-CosmosDbAccountName '$(VNetWhitelistingCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CosmosDbKind '$(CosmosDbKind)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+                - task: AzureCLI@2
+                  displayName: "Create Keyspace in CosmosDB Account"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbCassandraKeyspace.ps1"
+                    arguments: "-CosmosDbAccountName '$(VNetWhitelistingCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CassandraKeySpaceName '$(CassandraKeySpaceName)' -CassandraKeyspaceThroughputType '$(CassandraKeyspaceThroughputType)' -CassandraKeyspaceThroughputAmount '$(CassandraKeyspaceThroughputAmount)'"
+                - task: AzureCLI@2
+                  displayName: "Create Table in Cassandra Keyspace (CosmosDb)"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CosmosDB.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/CosmosDb/Create-CosmosDbCassandraTable.ps1"
+                    arguments: "-CosmosDbAccountName '$(VNetWhitelistingCosmosDbAccountName)' -CosmosDbAccountResourceGroupName '$(CosmosDbAccountResourceGroupName)' -CassandraKeySpaceName '$(CassandraKeySpaceName)' -CassandraTableName '$(CassandraTableName)' -CassandraTableSchema '$(CassandraTableSchema)' -CassandraTableThroughputType '$(CassandraTableThroughputType)' -CassandraTableThroughputAmount '$(CassandraTableThroughputAmount)'"
       - deployment: "Public_RedisCache"
         displayName: "RedisCache (Public)"
         dependsOn: ["ResourceGroup", "BaseResources"]

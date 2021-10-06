@@ -148,7 +148,8 @@ if ($CosmosDbLocations)
 {
     foreach ($cosmosDbLocation in $CosmosDbLocations)
     {
-        if (!$cosmosDbLocation.regionName -or !$cosmosDbLocation.failoverPriority -or !$cosmosDbLocation.isZoneRedundant)
+        Write-Host "regionName=$($cosmosDbLocation.regionName) failoverPriority=$($cosmosDbLocation.failoverPriority) isZoneRedundant=$($cosmosDbLocation.isZoneRedundant)"
+        if (!$cosmosDbLocation.regionName -or $null -eq $cosmosDbLocation.failoverPriority -or $null -eq $cosmosDbLocation.failoverPriority)
         {
             Write-Warning "Malformed region found. Please make sure regionName, failoverPriority & isZoneRedundant parameters are present. Please review the documentation on the Wiki."
             continue
