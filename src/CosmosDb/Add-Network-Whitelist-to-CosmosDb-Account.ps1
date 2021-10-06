@@ -32,9 +32,17 @@ if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToW
     # Make sure we dont talk to an updating cluster
     Wait-ForClusterToBeReady -CosmosDBAccountName $CosmosDBAccountName -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName
 
-    # Add subnet
-    Invoke-Executable az cosmosdb network-rule add --subnet $subnetResourceId --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName
-    Write-Host "Subnet $subnetResourceId whitelisted."
+    $currentSubnetWhitelistRules = Invoke-Executable -AllowToFail az cosmosdb network-rule list --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName | ConvertFrom-Json | Select-Object -ExpandProperty id
+    if(!($currentSubnetWhitelistRules -contains $subnetResourceId))
+    {
+        # Add subnet
+        Invoke-Executable az cosmosdb network-rule add --subnet $subnetResourceId --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName
+        Write-Host "Subnet $subnetResourceId whitelisted."
+    }
+    else
+    {
+        Write-Host "Subnet $subnetResourceId was already whitelisted."
+    }
 }
 else
 {
