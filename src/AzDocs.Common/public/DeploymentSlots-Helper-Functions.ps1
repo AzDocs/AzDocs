@@ -83,7 +83,7 @@ function New-DeploymentSlot
         $parentResourceId = (Invoke-Executable az webapp show --ids $resourceSlotId | ConvertFrom-Json).id
  
         # Add private endpoint & Setup Private DNS
-        Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $resourcePrivateEndpointSubnetId -PrivateEndpointName $resourcePrivateEndpointName -PrivateEndpointResourceGroupName $ResourceResourceGroupName -TargetResourceId $parentResourceId -PrivateEndpointGroupId 'sites-staging' -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ResourcePrivateDnsZoneName -PrivateDnsLinkName "$($ResourcePrivateEndpointVnetName)-appservice"
+        Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $resourcePrivateEndpointSubnetId -PrivateEndpointName $resourcePrivateEndpointName -PrivateEndpointResourceGroupName $ResourceResourceGroupName -TargetResourceId $parentResourceId -PrivateEndpointGroupId "sites-$ResourceDeploymentSlotName" -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ResourcePrivateDnsZoneName -PrivateDnsLinkName "$($ResourcePrivateEndpointVnetName)-appservice"
     }
     
     # Disable public acces, if it's not public
