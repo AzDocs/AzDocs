@@ -17,40 +17,32 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 # CosmosDb account can only take lowercase characters
 $CosmosDBAccountName = $CosmosDBAccountName.ToLower()
 
-function Wait-ForClusterToBeReady
-{
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory)][string] $CosmosDBAccountName,
-        [Parameter(Mandatory)][string] $CosmosDBAccountResourceGroupName
-    )
-
-    # Make sure we dont talk to an updating cluster
-    while ((Invoke-Executable az cosmosdb show --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName | ConvertFrom-Json).provisioningState -ne "Succeeded")
-    {
-        Write-Host "Cluster not ready yet... Waiting for cluster to be ready..."
-        Start-Sleep -s 30
-    }
-}
-
 # Confirm if the correct parameters are passed
 Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
 
 # Fetch Subnet ID when subnet option is given.
 if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
 {
-    Write-Host "Subnet whitelisting is desired. Whitelisting subnet..."
+    Write-Host 'Subnet whitelisting is desired. Whitelisting subnet...'
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
 
     # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.AzureCosmosDB"
+    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier 'Microsoft.AzureCosmosDB'
 
     # Make sure we dont talk to an updating cluster
     Wait-ForClusterToBeReady -CosmosDBAccountName $CosmosDBAccountName -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName
 
-    # Add subnet
-    Invoke-Executable az cosmosdb network-rule add --subnet $subnetResourceId --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName
-    Write-Host "Subnet $subnetResourceId whitelisted."
+    $currentSubnetWhitelistRules = Invoke-Executable -AllowToFail az cosmosdb network-rule list --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName | ConvertFrom-Json | Select-Object -ExpandProperty id
+    if(!($currentSubnetWhitelistRules -contains $subnetResourceId))
+    {
+        # Add subnet
+        Invoke-Executable az cosmosdb network-rule add --subnet $subnetResourceId --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName
+        Write-Host "Subnet $subnetResourceId whitelisted."
+    }
+    else
+    {
+        Write-Host "Subnet $subnetResourceId was already whitelisted."
+    }
 }
 else
 {
@@ -66,7 +58,7 @@ else
     # Only add if CIDR doesn't exist
     $ipAddressAlreadyPresent = $false
     $foundCidrMatch = $null
-    $currentIpRules = ((Invoke-Executable az cosmosdb show --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName | ConvertFrom-Json).ipRules)  | Select-Object -ExpandProperty ipAddressOrRange
+    $currentIpRules = ((Invoke-Executable az cosmosdb show --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName | ConvertFrom-Json).ipRules) | Select-Object -ExpandProperty ipAddressOrRange
     
     if ($currentIpRules)
     {
@@ -89,12 +81,18 @@ else
 
     if (!$ipAddressAlreadyPresent)
     {
+        # If one, make sure to convert to array
+        if ($currentIpRules.GetType().Name -eq 'String')
+        {
+            $currentIpRules = @($currentIpRules)
+        }
         $currentIpRules += $CIDRToWhitelist
 
         # Make sure we dont talk to an updating cluster
         Wait-ForClusterToBeReady -CosmosDBAccountName $CosmosDBAccountName -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName
 
         $ipSet = [String]::Join(',', $currentIpRules)
+        Write-Host "ipSet: $ipSet"
         Invoke-Executable az cosmosdb update --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName --ip-range-filter $ipSet
         Write-Host "CIDR $CIDRToWhitelist added"
     }
