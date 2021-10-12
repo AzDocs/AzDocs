@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.10.12]
+
+## Updated
+
+- Improved CosmosDB scripts
+- Added Resource/ResourceGroup locking & unlocking
+
 ## [2021.10.06]
 
 ## Updated
