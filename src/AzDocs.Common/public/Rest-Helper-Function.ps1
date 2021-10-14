@@ -25,7 +25,7 @@ function Invoke-AzRestCall
     
     if ($ResourceId)
     {
-        $url = "$($ResourceId)api-version=$($ApiVersion)"
+        $url = "$($ResourceId)?api-version=$($ApiVersion)"
     }
 
     Invoke-Executable az rest --method $Method --url $url --body """$json"""

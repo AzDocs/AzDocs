@@ -10,6 +10,7 @@ param (
 
     [Parameter()][int] $CosmosDbBackupIntervalInMinutes,
     [Parameter()][int] $CosmosDbBackupRetentionInHours,
+    [Parameter()][ValidateSet('Geo', 'Zone', 'Local')][string] $CosmosDbBackupStorageRedundancy,
     [Parameter()][ValidateSet("BoundedStaleness", "ConsistentPrefix", "Eventual", "Session", "Strong")][string] $CosmosDbDefaultConsistencyLevel = "Eventual",
     [Parameter()][switch] $CosmosDbEnableAutomaticFailover,
 
@@ -188,12 +189,29 @@ else
 }
 
 # Fetch the resource id for the just created CosmosDB Account
-$cosmosDbAccountResourceId = (Invoke-Executable az cosmosdb show --name $CosmosDbAccountName --resource-group $CosmosDbAccountResourceGroupName | ConvertFrom-Json).id
+$cosmosResource = ((Invoke-Executable az cosmosdb show --name $CosmosDbAccountName --resource-group $CosmosDbAccountResourceGroupName) | ConvertFrom-Json)
 
 ####################################### TAGS #########################################
 
-Set-ResourceTagsForResource -ResourceId $cosmosDbAccountResourceId -ResourceTags ${ResourceTags}
+Set-ResourceTagsForResource -ResourceId $cosmosResource.id -ResourceTags ${ResourceTags}
 
+####################################### BACKUP STORAGE REDUNDANCY #######################################
+if($CosmosDbBackupStorageRedundancy)
+{
+    Wait-ForClusterToBeReady -CosmosDBAccountName $CosmosDBAccountName -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName
+
+    $body = @{
+        properties = @{
+            backupPolicy = @{
+                periodicModeProperties = @{
+                    backupStorageRedundancy = $CosmosDbBackupStorageRedundancy
+                }
+            }
+        }
+    }
+
+    Invoke-AzRestCall -Method PATCH -ResourceId $cosmosResource.id -ApiVersion "2021-04-15" -Body $body
+}
 ####################################### NETWORKING #########################################
 
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
@@ -213,11 +231,11 @@ if ($CosmosDbPrivateEndpointVnetResourceGroupName -and $CosmosDbPrivateEndpointV
     $CosmosDbPrivateEndpointName = "$($CosmosDbAccountName)-pvtcms"
 
     # Add Private endpoint
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $cosmosDbPrivateEndpointSubnetId -PrivateEndpointName $CosmosDbPrivateEndpointName -PrivateEndpointResourceGroupName $CosmosDbAccountResourceGroupName -TargetResourceId $cosmosDbAccountResourceId -PrivateEndpointGroupId $CosmosDbPrivateEndpointGroupId -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $CosmosDbAccountPrivateDnsZoneName -PrivateDnsLinkName "$($CosmosDbPrivateEndpointVnetName)-cms"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $cosmosDbPrivateEndpointSubnetId -PrivateEndpointName $CosmosDbPrivateEndpointName -PrivateEndpointResourceGroupName $CosmosDbAccountResourceGroupName -TargetResourceId $cosmosResource.id -PrivateEndpointGroupId $CosmosDbPrivateEndpointGroupId -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $CosmosDbAccountPrivateDnsZoneName -PrivateDnsLinkName "$($CosmosDbPrivateEndpointVnetName)-cms"
 }
 
 ####################################### DIAGNOSTIC SETTINGS #########################################
 
-Set-DiagnosticSettings -ResourceId $cosmosDbAccountResourceId -ResourceName $CosmosDbAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[ { 'category': 'DataPlaneRequests', 'enabled': true }, { 'category': 'MongoRequests', 'enabled': true }, { 'category': 'QueryRuntimeStatistics', 'enabled': true }, { 'category': 'PartitionKeyStatistics', 'enabled': true }, { 'category': 'PartitionKeyRUConsumption', 'enabled': true }, { 'category': 'ControlPlaneRequests', 'enabled': true }, { 'category': 'CassandraRequests', 'enabled': true }, { 'category': 'GremlinRequests', 'enabled': true }, { 'category': 'MongoRequests', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'Requests', 'enabled': true } ]".Replace("'", '\"')
+Set-DiagnosticSettings -ResourceId $cosmosResource.id -ResourceName $CosmosDbAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[ { 'category': 'DataPlaneRequests', 'enabled': true }, { 'category': 'MongoRequests', 'enabled': true }, { 'category': 'QueryRuntimeStatistics', 'enabled': true }, { 'category': 'PartitionKeyStatistics', 'enabled': true }, { 'category': 'PartitionKeyRUConsumption', 'enabled': true }, { 'category': 'ControlPlaneRequests', 'enabled': true }, { 'category': 'CassandraRequests', 'enabled': true }, { 'category': 'GremlinRequests', 'enabled': true }, { 'category': 'MongoRequests', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'Requests', 'enabled': true } ]".Replace("'", '\"')
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
