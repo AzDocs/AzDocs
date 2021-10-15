@@ -66,6 +66,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 $CosmosDBAccountName = $CosmosDBAccountName.ToLower()
 
 $optionalParameters = @()
+$capabilities = @()
 
 if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$CosmosDbPrivateEndpointVnetName -or !$CosmosDbPrivateEndpointVnetResourceGroupName -or !$CosmosDbPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$CosmosDbAccountPrivateDnsZoneName))
 {
@@ -110,8 +111,8 @@ if ($CosmosDbKind -eq 'MongoDB')
 elseif ($CosmosDbKind -eq "Cassandra")
 {
     $CosmosDbKind = "GlobalDocumentDB"
+    $capabilities += "EnableCassandra"
     $optionalParameters += '--capabilities', "EnableCassandra"
-
 }
 
 ####################################### BACKUP #########################################
@@ -161,11 +162,10 @@ if ($CosmosDbLocations)
 }
 
 ####################################### CUSTOM CAPABILITIES #########################################
-
 if ($CosmosDbCapabilities)
 {
     # Set custom capabilities on the Cosmos DB database account.Set custom capabilities on the Cosmos DB database account.
-    $optionalParameters += '--capabilities', "$CosmosDbCapabilities"
+    $capabilities += $CosmosDbCapabilities
 }
 
 ####################################### VNET WHITELISTING #########################################
@@ -196,7 +196,7 @@ $cosmosResource = ((Invoke-Executable az cosmosdb show --name $CosmosDbAccountNa
 Set-ResourceTagsForResource -ResourceId $cosmosResource.id -ResourceTags ${ResourceTags}
 
 ####################################### BACKUP STORAGE REDUNDANCY #######################################
-if($CosmosDbBackupStorageRedundancy)
+if ($CosmosDbBackupStorageRedundancy)
 {
     Wait-ForClusterToBeReady -CosmosDBAccountName $CosmosDBAccountName -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName
 
@@ -237,5 +237,15 @@ if ($CosmosDbPrivateEndpointVnetResourceGroupName -and $CosmosDbPrivateEndpointV
 ####################################### DIAGNOSTIC SETTINGS #########################################
 
 Set-DiagnosticSettings -ResourceId $cosmosResource.id -ResourceName $CosmosDbAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[ { 'category': 'DataPlaneRequests', 'enabled': true }, { 'category': 'MongoRequests', 'enabled': true }, { 'category': 'QueryRuntimeStatistics', 'enabled': true }, { 'category': 'PartitionKeyStatistics', 'enabled': true }, { 'category': 'PartitionKeyRUConsumption', 'enabled': true }, { 'category': 'ControlPlaneRequests', 'enabled': true }, { 'category': 'CassandraRequests', 'enabled': true }, { 'category': 'GremlinRequests', 'enabled': true }, { 'category': 'MongoRequests', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'Requests', 'enabled': true } ]".Replace("'", '\"')
+
+####################################### CAPABILITIES #########################################
+if ($CosmosDbCapabilities)
+{
+    Write-Host "Adding extra capabilities to the CosmosDb account"
+    
+    Wait-ForClusterToBeReady -CosmosDBAccountName $CosmosDBAccountName -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName
+
+    Invoke-Executable az cosmosdb update --name $CosmosDbAccountName --resource-group $CosmosDBAccountResourceGroupName --capabilities @capabilities
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
