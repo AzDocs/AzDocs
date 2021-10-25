@@ -35,6 +35,9 @@ parameters:
   - name: TagTeamName
     type: string
     default: teamname
+  - name: AlertEmail
+    type: string
+    default: "someuser@company.com"
 
 stages:
   - stage: ${{ parameters.EnvironmentName }}
@@ -560,6 +563,84 @@ stages:
         value: "$(ResourceBaseName)-aci-subnet"
       - name: ContainerSubnet
         value: 10.0.4.0/24
+
+      # Monitor
+      - name: PublicMonitorAlertActionGroupName
+        value: $(PublicAppServiceName)-actiongroup-${{ parameters.EnvironmentName }}
+      - name: PrivateEndpointMonitorAlertActionGroupName
+        value: $(PrivateEndpointAppServiceName)-actiongroup-${{ parameters.EnvironmentName }}
+      - name: VNetWhitelistingMonitorAlertActionGroupName
+        value: $(VNetWhitelistingAppServiceName)-actiongroup-${{ parameters.EnvironmentName }}
+      - name: MonitorAlertActionResourceGroupName
+        value: $(ResourceGroupName)
+      - name: AlertAction
+        value: '@("email"; "opsgenie"; "${{ parameters.AlertEmail }}")'
+
+      # Log Alert rule
+      - name: PublicMonitorAlertRuleName
+        value: "$(PublicAppServiceName)-alert-rule"
+      - name: VNetWhitelistingMonitorAlertRuleName
+        value: "$(VNetWhitelistingAppServiceName)-alert-rule"
+      - name: PrivateEndpointMonitorAlertRuleName
+        value: "$(VNetWhitelistingAppServiceName)-alert-rule"
+      - name: VNetWhitelistingMonitorAlertRuleName
+        value: "$(PrivateEndpointAppServiceName)-alert-rule"
+      - name: MonitorAlertQuery
+        value: "AppExceptions"
+      - name: MonitorAlertFrequencyInMinutes
+        value: 5
+      - name: MonitorAlertTimeWindowInMinutes
+        value: 60
+      - name: MonitorAlertTriggerThresholdOperator
+        value: "GreaterThan"
+      - name: MonitorAlertTriggerThreshold
+        value: 1
+      - name: MonitorAlertingActionSeverity
+        value: "3"
+      - name: MonitorAlertingActionSuppressThrottlingInMinutes
+        value: "5"
+      - name: MonitorAlertRuleResourceGroupName
+        value: $(ResourceGroupName)
+      - name: MonitorAlertRuleResourceGroupLocation
+        value: "westeurope"
+      - name: MonitorAlertRuleEnabled
+        value: $true
+      - name: MonitorAlertRuleDescription
+        value: "Alert rule"
+
+      # Metric Alert Rule
+      - name: PublicMetricAlertRuleName
+        value: "$(PublicAppServiceName)-metric-rule"
+      - name: PrivateEndpointMetricAlertRuleName
+        value: "$(PrivateEndpointAppServiceName)-metric-rule"
+      - name: VNetWhitelistingMetricAlertRuleName
+        value: "$(VNetWhitelistingAppServiceName)-metric-rule"
+      - name: ResourceToMonitorResourceGroupName
+        value: "$(ResourceGroupName)"
+      - name: MetricAlertRuleResourceGroupName
+        value: $(ResourceGroupName)
+      - name: MetricAlertRuleDescription
+        value: "Metric alert"
+      - name: MetricAlertRuleWindowSizeInMinutes
+        value: "5"
+      - name: MetricAlertRuleEvaluationFrequencyInMinutes
+        value: "1"
+      - name: MetricAlertRuleSeverity
+        value: "3"
+      - name: MonitorAlertActionResourceGroupName
+        value: $(ResourceGroupName)
+      - name: MetricAlertRuleConditionSignalName
+        value: "Http5xx"
+      - name: MetricAlertRuleConditionAggregation
+        value: "Total"
+      - name: MetricAlertRuleConditionOperation
+        value: "GreaterThan"
+      - name: MetricAlertRuleConditionType
+        value: "static"
+      - name: MetricAlertRuleConditionStaticThreshold
+        value: "1"
+      - name: MetricAlertRuleConditionDimensionOperator
+        value: "Include"
 
     jobs:
       - deployment: "ResourceGroup"
@@ -3000,6 +3081,164 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1"
                     arguments: '-CertificatePath "$(certificateDownload.secureFilePath)" -DomainName "$(GatewayIngressDomainName)" -Gatewayname "$(ApplicationGatewayName)" -gatewayType "$(GatewayType)" -CertificateKeyvaultName "$(PublicKeyvaultName)" -certificatePassword "$(GatewayCertificatePassword)" -backendDomainName "$(BackendDomainName)" -healthProbePath "$(HealthProbePath)" -gatewayruletype "$(GatewayRuleType)" -healthProbeInterval "$(HealthProbeInterval)" -healthProbeThreshold "$(HealthProbeThreshold)" -healthProbeTimeout "$(HealthProbeTimeout)" -healthProbeProtocol "$(HealthProbeProtocol)" -httpsSettingsProtocol "$(HttpsSettingsProtocol)" -httpsSettingsPort "$(HttpsSettingsPort)" -httpsSettingsCookieAffinity "$(HttpsSettingsCookieAffinity)" -httpsSettingsConnectionDrainingTimeout "$(HttpsSettingsConnectionDrainingTimeout)" -httpsSettingsTimeout "$(HttpsSettingsTimeout)" -matchStatusCodes "$(MatchStatusCodes)" -ApplicationGatewayResourceGroupName "$(ApplicationGatewayResourceGroupName)" -CertificateKeyvaultResourceGroupName "$(KeyvaultResourceGroupName)"'
+      - deployment: "Public_App_Alert_Configuration"
+        displayName: Alert Configuration (Public)
+        dependsOn: ["ResourceGroup", "BaseResources", "Public_AppService"]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        variables:
+          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= MONITOR ACTION GROUP =========================================
+                - task: AzureCLI@2
+                  displayName: "Create Monitor Action Group"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Monitor-Action-Group.ps1"
+                    arguments: "-MonitorAlertActionGroupName '$(PublicMonitorAlertActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -AlertAction $(AlertAction)"
+                - task: AzurePowerShell@5
+                  displayName: "Create Log Alert Rule"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    ScriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Log-Alert-Rule.ps1"
+                    ScriptArguments: "-MonitorAlertActionGroupName '$(PublicMonitorAlertActionGroupName)' -MonitorAlertActionGroupResourceGroupName '$(MonitorAlertActionResourceGroupName)' -MonitorAlertQuery '$(MonitorAlertQuery)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -MonitorAlertFrequencyInMinutes '$(MonitorAlertFrequencyInMinutes)' -MonitorAlertTimeWindowInMinutes '$(MonitorAlertTimeWindowInMinutes)' -MonitorAlertTriggerThresholdOperator '$(MonitorAlertTriggerThresholdOperator)' -MonitorAlertTriggerThreshold '$(MonitorAlertTriggerThreshold)' -MonitorAlertingActionSeverity '$(MonitorAlertingActionSeverity)' -MonitorAlertingActionSuppressThrottlingInMinutes '$(MonitorAlertingActionSuppressThrottlingInMinutes)' -MonitorAlertRuleResourceGroupName '$(MonitorAlertRuleResourceGroupName)' -MonitorAlertRuleResourceGroupLocation '$(MonitorAlertRuleResourceGroupLocation)' -MonitorAlertRuleEnabled $(MonitorAlertRuleEnabled) -MonitorAlertRuleName '$(PublicMonitorAlertRuleName)' -MonitorAlertRuleDescription '$(MonitorAlertRuleDescription)'"
+                    FailOnStandardError: true
+                    azurePowerShellVersion: LatestVersion
+                    pwsh: true
+                - task: AzureCLI@2
+                  displayName: "Create Metric Alert Rule"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Metric-Alert-Rule.ps1"
+                    arguments: "-ResourceToMonitorName '$(PublicAppServiceName)' -ResourceToMonitorResourceGroupName '$(ResourceToMonitorResourceGroupName)' -MetricAlertRuleName '$(PublicMetricAlertRuleName)' -MetricAlertRuleResourceGroupName '$(MetricAlertRuleResourceGroupName)' -MetricAlertRuleDescription '$(MetricAlertRuleDescription)' -MetricAlertRuleWindowSizeInMinutes '$(MetricAlertRuleWindowSizeInMinutes)' -MetricAlertRuleEvaluationFrequencyInMinutes '$(MetricAlertRuleEvaluationFrequencyInMinutes)' -MetricAlertRuleSeverity '$(MetricAlertRuleSeverity)' -MonitorAlertActionGroupName '$(PublicMonitorAlertActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -MetricAlertRuleConditionSignalName '$(MetricAlertRuleConditionSignalName)' -MetricAlertRuleConditionAggregation '$(MetricAlertRuleConditionAggregation)' -MetricAlertRuleConditionOperation '$(MetricAlertRuleConditionOperation)' -MetricAlertRuleConditionType '$(MetricAlertRuleConditionType)' -MetricAlertRuleConditionStaticThreshold '$(MetricAlertRuleConditionStaticThreshold)'"
+      - deployment: "PrivateEndpoint_Alert_Configuration"
+        displayName: Alert Configuration (Private Endpoint)
+        dependsOn:
+          ["ResourceGroup", "BaseResources", "PrivateEndpoint_AppService"]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        variables:
+          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= MONITOR ACTION GROUP =========================================
+                - task: AzureCLI@2
+                  displayName: "Create Monitor Action Group"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true') ,eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Monitor-Action-Group.ps1"
+                    arguments: "-MonitorAlertActionGroupName '$(PrivateEndpointMonitorAlertActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -AlertAction $(AlertAction)"
+                - task: AzurePowerShell@5
+                  displayName: "Create Log Alert Rule"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    ScriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Log-Alert-Rule.ps1"
+                    ScriptArguments: "-MonitorAlertActionGroupName '$(PrivateEndpointMonitorAlertActionGroupName)' -MonitorAlertActionGroupResourceGroupName '$(MonitorAlertActionResourceGroupName)' -MonitorAlertQuery '$(MonitorAlertQuery)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -MonitorAlertFrequencyInMinutes '$(MonitorAlertFrequencyInMinutes)' -MonitorAlertTimeWindowInMinutes '$(MonitorAlertTimeWindowInMinutes)' -MonitorAlertTriggerThresholdOperator '$(MonitorAlertTriggerThresholdOperator)' -MonitorAlertTriggerThreshold '$(MonitorAlertTriggerThreshold)' -MonitorAlertingActionSeverity '$(MonitorAlertingActionSeverity)' -MonitorAlertingActionSuppressThrottlingInMinutes '$(MonitorAlertingActionSuppressThrottlingInMinutes)' -MonitorAlertRuleResourceGroupName '$(MonitorAlertRuleResourceGroupName)' -MonitorAlertRuleResourceGroupLocation '$(MonitorAlertRuleResourceGroupLocation)' -MonitorAlertRuleEnabled $(MonitorAlertRuleEnabled) -MonitorAlertRuleName '$(PrivateEndpointMonitorAlertRuleName)' -MonitorAlertRuleDescription '$(MonitorAlertRuleDescription)'"
+                    FailOnStandardError: true
+                    azurePowerShellVersion: LatestVersion
+                    pwsh: true
+                - task: AzureCLI@2
+                  displayName: "Create Metric Alert Rule"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Metric-Alert-Rule.ps1"
+                    arguments: "-ResourceToMonitorName '$(PrivateEndpointAppServiceName)' -ResourceToMonitorResourceGroupName '$(ResourceToMonitorResourceGroupName)' -MetricAlertRuleName '$(PrivateEndpointMetricAlertRuleName)' -MetricAlertRuleResourceGroupName '$(MetricAlertRuleResourceGroupName)' -MetricAlertRuleDescription '$(MetricAlertRuleDescription)' -MetricAlertRuleWindowSizeInMinutes '$(MetricAlertRuleWindowSizeInMinutes)' -MetricAlertRuleEvaluationFrequencyInMinutes '$(MetricAlertRuleEvaluationFrequencyInMinutes)' -MetricAlertRuleSeverity '$(MetricAlertRuleSeverity)' -MonitorAlertActionGroupName '$(PublicMonitorAlertActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -MetricAlertRuleConditionSignalName '$(MetricAlertRuleConditionSignalName)' -MetricAlertRuleConditionAggregation '$(MetricAlertRuleConditionAggregation)' -MetricAlertRuleConditionOperation '$(MetricAlertRuleConditionOperation)' -MetricAlertRuleConditionType '$(MetricAlertRuleConditionType)' -MetricAlertRuleConditionStaticThreshold '$(MetricAlertRuleConditionStaticThreshold)'"
+      - deployment: "VNetWhitelisting_Alert_Configuration"
+        displayName: Alert Configuration (VNet Whitelisting)
+        dependsOn:
+          ["ResourceGroup", "BaseResources", "VNetWhitelisting_AppService"]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        variables:
+          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= MONITOR ACTION GROUP =========================================
+                - task: AzureCLI@2
+                  displayName: "Create Monitor Action Group"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Monitor-Action-Group.ps1"
+                    arguments: "-MonitorAlertActionGroupName '$(VNetWhitelistingMonitorAlertActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -AlertAction $(AlertAction)"
+                - task: AzurePowerShell@5
+                  displayName: "Create Log Alert Rule"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    ScriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Log-Alert-Rule.ps1"
+                    ScriptArguments: "-MonitorAlertActionGroupName '$(VNetWhitelistingMonitorAlertActionGroupName)' -MonitorAlertActionGroupResourceGroupName '$(MonitorAlertActionResourceGroupName)' -MonitorAlertQuery '$(MonitorAlertQuery)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -MonitorAlertFrequencyInMinutes '$(MonitorAlertFrequencyInMinutes)' -MonitorAlertTimeWindowInMinutes '$(MonitorAlertTimeWindowInMinutes)' -MonitorAlertTriggerThresholdOperator '$(MonitorAlertTriggerThresholdOperator)' -MonitorAlertTriggerThreshold '$(MonitorAlertTriggerThreshold)' -MonitorAlertingActionSeverity '$(MonitorAlertingActionSeverity)' -MonitorAlertingActionSuppressThrottlingInMinutes '$(MonitorAlertingActionSuppressThrottlingInMinutes)' -MonitorAlertRuleResourceGroupName '$(MonitorAlertRuleResourceGroupName)' -MonitorAlertRuleResourceGroupLocation '$(MonitorAlertRuleResourceGroupLocation)' -MonitorAlertRuleEnabled $(MonitorAlertRuleEnabled) -MonitorAlertRuleName '$(VNetWhitelistingMonitorAlertRuleName)' -MonitorAlertRuleDescription '$(MonitorAlertRuleDescription)'"
+                    FailOnStandardError: true
+                    azurePowerShellVersion: LatestVersion
+                    pwsh: true
+                - task: AzureCLI@2
+                  displayName: "Create Metric Alert Rule"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppMonitoring.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Metric-Alert-Rule.ps1"
+                    arguments: "-ResourceToMonitorName '$(VNetWhitelistingAppServiceName)' -ResourceToMonitorResourceGroupName '$(ResourceToMonitorResourceGroupName)' -MetricAlertRuleName '$(VNetWhitelistingMetricAlertRuleName)' -MetricAlertRuleResourceGroupName '$(MetricAlertRuleResourceGroupName)' -MetricAlertRuleDescription '$(MetricAlertRuleDescription)' -MetricAlertRuleWindowSizeInMinutes '$(MetricAlertRuleWindowSizeInMinutes)' -MetricAlertRuleEvaluationFrequencyInMinutes '$(MetricAlertRuleEvaluationFrequencyInMinutes)' -MetricAlertRuleSeverity '$(MetricAlertRuleSeverity)' -MonitorAlertActionGroupName '$(PublicMonitorAlertActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -MetricAlertRuleConditionSignalName '$(MetricAlertRuleConditionSignalName)' -MetricAlertRuleConditionAggregation '$(MetricAlertRuleConditionAggregation)' -MetricAlertRuleConditionOperation '$(MetricAlertRuleConditionOperation)' -MetricAlertRuleConditionType '$(MetricAlertRuleConditionType)' -MetricAlertRuleConditionStaticThreshold '$(MetricAlertRuleConditionStaticThreshold)'"
   - stage: delete
     displayName: ${{ format('Delete RG from {0}', parameters.EnvironmentName) }}
     pool:
