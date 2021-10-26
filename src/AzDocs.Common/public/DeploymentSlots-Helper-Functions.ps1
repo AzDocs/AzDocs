@@ -81,7 +81,7 @@ function New-DeploymentSlot
         $vnetId = (Invoke-Executable az network vnet show --resource-group $ResourcePrivateEndpointVnetResourceGroupName --name $ResourcePrivateEndpointVnetName | ConvertFrom-Json).id
         $resourcePrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ResourcePrivateEndpointVnetResourceGroupName --name $ResourcePrivateEndpointSubnetName --vnet-name $ResourcePrivateEndpointVnetName | ConvertFrom-Json).id
         $resourcePrivateEndpointName = Get-PrivateEndpointNameForResource -AppType $AppType -ResourceName $ResourceName -ResourceDeploymentSlotName $ResourceDeploymentSlotName
-        $parentResourceId = (Invoke-Executable az webapp show --ids $resourceSlotId | ConvertFrom-Json).id
+        $parentResourceId = (Invoke-Executable az $AppType show --ids $resourceSlotId | ConvertFrom-Json).id
  
         # Add private endpoint & Setup Private DNS
         Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $resourcePrivateEndpointSubnetId -PrivateEndpointName $resourcePrivateEndpointName -PrivateEndpointResourceGroupName $ResourceResourceGroupName -TargetResourceId $parentResourceId -PrivateEndpointGroupId "sites-$ResourceDeploymentSlotName" -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ResourcePrivateDnsZoneName -PrivateDnsLinkName "$($ResourcePrivateEndpointVnetName)-appservice"
