@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.10.26]
+
+## Updated
+
+- Added update functionality of ssl-profile to `Create-SSLTLS-Profile.ps1`.
+
 ## [2021.10.12]
 
 ## Updated

@@ -81,9 +81,7 @@ else
 $currentSSLProfiles = Invoke-Executable az network application-gateway ssl-profile list --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json | Where-Object name -eq "$SSLProfileName"
 if ($currentSSLProfiles)
 {
-    # TODO see https://github.com/Azure/azure-cli/issues/19036
-    Write-Warning 'Updating of the ssl profile is not yet supported with azure cli.'
-    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+    Invoke-Executable az network application-gateway ssl-profile update --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --name $SSLProfileName --policy-type $ApplicationGatewayPolicyType @optionalParameters
 }
 else
 {
