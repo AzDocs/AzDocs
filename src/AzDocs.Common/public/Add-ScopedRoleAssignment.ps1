@@ -18,6 +18,11 @@ function Add-ScopedRoleAssignment
 
 	Write-Header -ScopedPSCmdlet $PSCmdlet
 
+	if (!$AssigneeObjectId)
+	{
+		throw "Could not find Managed Identity or no PrincipalId specified"	
+	}
+
 	if (-Not $Scope)
 	{
 		if ($ParentResourcePath)

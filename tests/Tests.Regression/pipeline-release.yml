@@ -2355,7 +2355,7 @@ stages:
                 - task: AzureCLI@2
                   name: GetRedisCacheConnectionStringforPipeline
                   displayName: "Get RedisCache ConnectionString for Pipeline"
-                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], true))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
@@ -2364,7 +2364,7 @@ stages:
                 - task: AzureCLI@2
                   name: GetStorageAccountConnectionStringforPipeline
                   displayName: "Get Storage Account ConnectionString for Pipeline"
-                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'), eq(variables['ResourceCreation.StorageAccount.Enabled'], true))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
@@ -2400,6 +2400,14 @@ stages:
                     SlotName: "$(AppServiceDeploymentSlotName)"
                     packageForLinux: "$(System.ArtifactsDirectory)/Website_zip/website.zip"
                 # ========================================= GRANT PERMISSIONS TO STORAGE ACCOUNT =========================================
+                - task: AzureCLI@2
+                  displayName: "Grant permissions for (Public) AppService to (Public) StorageAccount Blob Container"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Roles/Grant-Permissions-to-ManagedIdentity-on-Resource.ps1"
+                    arguments: "-AppServiceManagedIdentity -ManagedIdentityResourceName $(PublicAppServiceName) -ManagedIdentityResourceGroupName $(AppServiceResourceGroupName) -TargetResourceName $(PublicStorageAccountNameToLower) -TargetResourceGroupName $(AppServiceResourceGroupName) -TargetResourceType 'storageaccounts' -TargetResourceNamespace 'Microsoft.Storage' -RoleToAssign 'Storage Blob Data Contributor' -ManagedIdentityApplyToAllSlots $true"
                 - task: AzureCLI@2
                   displayName: "Grant Permissions for (Public) AppService to (Public) StorageAccount Blob Container"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
@@ -2442,7 +2450,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1"
-                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(PublicSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(GetObjectIdServiceUser.ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(PublicAppServiceName)' -AppServiceSlotName 'staging'"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(PublicSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(GetObjectIdServiceUser.ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(PublicAppServiceName)' -ApplyToAllSlots $true -AppServiceResourceGroupName '$(AppServiceResourceGroupName)'"
       - deployment: "VnetWhitelisting_AppService_PostConfiguration"
         displayName: "App Service (VNet Whitelisting) Post Configuration"
         dependsOn:
@@ -2573,7 +2581,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1"
-                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceSlotName 'staging'"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)'"
                 - task: AzureCLI@2
                   displayName: "Remove Network Whitelist from Sql Server"
                   condition: always()
