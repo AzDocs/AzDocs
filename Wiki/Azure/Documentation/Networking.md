@@ -62,13 +62,13 @@ Whenever you want to use private endpoint there is a few things to know. The fir
 
 ### Route your traffic through the VNet
 
-Another thing to know when you use private endpoints, in combination with the Azure Private DNS, is that you need to make sure your resources will route all traffic through the VNet. For example: you need to add an [application setting](https://docs.microsoft.com/en-us/azure/app-service/configure-common) to your AppService that defines that you route this traffic through your VNet integration towards the VNet. For AppServices you can do this adding `WEBSITE_VNET_ROUTE_ALL=1` to your application settings (this is done by the AzDocs create webapp scripts for you). This setting will route all outbound traffic through your VNet. For more information, refer to [the microsoft documentation for vnet integration](https://docs.microsoft.com/en-us/azure/app-service/web-sites-integrate-with-vnet)
+Another thing to know when you use private endpoints, in combination with the Azure Private DNS, is that you need to make sure your resources will route all traffic through the VNet. For example: you need to add an [application setting](https://docs.microsoft.com/en-us/azure/app-service/configure-common) to your AppService that defines that you route this traffic through your VNet integration towards the VNet. For AppServices you can do this adding VNet-integration to your application settings (this is done by the AzDocs Add-VNet-integration-to-AppService or Add-VNet-integration-to-Function-App scripts). This setting will route all outbound traffic through your VNet. For more information, refer to [the microsoft documentation for vnet integration](https://docs.microsoft.com/en-us/azure/app-service/web-sites-integrate-with-vnet)
 
 > NOTE: If you are using a recursive DNS server within your VNet in Azure which is on an addressrange defined in the RFC1918 specification, you don't need to explicitly route all traffic through your VNet.
 
 ### How to deploy to private resources: Azure DevOps Private Agents
 
-A challenge you will be facing when you use private endpoints, is that your Azure DevOps hosted agents are unable to connect to your (now) private resource. This means that, for example, an application deploy to an appservice or adding a file to your storage account will fail. This means that you will have to host a private Azure DevOps agent inside your VNet to connect through the private endpoints.
+A challenge you will be facing when you use private endpoints, is that your Azure DevOps hosted agents are unable to connect to your (now) private resource. This means that, for example, an application deploy to an appservice or adding a file to your storage account will fail. This means that you will have to host a private Azure DevOps agent inside your VNet to connect through the private endpoints. Instructions for creating can be found in [How to use the scripts](/Azure/Documentation/How-to-use-the-scripts.md).
 
 ## VNet whitelisting
 
@@ -79,6 +79,8 @@ VNet whitelisting described in an image looks something like this:
 ![VNet Whitelisting](../../../wiki_images/networking_vnet_whitelisting.png)
 
 _In this example you see that the outbound traffic from the calling parties (for the App Service this is the Application Gateway and for the SQL Server this is the App Service) are being done through private routes. VNet whitelisting allows you to whitelist private subnets on your public Azure resource endpoint. This way your resources no longer need private endpoints to be able to get called securely from other Azure resources. The connectivity to your public Azure resource endpoint will be limited to the whitelisted subnets. All other traffic will be dropped before being processed. Small note is that your calling services (again; for the App Service this is the Application Gateway and for the SQL Server this is the App Service) should have outgoing network connectivity to your VNet. For App Services & Functions this can be done using VNet integration._
+
+_Note: If you are using a storage account, you need to take extra steps to deploy to the storage account when using VNet whitelisting. For more information, see [Storage-Accounts](../Azure-CLI-Snippets/Storage-Accounts)._
 
 ## On-premises networks
 

@@ -8,13 +8,27 @@ function Assert-CIDR
 {
     [CmdletBinding()]
     param (
-        [Parameter()][string] $CIDR
+        [Parameter()][string] $CIDR,
+        # Forcefully agree to this resource to be spun up to be publicly available
+        [Parameter()][bool] $ForcePublic = $false, 
+        [Parameter()][ValidateSet("Allow", "Deny")][string] $AccessRestrictionAction = "Allow"
     )
 
-    if ($CIDR -like '0.0.0.0*')
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+    
+    if ($CIDR -like '0.0.0.0*' -and $AccessRestrictionAction -eq 'Allow')
     {
-        throw "CIDR contains 0.0.0.0/0. This will open up any access. This is not allowed."   
+        if ($ForcePublic -and $ForcePublic -eq $true)
+        {
+            Write-Warning "CIDR contains 0.0.0.0/0. This will open up any access. This is not recommended. You've passed the -ForcePublic flag, so we will continue."
+        }
+        else
+        {
+            throw "CIDR contains 0.0.0.0/0. This will open up any access. This is not recommended."
+        }
     }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 
@@ -39,6 +53,13 @@ function Assert-TLSVersion
 
     if (!$result)
     {
+        # Strip TLSv from TlsVersion if it's there (AppGw)
+        if ($TlsVersion.StartsWith("TLSv"))
+        {
+            $TlsVersion = $TlsVersion.Replace("TLSv", "").Replace("_", ".")
+            Write-Host "TLS version is $TlsVersion"
+        }
+
         # Strip TLS from TlsVersion if it's there
         if ($TlsVersion.StartsWith("TLS"))
         {
@@ -121,4 +142,27 @@ function Assert-ForceDisableKeyvaultPurgeProtection
     }
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+<#
+.SYNOPSIS
+Helper for asserting if the ciphersuite has the correct security level
+.DESCRIPTION
+Helper for asserting if the ciphersuite has the correct security level
+#>
+function Assert-CipherSuite
+{
+    [CmdletBinding()]
+    param (
+        [Parameter()][string] $CipherSuite
+    )
+
+    $approvedSecurityLevel = @('recommended', 'secure')
+    $response = Invoke-WebRequest "https://ciphersuite.info/api/cs/$CipherSuite/" | ConvertFrom-Json
+    
+    if (!($approvedSecurityLevel -contains $response.$CipherSuite.security))
+    {
+        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+        Write-Warning "Please be warned that you are using a ciphersuite ($($CipherSuite)) that has the status $($response.$CipherSuite.security). This is NOT recommended. We advise you to update your cipher suites to one of the recommended ciphers."
+    }
 }

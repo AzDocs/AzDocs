@@ -87,6 +87,67 @@ Your variables screen should look like the image below. Click `Save` in the righ
 
 14. Make sure to throw away the resulting resource group to avoid high unnecessary costs.
 
+## Setup Test.Api and Playwright tests
+If you have followed above steps and created the regression pipeline and ran the scripts, you have also probably deployed the C# API project (Test.Api) that was included in this repository to the WebApp that you deployed. When all scripts have run and you want to have a quick way of verifying that on a higher level the connectivity & features of the created resources are reachable from other resources, you can use the [Playwright](https://playwright.dev/) tests that are also included in this repository.
+The playwright tests will run against the API site you deployed and run tests against a couple of endpoints, eg. a blob storage. In short this is what you need in a classic pipeline to set these tests up:
+
+1. Make sure that in your release, you have the artifact available containing the TestApiTests. In the repository it is in the folder TestApiTests:
+
+![Regression pipeline setup](../../../wiki_images/azdo_regression_testapi_playwright_1.png)
+
+2. Make sure you have the artifact available for the test.runsettings, attached to your release. In the repository it is in the folder TestApiTests.
+
+![Regression pipeline setup](../../../wiki_images/azdo_regression_testapi_playwright_2.png)
+
+
+3. Create an agent job with 3 tasks:
+
+![Regression pipeline setup](../../../wiki_images/azdo_regression_testapi_playwright_3.png)
+
+4. Contents of the Prepare Playwright env Powershell task:
+```
+#following the steps in https://playwright.dev/dotnet/docs/intro/
+
+#your path to the artifact TestApiTests
+cd $(System.DefaultWorkingDirectory)/Tests/Tests.Regression/TestApiTests/
+
+dotnet tool install --global Microsoft.Playwright.CLI
+dotnet add package Microsoft.Playwright
+dotnet build
+
+#playwright install
+
+if($isLinux){
+  playwright install-deps
+  npx playwright install
+}else{
+  #windows host
+  playwright install
+}
+```
+5. Contents of the update test.runsettings file (with your specific evironment details):
+```
+#path to the test.runsettings file
+$path = '$(System.DefaultWorkingDirectory)/Tests/Tests.Regression/testrunsettings/test.runsettings'
+
+$text = Get-Content $path
+$newText = $text.replace('admin','your.admin@email.com').Replace('password','yourpassword').Replace('http://localhost','your_BaseUriOfAPI')
+$newText | out-file -FilePath $path -Force
+```
+6. Content of the dotnet test task
+![Regression pipeline setup](../../../wiki_images/azdo_regression_testapi_playwright_4.png)
+
+
+_NOTE: if you want to run the tests on a hosted Linux server you need to run the dotnet test with an extra option --configuration "release"._
+
+7. Save and run the release
+
+8. Find output in Azure DevOps under Test Plans/Runs
+
+![Regression pipeline setup](../../../wiki_images/azdo_regression_testapi_playwright_5.png)
+
+
+
 ### Further TODOs
 
-In the near future we will make sure to extend the amount of scripts being covered by the tests. Also we will include a set of [Playwright](https://playwright.dev/) tests to cover the testing after deploying the Test.API, so we can automatically verify the connectivity.
+Example of a YAML version of the playwright test steps will follow soon. In the near future we will make sure to extend the amount of scripts being covered by the tests.

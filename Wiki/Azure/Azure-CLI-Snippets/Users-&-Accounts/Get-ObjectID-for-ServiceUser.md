@@ -8,24 +8,25 @@ NOTE: THIS IS CANNOT BE A SERVICE PRINCIPAL USER but should be a AD User.
 
 # Parameters
 
-| Parameter           | Example Value              | Description                            |
-| ------------------- | -------------------------- | -------------------------------------- |
-| ServiceUserEmail    | `my_user@domain.com`       | The e-mailaddress for the service user |
-| ServiceUserPassword | `ThisIsMyC00LP@ssw0rd123!` | The password for the service user      |
+| Parameter                  | Required                        | Example Value              | Description                                                                                                                                |
+| -------------------------- | ------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| ServiceUserEmail           | <input type="checkbox" checked  | `my_user@domain.com`       | The e-mailaddress for the service user                                                                                                     |
+| ServiceUserPassword        | <input type="checkbox" checked> | `ThisIsMyC00LP@ssw0rd123!` | The password for the service user                                                                                                          |
+| OutputPipelineVariableName | <input type="checkbox">         | `ServiceUserObjectId`      | The name of the pipeline variable. This defaults to `ServiceUserObjectId` and can be used inside the pipeline as `$(ServiceUserObjectId)`. |
 
 # YAML
 
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Get ObjectID for ServiceUser'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Users-and-Accounts/Get-ObjectID-for-ServiceUser.ps1'
-               arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)'"
+- task: AzureCLI@2
+  displayName: "Get ObjectID for ServiceUser"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Users-and-Accounts/Get-ObjectID-for-ServiceUser.ps1"
+    arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)' -OutputPipelineVariableName '$(OutputPipelineVariableName)'"
 ```
 
 # Code

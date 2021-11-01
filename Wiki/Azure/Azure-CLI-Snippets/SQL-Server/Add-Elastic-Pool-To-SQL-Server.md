@@ -41,14 +41,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create Elastic Pool to SQL Server'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/SQL-Server/Add-Elastic-Pool-To-SQL-Server.ps1'
-               arguments: "-ElasticPoolName '$(ElasticPoolName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(SqlServerName)' -ElasticPoolEdition '$(ElasticPoolEdition)' -ElasticPoolCapacity '$(ElasticPoolCapacity)' -ElasticPoolMaxCapacityPerDatabase '$(ElasticPoolMaxCapacityPerDatabase)' -ElasticPoolMinCapacityPerDatabase '$(ElasticPoolMinCapacityPerDatabase)' -ElasticPoolVCoreFamily '$(ElasticPoolVCoreFamily)' -ElasticPoolMaxStorageSize '$(ElasticPoolMaxStorageSize)' -ElasticPoolZoneRedundancy '$(ElasticPoolZoneRedundancy)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ResourceTags $(ResourceTags)"
+- task: AzureCLI@2
+  displayName: "Create Elastic Pool to SQL Server"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Add-Elastic-Pool-To-SQL-Server.ps1"
+    arguments: "-ElasticPoolName '$(ElasticPoolName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(SqlServerName)' -ElasticPoolEdition '$(ElasticPoolEdition)' -ElasticPoolCapacity '$(ElasticPoolCapacity)' -ElasticPoolMaxCapacityPerDatabase '$(ElasticPoolMaxCapacityPerDatabase)' -ElasticPoolMinCapacityPerDatabase '$(ElasticPoolMinCapacityPerDatabase)' -ElasticPoolVCoreFamily '$(ElasticPoolVCoreFamily)' -ElasticPoolMaxStorageSize '$(ElasticPoolMaxStorageSize)' -ElasticPoolZoneRedundancy '$(ElasticPoolZoneRedundancy)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -ResourceTags $(ResourceTags)"
 ```
 
 # Code

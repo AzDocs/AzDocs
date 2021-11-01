@@ -9,6 +9,8 @@ function Set-DiagnosticSettings
         [Parameter()][string] $Logs
     )
 
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
     # Get root path and make sure the right provider is registered
     $RootPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
     & "$RootPath\Resource-Provider\Register-Provider.ps1" -ResourceProviderNamespace 'Microsoft.Insights'
@@ -39,4 +41,44 @@ function Set-DiagnosticSettings
 
     # Create new diagnostic setting
     Invoke-Executable az monitor diagnostic-settings create --resource $ResourceId --name $diagnosticSettingName --workspace $LogAnalyticsWorkspaceResourceId @optionalParameters
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+function Get-DiagnosticSettingBasedOnTier
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][ValidateSet("webapp")][string] $ResourceType,
+        [Parameter(Mandatory)][string] $CurrentResourceTier
+    )
+
+    #  Create diagnostics settings & make sure to check which categories can be accessed based upon the SKU of the app service plan
+    # https://docs.microsoft.com/en-us/azure/app-service/troubleshoot-diagnostic-logs#send-logs-to-azure-monitor-preview
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $diagnosticSettingToReturn = $null
+    if ($ResourceType -eq 'webapp')
+    {
+        $allowedWebAppTiers = @("Premium", "PremiumV2", "PremiumV3")
+        if ($allowedWebAppTiers -contains $CurrentResourceTier)
+        {
+            $diagnosticSettingToReturn = [PSCustomObject]@{
+                DiagnosticSettingType  = "Logs"
+                DiagnosticSettingValue = "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"')
+            }
+        }
+        else
+        {
+            $diagnosticSettingToReturn = [PSCustomObject]@{
+                DiagnosticSettingType  = "Logs"
+                DiagnosticSettingValue = "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"')
+            }
+        }
+    }
+
+    Write-Output $diagnosticSettingToReturn
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }

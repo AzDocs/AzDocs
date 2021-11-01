@@ -1,4 +1,9 @@
 {
     "powershell.codeFormatting.openBraceOnSameLine": false,
-    "powershell.codeFormatting.preset": "Allman"
+    "powershell.codeFormatting.preset": "Allman",
+    "powershell.codeFormatting.autoCorrectAliases": true,
+    "powershell.codeFormatting.trimWhitespaceAroundPipe": true,
+    "powershell.codeFormatting.useConstantStrings": true,
+    "powershell.codeFormatting.useCorrectCasing": true,
+    "powershell.codeFormatting.whitespaceBetweenParameters": true,
 }

@@ -16,15 +16,14 @@ This snippet will create a Resource Group if it does not exist. It also adds the
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create ResourceGroup'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1'
-               arguments: "-ResourceGroupLocation '$(ResourceGroupLocation)' -ResourceGroupName '$(ResourceGroupName)' -ResourceTags $(ResourceTags)"
-
+- task: AzureCLI@2
+  displayName: "Create ResourceGroup"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Resourcegroup/Create-ResourceGroup.ps1"
+    arguments: "-ResourceGroupLocation '$(ResourceGroupLocation)' -ResourceGroupName '$(ResourceGroupName)' -ResourceTags $(ResourceTags)"
 ```
 
 # Code

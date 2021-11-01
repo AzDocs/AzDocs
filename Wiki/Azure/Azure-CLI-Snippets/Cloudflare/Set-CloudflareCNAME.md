@@ -23,14 +23,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Set Cloudflare CNAME'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Cloudflare/Set-CloudflareCNAME.ps1'
-               arguments: "-CloudflareApiToken '$(CloudflareApiToken)' -RootDomain '$(RootDomain)' -SubDomain '$(SubDomain)' -CloudflareProxied '$(CloudflareProxied)' -TargetName '$(TargetCName)'"
+- task: AzureCLI@2
+  displayName: "Set Cloudflare CNAME"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Cloudflare/Set-CloudflareCNAME.ps1"
+    arguments: "-CloudflareApiToken '$(CloudflareApiToken)' -RootDomain '$(RootDomain)' -SubDomain '$(SubDomain)' -CloudflareProxied '$(CloudflareProxied)' -TargetName '$(TargetCName)'"
 ```
 
 # Code

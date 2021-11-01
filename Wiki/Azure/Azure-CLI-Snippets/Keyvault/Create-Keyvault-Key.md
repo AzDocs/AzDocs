@@ -26,8 +26,6 @@ Be aware that this YAML example contains all parameters that can be used with th
   inputs:
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault-Key.ps1'
-               arguments: "-KeyVaultName '$(KeyVaultName)' -KeyName '$(KeyName)' -KeyExpiresInDays '$(KeyExpiresInDays)' -KeyNotBeforeInDays '$(KeyNotBeforeInDays)'"
     scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault-Key.ps1"
     arguments: "-KeyVaultName '$(KeyVaultName)' -KeyName '$(KeyName)' -KeyExpiresInDays '$(KeyExpiresInDays)' -KeyNotBeforeInDays '$(KeyNotBeforeInDays)'"
 ```

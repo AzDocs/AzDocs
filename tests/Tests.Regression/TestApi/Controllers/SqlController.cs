@@ -20,6 +20,17 @@ namespace TestApi.Controllers
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// Returns the result of a query on a table in a SQL database. It will create the table if it does not exist and insert the example values.
+        /// </summary>
+        /// <returns>A string response.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /sql
+        ///
+        /// </remarks>
+        /// <response code="200">Returns the result of a query.</response>
         [HttpGet]
         public IEnumerable<string> Get()
         {

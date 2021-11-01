@@ -14,13 +14,15 @@
       "launchBrowser": true,
       "launchUrl": "",
       "environmentVariables": {
-        "StorageAccount": "teststg",
+        "StorageAccount": "devstrgtest",
+        "BlobContainer": "myblobcontainer",
         "KeyvaultKey": "myfirstkey",
         "SqlConnection": "Server=testsrv.database.windows.net;Database=testdb",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "KeyvaultName": "tada",
         "APPINSIGHTS_INSTRUMENTATIONKEY": "e3f48566-d738-4ad5-8cbb-67df60d9cca1",
-        "QueueName": "testqueue"
+        "QueueName": "testqueue",
+        "FileShareName": "testdevshare"
       }
     },
     "TestApi": {

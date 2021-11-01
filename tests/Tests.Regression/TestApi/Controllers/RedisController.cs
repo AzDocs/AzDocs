@@ -22,6 +22,17 @@ namespace TestApi.Controllers
             _cache = cache;
         }
 
+        /// <summary>
+        /// Returns a datetime field item.
+        /// </summary>
+        /// <returns>A string response.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /redis
+        ///
+        /// </remarks>
+        /// <response code="200">Returns a item.</response>
         [HttpGet]
         public async Task<string> Get()
         {

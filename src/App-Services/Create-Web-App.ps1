@@ -18,9 +18,11 @@ param (
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableAppServiceDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $AppServiceDeploymentSlotName = 'staging',
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForAppServiceDeploymentSlot = $true,
+    [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $DisableVNetWhitelistForDeploymentSlot,
+    [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $DisablePrivateEndpointForDeploymentSlot,
 
     # Use container image name with optional tag for example thelastpickle/cassandra-reaper:latest
-    [Parameter(Mandatory, ParameterSetName = 'Container')][string] $ContainerImageName,
+    [Parameter(Mandatory, ParameterSetName = 'Container')][Parameter(ParameterSetName = 'DeploymentSlot')][string] $ContainerImageName,
 
     # VNET Whitelisting Parameters
     [Parameter()][string] $GatewayVnetResourceGroupName,
@@ -62,24 +64,28 @@ if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetNam
 Assert-TLSVersion -TlsVersion $AppServiceMinimalTlsVersion
 
 # Fetch AppService Plan ID
-$appServicePlanId = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json).id
+$appServicePlan = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json)
 
 #adding additional parameters
 $optionalParameters = @()
 
 # This only works with app services running in Linux
-if ($ContainerImageName)
+if ($ContainerImageName -and $appServicePlan.kind -ne 'Linux')
+{
+    throw 'Container images can only be added directly to Linux webapps. Please add this webapp to the correct AppServicePlan.'
+}
+elseif ($ContainerImageName)
 {
     $optionalParameters += '--deployment-container-image-name', "$ContainerImageName"
 }
-
-if ($AppServiceRunTime)
+elseif ($AppServiceRunTime)
 {
+    # Appservice runtime and container image name cannot be used together.
     $optionalParameters += '--runtime', "$AppServiceRunTime"
 }
 
 # Create/Update AppService & Fetch the ID from the AppService
-$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlanId --resource-group $AppServiceResourceGroupName --tags ${ResourceTags} @optionalParameters | ConvertFrom-Json).id
+$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlan.id --resource-group $AppServiceResourceGroupName --tags @ResourceTags @optionalParameters | ConvertFrom-Json).id
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $webAppId -ResourceTags ${ResourceTags}
@@ -99,42 +105,45 @@ Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppS
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
 
-#  Create diagnostics settings
-Set-DiagnosticSettings -ResourceId $webAppId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+$diagnosticSettingsForWebapp = Get-DiagnosticSettingBasedOnTier -ResourceType 'webapp' -CurrentResourceTier $appServicePlan.sku.tier
+if ($diagnosticSettingsForWebapp.DiagnosticSettingType -eq 'Logs')
+{
+    Set-DiagnosticSettings -ResourceId $webAppId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs $diagnosticSettingsForWebapp.DiagnosticSettingValue -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+}
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az webapp identity assign --ids $webAppId
 
+# Create Deployment Slot
 if ($EnableAppServiceDeploymentSlot)
 {
-    Invoke-Executable az webapp deployment slot create --resource-group $AppServiceResourceGroupName --name $AppServiceName --slot $AppServiceDeploymentSlotName
-
-    # Stop immediately if desired
-    if ($StopAppServiceSlotImmediatelyAfterCreation)
-    {
-        Invoke-Executable az webapp stop --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName
+    $parametersForDeploymentSlot = @{ 
+        AppType                                      = 'webapp'; 
+        ResourceResourceGroupName                    = $AppServiceResourceGroupName;    
+        ResourceName                                 = $AppServiceName; 
+        ResourceDeploymentSlotName                   = $AppServiceDeploymentSlotName;
+        ResourceAppServicePlanTier                   = $appServicePlan.sku.tier;
+        LogAnalyticsWorkspaceResourceId              = $LogAnalyticsWorkspaceResourceId;
+        StopResourceSlotImmediatelyAfterCreation     = $StopAppServiceSlotImmediatelyAfterCreation;
+        ResourceTags                                 = ${ResourceTags};
+        ResourceAlwaysOn                             = $AppServiceAlwaysOn;
+        ResourceMinimalTlsVersion                    = $AppServiceMinimalTlsVersion;
+        DisablePublicAccessForResourceDeploymentSlot = $DisablePublicAccessForAppServiceDeploymentSlot;
+        ForcePublic                                  = $ForcePublic;
+        GatewayVnetResourceGroupName                 = $GatewayVnetResourceGroupName;
+        GatewayVnetName                              = $GatewayVnetName;
+        GatewaySubnetName                            = $GatewaySubnetName;
+        GatewayWhitelistRulePriority                 = $GatewayWhitelistRulePriority;
+        ResourcePrivateEndpointVnetResourceGroupName = $AppServicePrivateEndpointVnetResourceGroupName;
+        ResourcePrivateEndpointVnetName              = $AppServicePrivateEndpointVnetName;
+        ResourcePrivateEndpointSubnetName            = $AppServicePrivateEndpointSubnetName;
+        DNSZoneResourceGroupName                     = $DNSZoneResourceGroupName;
+        ResourcePrivateDnsZoneName                   = $AppServicePrivateDnsZoneName;
+        ResourceDisableVNetWhitelisting              = $DisableVNetWhitelistForDeploymentSlot;
+        ResourceDisablePrivateEndpoints              = $DisablePrivateEndpointForDeploymentSlot;
     }
 
-    $webAppStagingId = (Invoke-Executable az webapp show --name $AppServiceName --resource-group $AppServiceResourceGroupName --slot $AppServiceDeploymentSlotName | ConvertFrom-Json).id
-
-    # Update Tags
-    Set-ResourceTagsForResource -ResourceId $webAppStagingId -ResourceTags ${ResourceTags}
-
-    Invoke-Executable az webapp config set --ids $webAppStagingId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --min-tls-version $AppServiceMinimalTlsVersion --slot $AppServiceDeploymentSlotName
-    Invoke-Executable az webapp log config --ids $webAppStagingId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $AppServiceDeploymentSlotName
-    Invoke-Executable az webapp identity assign --ids $webAppStagingId --slot $AppServiceDeploymentSlotName
-
-    # Set diagnostic settings for deployment slot
-    Set-DiagnosticSettings -ResourceId $webAppStagingId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AppServiceHTTPLogs', 'enabled': true }, { 'category': 'AppServiceConsoleLogs', 'enabled': true }, { 'category': 'AppServiceAppLogs', 'enabled': true }, { 'category': 'AppServiceFileAuditLogs', 'enabled': true }, { 'category': 'AppServiceIPSecAuditLogs', 'enabled': true }, { 'category': 'AppServicePlatformLogs', 'enabled': true }, { 'category': 'AppServiceAuditLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
-    
-    if ($DisablePublicAccessForAppServiceDeploymentSlot)
-    {
-        $accessRestrictionRuleName = 'DisablePublicAccess'
-        $cidr = '0.0.0.0/0'
-        $accessRestrictionAction = 'Deny'
-        
-        Add-AccessRestriction -AppType webapp -ResourceGroupName $AppServiceResourceGroupName -ResourceName $AppServiceName -AccessRestrictionRuleName $accessRestrictionRuleName -CIDR $cidr -AccessRestrictionAction $accessRestrictionAction -Priority 100000 -DeploymentSlotName $AppServiceDeploymentSlotName -AccessRestrictionRuleDescription $AppServiceName -ApplyToMainEntrypoint $True -ApplyToScmEntrypoint $True -AutoGeneratedAccessRestrictionRuleName $False
-    }
+    New-DeploymentSlot @parametersForDeploymentSlot
 }
 
 # VNET Whitelisting

@@ -964,7 +964,18 @@ function New-ApplicationGatewayEntrypoint
     # Make sure our AppGateway User Identity is assigned to keyvault (the process will break if this isn't the case)
     Grant-ApplicationGatewayPermissionsToKeyvault -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -KeyvaultName $CertificateKeyvaultName
     Write-Host "Application Gateway identity assigned to Keyvault"
-
+  
+    # Check if there are network rules present for the keyvault
+    $keyvaultNetworkRules = (Invoke-Executable az keyvault network-rule list --name $CertificateKeyvaultName | ConvertFrom-Json).virtualNetworkRules
+    
+    if ($keyvaultNetworkRules)
+    {
+        Write-Host "Whitelisting agent ip on keyvault.."
+        # Get root path and make sure the right provider is registered
+        $RootPath = (Get-Item $PSScriptRoot).Parent.Parent
+        & "$RootPath\Keyvault\Add-Network-Whitelist-to-Keyvault.ps1" -KeyvaultName $CertificateKeyvaultName -KeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName
+    }
+    
     # Fetch the certificate from the AppGateway if it exists
     Write-Host "Fetching AppGateway certificate"
     $appgatewayCertificate = Get-CertificateFromApplicationGateway -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -DomainName $IngressDomainName
@@ -1033,8 +1044,17 @@ function New-ApplicationGatewayEntrypoint
         $appgatewayCertificate = (Invoke-Executable az network application-gateway ssl-cert show --gateway-name $ApplicationGatewayName --name $CertificateName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
         Write-Host "Cert added/replaced to appgateway"
     }
-    Write-Host "Cert is in place!"
 
+    # Check if there were network rules present for the keyvault
+    if ($keyvaultNetworkRules)
+    {
+        Write-Host "Removing whitelist agent ip from keyvault"
+        # Get root path and make sure the right provider is registered
+        $RootPath = (Get-Item $PSScriptRoot).Parent.Parent
+        & "$RootPath\Keyvault\Remove-Network-Whitelist-from-Keyvault.ps1" -KeyvaultName $CertificateKeyvaultName -KeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName
+    }
+
+    Write-Host "Cert is in place!"
 
     # ======= Create entry point =======
 

@@ -14,6 +14,17 @@ namespace TestApi.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Returns the Home Page, the root of the TestApi.
+        /// </summary>
+        /// <returns>A string status.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /
+        ///
+        /// </remarks>
+        /// <response code="200">Returns the content of the home page.</response>
         [HttpGet]
         public string Get()
         {

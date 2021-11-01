@@ -29,14 +29,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create Application Gateway'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway.ps1'
-               arguments: "-ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayVnetName '$(ApplicationGatewayVnetName)' -ApplicationGatewayVnetResourceGroupName '$(ApplicationGatewayVnetResourceGroupName)' -ApplicationGatewaySubnetName '$(ApplicationGatewaySubnetName)' -ApplicationGatewayCapacity '$(ApplicationGatewayCapacity)' -ApplicationGatewaySku '$(ApplicationGatewaySku)' -CertificateKeyvaultName '$(CertificateKeyvaultName)' -CertificateKeyvaultResourceGroupName '$(CertificateKeyvaultResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+- task: AzureCLI@2
+  displayName: "Create Application Gateway"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway.ps1"
+    arguments: "-ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayVnetName '$(ApplicationGatewayVnetName)' -ApplicationGatewayVnetResourceGroupName '$(ApplicationGatewayVnetResourceGroupName)' -ApplicationGatewaySubnetName '$(ApplicationGatewaySubnetName)' -ApplicationGatewayCapacity '$(ApplicationGatewayCapacity)' -ApplicationGatewaySku '$(ApplicationGatewaySku)' -CertificateKeyvaultName '$(CertificateKeyvaultName)' -CertificateKeyvaultResourceGroupName '$(CertificateKeyvaultResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
 ```
 
 # Code

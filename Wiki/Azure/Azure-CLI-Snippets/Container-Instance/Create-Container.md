@@ -39,14 +39,14 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Create Container'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Container-Instance/Create-Container.ps1'
-               arguments: "-ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -ImageRegistryLoginServer '$(ImageRegistryLoginServer)' -ImageRegistryUserName '$(ImageRegistryUserName)' -ImageRegistryPassword '$(ImageRegistryPassword)' -ContainerEnvironmentVariables '$(ContainerEnvironmentVariables)' -ContainerEnvironmentVariablesDelimiter '$(ContainerEnvironmentVariablesDelimiter)' -StorageAccountFileShareName '$(StorageAccountFileShareName)' -FileShareStorageAccountName '$(FileShareStorageAccountName)' -FileShareStorageAccountResourceGroupName '$(FileShareStorageAccountResourceGroupName)' -StorageAccountFileShareMountPath '$(StorageAccountFileShareMountPath)' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)' -ContainerIpAddressType '$(ContainerIpAddressType)'"
+- task: AzureCLI@2
+  displayName: "Create Container"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Container-Instance/Create-Container.ps1"
+    arguments: "-ContainerName '$(ContainerName)' -ContainerResourceGroupName '$(ContainerResourceGroupName)' -ContainerCpuCount '$(ContainerCpuCount)' -ContainerMemoryInGb '$(ContainerMemoryInGb)' -ContainerOs '$(ContainerOs)' -ContainerPorts '$(ContainerPorts)' -ContainerImageName '$(ContainerImageName)' -ContainerVnetName '$(ContainerVnetName)' -ContainerVnetResourceGroupName '$(ContainerVnetResourceGroupName)' -ContainerSubnetName '$(ContainerSubnetName)' -ImageRegistryLoginServer '$(ImageRegistryLoginServer)' -ImageRegistryUserName '$(ImageRegistryUserName)' -ImageRegistryPassword '$(ImageRegistryPassword)' -ContainerEnvironmentVariables '$(ContainerEnvironmentVariables)' -ContainerEnvironmentVariablesDelimiter '$(ContainerEnvironmentVariablesDelimiter)' -StorageAccountFileShareName '$(StorageAccountFileShareName)' -FileShareStorageAccountName '$(FileShareStorageAccountName)' -FileShareStorageAccountResourceGroupName '$(FileShareStorageAccountResourceGroupName)' -StorageAccountFileShareMountPath '$(StorageAccountFileShareMountPath)' -LogAnalyticsWorkspaceId '$(LogAnalyticsWorkspaceId)' -LogAnalyticsWorkspaceKey '$(LogAnalyticsWorkspaceKey)' -ContainerIpAddressType '$(ContainerIpAddressType)'"
 ```
 
 # Code

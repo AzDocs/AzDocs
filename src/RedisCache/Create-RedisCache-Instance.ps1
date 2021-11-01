@@ -48,19 +48,38 @@ if ($RedisInstanceSubnetId)
     $additionalParameters += '--subnet-id', $RedisInstanceSubnetId
 }
     
-$redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --minimum-tls-version $RedisInstanceMinimalTlsVersion --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
-while (((Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json).provisioningState -eq 'Creating')
+function WaitForRedisProvisioningToBeDone
 {
-    Write-Host "Redis still creating... waiting for it to complete..."
-    Start-Sleep -Seconds 60
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] $RedisInstanceName,
+        [Parameter(Mandatory)][string] $RedisInstanceResourceGroupName
+    )
+
+    # Check if redis instance exists. If not, return.
+    $redisInstance = (Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName)
+    if (!$redisInstance)
+    {
+        return
+    }
+
+    while (((Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName) | ConvertFrom-Json).provisioningState -ne 'Succeeded')
+    {
+        Write-Host 'Redis still provisioning... waiting for it to complete...'
+        Start-Sleep -Seconds 60
+    }
 }
+
+WaitForRedisProvisioningToBeDone -RedisInstanceName $RedisInstanceName -RedisInstanceResourceGroupName $RedisInstanceResourceGroupName
+$redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --minimum-tls-version $RedisInstanceMinimalTlsVersion --tags @ResourceTags @additionalParameters | ConvertFrom-Json).id
+WaitForRedisProvisioningToBeDone -RedisInstanceName $RedisInstanceName -RedisInstanceResourceGroupName $RedisInstanceResourceGroupName
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $redisInstanceResourceId -ResourceTags ${ResourceTags}
 
 if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivateEndpointVnetName -and $RedisInstancePrivateEndpointSubnetName -and $RedisInstancePrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {
-    Write-Host "A private endpoint is desired. Adding the needed components."
+    Write-Host 'A private endpoint is desired. Adding the needed components.'
     # Fetch needed information
     $vnetId = (Invoke-Executable az network vnet show --resource-group $RedisInstancePrivateEndpointVnetResourceGroupName --name $RedisInstancePrivateEndpointVnetName | ConvertFrom-Json).id
     $redisInstancePrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $RedisInstancePrivateEndpointVnetResourceGroupName --name $RedisInstancePrivateEndpointSubnetName --vnet-name $RedisInstancePrivateEndpointVnetName | ConvertFrom-Json).id

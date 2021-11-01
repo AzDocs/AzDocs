@@ -550,7 +550,7 @@ function Confirm-CIDRForWhitelist
 {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)][string] [ValidateSet('storage', 'sql', 'redis', 'mysql', 'keyvault', 'webapp', 'functionapp', 'container-registry', 'postgresql', 'servicebus')] $ServiceType,
+        [Parameter(Mandatory)][string] [ValidateSet('storage', 'sql', 'redis', 'mysql', 'keyvault', 'webapp', 'functionapp', 'container-registry', 'postgresql', 'servicebus', 'cosmosdb')] $ServiceType,
         [Parameter()][string] $CIDR
     )
 
@@ -561,13 +561,13 @@ function Confirm-CIDRForWhitelist
         return
     }
 
-    $serviceTypesWithRequiredSuffix = @('sql', 'redis', 'mysql', 'keyvault', 'webapp', 'functionapp', 'container-registry', 'postgresql')
+    $serviceTypesWithRequiredSuffix = @('sql', 'redis', 'mysql', 'keyvault', 'webapp', 'functionapp', 'container-registry', 'postgresql', 'cosmosdb')
     if ($serviceTypesWithRequiredSuffix -contains $ServiceType)
     {
         $CIDRToSplit = $CIDR.Split('/')[1]
         if (!$CIDRToSplit)
         {
-            throw "Found no CIDR suffix for $CIDR. Please add the CIDR suffix, e.g. /32"
+            return $CIDR + "/32"
         }
         else
         {
@@ -576,7 +576,7 @@ function Confirm-CIDRForWhitelist
     }
 
     $serviceTypesWithNoSuffix = @('storage', 'servicebus')
-    if ($ServiceType -contains $serviceTypesWithNoSuffix)
+    if ($serviceTypesWithNoSuffix -contains $ServiceType)
     {
         $CIDRToSplit = $CIDR.Split('/')[1]
         if ($CIDRToSplit)
@@ -586,9 +586,12 @@ function Confirm-CIDRForWhitelist
         }
         else
         {
+            Write-Host "$CIDR"
             return $CIDR
         }
     }
+
+    return $CIDR
 }
 
 <#

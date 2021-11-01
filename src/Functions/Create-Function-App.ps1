@@ -8,7 +8,7 @@ param (
     [Alias("LogAnalyticsWorkspaceName")]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Alias("AlwaysOn")]
-    [Parameter(Mandatory)][string] $FunctionAppAlwaysOn,
+    [Parameter()][bool] $FunctionAppAlwaysOn = $true,
     [Parameter(Mandatory)][string] $FUNCTIONS_EXTENSION_VERSION,
     [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT,
     [Parameter()][string] $FunctionAppNumberOfInstances = 2,
@@ -16,11 +16,15 @@ param (
     [Parameter()][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][ValidateSet("Linux", "Windows")][string] $FunctionAppOSType,
     [Parameter()][string][ValidateSet("1.0", "1.1", "1.2")] $FunctionAppMinimalTlsVersion = "1.2",
+    [Parameter()][bool] $StopFunctionAppImmediatelyAfterCreation = $false,
+    [Parameter()][bool] $StopFunctionAppSlotImmediatelyAfterCreation = $false,
 
     # Deployment Slots
     [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $EnableFunctionAppDeploymentSlot,
     [Parameter(ParameterSetName = 'DeploymentSlot')][string] $FunctionAppDeploymentSlotName = "staging",
     [Parameter(ParameterSetName = 'DeploymentSlot')][bool] $DisablePublicAccessForFunctionAppDeploymentSlot = $true,
+    [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $DisableVNetWhitelistForDeploymentSlot,
+    [Parameter(ParameterSetName = 'DeploymentSlot')][switch] $DisablePrivateEndpointForDeploymentSlot,
 
     # VNET Whitelisting Parameters
     [Parameter()][string] $GatewayVnetResourceGroupName,
@@ -61,7 +65,7 @@ if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetNam
 Assert-TLSVersion -TlsVersion $FunctionAppMinimalTlsVersion
 
 # Fetch AppService Plan ID
-$appServicePlanId = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json).id
+$appServicePlan = (Invoke-Executable az appservice plan show --resource-group $AppServicePlanResourceGroupName --name $AppServicePlanName | ConvertFrom-Json)
 
 # Fetch the ID from the FunctionApp
 $functionAppId = (Invoke-Executable -AllowToFail az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
@@ -70,8 +74,14 @@ $functionAppId = (Invoke-Executable -AllowToFail az functionapp show --name $Fun
 if (!$functionAppId)
 {
     # Create FunctionApp
-    Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlanId --os-type $FunctionAppOSType --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime $FunctionAppRuntime --functions-version 3 --disable-app-insights --tags ${ResourceTags}
+    Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlan.id --os-type $FunctionAppOSType --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime $FunctionAppRuntime --functions-version 3 --disable-app-insights --tags @ResourceTags
     $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
+}
+
+# Immediately stop functionapp after creation
+if ($StopFunctionAppImmediatelyAfterCreation)
+{
+    Invoke-Executable az functionapp stop --name $FunctionAppName --resource-group $FunctionAppResourceGroupName
 }
 
 # Update Tags
@@ -92,26 +102,36 @@ Set-DiagnosticSettings -ResourceId $functionAppId -ResourceName $FunctionAppName
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az functionapp identity assign --ids $functionAppId
 
-# By default a staging slot will be added
+# Create Deployment Slot
 if ($EnableFunctionAppDeploymentSlot)
 {
-    # Create deployment slot 
-    Invoke-Executable az functionapp deployment slot create --resource-group $FunctionAppResourceGroupName --name $FunctionAppName  --slot $FunctionAppDeploymentSlotName
-    $functionAppStagingId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName --slot $FunctionAppDeploymentSlotName | ConvertFrom-Json).id
-    Invoke-Executable az functionapp config set --ids $functionAppStagingId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled --min-tls-version $FunctionAppMinimalTlsVersion
-    Invoke-Executable az functionapp config appsettings set --ids $functionAppStagingId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
-    Invoke-Executable az functionapp identity assign --ids $functionAppStagingId --slot $FunctionAppDeploymentSlotName
-    
-    Set-DiagnosticSettings -ResourceId $functionAppStagingId -ResourceName $FunctionAppName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
-
-    if ($DisablePublicAccessForFunctionAppDeploymentSlot)
-    {
-        $accessRestrictionRuleName = 'DisablePublicAccess'
-        $cidr = '0.0.0.0/0'
-        $accessRestrictionAction = 'Deny'
-        
-        Add-AccessRestriction -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $accessRestrictionRuleName -CIDR $cidr -AccessRestrictionAction $accessRestrictionAction -Priority 100000 -DeploymentSlotName $FunctionAppDeploymentSlotName -AccessRestrictionRuleDescription $FunctionAppName -ApplyToMainEntrypoint $True -ApplyToScmEntrypoint $True -AutoGeneratedAccessRestrictionRuleName $False
+    $parametersForDeploymentSlot = @{ 
+        AppType                                      = 'functionapp'; 
+        ResourceResourceGroupName                    = $FunctionAppResourceGroupName;    
+        ResourceName                                 = $FunctionAppName; 
+        ResourceDeploymentSlotName                   = $FunctionAppDeploymentSlotName;
+        ResourceAppServicePlanTier                   = $appServicePlan.sku.tier;
+        LogAnalyticsWorkspaceResourceId              = $LogAnalyticsWorkspaceResourceId;
+        StopResourceSlotImmediatelyAfterCreation     = $StopFunctionAppSlotImmediatelyAfterCreation;
+        ResourceTags                                 = ${ResourceTags};
+        ResourceAlwaysOn                             = $FunctionAppAlwaysOn;
+        ResourceMinimalTlsVersion                    = $FunctionAppMinimalTlsVersion;
+        DisablePublicAccessForResourceDeploymentSlot = $DisablePublicAccessForFunctionAppDeploymentSlot;
+        ForcePublic                                  = $ForcePublic;
+        GatewayVnetResourceGroupName                 = $GatewayVnetResourceGroupName;
+        GatewayVnetName                              = $GatewayVnetName;
+        GatewaySubnetName                            = $GatewaySubnetName;
+        GatewayWhitelistRulePriority                 = $GatewayWhitelistRulePriority;
+        ResourcePrivateEndpointVnetResourceGroupName = $FunctionAppPrivateEndpointVnetResourceGroupName;
+        ResourcePrivateEndpointVnetName              = $FunctionAppPrivateEndpointVnetName;
+        ResourcePrivateEndpointSubnetName            = $FunctionAppPrivateEndpointSubnetName;
+        DNSZoneResourceGroupName                     = $DNSZoneResourceGroupName;
+        ResourcePrivateDnsZoneName                   = $FunctionAppPrivateDnsZoneName;
+        ResourceDisableVNetWhitelisting              = $DisableVNetWhitelistForDeploymentSlot;
+        ResourceDisablePrivateEndpoints              = $DisablePrivateEndpointForDeploymentSlot;
     }
+
+    New-DeploymentSlot @parametersForDeploymentSlot
 }
 
 # VNET Whitelisting
@@ -140,6 +160,5 @@ if ($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEnd
     # Add private endpoint & Setup Private DNS
     Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $functionAppPrivateEndpointSubnetId -PrivateEndpointName $functionAppPrivateEndpointName -PrivateEndpointResourceGroupName $FunctionAppResourceGroupName -TargetResourceId $functionAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $FunctionAppPrivateDnsZoneName -PrivateDnsLinkName "$($FunctionAppPrivateEndpointVnetName)-appservice"
 }
-
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

@@ -2,78 +2,40 @@
 
 # Description
 
-This code will create or update a custom firewall rule for a Domain Name with a certain priority in the Application Gateway WAF policy for whitelisting one or more Ip addresses. All other Ip adresses will receive an 403 HTTP error for that Domain Name. In a Release Pipeline in AzureDevOps you should run this code in a Azure Powershell task (it requires a module not available in az cli).
+This code will create or update a custom firewall rule for a specific domain name with a certain priority in the Application Gateway WAF. With this script you have the possibility to whitelist one or more ip addresses or to check based on a specific value for a specific request header. By default, the domain name will be added as a value to match on. In your pipeline, you should run this task in an Azure Powershell task (it requires a module not available in az cli).
 
 # Parameters
 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter                           | Example Value                                  | Description                                                                                                                                                                                                               |
-| ----------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ApplicationGatewayResourceGroupName | `sharedservices-rg`                            | The name of the Resource Group where the application gateway lives.                                                                                                                                                       |
-| ApplicationGatewayName              | `my-gateway-$(Release.EnvironmentName)`        | The name of the Application Gateway the WAF rule is created for.                                                                                                                                                          |
-| ApplicationGatewayWafName           | `my-waf-$(Release.EnvironmentName)`            | DNS name for your site you want to configure the WAF custom rule for in the Application Gateway                                                                                                                           |
-| IngressDomainName                   | `my.domain.com`                                | DNS name for your site you want to configure the WAF custom rule for in the Application Gateway                                                                                                                           |
-| CIDRToWhitelist                     | `'10.0.0.0/8', '77.164.215.54', '192.169.8.9'` | IP ranges in [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) notation that should be whitelisted. If you use the script in a release task, remember not to enclose the variable name with quotes (") |
-| Priority                            | `60`                                           | the Priority, other than the default calculated, you specifically want to use                                                                                                                                             |
-| HighPriority                        |                                                | if added, the rule will receive a higher priority then the existing                                                                                                                                                       |
-
-# Examples
-
-Some examples how you can run the script locally
-
-| Example |
-| ------- |
-
-| Set-ApplicationGatewayFirewallWhitelistRule -IngressDomainName 'www.google.nl' -CIDRToWhitelist '10.0.0.0/8' -ApplicationGatewayResourceGroupName 'wafRG' -ApplicationGatewayWafName 'Waf'
-Add an rule for www.google.nl for a local ip range (sidr notation). If this is the first rule, than the priority would be 50, or else the next available number upwards (next would be 51) |
-
-Set-ApplicationGatewayFirewallWhitelistRule -IngressDomainName 'www.google.nl' -CIDRToWhitelist '10.0.0.0/8' -ApplicationGatewayResourceGroupName 'wafRG' -ApplicationGatewayWafName 'Waf'
-
-Set-ApplicationGatewayFirewallWhitelistRule -IngressDomainName 'www.google.nl' -CIDRToWhitelist '10.0.0.0/16' -ApplicationGatewayResourceGroupName 'wafRG' -ApplicationGatewayWafName 'Waf'
-
-    Add an rule for www.google.nl for a local ip range (sidr notation). If this is the first rule, than the priority would be 50, or else the next available number upwards (next would be 51).
-    The second call would update the current rule with the new ip ranges and the same priority. It is overwritten because it is about the same domain.
-
-Set-ApplicationGatewayFirewallWhitelistRule -HighPriority -IngressDomainName 'www.google.nl' -CIDRToWhitelist '10.0.0.0/8' -ApplicationGatewayResourceGroupName 'wafRG' -ApplicationGatewayWafName 'Waf'
-
-    Add an rule for www.google.nl for a local ip range (sidr notation). If this is the first rule, than the priority would be 50, or else the next available number downwards (next would be 49)
-
-Set-ApplicationGatewayFirewallWhitelistRule -HighPriority -IngressDomainName 'www.google.nl' -CIDRToWhitelist '10.0.0.0/8' -ApplicationGatewayResourceGroupName 'wafRG' -ApplicationGatewayWafName 'Waf'
-
-Set-ApplicationGatewayFirewallWhitelistRule -HighPriority -IngressDomainName 'www.google.nl' -CIDRToWhitelist '10.0.0.0/8' -ApplicationGatewayResourceGroupName 'wafRG' -ApplicationGatewayWafName 'Waf'
-
-    Add an rule for www.google.nl for a local ip range (sidr notation). If this is the first rule, than the priority would be 50, or else the next available number downwards (next would be 49)
-    The second call would update the current rule with the new ip ranges and the same priority. It is overwritten because it is about the same domain.
-
-Set-ApplicationGatewayFirewallWhitelistRule -IngressDomainName 'www.google.nl' -CIDRToWhitelist '10.0.0.0/8' -ApplicationGatewayResourceGroupName 'wafRG' -ApplicationGatewayWafName 'Waf'
-
-Set-ApplicationGatewayFirewallWhitelistRule -HighPriority -IngressDomainName 'www.google.nl' -CIDRToWhitelist '10.0.0.0/8' -ApplicationGatewayResourceGroupName 'wafRG' -ApplicationGatewayWafName 'Waf'
-
-    Add an rule for www.google.nl for a local ip range (sidr notation). If this is the first rule, than the priority would be 50, or else the next available number upwards (next would be 51)
-    The second call would update the current rule with the new ip ranges and changes the priority. It is overwritten because it is about the same domain.
-
-az network application-gateway waf-policy custom-rule list --policy-name 'ApplicationGatewayWafName' --resource-group 'ApplicationGatewayResourceGroupName' --subscription 'SubscriptionName'
-
-    Lists all the customs rules set in the WAF.
-
-az network application-gateway waf-policy custom-rule delete --name 'WAFRuleName' --policy-name 'ApplicationGatewayWafName' --resource-group 'ApplicationGatewayResourceGroupName' --subscription 'SubscriptionName'
-
-    Delete a rule with the name 'WAFRuleName' from the WAF called 'ApplicationGatewayWafName'
+| Parameter                                         | Required                        | Example Value                                  | Description                                                                                                                                                                                                               |
+| ------------------------------------------------- | ------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ApplicationGatewayResourceGroupName               | <input type="checkbox" checked> | `sharedservices-rg`                            | The name of the Resource Group where the application gateway lives.                                                                                                                                                       |
+| ApplicationGatewayName                            | <input type="checkbox" checked> | `my-gateway-$(Release.EnvironmentName)`        | The name of the Application Gateway the WAF rule is created for.                                                                                                                                                          |
+| ApplicationGatewayWafName                         | <input type="checkbox" checked> | `my-waf-$(Release.EnvironmentName)`            | DNS name for your site you want to configure the WAF custom rule for in the Application Gateway                                                                                                                           |
+| IngressDomainName                                 | <input type="checkbox" checked> | `my.domain.com`                                | DNS name for your site you want to configure the WAF custom rule for in the Application Gateway                                                                                                                           |
+| CIDRToWhitelist                                   | <input type="checkbox">         | `'10.0.0.0/8', '77.164.215.54', '192.169.8.9'` | IP ranges in [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) notation that should be whitelisted. If you use the script in a release task, remember not to enclose the variable name with quotes (") |
+| Priority                                          | <input type="checkbox">         | `60`                                           | The priority, other than the default calculated, you specifically want to use                                                                                                                                             |
+| HighPriority                                      | <input type="checkbox">         | `n.a.`                                         | If added, the rule will receive a higher priority than the existing rules                                                                                                                                                 |
+| ApplicationGatewayWafCustomRuleAction             | <input type="checkbox">         | `Block`'                                       | Two options are available for the action, 'Block' or 'Allow'. Defaults to 'Block'.                                                                                                                                        |
+| ApplicationGatewayWafCustomRuleRequestHeader      | <input type="checkbox">         | `host` or `user-agent`                         | A request header you can specify to check in the custom defined rule.                                                                                                                                                     |
+| ApplicationGatewayWafCustomRuleRequestHeaderValue | <input type="checkbox">         | `anyvalue`                                     | Based on this value, you can check if the request header has this specific value in the custom defined rule.                                                                                                              |
 
 # YAML
 
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
 
 ```yaml
-        - task: AzureCLI@2
-           displayName: 'Set ApplicationGatewayFirewallWhitelistRule'
-           condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-           inputs:
-               azureSubscription: '${{ parameters.SubscriptionName }}'
-               scriptType: pscore
-               scriptPath: '$(Pipeline.Workspace)/AzDocs/Application-Gateway/Set-ApplicationGatewayFirewallWhitelistRule.ps1'
-               arguments: "-IngressDomainName '$(IngressDomainName)' -CIDRToWhitelist '$(CIDRToWhitelist)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayWafName '$(ApplicationGatewayWafName)' -HighPriority -Priority '$(Priority)'"
+- task: AzurePowerShell@5
+  displayName: "Set ApplicationGateway Firewall Whitelist rule"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    ScriptType: "FilePath"
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Set-ApplicationGatewayFirewallWhitelistRule.ps1"
+    azurePowerShellVersion: "LatestVersion"
+    pwsh: true
+    ScriptArguments: "-IngressDomainName '$(IngressDomainName)' -CIDRToWhitelist $(CIDRToWhitelist) -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -ApplicationGatewayWafName '$(ApplicationGatewayWafName)' -HighPriority -Priority '$(Priority)' -ApplicationGatewayWafCustomRuleAction '$(ApplicationGatewayWafCustomRuleAction)' -ApplicationGatewayWafCustomRuleRequestHeader '$(ApplicationGatewayWafCustomRuleRequestHeader)' -ApplicationGatewayWafCustomRuleRequestHeaderValue '$(ApplicationGatewayWafCustomRuleRequestHeaderValue)'"
 ```
 
 # Code
