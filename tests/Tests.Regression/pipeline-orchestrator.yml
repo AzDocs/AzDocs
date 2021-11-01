@@ -24,6 +24,7 @@
 #     TagCostType: A tag for the CostType. If not added, defaults to: Platform.
 #     TagTier: A tag for the Tier. If not added, defaults to: App.
 #     TagTeamName: A tag for the TeamName. If not added, defaults to: teamname.
+#     AlertEmail: If you would like to enable the alert to go to an actual emailaddress, specify it here. If not added, defaults to "someuser@company.com".
 
 # And finally add a Service Connection to your Azure DevOps Project to your Azure Subscription with the Service Connection Name "AZDOCSREGRESSIONTESTSUBSCRIPTION".
 # Unfortunately theres a technical limitation in Azure DevOps which prevents us from making this a pipeline variable.
@@ -85,6 +86,9 @@ parameters:
   - name: ResourceCreation.ApplicationGateway.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.AppMonitoring.Enabled
+    type: boolean
+    default: true
   - name: ResourceDeletion.ResourceGroup.Enabled
     type: boolean
     default: true
@@ -140,6 +144,8 @@ variables:
     value: ${{ parameters['ResourceCreation.ServiceBus.Enabled'] }}
   - name: ResourceCreation.AppConfiguration.Enabled
     value: ${{ parameters['ResourceCreation.AppConfiguration.Enabled'] }}
+  - name: ResourceCreation.AppMonitoring.Enabled
+    value: ${{ parameters['ResourceCreation.AppMonitoring.Enabled'] }}
   - name: ResourceDeletion.ResourceGroup.Enabled
     value: ${{ parameters['ResourceDeletion.ResourceGroup.Enabled'] }}
 
@@ -168,3 +174,4 @@ stages:
       TagCostType: $(TagCostType)
       TagTier: $(TagTier)
       TagTeamName: $(TagTeamName)
+      # AlertEmail: $(AlertEmail)

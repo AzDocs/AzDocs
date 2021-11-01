@@ -44,6 +44,7 @@ function New-DeploymentSlot
     # Create deployment slot
     Invoke-Executable az $AppType deployment slot create --resource-group $ResourceResourceGroupName --name $ResourceName --slot $ResourceDeploymentSlotName
     
+
     # Stop immediately if desired
     if ($StopResourceSlotImmediatelyAfterCreation)
     {
@@ -80,7 +81,7 @@ function New-DeploymentSlot
         $vnetId = (Invoke-Executable az network vnet show --resource-group $ResourcePrivateEndpointVnetResourceGroupName --name $ResourcePrivateEndpointVnetName | ConvertFrom-Json).id
         $resourcePrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ResourcePrivateEndpointVnetResourceGroupName --name $ResourcePrivateEndpointSubnetName --vnet-name $ResourcePrivateEndpointVnetName | ConvertFrom-Json).id
         $resourcePrivateEndpointName = Get-PrivateEndpointNameForResource -AppType $AppType -ResourceName $ResourceName -ResourceDeploymentSlotName $ResourceDeploymentSlotName
-        $parentResourceId = (Invoke-Executable az webapp show --ids $resourceSlotId | ConvertFrom-Json).id
+        $parentResourceId = (Invoke-Executable az $AppType show --ids $resourceSlotId | ConvertFrom-Json).id
  
         # Add private endpoint & Setup Private DNS
         Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $resourcePrivateEndpointSubnetId -PrivateEndpointName $resourcePrivateEndpointName -PrivateEndpointResourceGroupName $ResourceResourceGroupName -TargetResourceId $parentResourceId -PrivateEndpointGroupId "sites-$ResourceDeploymentSlotName" -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ResourcePrivateDnsZoneName -PrivateDnsLinkName "$($ResourcePrivateEndpointVnetName)-appservice"
@@ -146,6 +147,8 @@ function Set-ConfigurationForResource
     {
         'webapp'
         {
+            # Enforce HTTPS
+            Invoke-Executable az webapp update --resource-group $ResourceResourceGroupName --name $ResourceName --slot $ResourceDeploymentSlotName --https-only true
             Invoke-Executable az webapp log config --ids $ResourceSlotId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $ResourceDeploymentSlotName
         
             $diagnosticSettingsForWebapp = Get-DiagnosticSettingBasedOnTier -ResourceType $AppType -CurrentResourceTier $ResourceAppServicePlanTier
@@ -156,6 +159,9 @@ function Set-ConfigurationForResource
         }
         'functionapp'
         {
+            # Enforce HTTPS
+            Invoke-Executable az functionapp update --ids $ResourceSlotId --set httpsOnly=true
+
             Invoke-Executable az functionapp config appsettings set --ids $ResourceSlotId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
             Set-DiagnosticSettings -ResourceId $resourceSlotId -ResourceName $ResourceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
         }
