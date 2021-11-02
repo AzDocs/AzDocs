@@ -9,7 +9,7 @@ param (
     [Parameter(Mandatory, ParameterSetName = 'webapp')][Parameter(Mandatory, ParameterSetName = 'functionapp')][Parameter(Mandatory, ParameterSetName = 'appconfig')][string] $ManagedIdentityResourceName,
     [Parameter(Mandatory, ParameterSetName = 'webapp')][Parameter(Mandatory, ParameterSetName = 'functionapp')][Parameter(Mandatory, ParameterSetName = 'appconfig')][string] $ManagedIdentityResourceGroupName,
     [Parameter(ParameterSetName = 'webapp')][Parameter(ParameterSetName = 'functionapp')][string] $ManagedIdentityAppServiceSlotName,
-    [Parameter(ParameterSetName = 'webapp')][Parameter(ParameterSetName = 'functionapp')][bool] $ManagedIdentityApplyToAllSlots = $false,
+    [Parameter(ParameterSetName = 'webapp')][Parameter(ParameterSetName = 'functionapp')][bool] $ApplyToAllSlots = $false,
     [Parameter(ParameterSetName = 'other')][ValidateNotNullOrEmpty()][string] $PrincipalId,
     [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceName,
     [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceGroupName,
@@ -29,7 +29,7 @@ if ($AppServiceManagedIdentity)
 {
     $PrincipalId = Get-ManagedIdentity -AppService -ResourceName $ManagedIdentityResourceName -ResourceGroupName $ManagedIdentityResourceGroupName -AppServiceSlotName $ManagedIdentityAppServiceSlotName
 
-    if ($ManagedIdentityApplyToAllSlots)
+    if ($ApplyToAllSlots)
     {
         $parametersForSlot = @{
             AppType                          = 'webapp';
@@ -48,9 +48,9 @@ if ($AppServiceManagedIdentity)
 }
 elseif ($FunctionAppManagedIdentity)
 {
-    $PrincipalId = Get-ManagedIdentity -FunctionApp -ResourceName $ManagedIdentityResourceName -ResourceGroupName $ManagedIdentityResourceGroupName -AppServiceSlotName $ManagedIdentityAppServiceSlotName -ApplyToAllSlots:$ManagedIdentityApplyToAllSlots
+    $PrincipalId = Get-ManagedIdentity -FunctionApp -ResourceName $ManagedIdentityResourceName -ResourceGroupName $ManagedIdentityResourceGroupName -AppServiceSlotName $ManagedIdentityAppServiceSlotName
 
-    if ($ManagedIdentityApplyToAllSlots)
+    if ($ApplyToAllSlots)
     {
         $parametersForSlot = @{
             AppType                          = 'functionapp';
