@@ -30,7 +30,7 @@ The switches below control which scenario is executed.
 | ManagedIdentityResourceName       | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)`    | The name of the resource for which the Managed Identity will need the permission                                   |
 | ManagedIdentityResourceGroupName  | <input type="checkbox" checked> | `someresourcegroup-$(Release.EnvironmentName)` | The resource group containing the resource for which the Managed Identity will need the permission                 |
 | ManagedIdentityAppServiceSlotName | <input type="checkbox">         | `stagingslot`                                  | Optional; the name of the Deployment Slot for for which the Managed Identity will need the permission              |
-| ManagedIdentityApplyToAllSlots    | <input type="checkbox">         | `$false`                                       | The ability to enable managed identities for all the deployment slots that are attached to the webapp/functionapp. |
+| ApplyToAllSlots                   | <input type="checkbox">         | `$false`                                       | The ability to enable managed identities for all the deployment slots that are attached to the webapp/functionapp. |
 
 ## Parameters (for use with switch -AppConfigManagedIdentity)
 
@@ -86,7 +86,7 @@ To assign the `Azure Service Bus Data Sender` role to an identity (other than a 
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
     scriptPath: "$(Pipeline.Workspace)/AzDocs/Roles/Grant-Permissions-to-ManagedIdentity-on-Resource.ps1"
-    arguments: "-AppServiceManagedIdentity -ManagedIdentityResourceName $(AppServiceName) -ManagedIdentityResourceGroupName $(ResourceGroupName) -TargetResourceName $(ServiceBusName) -TargetResourceGroupName $(ServiceBusResourceGroupName) -TargetResourceType $(ServiceBusResourceType) -TargetResourceNamespace $(ServiceBusResourceNamespace) -RoleToAssign $(RoleToAssign) -ManagedIdentityApplyToAllSlots $(ManagedIdentityApplyToAllSlots)"
+    arguments: "-AppServiceManagedIdentity -ManagedIdentityResourceName $(AppServiceName) -ManagedIdentityResourceGroupName $(ResourceGroupName) -TargetResourceName $(ServiceBusName) -TargetResourceGroupName $(ServiceBusResourceGroupName) -TargetResourceType $(ServiceBusResourceType) -TargetResourceNamespace $(ServiceBusResourceNamespace) -RoleToAssign $(RoleToAssign) -ApplyToAllSlots $(ApplyToAllSlots)"
 ```
 
 # Code
