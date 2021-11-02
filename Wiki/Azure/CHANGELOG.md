@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.11.01]
+
+## Breaking Changes
+
+- Added mandatory parameter `AppServiceResourceGroupName` to `Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1`
+
+## Added
+
+- Added parameter `ApplyToAllSlots` to `Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1`
+- Added parameter `ManagedIdentityApplyToAllSlots` to `Grant-Permissions-to-ManagedIdentity-on-Resource.ps1`
+
 ## [2021.10.26]
 
 ## Updated

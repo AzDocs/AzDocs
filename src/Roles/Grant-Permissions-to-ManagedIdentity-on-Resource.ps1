@@ -9,6 +9,7 @@ param (
     [Parameter(Mandatory, ParameterSetName = 'webapp')][Parameter(Mandatory, ParameterSetName = 'functionapp')][Parameter(Mandatory, ParameterSetName = 'appconfig')][string] $ManagedIdentityResourceName,
     [Parameter(Mandatory, ParameterSetName = 'webapp')][Parameter(Mandatory, ParameterSetName = 'functionapp')][Parameter(Mandatory, ParameterSetName = 'appconfig')][string] $ManagedIdentityResourceGroupName,
     [Parameter(ParameterSetName = 'webapp')][Parameter(ParameterSetName = 'functionapp')][string] $ManagedIdentityAppServiceSlotName,
+    [Parameter(ParameterSetName = 'webapp')][Parameter(ParameterSetName = 'functionapp')][bool] $ManagedIdentityApplyToAllSlots = $false,
     [Parameter(ParameterSetName = 'other')][ValidateNotNullOrEmpty()][string] $PrincipalId,
     [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceName,
     [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string] $TargetResourceGroupName,
@@ -27,20 +28,50 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 if ($AppServiceManagedIdentity)
 {
     $PrincipalId = Get-ManagedIdentity -AppService -ResourceName $ManagedIdentityResourceName -ResourceGroupName $ManagedIdentityResourceGroupName -AppServiceSlotName $ManagedIdentityAppServiceSlotName
+
+    if ($ManagedIdentityApplyToAllSlots)
+    {
+        $parametersForSlot = @{
+            AppType                          = 'webapp';
+            ManagedIdentityResourceName      = $ManagedIdentityResourceName;
+            ManagedIdentityResourceGroupName = $ManagedIdentityResourceGroupName;
+            TargetResourceName               = $TargetResourceName;
+            TargetResourceGroupName          = $TargetResourceGroupName;
+            TargetResourceType               = $TargetResourceType;
+            TargetResourceNamespace          = $TargetResourceNamespace;
+            TargetResourceParentPath         = $TargetResourceParentPath;
+            RoleToAssign                     = $RoleToAssign;
+        }
+        
+        Set-ManagedIdentityForSlot @parametersForSlot
+    }
 }
 elseif ($FunctionAppManagedIdentity)
 {
-    $PrincipalId = Get-ManagedIdentity -FunctionApp -ResourceName $ManagedIdentityResourceName -ResourceGroupName $ManagedIdentityResourceGroupName -AppServiceSlotName $ManagedIdentityAppServiceSlotName
+    $PrincipalId = Get-ManagedIdentity -FunctionApp -ResourceName $ManagedIdentityResourceName -ResourceGroupName $ManagedIdentityResourceGroupName -AppServiceSlotName $ManagedIdentityAppServiceSlotName -ApplyToAllSlots:$ManagedIdentityApplyToAllSlots
+
+    if ($ManagedIdentityApplyToAllSlots)
+    {
+        $parametersForSlot = @{
+            AppType                          = 'functionapp';
+            ManagedIdentityResourceName      = $ManagedIdentityResourceName;
+            ManagedIdentityResourceGroupName = $ManagedIdentityResourceGroupName;
+            TargetResourceName               = $TargetResourceName;
+            TargetResourceGroupName          = $TargetResourceGroupName;
+            TargetResourceType               = $TargetResourceType;
+            TargetResourceNamespace          = $TargetResourceNamespace;
+            TargetResourceParentPath         = $TargetResourceParentPath;
+            RoleToAssign                     = $RoleToAssign;
+        }
+    
+        Set-ManagedIdentityForSlot @parametersForSlot
+    }
 }
 elseif ($AppConfigManagedIdentity)
 {
     $PrincipalId = Get-ManagedIdentity -AppConfig -ResourceName $ManagedIdentityResourceName -ResourceGroupName $ManagedIdentityResourceGroupName -AppServiceSlotName $ManagedIdentityAppServiceSlotName
 }
-if (!$PrincipalId)
-{
-    throw "Could not find Managed Identity or no PrincipalId specified"
-}
 
-Add-ScopedRoleAssignment -Resource -ResourceName $TargetResourceName -ResourceGroup $TargetResourceGroupName -ResourceType $TargetResourceType -ResourceNamespace $TargetResourceNamespace -ParentResourcePath $TargetResourceParentPath -RoleToAssign $RoleToAssign -AssigneeObjectId $PrincipalId
+Add-ScopedRoleAssignment -Resource -ResourceName $TargetResourceName -ResourceGroup $TargetResourceGroupName -ResourceType $TargetResourceType -ResourceNamespace $TargetResourceNamespace -ParentResourcePath $TargetResourceParentPath -RoleToAssign $RoleToAssign -AssigneeObjectId:$PrincipalId
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

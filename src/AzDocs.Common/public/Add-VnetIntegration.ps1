@@ -36,7 +36,7 @@ function Add-VnetIntegration
     }
     
     # Set vnet-route-all for vnet integration
-    Invoke-Executable az $AppType config set --resource-group $AppResourceGroupName --name $AppName @additionalParameters --vnet-route-all-enabled $RouteAllTrafficToVNet
+    Invoke-Executable az $AppType config set --resource-group $AppResourceGroupName --name $AppName @additionalParameters --vnet-route-all-enabled $RouteAllTrafficThroughVnet
     
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }

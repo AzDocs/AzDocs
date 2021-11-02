@@ -25,11 +25,12 @@ The switches below control which scenario is executed.
 
 ## Parameters (for use with switches -AppServiceManagedIdentity & -FunctionAppManagedIdentity)
 
-| Parameter                         | Required                        | Example Value                                  | Description                                                                                           |
-| --------------------------------- | ------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| ManagedIdentityResourceName       | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)`    | The name of the resource for which the Managed Identity will need the permission                      |
-| ManagedIdentityResourceGroupName  | <input type="checkbox" checked> | `someresourcegroup-$(Release.EnvironmentName)` | The resource group containing the resource for which the Managed Identity will need the permission    |
-| ManagedIdentityAppServiceSlotName | <input type="checkbox">         | `stagingslot`                                  | Optional; the name of the Deployment Slot for for which the Managed Identity will need the permission |
+| Parameter                         | Required                        | Example Value                                  | Description                                                                                                        |
+| --------------------------------- | ------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| ManagedIdentityResourceName       | <input type="checkbox" checked> | `myteam-testapi-$(Release.EnvironmentName)`    | The name of the resource for which the Managed Identity will need the permission                                   |
+| ManagedIdentityResourceGroupName  | <input type="checkbox" checked> | `someresourcegroup-$(Release.EnvironmentName)` | The resource group containing the resource for which the Managed Identity will need the permission                 |
+| ManagedIdentityAppServiceSlotName | <input type="checkbox">         | `stagingslot`                                  | Optional; the name of the Deployment Slot for for which the Managed Identity will need the permission              |
+| ManagedIdentityApplyToAllSlots    | <input type="checkbox">         | `$false`                                       | The ability to enable managed identities for all the deployment slots that are attached to the webapp/functionapp. |
 
 ## Parameters (for use with switch -AppConfigManagedIdentity)
 
@@ -79,13 +80,13 @@ To assign the `Azure Service Bus Data Sender` role to an identity (other than a 
 
 ```yaml
 - task: AzureCLI@2
-  displayName: "Grant permissions"
+  displayName: "Grant permissions to Resource"
   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
   inputs:
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
-    scriptPath: "$(Pipeline.Workspace)/AzDocs/Roles/Grant-permissions-to-ManagedIdentity-on-Resource.ps1"
-    arguments: "-AppServiceManagedIdentity -ManagedIdentityResourceName $(AppServiceName) -ManagedIdentityResourceGroupName $(ResourceGroupName) -TargetResourceName $(ServiceBusName) -TargetResourceGroupName $(ServiceBusResourceGroupName) -TargetResourceType $(ServiceBusResourceType) -TargetResourceNamespace $(ServiceBusResourceNamespace) -RoleToAssign $(RoleToAssign)"
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Roles/Grant-Permissions-to-ManagedIdentity-on-Resource.ps1"
+    arguments: "-AppServiceManagedIdentity -ManagedIdentityResourceName $(AppServiceName) -ManagedIdentityResourceGroupName $(ResourceGroupName) -TargetResourceName $(ServiceBusName) -TargetResourceGroupName $(ServiceBusResourceGroupName) -TargetResourceType $(ServiceBusResourceType) -TargetResourceNamespace $(ServiceBusResourceNamespace) -RoleToAssign $(RoleToAssign) -ManagedIdentityApplyToAllSlots $(ManagedIdentityApplyToAllSlots)"
 ```
 
 # Code
