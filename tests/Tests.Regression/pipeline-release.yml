@@ -2912,6 +2912,15 @@ stages:
               steps:
                 # ========================================= RUN PLAYWRIGHT TESTS =========================================
                 - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
+                - task: AzureCLI@2
+                  displayName: "Add Network Whitelist to App Service"
+                  #condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  condition: always()
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Network-Whitelist-to-App-Service.ps1"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -ApplyToAllSlots $True"
                 - task: DotNetCoreCLI@2
                   displayName: Install Playwright CLI
                   condition: always()
