@@ -2910,6 +2910,19 @@ stages:
           runOnce:
             deploy:
               steps:
+                  # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  #condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+                  condition: always()
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= RUN PLAYWRIGHT TESTS =========================================
                 - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
                 - task: AzureCLI@2
