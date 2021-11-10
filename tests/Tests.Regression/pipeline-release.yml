@@ -2893,13 +2893,13 @@ stages:
                     arguments: "-ServiceBusNamespaceName '$(VnetWhitelistingServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
       - deployment: "Playwright_Test_On_Public_AppService"
         displayName: Playwright Tests on (Public) App Service
-        dependsOn:
-          [
-            "ResourceGroup",
-            "BaseResources",
-            "Public_AppService",
-            "Public_AppService_PostConfiguration",
-          ]
+        #dependsOn:
+          #[
+            #"ResourceGroup",
+            #"BaseResources",
+            #"Public_AppService",
+            #"Public_AppService_PostConfiguration",
+          #]
         environment:
           name: ${{ parameters.EnvironmentName }}
         variables:
@@ -2914,18 +2914,21 @@ stages:
                 - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
                 - task: DotNetCoreCLI@2
                   displayName: Install Playwright CLI
+                  condition: always()
                   inputs:
                     command: "custom"
                     custom: "tool"
                     arguments: "install --global Microsoft.Playwright.CLI"
                 - task: DotNetCoreCLI@2
                   displayName: DOTNET build
+                  condition: always()
                   inputs:
                     command: "build"
                     projects: "**/*.csproj"
                     arguments: "--configuration release"
                 - task: PowerShell@2
                   displayName: Install Playwright chromium
+                  condition: always()
                   inputs:
                     targetType: "inline"
                     script: |
@@ -2934,6 +2937,7 @@ stages:
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: PowerShell@2
                   displayName: adjust test.runsettings file
+                  condition: always()
                   inputs:
                     targetType: "inline"
                     script: |
@@ -2945,6 +2949,7 @@ stages:
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: DotNetCoreCLI@2
                   displayName: DOTNET test
+                  condition: always()
                   inputs:
                     command: "test"
                     projects: "$(Pipeline.Workspace)/**/*.csproj"
