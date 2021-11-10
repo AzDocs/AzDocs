@@ -2944,7 +2944,8 @@ stages:
                       $path = (Get-ChildItem -Path 'test.runsettings' -Recurse).FullName
 
                       $text = Get-Content $path
-                      $newText = $text.Replace('http://localhost','https://$(PublicStagingDomainName)')
+                      #$newText = $text.Replace('http://localhost','https://$(PublicStagingDomainName)')
+                      $newText = $text.Replace('http://localhost','https://$(BackendDomainName)')
                       $newText | out-file -FilePath $path -Force
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: DotNetCoreCLI@2
