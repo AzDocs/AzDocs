@@ -17,14 +17,19 @@ param (
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Parameter()][string] $ServiceBusNamespacePrivateDnsZoneName = "privatelink.servicebus.windows.net",
 
-    # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId, 
-
     [Parameter()][bool] $ServiceBusNamespaceZoneRedundancy = $false,
     [Parameter()][ValidateSet(1, 2, 4, 8)][int] $ServiceBusNamespaceCapacityInMessageUnits = 1,
 
     # Forcefully agree to this resource to be spun up to be publicly available
-    [Parameter()][switch] $ForcePublic
+    [Parameter()][switch] $ForcePublic, 
+
+    # Diagnostic settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId, 
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -86,7 +91,10 @@ while ($serviceBusNamespace.provisioningState -ne 'Succeeded')
 }
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $serviceBusNamespace.id -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $serviceBusNamespace.id -ResourceTags ${ResourceTags}
+}
 
 # VNET Whitelisting (only supported in SKU Premium)
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
@@ -121,6 +129,13 @@ if ($ServiceBusNamespacePrivateEndpointVnetName -and $ServiceBusNamespacePrivate
 }
 
 # Enable diagnostic settings for servicebus namespace
-Set-DiagnosticSettings -ResourceId $serviceBusNamespace.id -ResourceName $ServiceBusNamespaceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"') 
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $serviceBusNamespace.id -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $ServiceBusNamespaceName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $serviceBusNamespace.id -ResourceName $ServiceBusNamespaceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

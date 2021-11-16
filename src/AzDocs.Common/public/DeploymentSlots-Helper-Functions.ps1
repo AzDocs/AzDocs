@@ -6,8 +6,6 @@ function New-DeploymentSlot
         [Parameter(Mandatory)][string] $ResourceResourceGroupName,
         [Parameter(Mandatory)][string] $ResourceName,
         [Parameter(Mandatory)][string] $ResourceDeploymentSlotName,
-        [Parameter(Mandatory)][string] $ResourceAppServicePlanTier,
-        [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
         [Parameter()][bool] $StopResourceSlotImmediatelyAfterCreation,
         [Parameter()][System.Object[]] $ResourceTags,
         [Parameter()][string] $ResourceNumberOfInstances = 2,
@@ -30,7 +28,15 @@ function New-DeploymentSlot
         [Parameter()][string] $ResourcePrivateEndpointVnetName,
         [Parameter()][string] $ResourcePrivateEndpointSubnetName,
         [Parameter()][string] $DNSZoneResourceGroupName,
-        [Parameter()][string] $ResourcePrivateDnsZoneName
+        [Parameter()][string] $ResourcePrivateDnsZoneName,
+
+        # Diagnostic settings
+        [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+        [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+        [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+
+        # Disable diagnostic settings
+        [Parameter()][switch] $DiagnosticSettingsDisabled
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -56,10 +62,23 @@ function New-DeploymentSlot
     Invoke-Executable az $AppType config set --ids $resourceSlotId --number-of-workers $ResourceNumberOfInstances --always-on $ResourceAlwaysOn --ftps-state Disabled --min-tls-version $ResourceMinimalTlsVersion --slot $ResourceDeploymentSlotName
     Invoke-Executable az $Apptype identity assign --ids $resourceSlotId --slot $ResourceDeploymentSlotName
     
-    Set-ConfigurationForResource -AppType $AppType -ResourceSlotId $resourceSlotId -ResourceResourceGroupName $ResourceResourceGroupName -ResourceDeploymentSlotName $ResourceDeploymentSlotName -ResourceAppServicePlanTier $ResourceAppServicePlanTier -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $ResourceName
+    Set-ConfigurationForResource -AppType $AppType -ResourceSlotId $resourceSlotId -ResourceResourceGroupName $ResourceResourceGroupName -ResourceDeploymentSlotName $ResourceDeploymentSlotName -ResourceName $ResourceName
+
+    # Set Diagnostic Settings
+    if ($DiagnosticSettingsDisabled)
+    {
+        Remove-DiagnosticSetting -ResourceId $resourceSlotId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $ResourceName
+    }
+    else
+    {
+        Set-DiagnosticSettings -ResourceId $resourceSlotId -ResourceName $ResourceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+    }
 
     # Update Tags
-    Set-ResourceTagsForResource -ResourceId $resourceSlotId -ResourceTags ${ResourceTags}
+    if ($ResourceTags)
+    {
+        Set-ResourceTagsForResource -ResourceId $resourceSlotId -ResourceTags ${ResourceTags}
+    }
 
     # VNET Whitelisting
     if (!$ResourceDisableVNetWhitelisting -and $GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
@@ -136,8 +155,6 @@ function Set-ConfigurationForResource
         [Parameter(Mandatory)][string] $ResourceSlotId,
         [Parameter(Mandatory)][string] $ResourceResourceGroupName,
         [Parameter(Mandatory)][string] $ResourceDeploymentSlotName,
-        [Parameter(Mandatory)][string] $ResourceAppServicePlanTier,
-        [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
         [Parameter(Mandatory)][string] $ResourceName
     )
     
@@ -150,20 +167,12 @@ function Set-ConfigurationForResource
             # Enforce HTTPS
             Invoke-Executable az webapp update --resource-group $ResourceResourceGroupName --name $ResourceName --slot $ResourceDeploymentSlotName --https-only true
             Invoke-Executable az webapp log config --ids $ResourceSlotId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem --slot $ResourceDeploymentSlotName
-        
-            $diagnosticSettingsForWebapp = Get-DiagnosticSettingBasedOnTier -ResourceType $AppType -CurrentResourceTier $ResourceAppServicePlanTier
-            if ($diagnosticSettingsForWebapp.DiagnosticSettingType -eq 'Logs')
-            {
-                Set-DiagnosticSettings -ResourceId $ResourceSlotId -ResourceName $ResourceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs $diagnosticSettingsForWebapp.DiagnosticSettingValue -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
-            }
         }
         'functionapp'
         {
             # Enforce HTTPS
             Invoke-Executable az functionapp update --ids $ResourceSlotId --set httpsOnly=true
-
             Invoke-Executable az functionapp config appsettings set --ids $ResourceSlotId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
-            Set-DiagnosticSettings -ResourceId $resourceSlotId -ResourceName $ResourceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
         }
     }
 

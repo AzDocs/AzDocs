@@ -47,6 +47,13 @@ param (
     # Acknowledge that the website for additional slots are truncated
     [Parameter()][switch] $SuppressTruncatedSiteName,
 
+    # Diagnostic settings
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled,
+
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Web-App-with-App-Service-Plan-Linux.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
 )
@@ -101,7 +108,10 @@ elseif ($AppServiceRunTime)
 $webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlan.id --resource-group $AppServiceResourceGroupName --tags @ResourceTags @optionalParameters | ConvertFrom-Json).id
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $webAppId -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $webAppId -ResourceTags ${ResourceTags}
+}
 
 # Stop immediately if desired
 if ($StopAppServiceImmediatelyAfterCreation)
@@ -118,10 +128,14 @@ Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppS
 # Set logging to FileSystem
 Invoke-Executable az webapp log config --ids $webAppId --detailed-error-messages true --docker-container-logging filesystem --failed-request-tracing true --level warning --web-server-logging filesystem
 
-$diagnosticSettingsForWebapp = Get-DiagnosticSettingBasedOnTier -ResourceType 'webapp' -CurrentResourceTier $appServicePlan.sku.tier
-if ($diagnosticSettingsForWebapp.DiagnosticSettingType -eq 'Logs')
+# Diagnostic Settings
+if ($DiagnosticSettingsDisabled)
 {
-    Set-DiagnosticSettings -ResourceId $webAppId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs $diagnosticSettingsForWebapp.DiagnosticSettingValue -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+    Remove-DiagnosticSetting -ResourceId $webAppId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $AppServiceName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $webAppId -ResourceName $AppServiceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
 }
 
 # Create & Assign WebApp identity to AppService
@@ -135,7 +149,6 @@ if ($EnableAppServiceDeploymentSlot)
         ResourceResourceGroupName                    = $AppServiceResourceGroupName;    
         ResourceName                                 = $AppServiceName; 
         ResourceDeploymentSlotName                   = $AppServiceDeploymentSlotName;
-        ResourceAppServicePlanTier                   = $appServicePlan.sku.tier;
         LogAnalyticsWorkspaceResourceId              = $LogAnalyticsWorkspaceResourceId;
         StopResourceSlotImmediatelyAfterCreation     = $StopAppServiceSlotImmediatelyAfterCreation;
         ResourceTags                                 = ${ResourceTags};
@@ -154,6 +167,9 @@ if ($EnableAppServiceDeploymentSlot)
         ResourcePrivateDnsZoneName                   = $AppServicePrivateDnsZoneName;
         ResourceDisableVNetWhitelisting              = $DisableVNetWhitelistForDeploymentSlot;
         ResourceDisablePrivateEndpoints              = $DisablePrivateEndpointForDeploymentSlot;
+        DiagnosticSettingsLogs                       = $DiagnosticSettingsLogs;
+        DiagnosticSettingsMetrics                    = $DiagnosticSettingsMetrics;
+        DiagnosticSettingsDisabled                   = $DiagnosticSettingsDisabled;
     }
 
     New-DeploymentSlot @parametersForDeploymentSlot

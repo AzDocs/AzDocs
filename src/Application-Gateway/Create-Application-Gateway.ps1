@@ -18,7 +18,12 @@ param (
     [Parameter()][System.Object[]] $ResourceTags,
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+ 
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -82,6 +87,13 @@ if (!$keyvaultNetworkRules.virtualNetworkRules.id -contains $gatewaySubnetId)
 }
 
 # Add diagnostic settings to Application Gateway
-Set-DiagnosticSettings -ResourceId $applicationGatewayId -ResourceName $ApplicationGatewayName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'ApplicationGatewayAccessLog', 'enabled': true }, { 'category': 'ApplicationGatewayPerformanceLog', 'enabled': true }, { 'category': 'ApplicationGatewayFirewallLog', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $applicationGatewayId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $ApplicationGatewayName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $applicationGatewayId -ResourceName $ApplicationGatewayName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

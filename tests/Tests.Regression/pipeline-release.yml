@@ -2407,7 +2407,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Roles/Grant-Permissions-to-ManagedIdentity-on-Resource.ps1"
-                    arguments: "-AppServiceManagedIdentity -ManagedIdentityResourceName $(PublicAppServiceName) -ManagedIdentityResourceGroupName $(AppServiceResourceGroupName) -TargetResourceName $(PublicStorageAccountNameToLower) -TargetResourceGroupName $(AppServiceResourceGroupName) -TargetResourceType 'storageaccounts' -TargetResourceNamespace 'Microsoft.Storage' -RoleToAssign 'Storage Blob Data Contributor' -ManagedIdentityApplyToAllSlots $true"
+                    arguments: "-AppServiceManagedIdentity -ManagedIdentityResourceName $(PublicAppServiceName) -ManagedIdentityResourceGroupName $(AppServiceResourceGroupName) -TargetResourceName $(PublicStorageAccountNameToLower) -TargetResourceGroupName $(AppServiceResourceGroupName) -TargetResourceType 'storageaccounts' -TargetResourceNamespace 'Microsoft.Storage' -RoleToAssign 'Storage Blob Data Contributor' -ApplyToAllSlots $true"
                 - task: AzureCLI@2
                   displayName: "Grant Permissions for (Public) AppService to (Public) StorageAccount Blob Container"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))

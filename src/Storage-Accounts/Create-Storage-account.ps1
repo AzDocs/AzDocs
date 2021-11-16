@@ -29,7 +29,12 @@ param (
     [Parameter()][switch] $ForcePublic,
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -51,7 +56,10 @@ Assert-TLSVersion -TlsVersion $StorageAccountMinimalTlsVersion
 $storageAccountId = (Invoke-Executable az storage account create --name $StorageAccountName --resource-group $StorageAccountResourceGroupName --kind $StorageAccountKind --sku $StorageAccountSku --allow-blob-public-access $StorageAccountAllowBlobPublicAccess --min-tls-version $StorageAccountMinimalTlsVersion | ConvertFrom-Json).id
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $storageAccountId -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $storageAccountId -ResourceTags ${ResourceTags}
+}
 
 # VNET Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
@@ -83,6 +91,13 @@ if ($StorageAccountPrivateEndpointVnetName -and $StorageAccountPrivateEndpointVn
 }
 
 # Enable diagnostic settings for storage account
-Set-DiagnosticSettings -ResourceId $storageAccountId -ResourceName $StorageAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"') 
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $storageAccountId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $StorageAccountName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $storageAccountId -ResourceName $StorageAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

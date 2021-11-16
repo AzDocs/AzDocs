@@ -45,6 +45,13 @@ param (
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
 
+    # Diagnostic settings
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled,
+
     # Acknowledge that the website for additional slots are truncated
     [Parameter()][switch] $SuppressTruncatedSiteName,
     
@@ -98,7 +105,10 @@ if ($StopFunctionAppImmediatelyAfterCreation)
 }
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $functionAppId -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $functionAppId -ResourceTags ${ResourceTags}
+}
 
 # Enforce HTTPS
 Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=true
@@ -110,7 +120,14 @@ Invoke-Executable az functionapp config set --ids $functionAppId --always-on $Fu
 Invoke-Executable az functionapp config appsettings set --ids $functionAppId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
 
 #  Create diagnostics settings
-Set-DiagnosticSettings -ResourceId $functionAppId -ResourceName $FunctionAppName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'FunctionAppLogs', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $functionAppId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $FunctionAppName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $functionAppId -ResourceName $FunctionAppName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az functionapp identity assign --ids $functionAppId
@@ -123,7 +140,6 @@ if ($EnableFunctionAppDeploymentSlot)
         ResourceResourceGroupName                    = $FunctionAppResourceGroupName;    
         ResourceName                                 = $FunctionAppName; 
         ResourceDeploymentSlotName                   = $FunctionAppDeploymentSlotName;
-        ResourceAppServicePlanTier                   = $appServicePlan.sku.tier;
         LogAnalyticsWorkspaceResourceId              = $LogAnalyticsWorkspaceResourceId;
         StopResourceSlotImmediatelyAfterCreation     = $StopFunctionAppSlotImmediatelyAfterCreation;
         ResourceTags                                 = ${ResourceTags};
@@ -142,6 +158,9 @@ if ($EnableFunctionAppDeploymentSlot)
         ResourcePrivateDnsZoneName                   = $FunctionAppPrivateDnsZoneName;
         ResourceDisableVNetWhitelisting              = $DisableVNetWhitelistForDeploymentSlot;
         ResourceDisablePrivateEndpoints              = $DisablePrivateEndpointForDeploymentSlot;
+        DiagnosticSettingsLogs                       = $DiagnosticSettingsLogs;
+        DiagnosticSettingsMetrics                    = $DiagnosticSettingsMetrics;
+        DiagnosticSettingsDisabled                   = $DiagnosticSettingsDisabled;
     }
 
     New-DeploymentSlot @parametersForDeploymentSlot

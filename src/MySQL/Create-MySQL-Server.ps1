@@ -31,7 +31,12 @@ param (
     [Parameter()][switch] $ForceDisableTLS,
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -68,7 +73,10 @@ else
 }
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $mySqlServerId -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $mySqlServerId -ResourceTags ${ResourceTags}
+}
 
 if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEndpointVnetName -and $MySqlServerPrivateEndpointSubnetName -and $MySqlServerPrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {
@@ -97,6 +105,13 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
 }
 
 # Add diagnostic settings to mysql server
-Set-DiagnosticSettings -ResourceId $mySqlServerId -ResourceName $MySqlServerName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'MySqlAuditLogs', 'enabled': true }, { 'category': 'MySqlSlowLogs', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $mySqlServerId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $MySqlServerName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $mySqlServerId -ResourceName $MySqlServerName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

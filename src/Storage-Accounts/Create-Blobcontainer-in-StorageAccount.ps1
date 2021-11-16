@@ -5,7 +5,13 @@ param (
     [Alias("ContainerName", "BlobStorageContainerName")]
     [Parameter(Mandatory)][string] $BlobContainerName,
     [Parameter(Mandatory)][string] $StorageAccountResourceGroupName,
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    # Diagnostic settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -19,6 +25,13 @@ Invoke-Executable az storage container create --account-name $StorageAccountName
 
 # Enable diagnostic settings for storage blobcontainer
 $storageAccountId = (Invoke-Executable az storage account show --name $StorageAccountName --resource-group $StorageAccountResourceGroupName | ConvertFrom-Json).id
-Set-DiagnosticSettings -ResourceId "$storageAccountId/blobServices/default" -ResourceName $StorageAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'StorageRead', 'enabled': true }, { 'category': 'StorageWrite', 'enabled': true }, { 'category': 'StorageDelete', 'enabled': true }]".Replace("'", '\"')  -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"') 
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId "$storageAccountId/blobServices/default" -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $StorageAccountName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId "$storageAccountId/blobServices/default" -ResourceName $StorageAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

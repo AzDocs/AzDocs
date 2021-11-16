@@ -3,7 +3,7 @@ param (
     # Required Parameters
     [Parameter(Mandatory)][string] $CosmosDbAccountName,
     [Parameter(Mandatory)][string] $CosmosDbAccountResourceGroupName,
-    [Parameter(Mandatory)][ValidateSet("GlobalDocumentDB", "MongoDB", "Parse", "Cassandra")][string] $CosmosDbKind,
+    [Parameter(Mandatory)][ValidateSet("Table", "SQL", "Gremlin", "MongoDB", "Cassandra", "Parse", "GlobalDocumentDB")][string] $CosmosDbKind,
 
     # Optional parameters
     [Parameter()][string[]] $CosmosDbCapabilities,
@@ -41,8 +41,15 @@ param (
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
 
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags,
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter()][System.Object[]] $ResourceTags,
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    
+    # Diagnostic settings
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 ##################################################################################################################
@@ -99,20 +106,37 @@ if ($CosmosDbDefaultConsistencyLevel -eq 'BoundedStaleness')
 }
 
 ####################################### KIND #########################################
-
-# Only for MongoDB
-if ($CosmosDbKind -eq 'MongoDB')
+switch ($CosmosDbKind)
 {
-    if ($CosmosMongoDbServerVersion)
+    "SQL"
     {
-        $optionalParameters += '--server-version', "$CosmosMongoDbServerVersion"
+        $CosmosDbKind = "GlobalDocumentDB"
     }
-}
-elseif ($CosmosDbKind -eq "Cassandra")
-{
-    $CosmosDbKind = "GlobalDocumentDB"
-    $capabilities += "EnableCassandra"
-    $optionalParameters += '--capabilities', "EnableCassandra"
+    "MongoDB"
+    {
+        if ($CosmosMongoDbServerVersion)
+        {
+            $optionalParameters += '--server-version', "$CosmosMongoDbServerVersion"
+        }
+    }
+    "Cassandra"
+    {
+        $CosmosDbKind = "GlobalDocumentDB"
+        $capabilities += "EnableCassandra"
+        $optionalParameters += '--capabilities', "EnableCassandra"
+    }
+    "Table"
+    {
+        $CosmosDbKind = "GlobalDocumentDB"
+        $capabilities += "EnableTable"
+        $optionalParameters += '--capabilities', "EnableTable"
+    }
+    "Gremlin"
+    {
+        $CosmosDbKind = "GlobalDocumentDB"
+        $capabilities += "EnableGremlin"
+        $optionalParameters += '--capabilities', "EnableGremlin"
+    }
 }
 
 ####################################### BACKUP #########################################
@@ -193,7 +217,10 @@ $cosmosResource = ((Invoke-Executable az cosmosdb show --name $CosmosDbAccountNa
 
 ####################################### TAGS #########################################
 
-Set-ResourceTagsForResource -ResourceId $cosmosResource.id -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $cosmosResource.id -ResourceTags ${ResourceTags}
+}
 
 ####################################### BACKUP STORAGE REDUNDANCY #######################################
 if ($CosmosDbBackupStorageRedundancy)
@@ -235,8 +262,14 @@ if ($CosmosDbPrivateEndpointVnetResourceGroupName -and $CosmosDbPrivateEndpointV
 }
 
 ####################################### DIAGNOSTIC SETTINGS #########################################
-
-Set-DiagnosticSettings -ResourceId $cosmosResource.id -ResourceName $CosmosDbAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[ { 'category': 'DataPlaneRequests', 'enabled': true }, { 'category': 'MongoRequests', 'enabled': true }, { 'category': 'QueryRuntimeStatistics', 'enabled': true }, { 'category': 'PartitionKeyStatistics', 'enabled': true }, { 'category': 'PartitionKeyRUConsumption', 'enabled': true }, { 'category': 'ControlPlaneRequests', 'enabled': true }, { 'category': 'CassandraRequests', 'enabled': true }, { 'category': 'GremlinRequests', 'enabled': true }, { 'category': 'MongoRequests', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'Requests', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $cosmosResource.id -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $CosmosDbAccountName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $cosmosResource.id -ResourceName $CosmosDbAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 ####################################### CAPABILITIES #########################################
 if ($CosmosDbCapabilities)
