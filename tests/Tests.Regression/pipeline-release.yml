@@ -2999,7 +2999,7 @@ stages:
                 - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
                 - task: AzureCLI@2
                   displayName: "Add Network Whitelist to App Service"
-                  # condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
@@ -3115,6 +3115,7 @@ stages:
             "BaseResources",
             "VnetWhitelisting_AppService",
             "VnetWhitelisting_AppService_PostConfiguration",
+            "Playwright_Test_On_VNetWhitelisted_AppService",
           ]
         environment:
           name: ${{ parameters.EnvironmentName }}
