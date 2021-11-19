@@ -223,6 +223,8 @@ stages:
         value: "Public"
       - name: BackendDomainName
         value: $(VNetWhitelistingAppServiceName).azurewebsites.net
+      - name: VnetWhitelistedStagingDomainName
+        value: $(VNetWhitelistingAppServiceName)-staging.azurewebsites.net
       - name: PublicStagingDomainName
         value: $(PublicAppServiceName)-staging.azurewebsites.net
       - name: HealthProbePath
@@ -3037,7 +3039,7 @@ stages:
                       $path = (Get-ChildItem -Path 'test.runsettings' -Recurse).FullName
 
                       $text = Get-Content $path
-                      $newText = $text.Replace('http://localhost','https://$(BackendDomainName)')
+                      $newText = $text.Replace('http://localhost','https://$(VnetWhitelistedStagingDomainName)')
                       $newText | out-file -FilePath $path -Force
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: DotNetCoreCLI@2
