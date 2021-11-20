@@ -218,7 +218,7 @@ jobs:
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App-Linux.ps1"
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Create-Web-App.ps1"
                 arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(AppServiceName)' -LogAnalyticsWorkspaceResourceId '$(GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId)' -AppServiceRunTime '$(AppServiceRunTime)' -AppServiceNumberOfInstances '$(AppServiceNumberOfInstances)' -ResourceTags $(ResourceTags) -AppServiceAlwaysOn $(AppServiceAlwaysOn) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)'"
             - task: AzureCLI@2
               displayName: "Add VNet integration to AppService"
