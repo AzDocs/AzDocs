@@ -23,6 +23,11 @@ parameters:
     default: ""
   - name: GatewayCertificate
     type: string
+  - name: TeamName
+    type: string
+    default: curteamname
+  - name: GatewayCertificate
+    type: string
 
 jobs:
   - deployment:

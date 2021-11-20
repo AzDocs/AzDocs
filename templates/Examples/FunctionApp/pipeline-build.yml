@@ -17,18 +17,18 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: "restore"
-      projects: "$(ProjectName)"
+      projects: "$(Build.Repository.LocalPath)/TestApi.Function/TestApi.Functions.csproj"
       feedsToUse: "select"
       vstsFeed: "vstsfeedid"
   - task: DotNetCoreCLI@2
     inputs:
       command: "test"
-      projects: '\TestApi\TestApiTests.csproj'
+      projects: "$(Build.Repository.LocalPath)/TestApi.Functions/TestApiFunctionTests.csproj"
   - task: DotNetCoreCLI@2
     inputs:
       command: "publish"
       publishWebProjects: false
-      projects: "$(ProjectName)"
+      projects: "$(Build.Repository.LocalPath)/TestApi.Function/TestApi.Functions.csproj"
       arguments: '-c $(BuildConfiguration) -o "$(Build.ArtifactStagingDirectory)/functionapp" --no-restore'
       modifyOutputPath: false
   - task: PublishBuildArtifacts@1
