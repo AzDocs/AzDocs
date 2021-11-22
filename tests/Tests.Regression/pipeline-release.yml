@@ -223,6 +223,8 @@ stages:
         value: "Public"
       - name: BackendDomainName
         value: $(VNetWhitelistingAppServiceName).azurewebsites.net
+      - name: VnetWhitelistedStagingDomainName
+        value: $(VNetWhitelistingAppServiceName)-staging.azurewebsites.net
       - name: PublicStagingDomainName
         value: $(PublicAppServiceName)-staging.azurewebsites.net
       - name: HealthProbePath
@@ -2893,13 +2895,13 @@ stages:
                     arguments: "-ServiceBusNamespaceName '$(VnetWhitelistingServiceBusNamespaceName)' -ServiceBusNamespaceResourceGroupName '$(ServiceBusNamespaceResourceGroupName)' -ServiceBusNamespaceSku '$(ServiceBusNamespaceSku)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
       - deployment: "Playwright_Test_On_Public_AppService"
         displayName: Playwright Tests on (Public) App Service
-        #dependsOn:
-          #[
-            #"ResourceGroup",
-            #"BaseResources",
-            #"Public_AppService",
-            #"Public_AppService_PostConfiguration",
-          #]
+        dependsOn:
+          [
+            "ResourceGroup",
+            "BaseResources",
+            "Public_AppService",
+            "Public_AppService_PostConfiguration",
+          ]
         environment:
           name: ${{ parameters.EnvironmentName }}
         variables:
@@ -2910,30 +2912,8 @@ stages:
           runOnce:
             deploy:
               steps:
-                  # ========================================= DOWNLOAD AZDOCS =========================================
-                - task: DownloadPipelineArtifact@2
-                  displayName: Download AzDocs
-                  #condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
-                  condition: always()
-                  inputs:
-                    buildType: specific
-                    project: $(AzDocsTeamProjectId)
-                    definition: $(AzDocsBuildDefinitionId)
-                    buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
-                    artifactName: azdocs-src
-                    targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= RUN PLAYWRIGHT TESTS =========================================
                 - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
-                - task: AzureCLI@2
-                  displayName: "Add Network Whitelist to App Service"
-                  #condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
-                  condition: always()
-                  inputs:
-                    azureSubscription: "${{ parameters.SubscriptionName }}"
-                    scriptType: pscore
-                    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Network-Whitelist-to-App-Service.ps1"
-                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -ApplyToAllSlots $True"
                 - task: DotNetCoreCLI@2
                   displayName: Install Playwright CLI
                   condition: always()
@@ -2966,8 +2946,7 @@ stages:
                       $path = (Get-ChildItem -Path 'test.runsettings' -Recurse).FullName
 
                       $text = Get-Content $path
-                      #$newText = $text.Replace('http://localhost','https://$(PublicStagingDomainName)')
-                      $newText = $text.Replace('http://localhost','https://$(BackendDomainName)')
+                      $newText = $text.Replace('http://localhost','https://$(PublicStagingDomainName)')
                       $newText | out-file -FilePath $path -Force
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: DotNetCoreCLI@2
@@ -2987,6 +2966,107 @@ stages:
                     mergeTestResults: true
                     failTaskOnFailedTests: true
                     testRunTitle: RegressionTest
+      - deployment: "Playwright_Test_On_VNetWhitelisted_AppService"
+        displayName: Playwright Tests on (VNetWhitelisted) App Service
+        dependsOn:
+          [
+            "ResourceGroup",
+            "BaseResources",
+            "VNetWhitelisting_AppService",
+            "VNetWhitelisting_AppService_PostConfiguration",
+          ]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        variables:
+          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: always()
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= RUN PLAYWRIGHT TESTS =========================================
+                - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
+                - task: AzureCLI@2
+                  displayName: "Add Network Whitelist to App Service"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Network-Whitelist-to-App-Service.ps1"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName staging"
+                - task: DotNetCoreCLI@2
+                  displayName: Install Playwright CLI
+                  condition: always()
+                  inputs:
+                    command: "custom"
+                    custom: "tool"
+                    arguments: "install --global Microsoft.Playwright.CLI"
+                - task: DotNetCoreCLI@2
+                  displayName: DOTNET build
+                  condition: always()
+                  inputs:
+                    command: "build"
+                    projects: "**/*.csproj"
+                    arguments: "--configuration release"
+                - task: PowerShell@2
+                  displayName: Install Playwright chromium
+                  condition: always()
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      (Get-ChildItem -Path '*.tests.csproj' -Recurse).Directory|Set-Location
+                      playwright install chromium
+                    workingDirectory: "$(Pipeline.Workspace)"
+                - task: PowerShell@2
+                  displayName: adjust test.runsettings file
+                  condition: always()
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      $path = (Get-ChildItem -Path 'test.runsettings' -Recurse).FullName
+
+                      $text = Get-Content $path
+                      $newText = $text.Replace('http://localhost','https://$(VnetWhitelistedStagingDomainName)')
+                      $newText | out-file -FilePath $path -Force
+                    workingDirectory: "$(Pipeline.Workspace)"
+                - task: DotNetCoreCLI@2
+                  displayName: DOTNET test
+                  condition: always()
+                  inputs:
+                    command: "test"
+                    projects: "$(Pipeline.Workspace)/**/*.csproj"
+                    arguments: "--configuration release --settings tests/Tests.Regression/test.runsettings"
+                - task: PublishTestResults@2
+                  condition: always()
+                  displayName: "Publish Test Results To Test Plan module"
+                  inputs:
+                    testResultsFormat: NUnit
+                    testResultsFiles: log.html
+                    searchFolder: "$(Agent.TempDirectory)/"
+                    mergeTestResults: true
+                    failTaskOnFailedTests: true
+                    testRunTitle: RegressionTest
+                - task: AzureCLI@2
+                  displayName: "Remove Network Whitelist from App Service"
+                  condition: always()
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName 'staging'"
       - deployment: "Public_AppService_SwapSlots"
         displayName: App Service (Public) Swap Slots
         dependsOn:
@@ -3037,6 +3117,7 @@ stages:
             "BaseResources",
             "VnetWhitelisting_AppService",
             "VnetWhitelisting_AppService_PostConfiguration",
+            "Playwright_Test_On_VNetWhitelisted_AppService",
           ]
         environment:
           name: ${{ parameters.EnvironmentName }}
