@@ -22,7 +22,7 @@ steps:
     inputs:
       command: "publish"
       publishWebProjects: false
-      projects: "$(Build.Repository.LocalPath)/webapp/webapp.csproj"
+      projects: "$(Build.Repository.LocalPath)/**/*.csproj"
       arguments: '-c $(BuildConfiguration) -o "$(Build.ArtifactStagingDirectory)/webapp" --no-restore'
       modifyOutputPath: false
   - task: PublishBuildArtifacts@1
