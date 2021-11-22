@@ -28,7 +28,7 @@ steps:
     inputs:
       command: "publish"
       publishWebProjects: false
-      projects: "$(Build.Repository.LocalPath)/TestApi/TestApi.csproj"
+      projects: "$(Build.Repository.LocalPath)/**/*.csproj"
       arguments: '-c $(BuildConfiguration) -o "$(Build.ArtifactStagingDirectory)/website" --no-restore'
       modifyOutputPath: false
   - task: PublishBuildArtifacts@1
