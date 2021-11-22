@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.11.22]
+
+## Updated
+
+- Default CORS settings for function app have changes, by default the portal test urls are added, see `Azure.PlatformProvisioning\src\Functions\Create-Function-App.ps1` `CORSUrls` and `DisableCORSPortalTestUrls` settings.
+To disable this use the `DisableCORSPortalTestUrls` switch
+
 ## [2021.11.16]
 
 ## Updated

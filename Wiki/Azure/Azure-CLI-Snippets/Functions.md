@@ -48,3 +48,9 @@ You have the ability to disable the diagnostic settings for your Function App (a
 For the category `logs` the parameter `DiagnosticSettingsLogs` can be used and for the category `metrics` the parameter `DiagnosticSettingsMetrics`. If you do not specify these settings, the default set (everything) will be enabled for your resource.
 
 These logs get written to the Log Analytics Workspace that you specified.
+
+## CORS
+
+When creating a function application, the default [CORS](https://docs.microsoft.com/en-us/azure/azure-functions/security-concepts#restrict-cors-access) settings adds a couple of default urls that are needed if you want to test your functions from the Azure Portal. If you use the portal you also need to be able to call the function itself, so if you use a private-endpoint your browser needs to be able to call that private-endpoint. 
+
+If you want to be able to call the functionapp functions from a website (client site javascript) you need to add the url to `CORSUrls` parameter. If you don't want the default urls for the CORS urls, exclude them with the `DisableCORSPortalTestUrls` switch.

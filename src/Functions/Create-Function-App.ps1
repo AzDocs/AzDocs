@@ -54,7 +54,13 @@ param (
 
     # Acknowledge that the website for additional slots are truncated
     [Parameter()][switch] $SuppressTruncatedSiteName,
-    
+
+    # CORS urls to set, please note that the default portal urls are added by default, to disable them use the -DisableCORSPortalTestUrls switch
+    [Parameter()][string[]] $CORSUrls = @(),
+
+    # By default the portal urls are added to the cors settings. Use this switch to remove the azure portal test urls so you cannot run a function from the portal anymore.
+    [Parameter()][switch] $DisableCORSPortalTestUrls,
+
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Function-App-with-App-Service-Plan-Linux.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
 )
@@ -131,6 +137,41 @@ else
 
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az functionapp identity assign --ids $functionAppId
+
+# set CORS settings, Does not work with deployment slots https://github.com/Azure/azure-cli/issues/20385
+if (!$DisableCORSPortalTestUrls)
+{
+    $CORSUrls += 'https://functions.azure.com'
+    $CORSUrls += 'https://functions-staging.azure.com'
+    $CORSUrls += 'https://functions-next.azure.com'
+}
+
+$currentCorsSettings = Invoke-Executable az functionapp cors show --ids $functionAppId | ConvertFrom-Json
+
+[string[]]$currentCorsOrigins = @()
+if ($currentCorsSettings -and $currentCorsSettings.allowedOrigins)
+{
+    $currentCorsOrigins = $currentCorsSettings.allowedOrigins
+}
+
+Compare-Object -ReferenceObject $currentCorsOrigins -DifferenceObject $CORSUrls | ForEach-Object {
+    $value = $_.InputObject
+    $sideIndicator = $_.SideIndicator
+    switch ($sideIndicator)
+    {
+        '=>'
+        { 
+            
+            Write-Host "Adding CORS URL $value"
+            Invoke-Executable az functionapp cors add --ids $functionAppId --allowed-origins $value
+        }
+        '<='
+        {
+            Write-Host "Removing CORS URL $value"
+            Invoke-Executable az functionapp cors remove --ids $functionAppId --allowed-origins $value
+        }
+    }
+}
 
 # Create Deployment Slot
 if ($EnableFunctionAppDeploymentSlot)
