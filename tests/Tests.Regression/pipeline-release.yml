@@ -2366,7 +2366,7 @@ stages:
                 - task: AzureCLI@2
                   name: GetStorageAccountConnectionStringforPipeline
                   displayName: "Get Storage Account ConnectionString for Pipeline"
-                  #condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'), eq(variables['ResourceCreation.StorageAccount.Enabled'], true))
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], true))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
