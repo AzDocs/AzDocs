@@ -27,7 +27,12 @@ param (
     [Parameter()][System.Object[]] $ResourceTags,
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -86,6 +91,13 @@ if ($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResour
 }
 
 # Add diagnostic settings to container registry
-Set-DiagnosticSettings -ResourceId $containerRegistryId -ResourceName $ContainerRegistryName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'ContainerRegistryRepositoryEvents', 'enabled': true }, { 'category': 'ContainerRegistryLoginEvents', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $containerRegistryId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $ContainerRegistryName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $containerRegistryId -ResourceName $ContainerRegistryName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

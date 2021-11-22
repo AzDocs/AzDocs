@@ -270,7 +270,7 @@ function Confirm-AccessRestriction
         elseif ($SubnetResourceId)
         {
             $matchingSubnets = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object { $_.Name -eq $AccessRestrictionRuleName -and $_.vnet_subnet_resource_id -eq $SubnetResourceId }
-            if ($matchingSubnet.Length -gt 0)
+            if ($matchingSubnets.Length -gt 0)
             {
                 foreach ($matchingSubnet in $matchingSubnets)
                 {

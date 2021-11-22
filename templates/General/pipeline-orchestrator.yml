@@ -17,7 +17,7 @@ pool:
 variables:
   # Basic
   - name: TeamName
-    value: Curiosity
+    value: YourTeamName
   - name: ProjectName
     value: TestApi
   - name: EnvironmentName
@@ -52,8 +52,6 @@ stages:
         displayName: "Build"
         steps:
           - template: pipeline-build.yml
-            parameters:
-              ProjectName: "TestApi.Functions/TestApi.Functions.csproj"
 
   - stage: "dev"
     displayName: "Deploy to dev"

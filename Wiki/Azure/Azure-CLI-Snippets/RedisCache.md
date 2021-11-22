@@ -19,4 +19,8 @@ You can use the [Add-Network-Whitelist-to-RedisCache](/Azure/Azure-CLI-Snippets/
 
 ## Logging
 
-Diagnostic settings are enabled for your RedisCache instance. These logs get written to the Log Analytics Workspace that you specified. Easy as that!
+You have the ability to disable the diagnostic settings for your RedisCache instance. When you want to do this, add the switch `DiagnosticSettingsDisabled`. Next to that, you have the ability to specify which set of diagnostic logs you would like to enable.
+
+For the category `logs` the parameter `DiagnosticSettingsLogs` can be used and for the category `metrics` the parameter `DiagnosticSettingsMetrics`. If you do not specify these settings, the default set (everything) will be enabled for your resource.
+
+These logs get written to the Log Analytics Workspace that you specified.

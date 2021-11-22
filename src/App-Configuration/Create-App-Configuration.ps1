@@ -20,7 +20,14 @@ param (
     [Parameter()][string] $AppConfigPrivateDnsZoneName = "privatelink.azconfig.io",
 
     # Forcefully agree to this resource to be spun up to be publicly available
-    [Parameter()][switch] $ForcePublic
+    [Parameter()][switch] $ForcePublic, 
+
+    # Diagnostic settings
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -45,7 +52,14 @@ if ($ResourceTags)
 }
 
 # Create diagnostics settings for the App Config resource
-Set-DiagnosticSettings -ResourceId $appConfigId -ResourceName $AppConfigName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $appConfigId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $AppConfigName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $appConfigId -ResourceName $AppConfigName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 if ($AppConfigPrivateEndpointVnetResourceGroupName -and $AppConfigPrivateEndpointVnetName -and $AppConfigPrivateEndpointSubnetName -and $AppConfigPrivateDnsZoneName)
 {

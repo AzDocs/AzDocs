@@ -305,9 +305,9 @@ First of all, and most important, in each wiki page for the scripts we've added 
 Next to this we've also made a few examples on how to create a pipeline with two goals in mind:
 
 - Examples how to setup a pipeline in general which supports multiple environments without having to redefine your pipeline for each environment (to guarantee reproducibility in your platform across environments).
-  - Generic/Bare Orchestrator Pipeline (this is the root file which is being imported in your pipelines) - `templates/Examples/General/pipeline-orchestrator.yml`
+  - Generic/Bare Orchestrator Pipeline (this is the root file which is being imported in your pipelines) - `templates/General/pipeline-orchestrator.yml`
     - Generic/Bare Build template - `templates/General/pipeline-build.yml`
-    - Generic/Bare Release template - `templates/ General/pipeline-release.yml`
+    - Generic/Bare Release template - `templates/General/pipeline-release.yml`
 - Examples for specific "often used" resources
   - FunctionApp Orchestrator Pipeline (this is the root file which is being imported in your pipelines) - `templates/Examples/FunctionApp/pipeline-orchestrator.yml`
     - FunctionApp Build template - `templates/Examples/FunctionApp/pipeline-build.yml`

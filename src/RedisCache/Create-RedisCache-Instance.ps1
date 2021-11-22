@@ -20,7 +20,12 @@ param (
     [Parameter()][switch] $ForcePublic,
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -75,7 +80,10 @@ $redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInsta
 WaitForRedisProvisioningToBeDone -RedisInstanceName $RedisInstanceName -RedisInstanceResourceGroupName $RedisInstanceResourceGroupName
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $redisInstanceResourceId -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $redisInstanceResourceId -ResourceTags ${ResourceTags}
+}
 
 if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivateEndpointVnetName -and $RedisInstancePrivateEndpointSubnetName -and $RedisInstancePrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {
@@ -90,6 +98,13 @@ if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivat
 }
 
 # Add diagnostic settings to RedisCache server
-Set-DiagnosticSettings -ResourceId $redisInstanceResourceId -ResourceName $RedisInstanceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $redisInstanceResourceId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $RedisInstanceName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $redisInstanceResourceId -ResourceName $RedisInstanceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

@@ -28,7 +28,14 @@ param (
     [Parameter()][switch] $ForcePublic,
     
     # Forcefully agree to this resource to be spun up without purge protection
-    [Parameter()][switch] $ForceDisablePurgeProtection
+    [Parameter()][switch] $ForceDisablePurgeProtection,
+
+    # Diagnostic settings
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
     
 )
 
@@ -78,10 +85,20 @@ if (!$keyvaultExists)
 $keyvaultId = (Invoke-Executable az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $keyvaultId -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $keyvaultId -ResourceTags ${ResourceTags}
+}
 
 # Create diagnostics settings for the Keyvault resource
-Set-DiagnosticSettings -ResourceId $keyvaultId -ResourceName $KeyvaultName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AuditEvent', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $keyvaultId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $KeyvaultName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $keyvaultId -ResourceName $KeyvaultName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 # Private Endpoint
 if ($KeyvaultPrivateEndpointVnetResourceGroupName -and $KeyvaultPrivateEndpointVnetName -and $KeyvaultPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $KeyvaultPrivateDnsZoneName)
