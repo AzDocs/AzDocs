@@ -17,7 +17,7 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: "restore"
-      projects: "$(Build.Repository.LocalPath)/TestApi/TestApi.csproj"
+      projects: "$(Build.Repository.LocalPath)/**/*.csproj"
       feedsToUse: "select"
       vstsFeed: "vstsfeedid"
   - task: DotNetCoreCLI@2
