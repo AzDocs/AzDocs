@@ -191,6 +191,29 @@ stages:
       - name: ConnectionStrings__Storage
         value: "$(GetStorageAccountConnectionStringforPipeline.StorageAccountConnectionString)"
 
+      - name: AppServiceConnectionStringsInJsonV
+        value: "[$(MySqlConnectionString), $(PostgreSQLConnectionString), $(SqlConnectionString), $(RedisConnectionString), $(StorageConnectionString)]"
+      - name: MySqlConnectionString
+        value: '{"name": "MySqlConnectionString", "value": "$(ConnectionStrings__MySql)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__MySql
+        value: "Server=$(VNetWhitelistingMySqlServerName).mysql.database.azure.com; Port=3306; Database=$(MySqlDatabaseName); Uid=$(MySqlServerUsername)@$(PublicMySqlServerName); Pwd=$(MySqlServerPassword); SslMode=Preferred;"
+      - name: PostgreSQLConnectionString
+        value: '{"name": "PostgreSQLConnectionString", "value": "$(ConnectionStrings__PostgreSQL)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__PostgreSQL
+        value: "Server=$(VNetWhitelistingPostgreSqlServerName).postgres.database.azure.com;User Id=$(PostgreSqlServerUsername)@$(PublicPostgreSqlServerName);Password=$(PostgreSqlServerPassword);Database=$(PostgreSqlDatabaseName);Ssl Mode=Require;"
+      - name: SqlConnectionString
+        value: '{"name": "SqlConnectionString", "value": "$(ConnectionStrings__SqlServer)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__SqlServer
+        value: "Server=tcp:$(VNetWhitelistingSqlServerName).database.windows.net,1433;Database=$(SqlDatabaseName);"
+      - name: RedisConnectionString
+        value: '{"name": "RedisConnectionString", "value": "$(ConnectionStrings__Redis)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__Redis
+        value: "$(GetRedisCacheConnectionStringforPipeline.RedisConnectionString)"
+      - name: StorageConnectionString
+        value: '{"name": "StorageConnectionString", "value": "$(ConnectionStrings__Storage)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__Storage
+        value: "$(GetStorageAccountConnectionStringforPipeline.StorageAccountConnectionString)"
+
       # App Configuration
       - name: PublicAppConfigName
         value: $(ResourceBaseName)-papc-${{ parameters.EnvironmentName }}
@@ -2524,7 +2547,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-ConnectionStrings-For-AppService.ps1"
-                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -AppServiceDeploymentSlotName 'staging'"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJsonV)' -AppServiceDeploymentSlotName 'staging'"
                 # ========================================= APP SERVICE CONTENT DEPLOYMENT =========================================
                 - task: AzureCLI@2
                   displayName: "Add Network Whitelist to App Service"
