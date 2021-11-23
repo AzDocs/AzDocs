@@ -157,7 +157,7 @@ stages:
 #      - name: AppServiceAppSettingsV
         ##value: >-
           #@(
-          #'KeyvaultName=$(PublicKeyvaultName)';
+          #'KeyvaultName=$(VNetWhitelistingKeyvaultName)';
           #'KeyvaultKey=$(KeyvaultKeyName)';
           #'KeyvaultSecret=$(KeyvaultSecretName)';
           #'StorageAccount=$(VNetWhitelistingStorageAccountNameToLower)';'
@@ -2508,7 +2508,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
-                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettingsV) -AppServiceDeploymentSlotName 'staging'"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -AppServiceDeploymentSlotName 'staging'"
                 - task: AzureCLI@2
                   name: GetStorageAccountConnectionStringforPipeline
                   displayName: "Get Storage Account ConnectionString for Pipeline"
