@@ -149,7 +149,6 @@ stages:
           'KeyvaultKey=$(KeyvaultKeyName)';
           'KeyvaultSecret=$(KeyvaultSecretName)';
           'StorageAccount=$(PublicStorageAccountNameToLower)';
-          'StorageAccount=$(VNetWhitelistingStorageAccountNameToLower)';'
           'QueueName=$(StorageAccountQueueName)';
           'FileShareName=$(StorageAccountFileShareName)';
           'BlobContainer=$(StorageAccountBlobContainerName)';
