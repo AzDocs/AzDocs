@@ -149,10 +149,25 @@ stages:
           'KeyvaultKey=$(KeyvaultKeyName)';
           'KeyvaultSecret=$(KeyvaultSecretName)';
           'StorageAccount=$(PublicStorageAccountNameToLower)';
+          'StorageAccount=$(VNetWhitelistingStorageAccountNameToLower)';'
           'QueueName=$(StorageAccountQueueName)';
           'FileShareName=$(StorageAccountFileShareName)';
           'BlobContainer=$(StorageAccountBlobContainerName)';
           )
+
+      - name: AppServiceAppSettingsV
+        value: >-
+          @(
+          'KeyvaultName=$(PublicKeyvaultName)';
+          'KeyvaultKey=$(KeyvaultKeyName)';
+          'KeyvaultSecret=$(KeyvaultSecretName)';
+          'StorageAccount=$(VNetWhitelistingStorageAccountNameToLower)';'
+          'QueueName=$(StorageAccountQueueName)';
+          'FileShareName=$(StorageAccountFileShareName)';
+          'BlobContainer=$(StorageAccountBlobContainerName)';
+          )
+
+
 
       # App Service ConnectionStrings
       - name: AppServiceConnectionStringsInJson
@@ -2494,7 +2509,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
-                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -AppServiceDeploymentSlotName 'staging'"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettingsV) -AppServiceDeploymentSlotName 'staging'"
                 - task: AzureCLI@2
                   name: GetStorageAccountConnectionStringforPipeline
                   displayName: "Get Storage Account ConnectionString for Pipeline"
