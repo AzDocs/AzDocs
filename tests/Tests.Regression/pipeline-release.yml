@@ -141,7 +141,7 @@ stages:
       - name: AppServiceCertificateFilePath
         value: tests/Tests.Regression/Pipeline.TestFiles/AzDocsDummyRootCA.cer
 
-      # App Service AppSettings
+        # App Service AppSettings
       - name: AppServiceAppSettings
         value: >-
           @(
@@ -154,17 +154,17 @@ stages:
           'BlobContainer=$(StorageAccountBlobContainerName)';
           )
 
-      - name: AppServiceAppSettingsV
-        value: >-
-          @(
-          'KeyvaultName=$(PublicKeyvaultName)';
-          'KeyvaultKey=$(KeyvaultKeyName)';
-          'KeyvaultSecret=$(KeyvaultSecretName)';
-          'StorageAccount=$(VNetWhitelistingStorageAccountNameToLower)';'
-          'QueueName=$(StorageAccountQueueName)';
-          'FileShareName=$(StorageAccountFileShareName)';
-          'BlobContainer=$(StorageAccountBlobContainerName)';
-          )
+#      - name: AppServiceAppSettingsV
+        ##value: >-
+          #@(
+          #'KeyvaultName=$(PublicKeyvaultName)';
+          #'KeyvaultKey=$(KeyvaultKeyName)';
+          #'KeyvaultSecret=$(KeyvaultSecretName)';
+          #'StorageAccount=$(VNetWhitelistingStorageAccountNameToLower)';'
+          #'QueueName=$(StorageAccountQueueName)';
+          #'FileShareName=$(StorageAccountFileShareName)';
+          #'BlobContainer=$(StorageAccountBlobContainerName)';
+          #)
 
 
 
