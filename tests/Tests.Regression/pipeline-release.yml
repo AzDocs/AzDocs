@@ -192,7 +192,7 @@ stages:
         value: "$(GetStorageAccountConnectionStringforPipeline.StorageAccountConnectionString)"
 
       - name: AppServiceConnectionStringsInJsonV
-        value: "[$(MySqlConnectionString), $(PostgreSQLConnectionString), $(SqlConnectionString), $(RedisConnectionString), $(StorageConnectionString)]"
+        value: "[$(MySqlConnectionString), $(PostgreSQLConnectionString), $(SqlConnectionStringV), $(RedisConnectionString), $(StorageConnectionString)]"
       - name: MySqlConnectionString
         value: '{"name": "MySqlConnectionString", "value": "$(ConnectionStrings__MySql)", "type": "Custom", "slotSetting": false}'
       - name: ConnectionStrings__MySql
@@ -201,9 +201,9 @@ stages:
         value: '{"name": "PostgreSQLConnectionString", "value": "$(ConnectionStrings__PostgreSQL)", "type": "Custom", "slotSetting": false}'
       - name: ConnectionStrings__PostgreSQL
         value: "Server=$(VNetWhitelistingPostgreSqlServerName).postgres.database.azure.com;User Id=$(PostgreSqlServerUsername)@$(PublicPostgreSqlServerName);Password=$(PostgreSqlServerPassword);Database=$(PostgreSqlDatabaseName);Ssl Mode=Require;"
-      - name: SqlConnectionString
-        value: '{"name": "SqlConnectionString", "value": "$(ConnectionStrings__SqlServer)", "type": "Custom", "slotSetting": false}'
-      - name: ConnectionStrings__SqlServer
+      - name: SqlConnectionStringV
+        value: '{"name": "SqlConnectionString", "value": "$(ConnectionStrings__SqlServerV)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__SqlServerV
         value: "Server=tcp:$(VNetWhitelistingSqlServerName).database.windows.net,1433;Database=$(SqlDatabaseName);"
       - name: RedisConnectionString
         value: '{"name": "RedisConnectionString", "value": "$(ConnectionStrings__Redis)", "type": "Custom", "slotSetting": false}'
