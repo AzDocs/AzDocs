@@ -2627,7 +2627,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1"
-                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(VnetWhitelistingAppServiceName)-staging' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)'"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceSlotName 'staging'"
                 - task: AzureCLI@2
                   displayName: "Remove Network Whitelist from Sql Server"
                   condition: always()
