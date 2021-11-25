@@ -2532,6 +2532,15 @@ stages:
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
                     arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettingsV) -AppServiceDeploymentSlotName 'staging'"
                 - task: AzureCLI@2
+                  name: GetRedisCacheConnectionStringforPipeline
+                  displayName: "Get RedisCache ConnectionString for Pipeline"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], true))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/RedisCache/Get-RedisCache-ConnectionString-for-Pipeline.ps1"
+                    arguments: "-RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' -RedisInstanceName '$(PublicRedisInstanceName)'"
+                - task: AzureCLI@2
                   name: GetStorageAccountConnectionStringforPipeline
                   displayName: "Get Storage Account ConnectionString for Pipeline"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
