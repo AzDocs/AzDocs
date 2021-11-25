@@ -2586,6 +2586,14 @@ stages:
                     ResourceGroupName: "$(AppServiceResourceGroupName)"
                     SlotName: "$(AppServiceDeploymentSlotName)"
                     packageForLinux: "$(System.ArtifactsDirectory)/Website_zip/website.zip"
+                - task: AzureCLI@2
+                  displayName: "Remove Network Whitelist from App Service"
+                  condition: always()
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName 'staging'"
                   # ========================================= GRANT PERMISSIONS TO STORAGE ACCOUNT =========================================
                 - task: AzureCLI@2
                   displayName: "Grant Permissions for (VNET whitelisting) AppService to (VNET whitelisting) StorageAccount Blob Container"
