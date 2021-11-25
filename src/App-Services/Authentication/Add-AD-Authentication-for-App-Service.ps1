@@ -77,7 +77,6 @@ finally
     Remove-Item -Recurse -Force $altIdProfilePath
 }
 
-
 if (!$clientId -or !$tenantId)
 {
     throw 'No clientId or tenantId available. Stopping.'
@@ -85,7 +84,19 @@ if (!$clientId -or !$tenantId)
 
 # update auth webapp
 $aadTokenIssuerUrl = "https://sts.windows.net/$tenantId/"
-Invoke-Executable az webapp auth update  --resource-group $AppServiceResourceGroupName --name $AppServiceName --enabled true --action LoginWithAzureActiveDirectory --aad-client-id $clientId --aad-token-issuer-url $aadTokenIssuerUrl
+
+#TODO: Added issue for not being able to set the authentication settings correctly through az cli: https://github.com/Azure/azure-cli/issues/20359
+# update to v2 if applicable
+Invoke-Executable az config set extension.use_dynamic_install=yes_without_prompt
+$authVersion = (Invoke-Executable az webapp auth config-version show --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).configVersion
+if ($authVersion -eq "v1")
+{
+    Write-Host "Application made use of auth v1, upgrading to v2.."
+    Invoke-Executable az webapp auth config-version upgrade --name $AppServiceName --resource-group $AppServiceResourceGroupName
+}
+
+Invoke-Executable az webapp auth microsoft update --resource-group $AppServiceResourceGroupName --name $AppServiceName --client-id $clientId --issuer $aadTokenIssuerUrl --yes
+Invoke-Executable az webapp auth update --resource-group $AppServiceResourceGroupName --name $AppServiceName --enabled true --action RedirectToLoginPage --redirect-provider 'AzureActiveDirectory'
 
 # create new rewrite rule set if not exists
 New-RewriteRuleSet -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -RewriteRuleSetName $ApplicationGatewayRewriteRuleSetName
