@@ -16,7 +16,7 @@ param (
     [Parameter()][System.Object[]] $ResourceTags, 
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
     [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
     
@@ -82,7 +82,7 @@ if ($ResourceTags)
 }
 
 # Add diagnostic settings to SQL database
-if ($DiagnosticSettingsDisabled)
+if ($LogAnalyticsWorkspaceResourceId -and $DiagnosticSettingsDisabled)
 {
     Remove-DiagnosticSetting -ResourceId $sqlDatabaseId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $SqlDatabaseName
 }

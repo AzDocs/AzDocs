@@ -3,9 +3,9 @@ param (
     [Parameter(Mandatory)][string] $SqlServerResourceGroupName,
     [Parameter(Mandatory)][string] $SqlServerName,
     [Parameter(Mandatory)][string] $SqlDatabaseName,
-    [Parameter(Mandatory)][string] $ServiceUserEmail,
-    [Parameter(Mandatory)][string] $ServiceUserObjectId,
-    [Parameter(Mandatory)][string] $ServiceUserPassword,
+    [Parameter()][string] $ServiceUserEmail,
+    [Parameter()][string] $ServiceUserObjectId,
+    [Parameter()][string] $ServiceUserPassword,
     [Parameter(Mandatory)][string] $AppServiceName,
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter()][string] $AppServiceSlotName,
@@ -30,6 +30,7 @@ function New-PrincipalName()
 
     Write-Host "Opening database connection for ensuring the managed identity of $AppServicePrincipalName"
 
+    # NOTE: For the following you will need to assign Directory Readers: https://docs.microsoft.com/en-us/azure/azure-sql/database/authentication-aad-service-principal-tutorial#assign-directory-readers-permission-to-the-sql-logical-server-identity
     $sql = @"
     IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = '$AppServicePrincipalName')
         BEGIN
@@ -58,26 +59,34 @@ function New-PrincipalName()
     }
 }
 
-Invoke-Executable az sql server ad-admin create --resource-group $SqlServerResourceGroupName --server-name $SqlServerName --display-name $ServiceUserEmail --object-id $ServiceUserObjectId
 if ($ApplyToAllSlots -eq $true)
 {
     $slots = (Invoke-Executable az webapp deployment slot list --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json).name
 }
 
-$altIdProfilePath = Join-Path ([io.path]::GetTempPath()) '.azure-altId'
 $AccessToken = $null
-try
-{
-    $env:AZURE_CONFIG_DIR = $altIdProfilePath
 
-    Invoke-Executable az login --username $ServiceUserEmail --password $ServiceUserPassword --allow-no-subscriptions
+# Check if we need to login with a custom AAD user before doing actions on SQL.
+if ($ServiceUserEmail -and $ServiceUserObjectId -and $ServiceUserPassword)
+{
+    try
+    {
+        $altIdProfilePath = Join-Path ([io.path]::GetTempPath()) '.azure-altId'
+        $env:AZURE_CONFIG_DIR = $altIdProfilePath
+        Invoke-Executable az login --username $ServiceUserEmail --password $ServiceUserPassword --allow-no-subscriptions
+        $AccessToken = (Invoke-Executable az account get-access-token --resource https://database.windows.net | ConvertFrom-Json).accessToken
+    }
+    finally
+    {
+        $env:AZURE_CONFIG_DIR = $null
+        Remove-Item -Recurse -Force $altIdProfilePath
+    }
+}
+else
+{
     $AccessToken = (Invoke-Executable az account get-access-token --resource https://database.windows.net | ConvertFrom-Json).accessToken
 }
-finally
-{
-    $env:AZURE_CONFIG_DIR = $null
-    Remove-Item -Recurse -Force $altIdProfilePath
-}
+
 if (!$AccessToken)
 {
     throw 'Could not fetch access token, something went wrong.'

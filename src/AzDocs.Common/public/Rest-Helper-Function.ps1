@@ -30,3 +30,21 @@ function Invoke-AzRestCall
 
     Invoke-Executable az rest --method $Method --url $url --body """$json"""
 }
+
+function Show-RestError
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][PSObject] $Exception
+    )
+
+    Write-Host 'Response: ' $Exception -ForegroundColor Red
+    Write-Host 'StatusCode:' $Exception.Exception.Response.StatusCode.value__ -ForegroundColor Red
+    Write-Host 'Reason:' $Exception.Exception.Response.ReasonPhrase -ForegroundColor Red
+    if ($Exception.Exception.Response.StatusDescription)
+    {
+        Write-Host 'StatusDescription:' $Exception.Exception.Response.StatusDescription -ForegroundColor Red
+    }
+    Write-Host 'Exception:' $Exception.Exception -ForegroundColor Red
+    throw $Exception;
+}
