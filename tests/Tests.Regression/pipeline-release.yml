@@ -2977,7 +2977,6 @@ stages:
                 - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
                 - task: DotNetCoreCLI@2
                   displayName: Install Playwright CLI
-                  #condition: always()
                   inputs:
                     command: "custom"
                     custom: "tool"
@@ -3049,7 +3048,6 @@ stages:
                 # ========================================= DOWNLOAD AZDOCS =========================================
                 - task: DownloadPipelineArtifact@2
                   displayName: Download AzDocs
-                  #condition: always()
                   inputs:
                     buildType: specific
                     project: $(AzDocsTeamProjectId)
