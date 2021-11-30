@@ -2619,7 +2619,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Set-Keyvault-Permissions-for-AppService-Identity.ps1"
-                    arguments: "-AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -KeyvaultCertificatePermissions 'get list' -KeyvaultKeyPermissions 'list get' -KeyvaultSecretPermissions 'get list' -KeyvaultStoragePermissions 'get list' -KeyvaultName '$(VNetWhitelistingKeyvaultName)' -AppServiceSlotName 'staging'"
+                    arguments: "-AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -KeyvaultCertificatePermissions 'get list' -KeyvaultKeyPermissions 'list get' -KeyvaultSecretPermissions 'get list' -KeyvaultStoragePermissions 'get list' -KeyvaultName '$(VNetWhitelistingKeyvaultName)' -AppServiceSlotName '$(AppServiceDeploymentSlotName)'"
                 # ========================================= GRANT PERMISSIONS TO SQL SERVER =========================================
                 - task: AzureCLI@2
                   displayName: "Add Network Whitelist to Sql Server"
@@ -2653,7 +2653,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1"
-                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceSlotName 'staging'"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceSlotName '$(AppServiceDeploymentSlotName)'"
                 - task: AzureCLI@2
                   displayName: "Remove Network Whitelist from Sql Server"
                   condition: always()
