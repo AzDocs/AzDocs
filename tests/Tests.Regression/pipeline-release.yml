@@ -141,7 +141,7 @@ stages:
       - name: AppServiceCertificateFilePath
         value: tests/Tests.Regression/Pipeline.TestFiles/AzDocsDummyRootCA.cer
 
-      # App Service AppSettings
+        # App Service AppSettings
       - name: AppServiceAppSettings
         value: >-
           @(
@@ -153,6 +153,19 @@ stages:
           'FileShareName=$(StorageAccountFileShareName)';
           'BlobContainer=$(StorageAccountBlobContainerName)';
           )
+
+      - name: AppServiceAppSettingsV
+        value: >-
+          @(
+          'KeyvaultName=$(VNetWhitelistingKeyvaultName)';
+          'KeyvaultKey=$(KeyvaultKeyName)';
+          'KeyvaultSecret=$(KeyvaultSecretName)';
+          'StorageAccount=$(VNetWhitelistingStorageAccountNameToLower)';
+          'QueueName=$(StorageAccountQueueName)';
+          'FileShareName=$(StorageAccountFileShareName)';
+          'BlobContainer=$(StorageAccountBlobContainerName)';
+          )
+
 
       # App Service ConnectionStrings
       - name: AppServiceConnectionStringsInJson
@@ -169,6 +182,29 @@ stages:
         value: '{"name": "SqlConnectionString", "value": "$(ConnectionStrings__SqlServer)", "type": "Custom", "slotSetting": false}'
       - name: ConnectionStrings__SqlServer
         value: "Server=tcp:$(PublicSqlServerName).database.windows.net,1433;Database=$(SqlDatabaseName);"
+      - name: RedisConnectionString
+        value: '{"name": "RedisConnectionString", "value": "$(ConnectionStrings__Redis)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__Redis
+        value: "$(GetRedisCacheConnectionStringforPipeline.RedisConnectionString)"
+      - name: StorageConnectionString
+        value: '{"name": "StorageConnectionString", "value": "$(ConnectionStrings__Storage)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__Storage
+        value: "$(GetStorageAccountConnectionStringforPipeline.StorageAccountConnectionString)"
+
+      - name: AppServiceConnectionStringsInJsonV
+        value: "[$(MySqlConnectionStringV), $(PostgreSQLConnectionStringV), $(SqlConnectionStringV), $(RedisConnectionString), $(StorageConnectionString)]"
+      - name: MySqlConnectionStringV
+        value: '{"name": "MySqlConnectionString", "value": "$(ConnectionStrings__MySqlV)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__MySqlV
+        value: "Server=$(VNetWhitelistingMySqlServerName).mysql.database.azure.com; Port=3306; Database=$(MySqlDatabaseName); Uid=$(MySqlServerUsername)@$(VNetWhitelistingMySqlServerName); Pwd=$(MySqlServerPassword); SslMode=Preferred;"
+      - name: PostgreSQLConnectionStringV
+        value: '{"name": "PostgreSQLConnectionString", "value": "$(ConnectionStrings__PostgreSQLV)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__PostgreSQLV
+        value: "Server=$(VNetWhitelistingPostgreSqlServerName).postgres.database.azure.com;User Id=$(PostgreSqlServerUsername)@$(VNetWhitelistingPostgreSqlServerName);Password=$(PostgreSqlServerPassword);Database=$(PostgreSqlDatabaseName);Ssl Mode=Require;"
+      - name: SqlConnectionStringV
+        value: '{"name": "SqlConnectionString", "value": "$(ConnectionStrings__SqlServerV)", "type": "Custom", "slotSetting": false}'
+      - name: ConnectionStrings__SqlServerV
+        value: "Server=tcp:$(VNetWhitelistingSqlServerName).database.windows.net,1433;Database=$(SqlDatabaseName);"
       - name: RedisConnectionString
         value: '{"name": "RedisConnectionString", "value": "$(ConnectionStrings__Redis)", "type": "Custom", "slotSetting": false}'
       - name: ConnectionStrings__Redis
@@ -223,6 +259,8 @@ stages:
         value: "Public"
       - name: BackendDomainName
         value: $(VNetWhitelistingAppServiceName).azurewebsites.net
+      - name: VnetWhitelistedStagingDomainName
+        value: $(VNetWhitelistingAppServiceName)-staging.azurewebsites.net
       - name: PublicStagingDomainName
         value: $(PublicAppServiceName)-staging.azurewebsites.net
       - name: HealthProbePath
@@ -2351,7 +2389,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
-                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -AppServiceDeploymentSlotName 'staging'"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
                 - task: AzureCLI@2
                   name: GetRedisCacheConnectionStringforPipeline
                   displayName: "Get RedisCache ConnectionString for Pipeline"
@@ -2364,7 +2402,7 @@ stages:
                 - task: AzureCLI@2
                   name: GetStorageAccountConnectionStringforPipeline
                   displayName: "Get Storage Account ConnectionString for Pipeline"
-                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'), eq(variables['ResourceCreation.StorageAccount.Enabled'], true))
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], true))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
@@ -2377,7 +2415,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-ConnectionStrings-For-AppService.ps1"
-                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -AppServiceDeploymentSlotName 'staging'"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(PublicAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
                 # ========================================= APP SERVICE CONTENT DEPLOYMENT =========================================
                 - task: DownloadBuildArtifacts@0
                   displayName: Download Application Binaries to deploy
@@ -2444,7 +2482,7 @@ stages:
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Users-and-Accounts/Get-ObjectID-for-ServiceUser.ps1"
                     arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)'"
                 - task: AzureCLI@2
-                  displayName: "Grant AppService dataread write ddladmin rights on SQL Server"
+                  displayName: "Grant AppService dataread write ddladmin rights on Public SQL Server"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
@@ -2492,7 +2530,16 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-AppSettings-For-AppService.ps1"
-                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettings) -AppServiceDeploymentSlotName 'staging'"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceAppSettings $(AppServiceAppSettingsV) -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
+                - task: AzureCLI@2
+                  name: GetRedisCacheConnectionStringforPipeline
+                  displayName: "Get RedisCache ConnectionString for Pipeline"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'), eq(variables['ResourceCreation.RedisCache.Enabled'], true))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/RedisCache/Get-RedisCache-ConnectionString-for-Pipeline.ps1"
+                    arguments: "-RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' -RedisInstanceName '$(PublicRedisInstanceName)'"
                 - task: AzureCLI@2
                   name: GetStorageAccountConnectionStringforPipeline
                   displayName: "Get Storage Account ConnectionString for Pipeline"
@@ -2509,7 +2556,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Set-ConnectionStrings-For-AppService.ps1"
-                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJson)' -AppServiceDeploymentSlotName 'staging'"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceConnectionStringsInJson '$(AppServiceConnectionStringsInJsonV)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
                 # ========================================= APP SERVICE CONTENT DEPLOYMENT =========================================
                 - task: AzureCLI@2
                   displayName: "Add Network Whitelist to App Service"
@@ -2539,6 +2586,14 @@ stages:
                     ResourceGroupName: "$(AppServiceResourceGroupName)"
                     SlotName: "$(AppServiceDeploymentSlotName)"
                     packageForLinux: "$(System.ArtifactsDirectory)/Website_zip/website.zip"
+                - task: AzureCLI@2
+                  displayName: "Remove Network Whitelist from App Service"
+                  condition: always()
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
                   # ========================================= GRANT PERMISSIONS TO STORAGE ACCOUNT =========================================
                 - task: AzureCLI@2
                   displayName: "Grant Permissions for (VNET whitelisting) AppService to (VNET whitelisting) StorageAccount Blob Container"
@@ -2564,7 +2619,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Set-Keyvault-Permissions-for-AppService-Identity.ps1"
-                    arguments: "-AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -KeyvaultCertificatePermissions 'get list' -KeyvaultKeyPermissions 'list get' -KeyvaultSecretPermissions 'get list' -KeyvaultStoragePermissions 'get list' -KeyvaultName '$(VNetWhitelistingKeyvaultName)' -AppServiceSlotName 'staging'"
+                    arguments: "-AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -KeyvaultCertificatePermissions 'get list' -KeyvaultKeyPermissions 'list get' -KeyvaultSecretPermissions 'get list' -KeyvaultStoragePermissions 'get list' -KeyvaultName '$(VNetWhitelistingKeyvaultName)' -AppServiceSlotName '$(AppServiceDeploymentSlotName)'"
                 # ========================================= GRANT PERMISSIONS TO SQL SERVER =========================================
                 - task: AzureCLI@2
                   displayName: "Add Network Whitelist to Sql Server"
@@ -2575,13 +2630,30 @@ stages:
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Add-Network-Whitelist-to-Sql-Server.ps1"
                     arguments: "-SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)'"
                 - task: AzureCLI@2
-                  displayName: "Grant AppService dataread write ddladmin rights on SQL Server"
+                  displayName: "Get ObjectID for ServiceUser"
+                  name: GetObjectIdServiceUser
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Users-and-Accounts/Get-ObjectID-for-ServiceUser.ps1"
+                    arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)'"
+                - task: AzureCLI@2
+                  displayName: "Grant AppService dataread write ddladmin rights on Whitelisting SQL Server"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1"
                     arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)'"
+                - task: AzureCLI@2
+                  displayName: "Grant AppService dataread write ddladmin rights on whitelisting SQL Server staging slot"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1"
+                    arguments: "-SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlDatabaseName '$(SqlDatabaseName)' -ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserObjectId '$(ServiceUserObjectId)' -ServiceUserPassword '$(ServiceUserPassword)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceSlotName '$(AppServiceDeploymentSlotName)'"
                 - task: AzureCLI@2
                   displayName: "Remove Network Whitelist from Sql Server"
                   condition: always()
@@ -2920,12 +2992,14 @@ stages:
                     arguments: "install --global Microsoft.Playwright.CLI"
                 - task: DotNetCoreCLI@2
                   displayName: DOTNET build
+                  condition: always()
                   inputs:
                     command: "build"
                     projects: "**/*.csproj"
                     arguments: "--configuration release"
                 - task: PowerShell@2
                   displayName: Install Playwright chromium
+                  condition: always()
                   inputs:
                     targetType: "inline"
                     script: |
@@ -2934,6 +3008,7 @@ stages:
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: PowerShell@2
                   displayName: adjust test.runsettings file
+                  condition: always()
                   inputs:
                     targetType: "inline"
                     script: |
@@ -2945,6 +3020,7 @@ stages:
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: DotNetCoreCLI@2
                   displayName: DOTNET test
+                  condition: always()
                   inputs:
                     command: "test"
                     projects: "$(Pipeline.Workspace)/**/*.csproj"
@@ -2959,6 +3035,106 @@ stages:
                     mergeTestResults: true
                     failTaskOnFailedTests: true
                     testRunTitle: RegressionTest
+      - deployment: "Playwright_Test_On_VNetWhitelisted_AppService"
+        displayName: Playwright Tests on (VNetWhitelisted) App Service
+        dependsOn:
+          [
+            "ResourceGroup",
+            "BaseResources",
+            "VNetWhitelisting_AppService",
+            "VNetWhitelisting_AppService_PostConfiguration",
+          ]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        variables:
+          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= RUN PLAYWRIGHT TESTS =========================================
+                - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
+                - task: AzureCLI@2
+                  displayName: "Add Network Whitelist to App Service"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Add-Network-Whitelist-to-App-Service.ps1"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
+                - task: DotNetCoreCLI@2
+                  displayName: Install Playwright CLI
+                 # condition: always()
+                  inputs:
+                    command: "custom"
+                    custom: "tool"
+                    arguments: "install --global Microsoft.Playwright.CLI"
+                - task: DotNetCoreCLI@2
+                  displayName: DOTNET build
+                  condition: always()
+                  inputs:
+                    command: "build"
+                    projects: "**/*.csproj"
+                    arguments: "--configuration release"
+                - task: PowerShell@2
+                  displayName: Install Playwright chromium
+                  condition: always()
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      (Get-ChildItem -Path '*.tests.csproj' -Recurse).Directory|Set-Location
+                      playwright install chromium
+                    workingDirectory: "$(Pipeline.Workspace)"
+                - task: PowerShell@2
+                  displayName: adjust test.runsettings file
+                  condition: always()
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      $path = (Get-ChildItem -Path 'test.runsettings' -Recurse).FullName
+
+                      $text = Get-Content $path
+                      $newText = $text.Replace('http://localhost','https://$(VnetWhitelistedStagingDomainName)')
+                      $newText | out-file -FilePath $path -Force
+                    workingDirectory: "$(Pipeline.Workspace)"
+                - task: DotNetCoreCLI@2
+                  displayName: DOTNET test
+                  condition: always()
+                  inputs:
+                    command: "test"
+                    projects: "$(Pipeline.Workspace)/**/*.csproj"
+                    arguments: "--configuration release --settings tests/Tests.Regression/test.runsettings"
+                - task: PublishTestResults@2
+                  condition: always()
+                  displayName: "Publish Test Results To Test Plan module"
+                  inputs:
+                    testResultsFormat: NUnit
+                    testResultsFiles: log.html
+                    searchFolder: "$(Agent.TempDirectory)/"
+                    mergeTestResults: true
+                    failTaskOnFailedTests: true
+                    testRunTitle: RegressionTest
+                - task: AzureCLI@2
+                  displayName: "Remove Network Whitelist from App Service"
+                  condition: always()
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Services/Remove-Network-Whitelist-from-App-Service.ps1"
+                    arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
       - deployment: "Public_AppService_SwapSlots"
         displayName: App Service (Public) Swap Slots
         dependsOn:
@@ -3009,6 +3185,7 @@ stages:
             "BaseResources",
             "VnetWhitelisting_AppService",
             "VnetWhitelisting_AppService_PostConfiguration",
+            "Playwright_Test_On_VNetWhitelisted_AppService",
           ]
         environment:
           name: ${{ parameters.EnvironmentName }}
