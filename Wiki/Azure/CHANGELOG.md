@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.12.01]
+
+## Added
+
+- Added script `Get-Monitor-Action-Group-Id-for-Pipeline.ps1`.
+
 ## [2021.11.24]
 
 ## Updated
