@@ -69,11 +69,19 @@ $keyvaultExists = (Invoke-Executable az keyvault list --resource-group $Keyvault
 if (!$keyvaultExists)
 {
     # check if keyvault exists soft-deleted
-    $softDeletedKeyvault = Invoke-Executable -AllowToFail az keyvault show-deleted --name $KeyvaultName
+    $softDeletedKeyvault = Invoke-Executable -AllowToFail az keyvault show-deleted --name $KeyvaultName | ConvertFrom-Json
     if ($softDeletedKeyvault)
     {
-        Write-Host "Found soft-deleted keyvault. Recovering.."
-        Invoke-Executable az keyvault recover --name $KeyvaultName
+        # Check if the keyvault is in the same resource-group 
+        if ($softDeletedKeyvault.properties.vaultId -Match $KeyvaultResourceGroupName)
+        {
+            Write-Host "Found soft-deleted keyvault. Recovering.."
+            Invoke-Executable az keyvault recover --name $KeyvaultName
+        }
+        else
+        {
+            throw "The vaultname is globally unique and already exists in a soft-deleted state. Purge the keyvault that is in a soft-deleted state, or pick a different name."
+        }
     }
     else
     {
