@@ -30,6 +30,17 @@ function Set-DiagnosticSettings
     # Set the name for the diagnostic setting 
     $diagnosticSettingName = "$ResourceName-diagnostic-setting"
 
+    # For backwards compatibility, remove the old diagnostic settings 
+    $oldDiagnosticSettings = Invoke-Executable az monitor diagnostic-settings list --resource $ResourceId | ConvertFrom-Json
+    foreach ($oldDiagnosticSetting in $oldDiagnosticSettings.value)
+    {
+        if ($oldDiagnosticSetting.name -and $oldDiagnosticSetting.name -ne $diagnosticSettingName -and $oldDiagnosticSetting.workspaceId -eq $LogAnalyticsWorkspaceResourceId)
+        {
+            # remove old diagnostic setting
+            Invoke-Executable az monitor diagnostic-settings delete --name $oldDiagnosticSetting.name --resource $ResourceId
+        }
+    }
+
     # Remove existing diagnostic setting
     Remove-DiagnosticSetting -ResourceId $ResourceId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $ResourceName
 
@@ -84,6 +95,7 @@ function Remove-DiagnosticSetting
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
+
 
 function Get-DefaultDiagnosticSettings
 {
