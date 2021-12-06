@@ -41,6 +41,9 @@ parameters:
   - name: ResourceCreation.AppInsights.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.CostManagement.Dashboard.Enabled
+    type: boolean
+    default: true
   - name: ResourceCreation.Networking.Enabled
     type: boolean
     default: true
@@ -148,6 +151,8 @@ variables:
     value: ${{ parameters['ResourceCreation.AppMonitoring.Enabled'] }}
   - name: ResourceDeletion.ResourceGroup.Enabled
     value: ${{ parameters['ResourceDeletion.ResourceGroup.Enabled'] }}
+  - name: ResourceCreation.CostManagement.Dashboard.Enabled
+    value: ${{ parameters['ResourceCreation.CostManagement.Dashboard.Enabled'] }}
 
   # Stage Pool
   - name: Stage.Pool

@@ -87,6 +87,22 @@ stages:
       - name: DNSServers
         value: "168.63.129.16"
 
+        # Dashboard
+      - name: DashboardName
+        value: "Test.Regression-Cost-${{ parameters.EnvironmentName }}"
+      - name: DashboardResourceGroupName
+        value: $(ResourceGroupName)
+      - name: SubscriptionName
+        value: ${{ parameters.SubscriptionName }}
+      - name: TagName
+        value: "teamname"
+      - name: GroupByTagName
+        value: "projectname"
+      - name: GroupByName
+        value: "Project"
+      - name: TagValueDictionary
+        value: '@{"###subscriptionId###"="";"###subscriptionName###"="$(SubscriptionName)";"###subscriptionCompactName###"="$(SubscriptionName)".Replace('' '','''');"###PlaceholderLowerCase###"="";"###PlaceholderCapitalized###"="";"###TagName###"="$(TagName)";"###GroupByTagName###"="$(GroupByTagName)"; "###GroupByName###"="$(GroupByName)";}'
+
       # AppService
       - name: AppServicePlanSkuName
         value: P1v3
@@ -165,7 +181,6 @@ stages:
           'FileShareName=$(StorageAccountFileShareName)';
           'BlobContainer=$(StorageAccountBlobContainerName)';
           )
-
 
       # App Service ConnectionStrings
       - name: AppServiceConnectionStringsInJson
@@ -786,6 +801,7 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-AppInsights-Resource.ps1"
                     arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(Location)' -LogAnalyticsWorkspaceResourceId '$(GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId)'"
+
       - deployment: "Networking"
         displayName: "Networking"
         dependsOn: "ResourceGroup"
@@ -2116,6 +2132,7 @@ stages:
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Grant-Public-Access-To-StorageAccount.ps1"
                     arguments: "-StorageAccountName '$(GenerateVnetWhitelistingStorageAccountName.VNetWhitelistingStorageAccountNameToLower)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -ForcePublic"
                 - task: PowerShell@2 # sleep, so the above task can take effect. This can take up to 60 seconds.
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.StorageAccounts.Enabled'], 'true'))
                   displayName: "Sleep"
                   inputs:
                     targetType: "inline"
@@ -2440,7 +2457,7 @@ stages:
                 # ========================================= GRANT PERMISSIONS TO STORAGE ACCOUNT =========================================
                 - task: AzureCLI@2
                   displayName: "Grant permissions for (Public) AppService to (Public) StorageAccount Blob Container"
-                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
@@ -3077,7 +3094,7 @@ stages:
                     arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
                 - task: DotNetCoreCLI@2
                   displayName: Install Playwright CLI
-                 # condition: always()
+                  # condition: always()
                   inputs:
                     command: "custom"
                     custom: "tool"
@@ -3424,6 +3441,117 @@ stages:
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Metric-Alert-Rule.ps1"
                     arguments: "-ResourceToMonitorName '$(VNetWhitelistingAppServiceName)' -ResourceToMonitorResourceGroupName '$(ResourceToMonitorResourceGroupName)' -MetricAlertRuleName '$(VNetWhitelistingMetricAlertRuleName)' -MetricAlertRuleResourceGroupName '$(MetricAlertRuleResourceGroupName)' -MetricAlertRuleDescription '$(MetricAlertRuleDescription)' -MetricAlertRuleWindowSizeInMinutes '$(MetricAlertRuleWindowSizeInMinutes)' -MetricAlertRuleEvaluationFrequencyInMinutes '$(MetricAlertRuleEvaluationFrequencyInMinutes)' -MetricAlertRuleSeverity '$(MetricAlertRuleSeverity)' -MonitorAlertActionGroupName '$(PublicMonitorAlertActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -MetricAlertRuleConditionSignalName '$(MetricAlertRuleConditionSignalName)' -MetricAlertRuleConditionAggregation '$(MetricAlertRuleConditionAggregation)' -MetricAlertRuleConditionOperation '$(MetricAlertRuleConditionOperation)' -MetricAlertRuleConditionType '$(MetricAlertRuleConditionType)' -MetricAlertRuleConditionStaticThreshold '$(MetricAlertRuleConditionStaticThreshold)'"
+      - deployment: "Cost_Management_Dashboard_Configuration"
+        displayName: Cost Management Dashboard
+        dependsOn: ["ResourceGroup", "BaseResources"]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        variables:
+          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS AND TEMPLATES =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Dashboard.Enabled'], 'true'))
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Dashboard.Enabled'], 'true'))
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-templates
+                    targetPath: $(Pipeline.Workspace)/AzDocs/Templates
+                # ========================================= CREATE DASHBOARD =========================================
+                - task: PowerShell@2
+                  displayName: "Get TeamName to Lower from Pipeline"
+                  name: GetTeamNameToLowerFromPipeline
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Dashboard.Enabled'], 'true'))
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      # Write your PowerShell commands here.
+                      $teamNameToLower = "$(Tag.TeamName)".toLower();
+                      Write-Host "##vso[task.setvariable variable=TeamNameToLower;isOutput=true]$teamNameToLower"
+                - task: PowerShell@2
+                  displayName: "Get TeamName Capitalized from Pipeline"
+                  name: GetTeamNameCapitalizedFromPipeline
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Dashboard.Enabled'], 'true'))
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      # Write your PowerShell commands here.
+                      $teamNameCapitalized = (Get-Culture).TextInfo.ToTitleCase("$(Tag.TeamName)");
+                      Write-Host "##vso[task.setvariable variable=TeamNameCapitalized;isOutput=true]$teamNameCapitalized"
+                - task: AzureCLI@2
+                  displayName: "Get Subscription Id from Pipeline"
+                  name: GetSubscriptionIdFromPipeline
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Dashboard.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      # Write your PowerShell commands here.
+                      $subscriptionId = az account show --query id --output tsv
+                      Write-Host "##vso[task.setvariable variable=SubscriptionId;isOutput=true]$subscriptionId"
+                - task: AzureCLI@2
+                  displayName: "Create Dashboard-$(Tag.TeamName)"
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.CostManagement.Dashboard.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      $newTagValueDictionary = $(TagValueDictionary)
+                      $newTagValueDictionary['###PlaceholderLowerCase###'] = "$(GetTeamNameToLowerFromPipeline.teamNameToLower)"
+                      $newTagValueDictionary['###PlaceholderCapitalized###'] = "$(GetTeamNameCapitalizedFromPipeline.teamNameCapitalized)"
+                      $newTagValueDictionary['###subscriptionId###'] = "$(GetSubscriptionIdFromPipeline.subscriptionId)"
+
+                      # call script
+                      cd $(Pipeline.Workspace)/AzDocs/Dashboards
+                      ./Set-DashboardFromTemplate.ps1 -TagValueDictionary $newTagValueDictionary -DashboardName '$(DashboardName)' -TemplateFilePath '$(Pipeline.Workspace)/AzDocs/Templates/Dashboards/Template-Cost-Dashboard.json' -DashboardResourceGroupName '$(DashboardResourceGroupName)'
+                # ========================================= CREATE TEMPLATE FROM DASHBOARD ===================================================
+                - task: AzureCLI@2
+                  displayName: "Create template from Dashboard"
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Dashboard.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Dashboards/Get-DashboardTemplate.ps1"
+                    arguments: |
+                      -DashboardResourceGroupName '$(DashboardResourceGroupName)' -DashboardName '$(DashboardName)' -TemplateFilePath '$(Pipeline.Workspace)/Template.json' -TagValueDictionary ([ordered]@{"###subscriptionId###"="$(GetSubscriptionIdFromPipeline.SubscriptionId)"; "###subscriptionName###"="${{ parameters.SubscriptionName }}";"###subscriptionCompactName###"="$(SubscriptionName)".Replace(' ','');"###TagName###"= "teamname";"###PlaceholderLowerCase###"="$(GetTeamNameToLowerFromPipeline.TeamNameToLower)"; "###GroupByTagName###"="projectname";"###PlaceholderCapitalized###"="$(Tag.TeamName)";})
+                - task: AzureCLI@2
+                  displayName: "Create Dashboard-$(Tag.TeamName)-From-Template-Created"
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Dashboard.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      $newTagValueDictionary = $(TagValueDictionary)
+                      $newTagValueDictionary['###PlaceholderLowerCase###'] = "$(GetTeamNameToLowerFromPipeline.teamNameToLower)"
+                      $newTagValueDictionary['###PlaceholderCapitalized###'] = "$(GetTeamNameCapitalizedFromPipeline.teamNameCapitalized)"
+                      $newTagValueDictionary['###subscriptionId###'] = "$(GetSubscriptionIdFromPipeline.subscriptionId)"
+
+                      # call script
+                      cd $(Pipeline.Workspace)/AzDocs/Dashboards
+                      ./Set-DashboardFromTemplate.ps1 -TagValueDictionary $newTagValueDictionary -DashboardName '$(DashboardName)test' -TemplateFilePath '$(Pipeline.Workspace)/Template.json' -DashboardResourceGroupName '$(DashboardResourceGroupName)'
   - stage: delete
     displayName: ${{ format('Delete RG from {0}', parameters.EnvironmentName) }}
     pool:
