@@ -97,7 +97,10 @@ parameters:
     default: true
   - name: ResourceDeletion.ResourceGroup.Enabled
     type: boolean
-    default: true
+    default: false
+  - name: ResourceDeletion.CostManagement.Alert.Enabled
+    type: boolean
+    default: false
 
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
@@ -158,6 +161,8 @@ variables:
     value: ${{ parameters['ResourceCreation.CostManagement.Dashboard.Enabled'] }}
   - name: ResourceCreation.CostManagement.Alert.Enabled
     value: ${{ parameters['ResourceCreation.CostManagement.Alert.Enabled'] }}
+  - name: ResourceDeletion.CostManagement.Alert.Enabled
+    value: ${{ parameters['ResourceDeletion.CostManagement.Alert.Enabled'] }}
 
   # Stage Pool
   - name: Stage.Pool

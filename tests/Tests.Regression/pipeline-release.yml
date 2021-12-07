@@ -3013,14 +3013,14 @@ stages:
                     arguments: "install --global Microsoft.Playwright.CLI"
                 - task: DotNetCoreCLI@2
                   displayName: DOTNET build
-                  condition: always()
+                  condition: succeeded()
                   inputs:
                     command: "build"
                     projects: "**/*.csproj"
                     arguments: "--configuration release"
                 - task: PowerShell@2
                   displayName: Install Playwright chromium
-                  condition: always()
+                  condition: succeeded()
                   inputs:
                     targetType: "inline"
                     script: |
@@ -3029,7 +3029,7 @@ stages:
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: PowerShell@2
                   displayName: adjust test.runsettings file
-                  condition: always()
+                  condition: succeeded()
                   inputs:
                     targetType: "inline"
                     script: |
@@ -3041,13 +3041,13 @@ stages:
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: DotNetCoreCLI@2
                   displayName: DOTNET test
-                  condition: always()
+                  condition: succeeded()
                   inputs:
                     command: "test"
                     projects: "$(Pipeline.Workspace)/**/*.csproj"
                     arguments: "--configuration release --settings tests/Tests.Regression/test.runsettings"
                 - task: PublishTestResults@2
-                  condition: always()
+                  condition: succeeded()
                   displayName: "Publish Test Results To Test Plan module"
                   inputs:
                     testResultsFormat: NUnit
@@ -3098,21 +3098,21 @@ stages:
                     arguments: "-AppServiceResourceGroupName '$(AppServiceResourceGroupName)' -AppServiceName '$(VnetWhitelistingAppServiceName)' -AppServiceDeploymentSlotName '$(AppServiceDeploymentSlotName)'"
                 - task: DotNetCoreCLI@2
                   displayName: Install Playwright CLI
-                  # condition: always()
+                  condition: succeeded()
                   inputs:
                     command: "custom"
                     custom: "tool"
                     arguments: "install --global Microsoft.Playwright.CLI"
                 - task: DotNetCoreCLI@2
                   displayName: DOTNET build
-                  condition: always()
+                  condition: succeeded()
                   inputs:
                     command: "build"
                     projects: "**/*.csproj"
                     arguments: "--configuration release"
                 - task: PowerShell@2
                   displayName: Install Playwright chromium
-                  condition: always()
+                  condition: succeeded()
                   inputs:
                     targetType: "inline"
                     script: |
@@ -3121,7 +3121,7 @@ stages:
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: PowerShell@2
                   displayName: adjust test.runsettings file
-                  condition: always()
+                  condition: succeeded()
                   inputs:
                     targetType: "inline"
                     script: |
@@ -3133,13 +3133,13 @@ stages:
                     workingDirectory: "$(Pipeline.Workspace)"
                 - task: DotNetCoreCLI@2
                   displayName: DOTNET test
-                  condition: always()
+                  condition: succeeded()
                   inputs:
                     command: "test"
                     projects: "$(Pipeline.Workspace)/**/*.csproj"
                     arguments: "--configuration release --settings tests/Tests.Regression/test.runsettings"
                 - task: PublishTestResults@2
-                  condition: always()
+                  condition: succeeded()
                   displayName: "Publish Test Results To Test Plan module"
                   inputs:
                     testResultsFormat: NUnit
@@ -3150,7 +3150,7 @@ stages:
                     testRunTitle: RegressionTest
                 - task: AzureCLI@2
                   displayName: "Remove Network Whitelist from App Service"
-                  condition: always()
+                  condition: succeeded()
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
@@ -3652,7 +3652,7 @@ stages:
         value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
 
     jobs:
-      - deployment: Delete
+      - deployment: Delete_ResourceGroup
         displayName: Delete Resource Group
         environment:
           name: ${{ parameters.EnvironmentName }}
@@ -3677,9 +3677,60 @@ stages:
                 # ========================================= DELETE RESOURCEGROUP =========================================
                 - task: AzureCLI@2
                   displayName: "Remove ResourceGroup"
-                  condition: eq(variables['ResourceDeletion.ResourceGroup.Enabled'], 'true')
+                  condition: and (succeeded(), eq(variables['ResourceDeletion.ResourceGroup.Enabled'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/Resourcegroup/Remove-ResourceGroup.ps1"
                     arguments: "-ResourceGroupName '$(ResourceGroupName)'"
+      - deployment: Delete_CostAlert
+        displayName: Delete Cost Alert
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: eq(variables['ResourceDeletion.CostManagement.Alert.Enabled'], 'true')
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= DELETE COST ALERT =========================================
+                - task: AzureCLI@2
+                  displayName: "Create Budget Deprovisioning name"
+                  name: CreateBudgetNameForDeprovision
+                  condition: and(succeeded(), eq(variables['ResourceDeletion.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      $budgetName = "${{ parameters.TagTeamName }}-budget"
+                      Write-Host "BudgetName: $budgetName"
+                      Write-Host "##vso[task.setvariable variable=budgetName;isOutput=true]$budgetName"
+                - task: AzureCLI@2
+                  displayName: "Deprovision Cost Alert"
+                  condition: and(succeeded(), eq(variables['ResourceDeletion.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Deprovision-Cost-Alert.ps1"
+                    arguments: "-BudgetName '$(CreateBudgetNameForDeprovision.budgetName)-actual-regression'"
+                - task: AzureCLI@2
+                  displayName: "Deprovision Cost Alert"
+                  condition: and(succeeded(), eq(variables['ResourceDeletion.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Deprovision-Cost-Alert.ps1"
+                    arguments: "-BudgetName '$(CreateBudgetNameForDeprovision.budgetName)-forecasted-regression'"
