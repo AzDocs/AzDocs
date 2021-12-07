@@ -9,7 +9,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$budget = Invoke-Executable -AllowToFail az consupmtion budget show --budget-name $BudgetName
+$budget = Invoke-Executable -AllowToFail az consumption budget show --budget-name $BudgetName
 if ($budget)
 {
     Write-Host "Found budget removing.."
