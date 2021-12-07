@@ -9,7 +9,7 @@ param (
     [Parameter()][DateTime] $BudgetEndDate = (Get-Date -Day 1).AddYears(10),
     [Parameter()][ValidateSet('Forecasted', 'Actual')][String] $AlertThresholdType = 'Forecasted',
     [Parameter()][ValidateSet('EqualTo', 'GreaterThan', 'GreaterThanOrEqualTo')][String] $AlertThresholdOperator = 'GreaterThan',
-    [Parameter()][ValidateRange(0, 100)][int] $AlertThreshold = 85,
+    [Parameter()][int] $AlertThreshold = 85,
     [Parameter()][String[]] $AlertContactEmails,
     [Parameter()][String[]] $AlertContactRoles,
     [Parameter()][String[]] $AlertContactActionGroups,
@@ -25,13 +25,13 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 # Check if we don't have mixed scopes
-if($BudgetResourceGroupScope -and $BudgetManagementGroupScope)
+if ($BudgetResourceGroupScope -and $BudgetManagementGroupScope)
 {
     throw "Fill out either BudgetResourceGroupScope OR BudgetManagementGroupScope. At least one must be empty."
 }
 
 # Make sure we have at least one notification group
-if(!$AlertContactEmails -and !$AlertContactRoles -and !$AlertContactActionGroups)
+if (!$AlertContactEmails -and !$AlertContactRoles -and !$AlertContactActionGroups)
 {
     throw "Please make sure to fill either AlertContactEmails, AlertContactRoles or AlertContactActionGroups."
 }
@@ -39,10 +39,10 @@ if(!$AlertContactEmails -and !$AlertContactRoles -and !$AlertContactActionGroups
 # Base JSON
 $body = @{ 
     properties = @{
-        amount        = $BudgetAmount;
-        category      = 'Cost';
-        timeGrain     = $BudgetTimeGrain;
-        timePeriod    = @{
+        amount     = $BudgetAmount;
+        category   = 'Cost';
+        timeGrain  = $BudgetTimeGrain;
+        timePeriod = @{
             startDate = (Get-Date $BudgetStartDate -Format 'yyyy-MM-dd');
             endDate   = (Get-Date $BudgetEndDate -Format 'yyyy-MM-dd');
         }
@@ -54,23 +54,23 @@ $alertName = "$($AlertThresholdType)_$($AlertThresholdOperator)_$($AlertThreshol
 
 $body.properties.notifications += @{
     $alertName = @{
-        enabled         = $true;
-        operator        = $AlertThresholdOperator;
-        threshold       = $AlertThreshold;
-        locale          = 'en-us';
-        thresholdType   = $AlertThresholdType;
+        enabled       = $true;
+        operator      = $AlertThresholdOperator;
+        threshold     = $AlertThreshold;
+        locale        = 'en-us';
+        thresholdType = $AlertThresholdType;
     }
 } 
 
-if($AlertContactEmails)
+if ($AlertContactEmails)
 {
     $body.properties.notifications.$alertName.contactEmails = $AlertContactEmails
 }
-if($AlertContactRoles)
+if ($AlertContactRoles)
 {
     $body.properties.notifications.$alertName.contactRoles = $AlertContactRoles
 }
-if($AlertContactActionGroups)
+if ($AlertContactActionGroups)
 {
     $body.properties.notifications.$alertName.contactGroups = $AlertContactActionGroups
 }
@@ -105,7 +105,7 @@ $body.properties.filter += $filters
 # ========================= END Budgetfilters =========================
 
 # Define scope (subscription/managementgroup/rg)
-if($BudgetManagementGroupScope)
+if ($BudgetManagementGroupScope)
 {
     $scope = "/providers/Microsoft.Management/managementGroups/$($BudgetManagementGroupScope)"
 }
@@ -114,7 +114,7 @@ else
     $subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
     $scope = "/subscriptions/$($subscriptionId)"
 
-    if($BudgetResourceGroupScope)
+    if ($BudgetResourceGroupScope)
     {
         $scope += "/resourceGroups/$($BudgetResourceGroupScope)"
     }
