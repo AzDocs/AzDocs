@@ -695,6 +695,10 @@ stages:
       - name: MetricAlertRuleConditionDimensionOperator
         value: "Include"
 
+      # Budget
+      - name: BudgetAmount
+        value: 100
+
     jobs:
       - deployment: "ResourceGroup"
         displayName: "Resource Group"
@@ -3446,8 +3450,6 @@ stages:
         dependsOn: ["ResourceGroup", "BaseResources"]
         environment:
           name: ${{ parameters.EnvironmentName }}
-        variables:
-          LogAnalyticsWorkspaceResourceId: $[ dependencies.BaseResources.outputs['BaseResources.GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId'] ]
         timeoutInMinutes: 360
         cancelTimeoutInMinutes: 1
         strategy:
@@ -3552,6 +3554,88 @@ stages:
                       # call script
                       cd $(Pipeline.Workspace)/AzDocs/Dashboards
                       ./Set-DashboardFromTemplate.ps1 -TagValueDictionary $newTagValueDictionary -DashboardName '$(DashboardName)test' -TemplateFilePath '$(Pipeline.Workspace)/Template.json' -DashboardResourceGroupName '$(DashboardResourceGroupName)'
+      - deployment: "Cost_Management_Alert_Configuration"
+        displayName: Cost Management Alert
+        dependsOn: ["ResourceGroup", "BaseResources"]
+        environment:
+          name: ${{ parameters.EnvironmentName }}
+        timeoutInMinutes: 360
+        cancelTimeoutInMinutes: 1
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # ========================================= DOWNLOAD AZDOCS AND TEMPLATES =========================================
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download AzDocs
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    buildType: specific
+                    project: $(AzDocsTeamProjectId)
+                    definition: $(AzDocsBuildDefinitionId)
+                    buildVersionToDownload: latestFromBranch
+                    branchName: $(Build.SourceBranch)
+                    artifactName: azdocs-src
+                    targetPath: $(Pipeline.Workspace)/AzDocs
+                # ========================================= CREATE COST ALERT =========================================
+                - task: AzureCLI@2
+                  displayName: "Create Monitor Action Group Name"
+                  name: CreateMonitorActionGroupName
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      $monitorActionGroupName = "$(Tag.TeamName)-cost-alerts-regression"
+                      Write-Host "Monitor Action Group Name: $monitorActionGroupName"
+                      Write-Host "##vso[task.setvariable variable=monitorActionGroupName;isOutput=true]$monitorActionGroupName"
+                - task: AzureCLI@2
+                  displayName: "Create Monitor Action Group"
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Monitor-Action-Group.ps1"
+                    arguments: "-MonitorAlertActionGroupName '$(CreateMonitorActionGroupName.monitorActionGroupName)' -MonitorAlertActionResourceGroupName '$(MonitorAlertActionResourceGroupName)' -AlertAction $(AlertAction)"
+                - task: AzureCLI@2
+                  displayName: "Get Monitor Action Group Id"
+                  name: GetMonitorActionGroupId
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Get-Monitor-Action-Group-Id-for-Pipeline.ps1"
+                    arguments: "-MonitorActionGroupName '$(CreateMonitorActionGroupName.monitorActionGroupName)' -MonitorActionResourceGroupName '$(MonitorAlertActionResourceGroupName)'"
+                - task: AzureCLI@2
+                  displayName: "Create Budget name"
+                  name: CreateBudgetName
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      $budgetName = "$(Tag.TeamName)-budget"
+                      Write-Host "BudgetName: $budgetName"
+                      Write-Host "##vso[task.setvariable variable=budgetName;isOutput=true]$budgetName"
+                - task: AzureCLI@2
+                  displayName: "Create Actual Cost Alert"
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Cost-Alert.ps1"
+                    arguments: "-BudgetName '$(CreateBudgetName.budgetName)-actual-regression' -BudgetAmount $(BudgetAmount) -AlertContactActionGroups @('$(GetMonitorActionGroupId.MonitorActionGroupId)') -FilterOnTagName 'teamname' -FilterOnTagValue '$(Tag.TeamName)' -AlertThresholdType 'Actual' -AlertThreshold 90"
+                - task: AzureCLI@2
+                  displayName: "Create Forecasted Cost Alert"
+                  condition: and(succeeded(), eq(variables['ResourceCreation.CostManagement.Alert.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Monitor/Create-Cost-Alert.ps1"
+                    arguments: "-BudgetName '$(CreateBudgetName.budgetName)-forecasted-regression' -BudgetAmount $(BudgetAmount) -AlertContactActionGroups @('$(GetMonitorActionGroupId.MonitorActionGroupId)') -FilterOnTagName 'teamname' -FilterOnTagValue '$(Tag.TeamName)' -AlertThresholdType 'Forecasted' -AlertThreshold 110"
+
   - stage: delete
     displayName: ${{ format('Delete RG from {0}', parameters.EnvironmentName) }}
     pool:

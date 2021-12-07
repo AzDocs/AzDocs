@@ -44,6 +44,9 @@ parameters:
   - name: ResourceCreation.CostManagement.Dashboard.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.CostManagement.Alert.Enabled
+    type: boolean
+    default: true
   - name: ResourceCreation.Networking.Enabled
     type: boolean
     default: true
@@ -153,6 +156,8 @@ variables:
     value: ${{ parameters['ResourceDeletion.ResourceGroup.Enabled'] }}
   - name: ResourceCreation.CostManagement.Dashboard.Enabled
     value: ${{ parameters['ResourceCreation.CostManagement.Dashboard.Enabled'] }}
+  - name: ResourceCreation.CostManagement.Alert.Enabled
+    value: ${{ parameters['ResourceCreation.CostManagement.Alert.Enabled'] }}
 
   # Stage Pool
   - name: Stage.Pool
