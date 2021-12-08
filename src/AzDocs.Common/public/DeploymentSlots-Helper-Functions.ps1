@@ -36,7 +36,8 @@ function New-DeploymentSlot
         [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
 
         # Disable diagnostic settings
-        [Parameter()][switch] $DiagnosticSettingsDisabled
+        [Parameter()][switch] $DiagnosticSettingsDisabled,
+        [Parameter()][switch] $DisableCORSPortalTestUrls
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -63,6 +64,16 @@ function New-DeploymentSlot
     Invoke-Executable az $Apptype identity assign --ids $resourceSlotId --slot $ResourceDeploymentSlotName
     
     Set-ConfigurationForResource -AppType $AppType -ResourceSlotId $resourceSlotId -ResourceResourceGroupName $ResourceResourceGroupName -ResourceDeploymentSlotName $ResourceDeploymentSlotName -ResourceName $ResourceName
+
+    # Set default cors settings
+    if (!$DisableCORSPortalTestUrls)
+    {
+        $defaultCorsUrls = Get-DefaultCorsSettings -AppType $AppType
+        if ($defaultCorsUrls)
+        {
+            Set-CorsSettings -AppType $AppType -CORSUrls $defaultCorsUrls -ResourceId $resourceSlotId -ResourceDeploymentSlotName $ResourceDeploymentSlotName
+        }
+    }
 
     # Set Diagnostic Settings
     if ($DiagnosticSettingsDisabled)
@@ -173,6 +184,79 @@ function Set-ConfigurationForResource
             # Enforce HTTPS
             Invoke-Executable az functionapp update --ids $ResourceSlotId --set httpsOnly=true
             Invoke-Executable az functionapp config appsettings set --ids $ResourceSlotId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
+        }
+    }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+function Get-DefaultCorsSettings
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] [ValidateSet('functionapp', 'webapp')]$AppType
+    )
+
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $CORSUrls = @()
+    switch ($AppType)
+    {
+        # At this moment, there are no default cors settings that need to be set for webapps. Built in the functionality for future use.
+        'functionapp'
+        {
+            $CORSUrls += 'https://functions.azure.com'
+            $CORSUrls += 'https://functions-staging.azure.com'
+            $CORSUrls += 'https://functions-next.azure.com'
+        }
+    }
+
+    Write-Output $CORSUrls
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
+}
+
+function Set-CorsSettings
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][string] [ValidateSet('functionapp', 'webapp')]$AppType,
+        [Parameter(Mandatory)][string[]] $CORSUrls,
+        [Parameter(Mandatory)][string] $ResourceId,
+        [Parameter()][string] $ResourceDeploymentSlotName
+    )
+    
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
+    $optionalParameters = @()
+    if ($ResourceDeploymentSlotName)
+    {
+        $optionalParameters += "--slot", "$ResourceDeploymentSlotName"
+    }
+
+    $currentCorsSettings = Invoke-Executable az $AppType cors show --ids $ResourceId @optionalParameters | ConvertFrom-Json
+
+    [string[]]$currentCorsOrigins = @()
+    if ($currentCorsSettings -and $currentCorsSettings.allowedOrigins)
+    {
+        $currentCorsOrigins = $currentCorsSettings.allowedOrigins
+    }
+
+    Compare-Object -ReferenceObject $currentCorsOrigins -DifferenceObject $CORSUrls | ForEach-Object {
+        $value = $_.InputObject
+        $sideIndicator = $_.SideIndicator
+        switch ($sideIndicator)
+        {
+            '=>'
+            { 
+                Write-Host "Adding CORS URL $value"
+                Invoke-Executable az $AppType cors add --ids $ResourceId --allowed-origins $value @optionalParameters
+            }
+            '<='
+            {
+                Write-Host "Removing CORS URL $value"
+                Invoke-Executable az $AppType cors remove --ids $ResourceId --allowed-origins $value @optionalParameters
+            }
         }
     }
 

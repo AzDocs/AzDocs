@@ -138,38 +138,13 @@ else
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az functionapp identity assign --ids $functionAppId
 
-# set CORS settings, Does not work with deployment slots https://github.com/Azure/azure-cli/issues/20385
+# Set CORS settings
 if (!$DisableCORSPortalTestUrls)
 {
-    $CORSUrls += 'https://functions.azure.com'
-    $CORSUrls += 'https://functions-staging.azure.com'
-    $CORSUrls += 'https://functions-next.azure.com'
-}
-
-$currentCorsSettings = Invoke-Executable az functionapp cors show --ids $functionAppId | ConvertFrom-Json
-
-[string[]]$currentCorsOrigins = @()
-if ($currentCorsSettings -and $currentCorsSettings.allowedOrigins)
-{
-    $currentCorsOrigins = $currentCorsSettings.allowedOrigins
-}
-
-Compare-Object -ReferenceObject $currentCorsOrigins -DifferenceObject $CORSUrls | ForEach-Object {
-    $value = $_.InputObject
-    $sideIndicator = $_.SideIndicator
-    switch ($sideIndicator)
+    $CORSUrls = Get-DefaultCorsSettings -AppType 'functionapp'
+    if ($CORSUrls)
     {
-        '=>'
-        { 
-            
-            Write-Host "Adding CORS URL $value"
-            Invoke-Executable az functionapp cors add --ids $functionAppId --allowed-origins $value
-        }
-        '<='
-        {
-            Write-Host "Removing CORS URL $value"
-            Invoke-Executable az functionapp cors remove --ids $functionAppId --allowed-origins $value
-        }
+        Set-CorsSettings -AppType 'functionapp' -CORSUrls $CORSUrls -ResourceId $functionAppId
     }
 }
 
@@ -202,6 +177,7 @@ if ($EnableFunctionAppDeploymentSlot)
         DiagnosticSettingsLogs                       = $DiagnosticSettingsLogs;
         DiagnosticSettingsMetrics                    = $DiagnosticSettingsMetrics;
         DiagnosticSettingsDisabled                   = $DiagnosticSettingsDisabled;
+        DisableCORSPortalTestUrls                    = $DisableCORSPortalTestUrls;
     }
 
     New-DeploymentSlot @parametersForDeploymentSlot
