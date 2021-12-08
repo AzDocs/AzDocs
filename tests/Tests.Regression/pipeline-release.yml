@@ -719,7 +719,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= RESOURCEGROUP =========================================
@@ -752,7 +752,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= LOG ANALYTICS WORKSPACE =========================================
@@ -826,7 +826,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= NETWORKING =========================================
@@ -892,7 +892,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APP SERVICE =========================================
@@ -934,7 +934,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APP CONFIG =========================================
@@ -978,7 +978,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APP CONFIG =========================================
@@ -1023,7 +1023,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APP SERVICE =========================================
@@ -1085,7 +1085,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APP SERVICE =========================================
@@ -1146,7 +1146,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APP SERVICE =========================================
@@ -1207,7 +1207,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= KEYVAULT =========================================
@@ -1265,7 +1265,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= KEYVAULT =========================================
@@ -1299,7 +1299,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= KEYVAULT =========================================
@@ -1334,7 +1334,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APPLICATION GATEWAY =========================================
@@ -1368,7 +1368,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SQL SERVER =========================================
@@ -1418,7 +1418,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SQL SERVER =========================================
@@ -1460,7 +1460,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SQL SERVER =========================================
@@ -1502,7 +1502,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= MYSQL SERVER =========================================
@@ -1552,7 +1552,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= MYSQL SERVER =========================================
@@ -1594,7 +1594,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= MYSQL SERVER =========================================
@@ -1636,7 +1636,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= POSTGRESQL =========================================
@@ -1686,7 +1686,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= POSTGRESQL =========================================
@@ -1728,7 +1728,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= POSTGRESQL =========================================
@@ -1770,7 +1770,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= COSMOSDB CASSANDRA =========================================
@@ -1820,7 +1820,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= COSMOSDB CASSANDRA =========================================
@@ -1870,7 +1870,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= COSMOSDB CASSANDRA =========================================
@@ -1920,7 +1920,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= REDIS CACHE =========================================
@@ -1954,7 +1954,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= REDIS CACHE =========================================
@@ -1988,7 +1988,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= STORAGE ACCOUNTS =========================================
@@ -2063,7 +2063,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= STORAGE ACCOUNTS =========================================
@@ -2106,7 +2106,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= STORAGE ACCOUNTS =========================================
@@ -2204,7 +2204,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= Functions =========================================
@@ -2267,7 +2267,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= Functions =========================================
@@ -2330,7 +2330,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= Functions =========================================
@@ -2399,7 +2399,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APP SERVICE POST-CREATION CONFIGURATION =========================================
@@ -2540,7 +2540,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APP SERVICE POST-CREATION CONFIGURATION =========================================
@@ -2705,7 +2705,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= CONTAINER REGISTRY =========================================
@@ -2748,7 +2748,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= CONTAINER REGISTRY =========================================
@@ -2791,7 +2791,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= CONTAINER REGISTRY =========================================
@@ -2835,7 +2835,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= CONTAINER INSTANCE =========================================
@@ -2870,7 +2870,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= CONTAINER INSTANCE =========================================
@@ -2904,7 +2904,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SERVICE BUS =========================================
@@ -2938,7 +2938,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SERVICE BUS =========================================
@@ -2972,7 +2972,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SERVICE BUS =========================================
@@ -3083,7 +3083,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= RUN PLAYWRIGHT TESTS =========================================
@@ -3184,7 +3184,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SWAP APPSERVICE SLOTS =========================================
@@ -3226,7 +3226,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SWAP APPSERVICE SLOTS =========================================
@@ -3268,7 +3268,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APPLICATION GATEWAY =========================================
@@ -3309,7 +3309,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= MONITOR ACTION GROUP =========================================
@@ -3362,7 +3362,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= MONITOR ACTION GROUP =========================================
@@ -3415,7 +3415,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= MONITOR ACTION GROUP =========================================
@@ -3465,7 +3465,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 - task: DownloadPipelineArtifact@2
@@ -3476,7 +3476,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-templates
                     targetPath: $(Pipeline.Workspace)/AzDocs/Templates
                 # ========================================= CREATE DASHBOARD =========================================
@@ -3574,7 +3574,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= CREATE COST ALERT =========================================
@@ -3671,7 +3671,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= DELETE RESOURCEGROUP =========================================
@@ -3702,7 +3702,7 @@ stages:
                     project: $(AzDocsTeamProjectId)
                     definition: $(AzDocsBuildDefinitionId)
                     buildVersionToDownload: latestFromBranch
-                    branchName: $(Build.SourceBranch)
+                    branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= DELETE COST ALERT =========================================

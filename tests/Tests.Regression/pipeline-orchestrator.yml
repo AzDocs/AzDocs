@@ -32,6 +32,9 @@
 ##############################################################################################################################################################################################################################
 
 parameters:
+  - name: AzDocs.SourceBranch
+    type: string
+    default: "refs/heads/master"
   - name: ResourceCreation.ResourceGroup.Enabled
     type: boolean
     default: true
@@ -163,6 +166,8 @@ variables:
     value: ${{ parameters['ResourceCreation.CostManagement.Alert.Enabled'] }}
   - name: ResourceDeletion.CostManagement.Alert.Enabled
     value: ${{ parameters['ResourceDeletion.CostManagement.Alert.Enabled'] }}
+  - name: AzDocs.SourceBranch
+    value: ${{ parameters['AzDocs.SourceBranch'] }}
 
   # Stage Pool
   - name: Stage.Pool
