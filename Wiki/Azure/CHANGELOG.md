@@ -10,7 +10,8 @@ All notable changes to this project will be documented in this file.
 
 ## Breaking Changes
 
-- Changed the default route all traffic throught vnet behaviour for Application service with vnet integration(`Add-VNet-integration-to-Function-App.ps1`). The `RouteAllTrafficThroughVnet` is set to `false` now.
+- Changed the default route all traffic throught vnet behaviour for Application service with vnet integration(`Add-VNet-integration-to-AppService.ps1`). The `RouteAllTrafficThroughVnet` is set to `false` now.
+- Changed the default route all traffic throught vnet behaviour for Function app with vnet integration(`Add-VNet-integration-to-Function-App.ps1`). The `RouteAllTrafficThroughVnet` is set to `false` now.
 
 ## [2021.12.07]
 
