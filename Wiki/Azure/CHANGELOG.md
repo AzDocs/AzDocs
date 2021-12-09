@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.12.09]
+
+## Added
+
+- Added script `Set-Tags-For-Resources.ps1`.
+
 ## [2021.12.08]
 
 ## Updated
