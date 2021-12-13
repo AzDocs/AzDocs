@@ -183,8 +183,21 @@ if ($GrantSqlServerManagedIdentityDirectoryReadersRole -and $GrantSqlServerManag
     Add-MemberToAADRole -PrincipalId $sqlServerManagedIdentityPrincipalId -RoleName 'Directory Readers'
 }
 
+$retryCheckDbCount = 5;
 if ($LogAnalyticsWorkspaceResourceId)
 {
+    # Check if the master database has already been created
+    $master = Invoke-Executable -AllowToFail az sql db show --name 'master' --resource-group $SqlServerResourceGroupName --server $SqlServerName | ConvertFrom-Json
+    $retryCount = 0;
+    while (!$master -and $retryCount -lt $retryCheckDbCount)
+    {
+        Write-Host "The master database does not exist yet. Rechecking.."
+        Start-Sleep -Seconds 10
+        
+        $retryCount++
+        $master = Invoke-Executable -AllowToFail az sql db show --name 'master' --resource-group $SqlServerResourceGroupName --server $SqlServerName | ConvertFrom-Json
+    }
+
     # Set auditing policy on SQL server
     Invoke-Executable az sql server audit-policy update --resource-group $SqlServerResourceGroupName --name $SqlServerName --state Enabled --lats Enabled --lawri $LogAnalyticsWorkspaceResourceId
 }
