@@ -23,13 +23,16 @@ if ($ApplyToAllSlots)
     $availableSlots = Invoke-Executable -AllowToFail az functionapp deployment slot list --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json
 }
 
+#fetching the Identifier of the Vnet and subnet
+$vnetsubnetIdentifier = Get-VnetSubnetIdentifiers -VnetName $FunctionAppVnetIntegrationVnetName -SubnetName $FunctionAppVnetIntegrationSubnetName
+
 # Set VNET Integration on the main given slot (normally production)
-Add-VnetIntegration -AppType 'functionapp' -AppResourceGroupName $FunctionAppResourceGroupName -AppName $FunctionAppName -AppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -AppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -AppSlotName $FunctionAppServiceDeploymentSlotName -RouteAllTrafficThroughVnet:$RouteAllTrafficThroughVnet
+Add-VnetIntegration -AppType 'functionapp' -AppResourceGroupName $FunctionAppResourceGroupName -AppName $FunctionAppName -AppVnetIntegrationVnetIdentifier $vnetsubnetIdentifier.VnetIdentifier -AppVnetIntegrationSubnetIdentifier $vnetsubnetIdentifier.SubnetIdentifier -AppSlotName $FunctionAppServiceDeploymentSlotName -RouteAllTrafficThroughVnet:$RouteAllTrafficThroughVnet
 
 # Apply to all slots if desired
 foreach ($availableSlot in $availableSlots)
 {
-    Add-VnetIntegration -AppType 'functionapp' -AppResourceGroupName $FunctionAppResourceGroupName -AppName $FunctionAppName -AppVnetIntegrationVnetName $FunctionAppVnetIntegrationVnetName -AppVnetIntegrationSubnetName $FunctionAppVnetIntegrationSubnetName -AppSlotName $availableSlot.name -RouteAllTrafficThroughVnet:$RouteAllTrafficThroughVnet
+    Add-VnetIntegration -AppType 'functionapp' -AppResourceGroupName $FunctionAppResourceGroupName -AppName $FunctionAppName -AppVnetIntegrationVnetIdentifier $vnetsubnetIdentifier.VnetIdentifier -AppVnetIntegrationSubnetIdentifier $vnetsubnetIdentifier.SubnetIdentifier -AppSlotName $availableSlot.name -RouteAllTrafficThroughVnet:$RouteAllTrafficThroughVnet
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
