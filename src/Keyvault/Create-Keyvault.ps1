@@ -3,7 +3,7 @@ param (
     [Parameter(Mandatory)][string] $KeyvaultName,
     [Parameter(Mandatory)][string] $KeyvaultResourceGroupName,
     [Parameter()][System.Object[]] $ResourceTags,
-    [Alias("LogAnalyticsWorkspaceName")]
+    [Alias('LogAnalyticsWorkspaceName')]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
 
     # VNET Whitelisting
@@ -12,16 +12,16 @@ param (
     [Parameter()][string] $ApplicationSubnetName,
 
     # Private Endpoint
-    [Alias("VnetResourceGroupName")]
+    [Alias('VnetResourceGroupName')]
     [Parameter()][string] $KeyvaultPrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
+    [Alias('VnetName')]
     [Parameter()][string] $KeyvaultPrivateEndpointVnetName,
     [Parameter()][string] $KeyvaultPrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $KeyvaultPrivateDnsZoneName = "privatelink.vaultcore.azure.net",
+    [Alias('PrivateDnsZoneName')]
+    [Parameter()][string] $KeyvaultPrivateDnsZoneName = 'privatelink.vaultcore.azure.net',
     [Parameter()][bool] $KeyvaultPurgeProtectionEnabled = $true,
-    [Parameter()][string][ValidateSet("Premium", "Standard")] $KeyvaultSku = "Standard",
+    [Parameter()][string][ValidateSet('Premium', 'Standard')] $KeyvaultSku = 'Standard',
     [Parameter()][int][ValidateRange(7, 90)] $KeyvaultRetentionInDays = 90,
 
     # Forcefully agree to this resource to be spun up to be publicly available
@@ -75,17 +75,26 @@ if (!$keyvaultExists)
         # Check if the keyvault is in the same resource-group 
         if ($softDeletedKeyvault.properties.vaultId -Match $KeyvaultResourceGroupName)
         {
-            Write-Host "Found soft-deleted keyvault. Recovering.."
+            Write-Host 'Found soft-deleted keyvault. Recovering..'
             Invoke-Executable az keyvault recover --name $KeyvaultName
         }
         else
         {
-            throw "The vaultname is globally unique and already exists in a soft-deleted state. Purge the keyvault that is in a soft-deleted state, or pick a different name."
+            throw 'The vaultname is globally unique and already exists in a soft-deleted state. Purge the keyvault that is in a soft-deleted state, or pick a different name.'
         }
     }
     else
     {
-        Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku $KeyvaultSku --bypass None --tags @ResourceTags @optionalParameters
+        $keyvaultParameters = @()
+        if ($ForcePublic)
+        {
+            $keyvaultParameters += '--default-action', 'Allow'
+        }
+        else
+        {
+            $keyvaultParameters += '--default-action', 'Deny'
+        }
+        Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --sku $KeyvaultSku --bypass None @keyvaultParameters --tags @ResourceTags @optionalParameters
     }
 }
 
@@ -111,7 +120,7 @@ else
 # Private Endpoint
 if ($KeyvaultPrivateEndpointVnetResourceGroupName -and $KeyvaultPrivateEndpointVnetName -and $KeyvaultPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $KeyvaultPrivateDnsZoneName)
 {
-    Write-Host "A private endpoint is desired. Adding the needed components."
+    Write-Host 'A private endpoint is desired. Adding the needed components.'
     # Fetch information
     $vnetId = (Invoke-Executable az network vnet show --resource-group $KeyvaultPrivateEndpointVnetResourceGroupName --name $KeyvaultPrivateEndpointVnetName | ConvertFrom-Json).id
     $keyvaultPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $KeyvaultPrivateEndpointVnetResourceGroupName --name $KeyvaultPrivateEndpointSubnetName --vnet-name $KeyvaultPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -124,7 +133,7 @@ if ($KeyvaultPrivateEndpointVnetResourceGroupName -and $KeyvaultPrivateEndpointV
 # VNET Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
-    Write-Host "VNET Whitelisting is desired. Adding the needed components."
+    Write-Host 'VNET Whitelisting is desired. Adding the needed components.'
     
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-Keyvault.ps1" -KeyvaultName $KeyvaultName -KeyvaultResourceGroupName $KeyvaultResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
