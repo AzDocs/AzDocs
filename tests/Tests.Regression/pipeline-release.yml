@@ -1389,13 +1389,22 @@ stages:
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SQL SERVER =========================================
                 - task: AzureCLI@2
+                  displayName: "Get ObjectID for ServiceUser"
+                  name: GetObjectIdServiceUserPublic
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Users-and-Accounts/Get-ObjectID-for-ServiceUser.ps1"
+                    arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)'"
+                - task: AzureCLI@2
                   displayName: "Create SQL Server (Public)"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Server.ps1"
-                    arguments: "-SqlServerPassword '$(SqlServerPassword)' -SqlServerUsername '$(SqlServerUsername)' -SqlServerName '$(PublicSqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -SqlServerMinimalTlsVersion '$(SqlServerMinimalTlsVersion)' -SqlServerEnablePublicNetwork $true -ForcePublic"
+                    arguments: "-SqlServerPassword '$(SqlServerPassword)' -SqlServerUsername '$(SqlServerUsername)' -SqlServerName '$(PublicSqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -SqlServerMinimalTlsVersion '$(SqlServerMinimalTlsVersion)' -SqlServerEnablePublicNetwork $true -ForcePublic -SqlServerAzureAdAdminObjectId '$(GetObjectIdServiceUserPublic.ServiceUserObjectId)' -SqlServerAzureAdAdminDisplayName '$(ServiceUserEmail)'"
                 - task: AzureCLI@2
                   displayName: "Create (Public) SQL Database"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
@@ -1481,13 +1490,22 @@ stages:
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= SQL SERVER =========================================
                 - task: AzureCLI@2
+                  displayName: "Get ObjectID for ServiceUser"
+                  name: GetObjectIdServiceUserWhitelisted
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppService.Enabled'], 'true'))
+                  inputs:
+                    azureSubscription: "${{ parameters.SubscriptionName }}"
+                    scriptType: pscore
+                    scriptPath: "$(Pipeline.Workspace)/AzDocs/Users-and-Accounts/Get-ObjectID-for-ServiceUser.ps1"
+                    arguments: "-ServiceUserEmail '$(ServiceUserEmail)' -ServiceUserPassword '$(ServiceUserPassword)'"
+                - task: AzureCLI@2
                   displayName: "Create SQL Server (VNet Whitelisting)"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/SQL-Server/Create-SQL-Server.ps1"
-                    arguments: "-SqlServerPassword '$(SqlServerPassword)' -SqlServerUsername '$(SqlServerUsername)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -SqlServerMinimalTlsVersion '$(SqlServerMinimalTlsVersion)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+                    arguments: "-SqlServerPassword '$(SqlServerPassword)' -SqlServerUsername '$(SqlServerUsername)' -SqlServerName '$(VNetWhitelistingSqlServerName)' -SqlServerResourceGroupName '$(SqlServerResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -SqlServerMinimalTlsVersion '$(SqlServerMinimalTlsVersion)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)' -SqlServerAzureAdAdminObjectId '$(GetObjectIdServiceUserWhitelisted.ServiceUserObjectId)' -SqlServerAzureAdAdminDisplayName '$(ServiceUserEmail)'"
                 - task: AzureCLI@2
                   displayName: "Create (VNet Whitelisting) SQL Database"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.MSSQL.Enabled'], 'true'))
