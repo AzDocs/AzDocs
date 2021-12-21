@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2021.12.21]
+
+## Added
+
+- Added `Create-Static-Web-App.ps1` for creating Static Web apps.
+
 ## [2021.12.09]
 
 ## Added
