@@ -14,14 +14,15 @@ function Invoke-Executable
     param(
         [Parameter(Mandatory)][string] $ExecutableLiteralPath,
         [Parameter(ValueFromRemainingArguments)] $ExecutableArguments,
-        [Parameter()][switch] $AllowToFail
+        [Parameter()][switch] $AllowToFail,
+        [Parameter()][switch] $PreventDebugging
     )
 
     # Saving the LASTEXITCODE for when we enable -AllowToFail to reset the LASTEXITCODE later
     $lastKnownExitCode = $global:LASTEXITCODE
 
     # Make sure to append --debug when using Azure CLI with $env:SYSTEM_DEBUG set to $true
-    if ($ExecutableLiteralPath -eq 'az')
+    if (!$PreventDebugging -and $ExecutableLiteralPath -eq 'az')
     {
         if ($env:SYSTEM_DEBUG -and $env:SYSTEM_DEBUG -eq $true)
         {
