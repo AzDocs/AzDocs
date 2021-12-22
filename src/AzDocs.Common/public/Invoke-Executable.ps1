@@ -20,10 +20,10 @@ function Invoke-Executable
     # Saving the LASTEXITCODE for when we enable -AllowToFail to reset the LASTEXITCODE later
     $lastKnownExitCode = $global:LASTEXITCODE
 
-    # Make sure to append --debug when using Azure CLI with $env:System_Debug set to $true
+    # Make sure to append --debug when using Azure CLI with $env:SYSTEM_DEBUG set to $true
     if ($ExecutableLiteralPath -eq 'az')
     {
-        if ($env:System_Debug -and $env:System_Debug -eq $true)
+        if ($env:SYSTEM_DEBUG -and $env:SYSTEM_DEBUG -eq $true)
         {
             $ExecutableArguments += "--debug"
         }
@@ -42,7 +42,7 @@ function Invoke-Executable
         throw $Error
     }
 
-    if ($env:System_Debug -and $env:System_Debug -eq $true)
+    if ($env:SYSTEM_DEBUG -and $env:SYSTEM_DEBUG -eq $true)
     {
         Write-Host "Returncode: $LASTEXITCODE"
     }
@@ -50,7 +50,7 @@ function Invoke-Executable
     # Restore original $LASTEXITCODE when -AllowToFail is passed
     if ($AllowToFail)
     {
-        if ($env:System_Debug -and $env:System_Debug -eq $true)
+        if ($env:SYSTEM_DEBUG -and $env:SYSTEM_DEBUG -eq $true)
         {
             Write-Host "Overriding LASTEXITCODE to $lastKnownExitCode due to -AllowToFail."
         }
