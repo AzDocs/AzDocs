@@ -15,7 +15,8 @@ function Invoke-Executable
         [Parameter(Mandatory)][string] $ExecutableLiteralPath,
         [Parameter(ValueFromRemainingArguments)] $ExecutableArguments,
         [Parameter()][switch] $AllowToFail,
-        [Parameter()][switch] $PreventDebugging
+        [Parameter()][switch] $PreventDebugging,
+        [Parameter()][switch] $WhatIf 
     )
 
     # Saving the LASTEXITCODE for when we enable -AllowToFail to reset the LASTEXITCODE later
@@ -26,14 +27,21 @@ function Invoke-Executable
     {
         if ($env:SYSTEM_DEBUG -and $env:SYSTEM_DEBUG -eq $true)
         {
-            $ExecutableArguments += "--debug"
+            $ExecutableArguments += '--debug'
         }
+    }
+    if ($WhatIf)
+    {
+        $ExecutableArguments += ' [WHATIF]'
     }
 
     Write-Header -ScopedPSCmdlet $PSCmdlet -OverrideMessage "$ExecutableLiteralPath $ExecutableArguments" -OmitOutputParameters
 
     # Execute the original executable with the original parameters in child scope
-    & $ExecutableLiteralPath $ExecutableArguments
+    if (!$WhatIf)
+    {
+        & $ExecutableLiteralPath $ExecutableArguments
+    }
     # If an error was thrown from the last operation and -AllowToFail is not passed --> Break the pipeline. 
     if (!$AllowToFail -and !$?)
     {
