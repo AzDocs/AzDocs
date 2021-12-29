@@ -743,7 +743,7 @@ stages:
                       -ResourceTags $(ResourceTags)"
                 - task: AzureCLI@2
                   displayName: "Set Tags for Resources"
-                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+                  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.SetTags.Enabled'], 'true'))
                   inputs:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore

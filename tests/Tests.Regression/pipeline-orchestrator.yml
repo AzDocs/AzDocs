@@ -38,6 +38,9 @@ parameters:
   - name: ResourceCreation.ResourceGroup.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.SetTags.Enabled
+    type: boolean
+    default: false
   - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
     type: boolean
     default: true
@@ -122,6 +125,8 @@ variables:
   # Switches
   - name: ResourceCreation.ResourceGroup.Enabled
     value: ${{ parameters['ResourceCreation.ResourceGroup.Enabled'] }}
+  - name: ResourceCreation.SetTags.Enabled
+    value: ${{ parameters['ResourceCreation.SetTags.Enabled'] }}
   - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
     value: ${{ parameters['ResourceCreation.LogAnalyticsWorkspace.Enabled'] }}
   - name: ResourceCreation.AppInsights.Enabled
