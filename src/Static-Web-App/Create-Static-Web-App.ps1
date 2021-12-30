@@ -26,30 +26,36 @@ if ($null -eq $StaticWebAppLocation -or $StaticWebAppLocation -eq '')
     $StaticWebAppLocation = $resourceGroup.Location
     Write-Host "Setting Location to $StaticWebAppLocation"
 }
-
-Write-Host "Creating static web app $StaticWebAppName"
-
-$subscriptionId = (invoke-executable az account show | ConvertFrom-Json).id
-$connectionString = 'https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/staticSites/{name}?api-version=2021-02-01'
-
-$connectionString = $connectionString.Replace('{subscriptionId}', $subscriptionId).Replace('{resourceGroupName}', $StaticWebAppResourceGroupName).Replace('{name}', $StaticWebAppName)
-$body = ([PSCustomObject]@{
-        location   = $StaticWebAppLocation
-        properties = [PSCustomObject]@{
-        }
-        sku        = [PSCustomObject]@{
-            Name = $StaticWebAppSkuName
-            tier = $StaticWebAppSkuName
-        }
-    } | ConvertTo-Json -Compress -Depth 100).Replace('"', '\"')
-
-$staticWebApp = Invoke-Executable az rest --uri $connectionString --body $body --method 'PUT' | ConvertFrom-Json
-if (!$staticWebApp)
+$staticWebApp = Invoke-Executable az staticwebapp list --resource-group $StaticWebAppResourceGroupName | ConvertFrom-Json | Where-Object name -EQ $StaticWebAppName
+if ($staticWebApp)
 {
-    Get-Error
-    throw 'Could not create static webapp'
+    Write-Host "Static web app $StaticWebAppName already exists"
 }
+else
+{
+    Write-Host "Creating static web app $StaticWebAppName"
 
+    $subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
+    $connectionString = 'https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/staticSites/{name}?api-version=2021-02-01'
+
+    $connectionString = $connectionString.Replace('{subscriptionId}', $subscriptionId).Replace('{resourceGroupName}', $StaticWebAppResourceGroupName).Replace('{name}', $StaticWebAppName)
+    $body = ([PSCustomObject]@{
+            location   = $StaticWebAppLocation
+            properties = [PSCustomObject]@{
+            }
+            sku        = [PSCustomObject]@{
+                Name = $StaticWebAppSkuName
+                tier = $StaticWebAppSkuName
+            }
+        } | ConvertTo-Json -Compress -Depth 100).Replace('"', '\"')
+
+    $staticWebApp = Invoke-Executable az rest --uri $connectionString --body $body --method 'PUT' | ConvertFrom-Json
+    if (!$staticWebApp)
+    {
+        Get-Error
+        throw 'Could not create static webapp'
+    }
+}
 
 # Add private endpoint & Setup Private DNS
 if ($StaticWebAppPrivateEndpointVnetResourceGroupName -and $StaticWebAppPrivateEndpointVnetName -and $StaticWebAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $StaticWebAppPrivateDnsZoneName)
@@ -64,5 +70,5 @@ if ($StaticWebAppPrivateEndpointVnetResourceGroupName -and $StaticWebAppPrivateE
     # Add private endpoint & Setup Private DNS
     Add-PrivateEndpoint -PrivateEndpointVnetId $VnetSubnetIdentifiers.VnetIdentifier -PrivateEndpointSubnetId $VnetSubnetIdentifiers.SubnetIdentifier -PrivateEndpointName $StaticWebAppPrivateEndpointName -PrivateEndpointResourceGroupName $StaticWebAppResourceGroupName -TargetResourceId $staticWebApp.id -PrivateEndpointGroupId 'staticSites' -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $StaticWebAppPrivateDnsZoneName -PrivateDnsLinkName "$StaticWebAppName-$abbrStaticWebApp"
 }
-Write-Host "created static web app $StaticWebAppName"
+
 Write-Footer -ScopedPSCmdlet $PSCmdlet
