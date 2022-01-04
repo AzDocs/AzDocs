@@ -123,7 +123,7 @@ $workToDo | Group-Object Resource | ForEach-Object {
     Write-Host "$line" -NoNewline
     Write-Host ']'
 
-    $tags = $work.Group | ForEach-Object { "$($_.Tag)=$($_.Value)" } 
+    [string[]]$tags = $work.Group | ForEach-Object { "$($_.Tag)=$($_.Value)" }
     Invoke-Executable -WhatIf:$WhatIf az tag update --operation 'Merge' --resource-id $work.Name --tags @tags 
 }
 Write-Footer -ScopedPSCmdlet $PSCmdlet
