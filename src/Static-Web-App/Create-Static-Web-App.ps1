@@ -68,7 +68,7 @@ if ($StaticWebAppPrivateEndpointVnetResourceGroupName -and $StaticWebAppPrivateE
     $StaticWebAppPrivateEndpointName = "$StaticWebAppName-pvt$abbrStaticWebApp"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $VnetSubnetIdentifiers.VnetIdentifier -PrivateEndpointSubnetId $VnetSubnetIdentifiers.SubnetIdentifier -PrivateEndpointName $StaticWebAppPrivateEndpointName -PrivateEndpointResourceGroupName $StaticWebAppResourceGroupName -TargetResourceId $staticWebApp.id -PrivateEndpointGroupId 'staticSites' -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $StaticWebAppPrivateDnsZoneName -PrivateDnsLinkName "$StaticWebAppName-$abbrStaticWebApp"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $VnetSubnetIdentifiers.VnetIdentifier -PrivateEndpointSubnetId $VnetSubnetIdentifiers.SubnetIdentifier -PrivateEndpointName $StaticWebAppPrivateEndpointName -PrivateEndpointResourceGroupName $StaticWebAppResourceGroupName -TargetResourceId $staticWebApp.id -PrivateEndpointGroupId 'staticSites' -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $StaticWebAppPrivateDnsZoneName -PrivateDnsLinkName "$StaticWebAppPrivateEndpointVnetName-$abbrStaticWebApp"
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
