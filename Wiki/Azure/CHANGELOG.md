@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.01.10]
+
+- Added documentation and example piplines to the AzDocs for a Dependabot integration with Azure Devops.
+
 ## [2021.12.21]
 
 ## Added
