@@ -66,8 +66,11 @@ function New-DeploymentSlot
     
     Set-ConfigurationForResource -AppType $AppType -ResourceSlotId $resourceSlotId -ResourceResourceGroupName $ResourceResourceGroupName -ResourceDeploymentSlotName $ResourceDeploymentSlotName -ResourceName $ResourceName
 
-    # Set cors settings, please note that CORS settings do not get swapped
-    Set-CorsSettings -AppType $AppType -CORSUrls $CorsUrls -ResourceId $resourceSlotId -ResourceDeploymentSlotName $ResourceDeploymentSlotName
+    # Set cors settings if they're provided, please note that CORS settings do not get swapped
+    if ($CorsUrls)
+    {
+        Set-CorsSettings -AppType $AppType -CORSUrls $CorsUrls -ResourceId $resourceSlotId -ResourceDeploymentSlotName $ResourceDeploymentSlotName
+    }
 
     # Set Diagnostic Settings
     if ($DiagnosticSettingsDisabled)
