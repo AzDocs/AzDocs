@@ -10,7 +10,7 @@ function New-DeploymentSlot
         [Parameter()][System.Object[]] $ResourceTags,
         [Parameter()][string] $ResourceNumberOfInstances = 2,
         [Parameter()][bool] $ResourceAlwaysOn = $true,
-        [Parameter()][string][ValidateSet("1.0", "1.1", "1.2")] $ResourceMinimalTlsVersion = "1.2",
+        [Parameter()][string][ValidateSet('1.0', '1.1', '1.2')] $ResourceMinimalTlsVersion = '1.2',
         [Parameter()][bool] $DisablePublicAccessForResourceDeploymentSlot = $true,
         # Forcefully agree to this resource to be spun up to be publicly available
         [Parameter()][switch] $ForcePublic,
@@ -37,7 +37,8 @@ function New-DeploymentSlot
 
         # Disable diagnostic settings
         [Parameter()][switch] $DiagnosticSettingsDisabled,
-        [Parameter()][switch] $DisableCORSPortalTestUrls
+        
+        [Parameter()][string[]] $CORSUrls = @()
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -65,15 +66,8 @@ function New-DeploymentSlot
     
     Set-ConfigurationForResource -AppType $AppType -ResourceSlotId $resourceSlotId -ResourceResourceGroupName $ResourceResourceGroupName -ResourceDeploymentSlotName $ResourceDeploymentSlotName -ResourceName $ResourceName
 
-    # Set default cors settings
-    if (!$DisableCORSPortalTestUrls)
-    {
-        $defaultCorsUrls = Get-DefaultCorsSettings -AppType $AppType
-        if ($defaultCorsUrls)
-        {
-            Set-CorsSettings -AppType $AppType -CORSUrls $defaultCorsUrls -ResourceId $resourceSlotId -ResourceDeploymentSlotName $ResourceDeploymentSlotName
-        }
-    }
+    # Set cors settings, please note that CORS settings do not get swapped
+    Set-CorsSettings -AppType $AppType -CORSUrls $CorsUrls -ResourceId $resourceSlotId -ResourceDeploymentSlotName $ResourceDeploymentSlotName
 
     # Set Diagnostic Settings
     if ($DiagnosticSettingsDisabled)
@@ -94,7 +88,7 @@ function New-DeploymentSlot
     # VNET Whitelisting
     if (!$ResourceDisableVNetWhitelisting -and $GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
     {
-        Write-Host "VNET Whitelisting is desired. Adding the needed components."
+        Write-Host 'VNET Whitelisting is desired. Adding the needed components.'
         $RootPath = (Get-Item $PSScriptRoot).Parent.Parent
         switch ($AppType)
         {
@@ -107,7 +101,7 @@ function New-DeploymentSlot
     if (!$ResourceDisablePrivateEndpoints -and $ResourcePrivateEndpointVnetResourceGroupName -and $ResourcePrivateEndpointVnetName -and $ResourcePrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $ResourcePrivateDnsZoneName)
     {
         # Fetch needed information
-        Write-Host "A private endpoint is desired. Adding the needed components."
+        Write-Host 'A private endpoint is desired. Adding the needed components.'
         $vnetId = (Invoke-Executable az network vnet show --resource-group $ResourcePrivateEndpointVnetResourceGroupName --name $ResourcePrivateEndpointVnetName | ConvertFrom-Json).id
         $resourcePrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ResourcePrivateEndpointVnetResourceGroupName --name $ResourcePrivateEndpointSubnetName --vnet-name $ResourcePrivateEndpointVnetName | ConvertFrom-Json).id
         $resourcePrivateEndpointName = Get-PrivateEndpointNameForResource -AppType $AppType -ResourceName $ResourceName -ResourceDeploymentSlotName $ResourceDeploymentSlotName
@@ -120,7 +114,7 @@ function New-DeploymentSlot
     # Disable public acces, if it's not public
     if (!$ForcePublic -and $DisablePublicAccessForResourceDeploymentSlot)
     {
-        Write-Host "Disabling public access on the deployment slot."
+        Write-Host 'Disabling public access on the deployment slot.'
 
         $accessRestrictionRuleName = 'DisablePublicAccess'
         $cidr = '0.0.0.0/0'
@@ -231,7 +225,7 @@ function Set-CorsSettings
     $optionalParameters = @()
     if ($ResourceDeploymentSlotName)
     {
-        $optionalParameters += "--slot", "$ResourceDeploymentSlotName"
+        $optionalParameters += '--slot', "$ResourceDeploymentSlotName"
     }
 
     $currentCorsSettings = Invoke-Executable az $AppType cors show --ids $ResourceId @optionalParameters | ConvertFrom-Json

@@ -138,15 +138,14 @@ else
 # Create & Assign WebApp identity to AppService
 Invoke-Executable az functionapp identity assign --ids $functionAppId
 
-# Set CORS settings
+# Set CORS settings, please note that CORS settings do not get swapped
 if (!$DisableCORSPortalTestUrls)
 {
-    $CORSUrls = Get-DefaultCorsSettings -AppType 'functionapp'
-    if ($CORSUrls)
-    {
-        Set-CorsSettings -AppType 'functionapp' -CORSUrls $CORSUrls -ResourceId $functionAppId
-    }
+    $CORSUrls += Get-DefaultCorsSettings -AppType 'functionapp'
 }
+
+Set-CorsSettings -AppType 'functionapp' -CORSUrls $CORSUrls -ResourceId $functionAppId
+
 
 # Create Deployment Slot
 if ($EnableFunctionAppDeploymentSlot)
@@ -177,7 +176,7 @@ if ($EnableFunctionAppDeploymentSlot)
         DiagnosticSettingsLogs                       = $DiagnosticSettingsLogs;
         DiagnosticSettingsMetrics                    = $DiagnosticSettingsMetrics;
         DiagnosticSettingsDisabled                   = $DiagnosticSettingsDisabled;
-        DisableCORSPortalTestUrls                    = $DisableCORSPortalTestUrls;
+        CORSUrls                                     = $CORSUrls;
     }
 
     New-DeploymentSlot @parametersForDeploymentSlot
