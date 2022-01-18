@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.01.18]
+
+- Fixed `Create-Cost-Alert.ps1`
+
 ## [2022.01.10]
 
 - Added documentation and example piplines to the AzDocs for a Dependabot integration with Azure Devops.

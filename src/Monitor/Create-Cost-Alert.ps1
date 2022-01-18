@@ -36,14 +36,36 @@ if (!$AlertContactEmails -and !$AlertContactRoles -and !$AlertContactActionGroup
     throw "Please make sure to fill either AlertContactEmails, AlertContactRoles or AlertContactActionGroups."
 }
 
-# Base JSON
-$body = @{ 
+# Define scope (subscription/managementgroup/rg)
+if ($BudgetManagementGroupScope)
+{
+    $scope = "/providers/Microsoft.Management/managementGroups/$($BudgetManagementGroupScope)"
+}
+else
+{
+    $subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
+    $scope = "/subscriptions/$($subscriptionId)"
+
+    if ($BudgetResourceGroupScope)
+    {
+        $scope += "/resourceGroups/$($BudgetResourceGroupScope)"
+    }
+}
+
+Write-Host "The scope for the budget is: $scope"
+
+# Check if the budget already exists
+$url = "https://management.azure.com$($scope)/providers/Microsoft.Consumption/budgets/$($BudgetName)"
+$existingBudget = Invoke-AzRestCall -Method GET -ResourceUrl $url -ApiVersion '2021-10-01' -AllowToFail | ConvertFrom-Json
+
+# Create base JSON
+$body = @{
     properties = @{
         amount     = $BudgetAmount;
         category   = 'Cost';
-        timeGrain  = $BudgetTimeGrain;
+        timeGrain  = $null -ne $existingBudget.properties.timeGrain ? $existingBudget.properties.timeGrain : $BudgetTimeGrain;
         timePeriod = @{
-            startDate = (Get-Date $BudgetStartDate -Format 'yyyy-MM-dd');
+            startDate = $null -ne $existingBudget.properties.timePeriod.startDate ? $existingBudget.properties.timePeriod.startDate : (Get-Date $BudgetStartDate -Format 'yyyy-MM-dd');
             endDate   = (Get-Date $BudgetEndDate -Format 'yyyy-MM-dd');
         }
     }
@@ -60,7 +82,7 @@ $body.properties.notifications += @{
         locale        = 'en-us';
         thresholdType = $AlertThresholdType;
     }
-} 
+}
 
 if ($AlertContactEmails)
 {
@@ -104,23 +126,7 @@ switch ($PSCmdlet.ParameterSetName)
 $body.properties.filter += $filters
 # ========================= END Budgetfilters =========================
 
-# Define scope (subscription/managementgroup/rg)
-if ($BudgetManagementGroupScope)
-{
-    $scope = "/providers/Microsoft.Management/managementGroups/$($BudgetManagementGroupScope)"
-}
-else
-{
-    $subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
-    $scope = "/subscriptions/$($subscriptionId)"
-
-    if ($BudgetResourceGroupScope)
-    {
-        $scope += "/resourceGroups/$($BudgetResourceGroupScope)"
-    }
-}
-
-# Fabricate URL & Do PUT call.
+# Create or update budget
 $url = "https://management.azure.com$($scope)/providers/Microsoft.Consumption/budgets/$($BudgetName)"
 Invoke-AzRestCall -Method PUT -ResourceUrl $url -ApiVersion '2021-10-01' -Body $body
 

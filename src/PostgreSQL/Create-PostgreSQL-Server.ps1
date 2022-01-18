@@ -67,7 +67,7 @@ Assert-TLSVersion -TlsVersion $PostgreSqlServerMinimalTlsVersion -ForceDisableTL
 $resourceGroupLocation = (az group show --name $PostgreSqlServerResourceGroupName | ConvertFrom-Json).location
 Write-Host "Found location $($resourceGroupLocation)"
 
-#endregion Make sure to enable public network access when we are using VNet Whitelisting
+# Make sure to enable public network access when we are using VNet Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName -and $PostgreSqlServerPublicNetworkAccess -eq 'Disabled')
 {
     $PostgreSqlServerPublicNetworkAccess = 'Enabled'

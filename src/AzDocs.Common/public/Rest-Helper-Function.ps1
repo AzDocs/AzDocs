@@ -7,10 +7,9 @@ function Invoke-AzRestCall
         [Parameter()][string] $ResourceId,
         [Parameter()][string] $ResourceUrl,
         [Parameter(Mandatory)][string] $ApiVersion, # Example: "2021-02-01-preview"
-        [Parameter(Mandatory)][PSCustomObject] $Body
+        [Parameter()][PSCustomObject] $Body,
+        [Parameter()][switch] $AllowToFail
     )
-
-    $json = ($Body | ConvertTo-Json -Compress -Depth 100).Replace("""", """""")
 
     if (!$ResourceUrl -and !$ResourceId)
     {
@@ -27,8 +26,16 @@ function Invoke-AzRestCall
     {
         $url = "$($ResourceId)?api-version=$($ApiVersion)"
     }
-
-    Invoke-Executable az rest --method $Method --url $url --body """$json"""
+    
+    if (!$Body)
+    {
+        Invoke-Executable -AllowToFail:$AllowToFail az rest --method $Method --url $url 
+    }
+    else
+    {
+        $json = ($Body | ConvertTo-Json -Compress -Depth 100).Replace("""", """""")
+        Invoke-Executable -AllowToFail:$AllowToFail az rest --method $Method --url $url --body """$json"""
+    }
 }
 
 function Show-RestError

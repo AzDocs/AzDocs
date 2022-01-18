@@ -4,6 +4,8 @@
 
 This snippet will create a cost alert.
 
+The following parameters cannot be updated: `BudgetTimeGrain` and `BudgetStartDate`. If you want to update these values, please remove the existing budget and create a new one.
+
 # Parameters
 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
@@ -51,3 +53,4 @@ Be aware that this YAML example contains all parameters that can be used with th
 [Azure CLI - az account show](https://docs.microsoft.com/en-us/cli/azure/account?view=azure-cli-latest#az_account_show)
 
 [Azure CLI - az rest](https://docs.microsoft.com/en-us/cli/azure/reference-index?view=azure-cli-latest#az_rest)
+[Azure CLI - create/update cost alert](https://docs.microsoft.com/en-us/rest/api/consumption/budgets/create-or-update)
