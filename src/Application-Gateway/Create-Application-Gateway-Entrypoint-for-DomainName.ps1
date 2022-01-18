@@ -13,6 +13,7 @@ param (
     [Alias("SharedServicesKeyvaultName")]
     [Parameter(Mandatory)][string] $CertificateKeyvaultName,
     [Parameter(Mandatory)][string] $BackendDomainname,
+    [Parameter()][string] $HealthProbeDomainName,
     [Alias("HealthProbePath")]
     [Parameter(Mandatory)][string] $HealthProbeUrlPath,
     [Alias("HealthProbeInterval")]
@@ -51,7 +52,7 @@ try
         -CertificateKeyvaultName $CertificateKeyvaultName -CertificatePassword $CertificatePassword -BackendDomainName $BackendDomainname -HealthProbeUrlPath $HealthProbeUrlPath -HealthProbeIntervalInSeconds $HealthProbeIntervalInSeconds `
         -HealthProbeNumberOfTriesBeforeMarkedDown $HealthProbeNumberOfTriesBeforeMarkedDown -HealthProbeTimeoutInSeconds $HealthProbeTimeoutInSeconds -HealthProbeProtocol $HealthProbeProtocol -HttpsSettingsRequestToBackendProtocol $HttpsSettingsRequestToBackendProtocol -HttpsSettingsRequestToBackendPort $HttpsSettingsRequestToBackendPort `
         -HttpsSettingsRequestToBackendCookieAffinity $HttpsSettingsRequestToBackendCookieAffinity -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds -HttpsSettingsRequestToBackendTimeoutInSeconds $HttpsSettingsRequestToBackendTimeoutInSeconds -HealthProbeMatchStatusCodes $HealthProbeMatchStatusCodes `
-        -ApplicationGatewayRuleType $ApplicationGatewayRuleType
+        -ApplicationGatewayRuleType $ApplicationGatewayRuleType -HealthProbeDomainName $HealthProbeDomainName
 }
 catch
 {
