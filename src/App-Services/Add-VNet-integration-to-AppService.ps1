@@ -2,6 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
+    [Parameter()][string] $AppServiceVnetIntegrationVnetResourceGroupName,
     [Alias('VnetName')]
     [Parameter(Mandatory)][string] $AppServiceVnetIntegrationVnetName,
     [Parameter(Mandatory)][string] $AppServiceVnetIntegrationSubnetName,
@@ -20,6 +21,11 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 if ($ApplyToAllSlots -eq $True)
 {
     $availableSlots = Invoke-Executable -AllowToFail az webapp deployment slot list --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json
+}
+
+if (![string]::IsNullOrWhiteSpace($AppServiceVnetIntegrationVnetResourceGroupName))
+{
+    $AppServiceVnetIntegrationVnetName = (Invoke-Executable az network vnet show --resource-group $AppServiceVnetIntegrationVnetResourceGroupName --name $AppServiceVnetIntegrationVnetName | ConvertFrom-Json).id
 }
 
 # Set VNET Integration on the main given slot (normally production)
