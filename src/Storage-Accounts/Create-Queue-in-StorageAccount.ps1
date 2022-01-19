@@ -3,7 +3,13 @@ param (
     [Parameter(Mandatory)][string] $StorageAccountName,
     [Parameter(Mandatory)][string] $QueueName,
     [Parameter(Mandatory)][string] $StorageAccountResourceGroupName,
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    # Diagnostic settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -17,6 +23,13 @@ Invoke-Executable az storage queue create --name $QueueName --account-name $Stor
 
 # Enable diagnostic settings for storage queue
 $storageAccountId = (Invoke-Executable az storage account show --name $StorageAccountName --resource-group $StorageAccountResourceGroupName | ConvertFrom-Json).id 
-Set-DiagnosticSettings -ResourceId "$storageAccountId/queueServices/default" -ResourceName $StorageAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'StorageRead', 'enabled': true }, { 'category': 'StorageWrite', 'enabled': true }, { 'category': 'StorageDelete', 'enabled': true }]".Replace("'", '\"')  -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"') 
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId "$storageAccountId/queueServices/default" -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $StorageAccountName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId "$storageAccountId/queueServices/default" -ResourceName $StorageAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

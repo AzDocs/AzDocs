@@ -13,6 +13,6 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-Invoke-Executable az appconfig kv import --name $AppConfigName --label $Label --source file --path $JsonFilePath --format json --separator $KeyValuePairSeparator --prefix $KeyPrefix --yes
+Invoke-Executable -PreventDebugging az appconfig kv import --name $AppConfigName --label $Label --source file --path $JsonFilePath --format json --separator $KeyValuePairSeparator --prefix $KeyPrefix --yes 
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

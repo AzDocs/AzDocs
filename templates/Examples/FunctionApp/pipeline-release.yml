@@ -23,6 +23,11 @@ parameters:
     default: ""
   - name: GatewayCertificate
     type: string
+  - name: TeamName
+    type: string
+    default: curteamname
+  - name: GatewayCertificate
+    type: string
 
 jobs:
   - deployment:
@@ -92,6 +97,8 @@ jobs:
         value: $True
       - name: FunctionAppRunTime
         value: "dotnet"
+      - name: FunctionAppOSType
+        value: Linux
 
       # Application Insights
       - name: ApplyToAllSlots
@@ -218,8 +225,8 @@ jobs:
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
-                scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App-Linux.ps1"
-                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -LogAnalyticsWorkspaceName '$(GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -EnableFunctionAppDeploymentSlot"
+                scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Create-Function-App.ps1"
+                arguments: "-AppServicePlanName '$(AppServicePlanName)' -AppServicePlanResourceGroupName '$(AppServicePlanResourceGroupName)' -FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppStorageAccountName '$(FunctionAppStorageAccountName)' -LogAnalyticsWorkspaceName '$(GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId)' -FunctionAppAlwaysOn $(FunctionAppAlwaysOn) -FUNCTIONS_EXTENSION_VERSION '$(FUNCTIONS_EXTENSION_VERSION)' -ASPNETCORE_ENVIRONMENT '$(ASPNETCORE_ENVIRONMENT)' -FunctionAppNumberOfInstances '$(FunctionAppNumberOfInstances)' -FunctionAppRuntime '$(FunctionAppRuntime)' -ResourceTags $(ResourceTags) -GatewayVnetResourceGroupName '$(GatewayVnetResourceGroupName)' -GatewayVnetName '$(GatewayVnetName)' -GatewaySubnetName '$(GatewaySubnetName)' -GatewayWhitelistRulePriority '$(GatewayWhitelistRulePriority)' -EnableFunctionAppDeploymentSlot -FunctionAppOSType '$(FunctionAppOSType)'"
             - task: AzureCLI@2
               displayName: "Create AppInsights Resource"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -301,7 +308,7 @@ jobs:
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Remove-Network-Whitelist-from-Function-App.ps1"
                 arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -ApplyToAllSlots $(ApplyToAllSlots)"
             - task: DownloadSecureFile@1
-              name: wildcardpersonalcloud
+              name: wildcardcert
               displayName: "Download wildcard certificate from secure files"
               inputs:
                 secureFile: ${{ parameters.GatewayCertificate }}
@@ -312,4 +319,4 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1"
-                arguments: '-CertificatePath "$(wildcardpersonalcloud.secureFilePath)" -DomainName "$(DomainName)" -Gatewayname "$(GatewayName)" -gatewayType "$(GatewayType)" -sharedServicesKeyvaultName "$(SharedServicesKeyvaultName)" -certificatePassword "$(CertificatePassword)" -backendDomainName "$(BackendDomainName)" -healthProbePath "$(HealthProbePath)" -gatewayruletype "$(GatewayRuleType)" -healthProbeInterval "$(HealthProbeInterval)" -healthProbeThreshold "$(HealthProbeThreshold)" -healthProbeTimeout "$(HealthProbeTimeout)" -healthProbeProtocol "$(HealthProbeProtocol)" -httpsSettingsProtocol "$(HttpsSettingsProtocol)" -httpsSettingsPort "$(HttpsSettingsPort)" -httpsSettingsCookieAffinity "$(HttpsSettingsCookieAffinity)" -httpsSettingsConnectionDrainingTimeout "$(HttpsSettingsConnectionDrainingTimeout)" -httpsSettingsTimeout "$(HttpsSettingsTimeout)" -matchStatusCodes "$(MatchStatusCodes)" -ApplicationGatewayResourceGroupName "$(SharedServicesResourceGroupName)" -CertificateKeyvaultResourceGroupName "$(SharedServicesResourceGroupName)"'
+                arguments: '-CertificatePath "$(wildcardcert.secureFilePath)" -DomainName "$(DomainName)" -Gatewayname "$(GatewayName)" -gatewayType "$(GatewayType)" -sharedServicesKeyvaultName "$(SharedServicesKeyvaultName)" -certificatePassword "$(CertificatePassword)" -backendDomainName "$(BackendDomainName)" -healthProbePath "$(HealthProbePath)" -gatewayruletype "$(GatewayRuleType)" -healthProbeInterval "$(HealthProbeInterval)" -healthProbeThreshold "$(HealthProbeThreshold)" -healthProbeTimeout "$(HealthProbeTimeout)" -healthProbeProtocol "$(HealthProbeProtocol)" -httpsSettingsProtocol "$(HttpsSettingsProtocol)" -httpsSettingsPort "$(HttpsSettingsPort)" -httpsSettingsCookieAffinity "$(HttpsSettingsCookieAffinity)" -httpsSettingsConnectionDrainingTimeout "$(HttpsSettingsConnectionDrainingTimeout)" -httpsSettingsTimeout "$(HttpsSettingsTimeout)" -matchStatusCodes "$(MatchStatusCodes)" -ApplicationGatewayResourceGroupName "$(SharedServicesResourceGroupName)" -CertificateKeyvaultResourceGroupName "$(SharedServicesResourceGroupName)"'

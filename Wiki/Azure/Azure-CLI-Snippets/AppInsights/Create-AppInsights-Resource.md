@@ -13,7 +13,9 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | AppInsightsResourceGroupName | <input type="checkbox" checked>| `MyTeam-AzureTestApi-$(Release.EnvironmentName)` | The name of the Resource Group the AppInsights resource will be created in |
 | AppInsightsLocation | <input type="checkbox" checked> | `West Europe`/`westeurope` | Defines the Azure Location for the App Insights resource to reside in (you can use `az account list-locations -o table` to get a list of locations you can use) |
 | LogAnalyticsWorkspaceResourceId | <input type="checkbox"> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The log analytics workspace that Application Insights can be linked to |
-| DiagnosticSettingLogAnalyticsWorkspaceResourceId | <input type="checkbox" checked> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The Log Analytics Workspace the diagnostic setting will be linked to. |
+| DiagnosticSettingsLogs | <input type="checkbox"> | `@('Requests';'MongoRequests';)` | If you want to enable a specific set of diagnostic settings for the category 'Logs'. By default, all categories for 'Logs' will be enabled. |
+| DiagnosticSettingsMetrics | <input type="checkbox"> | `@('Requests';'MongoRequests';)` | If you want to enable a specific set of diagnostic settings for the category 'Metrics'. By default, all categories for 'Metrics' will be enabled. |
+| DiagnosticSettingsDisabled | <input type="checkbox"> | n.a. | If you don't want to enable any diagnostic settings, you can pass this as a switch witout a value(`-DiagnosticsettingsDisabled`). |
 
 # YAML
 
@@ -27,7 +29,7 @@ Be aware that this YAML example contains all parameters that can be used with th
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
     scriptPath: "$(Pipeline.Workspace)/AzDocs/AppInsights/Create-AppInsights-Resource.ps1"
-    arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(AppInsightsLocation)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DiagnosticSettingLogAnalyticsWorkspaceResourceId '$(DiagnosticSettingLogAnalyticsWorkspaceResourceId)'"
+    arguments: "-AppInsightsName '$(AppInsightsName)' -AppInsightsResourceGroupName '$(AppInsightsResourceGroupName)' -AppInsightsLocation '$(AppInsightsLocation)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DiagnosticSettingsLogs $(DiagnosticSettingsLogs) -DiagnosticSettingsDisabled $(DiagnosticSettingsDisabled)"
 ```
 
 # Code

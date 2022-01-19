@@ -17,18 +17,18 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: "restore"
-      projects: "$(ProjectName)"
+      projects: "$(Build.Repository.LocalPath)/**/*.csproj"
       feedsToUse: "select"
       vstsFeed: "vstsfeedid"
   - task: DotNetCoreCLI@2
     inputs:
       command: "test"
-      projects: '\TestApi\TestApiTests.csproj'
+      projects: '$(Build.Repository.LocalPath)/**/*Tests.csproj'
   - task: DotNetCoreCLI@2
     inputs:
       command: "publish"
       publishWebProjects: false
-      projects: "$(ProjectName)"
+      projects: "$(Build.Repository.LocalPath)/**/*.csproj"
       arguments: '-c $(BuildConfiguration) -o "$(Build.ArtifactStagingDirectory)/website" --no-restore'
       modifyOutputPath: false
   - task: PublishBuildArtifacts@1

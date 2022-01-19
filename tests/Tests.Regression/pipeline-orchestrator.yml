@@ -32,13 +32,25 @@
 ##############################################################################################################################################################################################################################
 
 parameters:
+  - name: AzDocs.SourceBranch
+    type: string
+    default: "refs/heads/master"
   - name: ResourceCreation.ResourceGroup.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.SetTags.Enabled
+    type: boolean
+    default: false
   - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
     type: boolean
     default: true
   - name: ResourceCreation.AppInsights.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.CostManagement.Dashboard.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.CostManagement.Alert.Enabled
     type: boolean
     default: true
   - name: ResourceCreation.Networking.Enabled
@@ -91,7 +103,10 @@ parameters:
     default: true
   - name: ResourceDeletion.ResourceGroup.Enabled
     type: boolean
-    default: true
+    default: false
+  - name: ResourceDeletion.CostManagement.Alert.Enabled
+    type: boolean
+    default: false
 
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
@@ -110,6 +125,8 @@ variables:
   # Switches
   - name: ResourceCreation.ResourceGroup.Enabled
     value: ${{ parameters['ResourceCreation.ResourceGroup.Enabled'] }}
+  - name: ResourceCreation.SetTags.Enabled
+    value: ${{ parameters['ResourceCreation.SetTags.Enabled'] }}
   - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
     value: ${{ parameters['ResourceCreation.LogAnalyticsWorkspace.Enabled'] }}
   - name: ResourceCreation.AppInsights.Enabled
@@ -148,6 +165,14 @@ variables:
     value: ${{ parameters['ResourceCreation.AppMonitoring.Enabled'] }}
   - name: ResourceDeletion.ResourceGroup.Enabled
     value: ${{ parameters['ResourceDeletion.ResourceGroup.Enabled'] }}
+  - name: ResourceCreation.CostManagement.Dashboard.Enabled
+    value: ${{ parameters['ResourceCreation.CostManagement.Dashboard.Enabled'] }}
+  - name: ResourceCreation.CostManagement.Alert.Enabled
+    value: ${{ parameters['ResourceCreation.CostManagement.Alert.Enabled'] }}
+  - name: ResourceDeletion.CostManagement.Alert.Enabled
+    value: ${{ parameters['ResourceDeletion.CostManagement.Alert.Enabled'] }}
+  - name: AzDocs.SourceBranch
+    value: ${{ parameters['AzDocs.SourceBranch'] }}
 
   # Stage Pool
   - name: Stage.Pool

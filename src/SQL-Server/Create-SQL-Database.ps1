@@ -13,10 +13,15 @@ param (
     [Parameter()][ValidateSet('', 'Local', 'Zone', 'Geo')][string] $SqlDatabaseBackupStorageRedundancy,
     [Parameter()][string] $SqlDatabaseMaxStorageSize,
     [Parameter()][string] $SqlServerElasticPoolName,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags, 
+    [Parameter()][System.Object[]] $ResourceTags, 
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter()][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -68,13 +73,22 @@ if ($SqlServerElasticPoolName)
 }
 
 # Create SQL database
-$sqlDatabaseId = (Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags @ResourceTags @additionalParameters | ConvertFrom-Json).id
+$sqlDatabaseId = (Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName  @additionalParameters | ConvertFrom-Json).id
 
 # Set resource tags
-Set-ResourceTagsForResource -ResourceId $sqlDatabaseId -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $sqlDatabaseId -ResourceTags ${ResourceTags}
+}
 
 # Add diagnostic settings to SQL database
-$sqlDiagnosticSettingLogs = "[{ 'category': 'SQLInsights', 'enabled': true }, { 'category': 'AutomaticTuning', 'enabled': true }, { 'category': 'QueryStoreRuntimeStatistics', 'enabled': true }, { 'category': 'QueryStoreWaitStatistics', 'enabled': true }, { 'category': 'Errors', 'enabled': true }, { 'category': 'DatabaseWaitStatistics', 'enabled': true },  { 'category': 'Timeouts', 'enabled': true }, { 'category': 'Blocks', 'enabled': true }, { 'category': 'Deadlocks', 'enabled': true }]"
-Set-DiagnosticSettings -ResourceId $sqlDatabaseId -ResourceName $SqlDatabaseName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs $sqlDiagnosticSettingLogs.Replace("'", '\"') -Metrics "[ { 'category': 'Basic', 'enabled': true }, { 'category': 'InstanceAndAppAdvanced', 'enabled': true }, { 'category': 'WorkloadManagement', 'enabled': true } ]".Replace("'", '\"')
+if ($LogAnalyticsWorkspaceResourceId -and $DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $sqlDatabaseId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $SqlDatabaseName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $sqlDatabaseId -ResourceName $SqlDatabaseName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
