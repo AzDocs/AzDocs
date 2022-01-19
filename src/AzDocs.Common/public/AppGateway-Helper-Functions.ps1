@@ -915,6 +915,7 @@ function New-ApplicationGatewayEntrypoint
         [Parameter(Mandatory)][string] $CertificateKeyvaultName,
         [Parameter(Mandatory)][string] $BackendDomainName,
         [Parameter(Mandatory)][string] $HealthProbeUrlPath,
+        [Parameter()][string] $HealthProbeDomainName,
         [Parameter()][int] $HealthProbeIntervalInSeconds = 60,
         [Parameter()][int] $HealthProbeNumberOfTriesBeforeMarkedDown = 2,
         [Parameter()][int] $HealthProbeTimeoutInSeconds = 20,
@@ -1065,12 +1066,26 @@ function New-ApplicationGatewayEntrypoint
 
     # Create Health Probe
     Write-Host "Creating healthprobe"
-    Invoke-Executable az network application-gateway probe create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsprobe" --path $HealthProbeUrlPath --protocol $HealthProbeProtocol --host-name-from-http-settings true --match-status-codes $HealthProbeMatchStatusCodes --interval $HealthProbeIntervalInSeconds --timeout $HealthProbeTimeoutInSeconds --threshold $HealthProbeNumberOfTriesBeforeMarkedDown --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+    if ([string]::IsNullOrWhiteSpace($HealthProbeDomainName))
+    {
+        Invoke-Executable az network application-gateway probe create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsprobe" --path $HealthProbeUrlPath --protocol $HealthProbeProtocol --host-name-from-http-settings true --match-status-codes $HealthProbeMatchStatusCodes --interval $HealthProbeIntervalInSeconds --timeout $HealthProbeTimeoutInSeconds --threshold $HealthProbeNumberOfTriesBeforeMarkedDown --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+    }
+    else
+    {
+        Invoke-Executable az network application-gateway probe create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpsprobe" --path $HealthProbeUrlPath --protocol $HealthProbeProtocol --host-name-from-http-settings false --host $HealthProbeDomainName --match-status-codes $HealthProbeMatchStatusCodes --interval $HealthProbeIntervalInSeconds --timeout $HealthProbeTimeoutInSeconds --threshold $HealthProbeNumberOfTriesBeforeMarkedDown --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+    }
     Write-Host "Created healthprobe"
 
     # Create HTTP settings
     Write-Host "Creating HTTP settings"
-    Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --host-name-from-backend-pool $true --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+    if (!$IngressDomainName.StartsWith("*"))
+    {
+        Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --host-name-from-backend-pool $true --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+    }
+    else
+    {
+        Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --host-name-from-backend-pool $false --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+    }
     Write-Host "Created HTTP settings"
 
     # Get the id of the SSL certificate available for the Applicaton Gateway to use in the next step for creating the listener
@@ -1080,7 +1095,7 @@ function New-ApplicationGatewayEntrypoint
 
     # Create Listener
     Write-Host "Creating HTTPS Listener"
-    Invoke-Executable az network application-gateway http-listener create --frontend-port $portName --frontend-ip $frontendIpName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpslistener" --host-name $IngressDomainName --ssl-cert $sslCertId --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+    Invoke-Executable az network application-gateway http-listener create --frontend-port $portName --frontend-ip $frontendIpName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpslistener" --host-names $IngressDomainName --ssl-cert $sslCertId --resource-group $ApplicationGatewayResourceGroupName | Out-Null
     Write-Host "Created HTTPS Listener"
 
     # Add the routing rule
@@ -1102,38 +1117,43 @@ function New-ApplicationGatewayEntrypoint
 
 
 
-    # ======= Create HTTP to HTTPS redirection entry point =======
-
-    # Fetch port 80 (which should be redirected)
-    Write-Host "Fetching port 80 portname"
-    $portName = Get-ApplicationGatewayPortName -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -PortNumber 80
-    Write-Host "Portname for port 80: $portName"
-
-    # Create the lister entrypoint for HTTP (for redirecting to HTTPS)
-    Write-Host "Creating HTTP Listener"
-    Invoke-Executable az network application-gateway http-listener create --name "$dashedDomainName-httplistener" --frontend-ip $frontendIpName --frontend-port $portName --host-name $IngressDomainName --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName | Out-Null
-    Write-Host "Created HTTP Listener"
-
-    # Create redirect config for HTTP to HTTPS
-    Write-Host "Creating redirect config (HTTP to HTTPS)"
-    Invoke-Executable az network application-gateway redirect-config create --name "$dashedDomainName-httpredirector" --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --type Permanent --target-listener "$($dashedDomainName)-httpslistener" --include-path true --include-query-string true | Out-Null
-    Write-Host "Created redirect config (HTTP to HTTPS)"
-
-    # Create routing rule for HTTP to HTTPS
-    $gatewayRule = Invoke-Executable -AllowToFail az network application-gateway rule show --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" | ConvertFrom-Json
-    if (!$gatewayRule)
+    # ======= Create HTTP to HTTPS redirection entry point if not wildcard domain =======
+    if (!$IngressDomainName.StartsWith("*"))
     {
-        Write-Host "Creating routing rule for HTTP entrypoint"
-        Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" | Out-Null
-        Write-Host "Created routing rule for HTTP entrypoint"
+        # Fetch port 80 (which should be redirected)
+        Write-Host "Fetching port 80 portname"
+        $portName = Get-ApplicationGatewayPortName -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -PortNumber 80
+        Write-Host "Portname for port 80: $portName"
+
+        # Create the lister entrypoint for HTTP (for redirecting to HTTPS)
+        Write-Host "Creating HTTP Listener"
+        Invoke-Executable az network application-gateway http-listener create --name "$dashedDomainName-httplistener" --frontend-ip $frontendIpName --frontend-port $portName --host-names $IngressDomainName --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName | Out-Null
+        Write-Host "Created HTTP Listener"
+
+        # Create redirect config for HTTP to HTTPS
+        Write-Host "Creating redirect config (HTTP to HTTPS)"
+        Invoke-Executable az network application-gateway redirect-config create --name "$dashedDomainName-httpredirector" --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --type Permanent --target-listener "$($dashedDomainName)-httpslistener" --include-path true --include-query-string true | Out-Null
+        Write-Host "Created redirect config (HTTP to HTTPS)"
+
+        # Create routing rule for HTTP to HTTPS
+        $gatewayRule = Invoke-Executable -AllowToFail az network application-gateway rule show --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" | ConvertFrom-Json
+        if (!$gatewayRule)
+        {
+            Write-Host "Creating routing rule for HTTP entrypoint"
+            Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" | Out-Null
+            Write-Host "Created routing rule for HTTP entrypoint"
+        }
+        else
+        {
+            Write-Host "Updating routing rule for HTTP entrypoint"
+            Invoke-Executable az network application-gateway rule update --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" | Out-Null
+            Write-Host "Updated routing rule for HTTP entrypoint"
+        }
     }
     else
     {
-        Write-Host "Updating routing rule for HTTP entrypoint"
-        Invoke-Executable az network application-gateway rule update --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" | Out-Null
-        Write-Host "Updated routing rule for HTTP entrypoint"
+        Write-Host "Redirect not created because the domain is a wildcard domain."
     }
-
     # ======= End Create HTTP to HTTPS redirection entry point =======
 
     # ======= Check if our backend is healthy =======
