@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.01.21]
+
+## Breaking Changes
+
+- Removed `DisableDiagnosticSettings` from `Create-AppInsights-Resource.ps1`. Diagnostic settings will no be disabled by default for an App Insights resource. Added the possibility to add these Diagnostic settings to a separate workspace by using the parameter `DiagnosticSettingsLogAnalyticsWorkspaceResourceId`.
+
 ## [2022.01.18]
 
 - Fixed `Create-Cost-Alert.ps1`
