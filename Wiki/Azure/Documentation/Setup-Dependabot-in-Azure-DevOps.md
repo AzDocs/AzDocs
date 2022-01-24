@@ -66,6 +66,15 @@ If your projects makes use of your own private nuget feeds (Azure Artifacts), ma
 - Add the environment variable defined above (`PATForNugetFeed`).
 - Fill in the variable `privateNugetFeedUrl`. Your nuget feed url can be found by going to `Artifacts` > `Connect to feed` > `dotnet`.
 
+### Skipping packages to update
+
+If you want some packages to be skipped by default for updating, make sure to add the `PackagesToIgnore` parameter.
+The value to fill it with looks like this:
+
+`'[{"dependency-name":"Microsoft.Azure.WebJobs.Extensions.Storage"}]'`
+
+For more information, please visit the github for the dependabot extensions which can be found below.
+
 ### Repositories
 
 At the end of the pipeline, the template `dependabot-pipeline.yml` is being called.
@@ -77,11 +86,15 @@ At the end of the pipeline, the template `dependabot-pipeline.yml` is being call
                 - Repository: "repository-1"
                 - Repository: "repository-2"
                   Directory: "/src"
+                  TargetBranch: "feature/test"
+                  PackagesToIgnore: "$(packagesToIgnore)"
 ```
 
 This template will be used to run the dependabot against multiple repositories. The repositories can be specified by adding them to Repositories parameter.
 
 If no `Directory` is provided, the root of the repository will be used.
+If no `TargetBranch` is provided, the `main` branch of the repository will be used.
+If no `PackagesToIgnore` is provided, no packages will be ignored for updating.
 
 ### Debugging
 

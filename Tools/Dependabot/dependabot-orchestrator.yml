@@ -13,6 +13,8 @@ variables:
     value: tingle/dependabot-azure-devops:0.5
   - name: privateNugetFeedUrl
     value: "<nuget-feed>"
+  - name: packagesToIgnore
+    value: '[{"dependency-name":"Microsoft.Azure.WebJobs.Extensions.Storage"}]'
 
 stages:
   - stage: CheckDependencies
@@ -64,3 +66,4 @@ stages:
                 - Repository: "repository-2"
                   Directory: "/src"
                   TargetBranch: "my-branch"
+                  PackagesToIgnore: "$(packagesToIgnore)"
