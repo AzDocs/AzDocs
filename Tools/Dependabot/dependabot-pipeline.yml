@@ -11,10 +11,11 @@ steps:
           ${{ if ne(value.TargetBranch, '') }}:
             targetBranch: ${{ value.TargetBranch }}
           openPullRequestsLimit: 10
+          # Optional: When not using workitems, remove this item.
           milestone: $(workItemId)
           azureDevOpsAccessToken: "$(PATForAzureDevops)"
           # The ':' at the end of the token is deliberate. Please see ticket: https://github.com/tinglesoftware/dependabot-azure-devops/issues/50_
-          extraEnvironmentVariables: DEPENDABOT_EXTRA_CREDENTIALS=[{"type":"nuget_feed","token":"$(PATForNugetFeed):","url":"$(privateNugetFeedUrl)"}];
+          extraEnvironmentVariables: DEPENDABOT_EXTRA_CREDENTIALS=[{"type":"nuget_feed","token":"$(PATForNugetFeed):","url":"$(privateNugetFeedUrl)"}];DEPENDABOT_IGNORE_CONDITIONS=${{ value.PackagesToIgnore }};
           targetRepositoryName: "${{ value.Repository }}"
           ${{ if ne(value.Directory, '') }}:
             directory: "${{ value.Directory }}"
