@@ -58,7 +58,7 @@ Assert-TLSVersion -TlsVersion $MySqlServerMinimalTlsVersion -ForceDisableTls $Fo
 $mySqlServerId = (Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id
 
 $additionalParameters = @()
-if ($MySqlServerMinimalTlsVersion)
+if ($MySqlServerMinimalTlsVersion -and $ForceDisableTLS -eq $false)
 {
     $additionalParameters += '--minimal-tls-version', $MySqlServerMinimalTlsVersion
 }
