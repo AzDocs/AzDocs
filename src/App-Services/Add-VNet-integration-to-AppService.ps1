@@ -2,7 +2,6 @@
 param (
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
-    [Parameter()][string] $AppServiceVnetIntegrationVnetResourceGroupName,
     [Alias('VnetName')]
     [Parameter(Mandatory)][string] $AppServiceVnetIntegrationVnetName,
     [Parameter(Mandatory)][string] $AppServiceVnetIntegrationSubnetName,
@@ -25,11 +24,6 @@ if ($ApplyToAllSlots -eq $True)
 
 #fetching the Identifier of the Vnet and subnet
 $vnetsubnetIdentifier = Get-VnetSubnetIdentifiers -VnetName $AppServiceVnetIntegrationVnetName -SubnetName $AppServiceVnetIntegrationSubnetName
-
-if (![string]::IsNullOrWhiteSpace($AppServiceVnetIntegrationVnetResourceGroupName))
-{
-    $AppServiceVnetIntegrationVnetName = (Invoke-Executable az network vnet show --resource-group $AppServiceVnetIntegrationVnetResourceGroupName --name $AppServiceVnetIntegrationVnetName | ConvertFrom-Json).id
-}
 
 # Set VNET Integration on the main given slot (normally production)
 Add-VnetIntegration -appType 'webapp' -AppResourceGroupName $AppServiceResourceGroupName -AppName $AppServiceName -AppVnetIntegrationVnetIdentifier $vnetsubnetIdentifier.VnetIdentifier -AppVnetIntegrationSubnetIdentifier $vnetsubnetIdentifier.SubnetIdentifier -AppSlotName $AppServiceSlotName -RouteAllTrafficThroughVnet:$RouteAllTrafficThroughVnet
