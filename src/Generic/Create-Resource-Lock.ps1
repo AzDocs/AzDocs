@@ -25,7 +25,7 @@ if ($IncludeResourceLock)
         throw 'If you want to place a resourcelock, please pass the ResourceName.'
     }
 
-    $resources = (Invoke-Executable az resource list --resource-group $ResourceGroupName) | ConvertFrom-Json | Where-Object { $_.name -eq $ResourceName } | Select-Object
+    $resources = (((Invoke-Executable az resource list --resource-group $ResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.name -eq $ResourceName }) | Select-Object
 
     foreach ($resource in $resources)
     {

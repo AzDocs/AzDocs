@@ -1,0 +1,69 @@
+schedules:
+  - cron: "0 4 * * 1"
+    displayName: "Weekly Run"
+    always: true
+    branches:
+      include:
+        - main
+
+trigger: none
+
+variables:
+  - name: imageToCache
+    value: tingle/dependabot-azure-devops:0.5
+  - name: privateNugetFeedUrl
+    value: "<nuget-feed>"
+  - name: packagesToIgnore
+    value: '[{"dependency-name":"Microsoft.Azure.WebJobs.Extensions.Storage"}]'
+
+stages:
+  - stage: CheckDependencies
+    displayName: "Check Dependencies"
+    jobs:
+      - job: Dependabot
+        displayName: "Run Dependabot"
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+          # The below task is optional
+          - task: CreateWorkItem@1
+            displayName: "Create User Story for Dependabot"
+            inputs:
+              workItemType: "User Story"
+              title: "Update Dependencies"
+              fieldMappings: |
+                Tags=dependabot; dependencies
+              areaPath: "<area-path>"
+              iterationPath: "<iteration-path>"
+              preventDuplicates: true
+              keyFields: |
+                System.AreaPath
+                System.IterationPath
+                System.Title
+              createOutputs: true
+              outputVariables: |
+                workItemId=ID
+          - task: Cache@2
+            displayName: Cache Docker images
+            inputs:
+              key: docker | "${{ variables.imageToCache }}"
+              path: $(Pipeline.Workspace)/docker
+              cacheHitVar: DOCKER_CACHE_HIT
+          - script: |
+              docker load -i $(Pipeline.Workspace)/docker/cache.tar
+            displayName: Restore Docker image
+            condition: and(not(canceled()), eq(variables.DOCKER_CACHE_HIT, 'true'))
+          - script: |
+              mkdir -p $(Pipeline.Workspace)/docker
+              docker pull -q ${{ variables.imageToCache }}
+              docker save -o $(Pipeline.Workspace)/docker/cache.tar ${{ variables.imageToCache }}
+            displayName: Save Docker image
+            condition: and(not(canceled()), or(failed(), ne(variables.DOCKER_CACHE_HIT, 'true')))
+          - template: dependabot-pipeline.yml
+            parameters:
+              Repositories:
+                - Repository: "repository-1"
+                - Repository: "repository-2"
+                  Directory: "/src"
+                  TargetBranch: "my-branch"
+                  PackagesToIgnore: "$(packagesToIgnore)"

@@ -6,8 +6,6 @@ parameters:
   - name: BuildPlatform
     type: string
     default: Any CPU
-  - name: ProjectName
-    type: string
 
 steps:
   - task: UseDotNet@2
@@ -17,18 +15,18 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: "restore"
-      projects: "$(ProjectName)"
+      projects: "$(Build.Repository.LocalPath)/**/*.csproj"
       feedsToUse: "select"
       vstsFeed: "vstsfeedid"
   - task: DotNetCoreCLI@2
     inputs:
       command: "publish"
       publishWebProjects: false
-      projects: "$(ProjectName)"
-      arguments: '-c $(BuildConfiguration) -o "$(Build.ArtifactStagingDirectory)/functionapp" --no-restore'
+      projects: "$(Build.Repository.LocalPath)/**/*.csproj"
+      arguments: '-c $(BuildConfiguration) -o "$(Build.ArtifactStagingDirectory)/webapp" --no-restore'
       modifyOutputPath: false
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: "$(Build.ArtifactStagingDirectory)/functionapp"
-      ArtifactName: "functionapp_zip"
+      PathtoPublish: "$(Build.ArtifactStagingDirectory)/webapp"
+      ArtifactName: "webapp_zip"
       publishLocation: "Container"

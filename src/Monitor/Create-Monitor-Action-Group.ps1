@@ -14,6 +14,8 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-Invoke-Executable az monitor action-group create --name $MonitorAlertActionGroupName --resource-group $MonitorAlertActionResourceGroupName --action @AlertAction
+$actionGroup = (Invoke-Executable az monitor action-group create --name $MonitorAlertActionGroupName --resource-group $MonitorAlertActionResourceGroupName --action @AlertAction) | ConvertFrom-Json
+Write-Host ($actionGroup | ConvertTo-Json)
+Write-Output $actionGroup.id
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

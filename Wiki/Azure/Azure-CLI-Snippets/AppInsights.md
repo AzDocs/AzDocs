@@ -20,4 +20,10 @@ You can set this up for:
 
 ## Logging
 
-Diagnostic settings are enabled for your Application Insights resource. These logs get written to the Log Analytics Workspace that you specified. Easy as that!
+You have the ability to enable the diagnostic settings for your Application Insights. When you want to do this, make sure to add the `DiagnosticSettingsLogAnalyticsWorkspaceResourceId` to your pipeline. _Make sure that this is a different workspace than you have defined for Application Insights, since it will result in duplicate logging._
+
+Next to that, you have the ability to specify which set of diagnostic logs you would like to enable.
+
+For the category `logs` the parameter `DiagnosticSettingsLogs` can be used and for the category `metrics` the parameter `DiagnosticSettingsMetrics`. If you do not specify these settings, the default set (everything) will be enabled for your resource.
+
+By default, the diagnostic settings are turned off for your Application Insights instance.

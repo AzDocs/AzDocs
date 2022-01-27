@@ -4,8 +4,8 @@ function Add-VnetIntegration
     param (
         [Parameter(Mandatory)][string] $AppResourceGroupName,
         [Parameter(Mandatory)][string] $AppName,
-        [Parameter(Mandatory)][string] $AppVnetIntegrationVnetName,
-        [Parameter(Mandatory)][string] $AppVnetIntegrationSubnetName,
+        [Parameter(Mandatory)][string] $AppVnetIntegrationVnetIdentifier,
+        [Parameter(Mandatory)][string] $AppVnetIntegrationSubnetIdentifier,
         [Parameter()][string] $AppSlotName,
         [Parameter(Mandatory)][bool] $RouteAllTrafficThroughVnet,
         [Parameter(Mandatory)][ValidateSet('functionapp', 'webapp')][string]$AppType  
@@ -23,7 +23,7 @@ function Add-VnetIntegration
     }
     
     $vnetIntegrations = Invoke-Executable az $AppType vnet-integration list --resource-group $AppResourceGroupName --name $AppName @additionalParameters | ConvertFrom-Json
-    $matchedIntegrations = $vnetIntegrations | Where-Object vnetResourceId -Like "*/providers/Microsoft.Network/virtualNetworks/$AppVnetIntegrationVnetName/subnets/$AppVnetIntegrationSubnetName"
+    $matchedIntegrations = $vnetIntegrations | Where-Object vnetResourceId -EQ $AppVnetIntegrationSubnetIdentifier
     if ($matchedIntegrations)
     {
         Write-Host "VNET Integration found for $fullAppName"
@@ -31,7 +31,7 @@ function Add-VnetIntegration
     else
     {
         Write-Host "VNET Integration NOT found, adding it to $fullAppName"
-        Invoke-Executable az $AppType vnet-integration add --resource-group $AppResourceGroupName --name $AppName --vnet $AppVnetIntegrationVnetName --subnet $AppVnetIntegrationSubnetName @additionalParameters
+        Invoke-Executable az $AppType vnet-integration add --resource-group $AppResourceGroupName --name $AppName --vnet $AppVnetIntegrationVnetIdentifier --subnet $AppVnetIntegrationSubnetIdentifier @additionalParameters
         Invoke-Executable az $AppType restart --name $AppName --resource-group $AppResourceGroupName @additionalParameters
     }
     

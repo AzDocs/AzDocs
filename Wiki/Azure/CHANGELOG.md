@@ -2,6 +2,76 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.01.21]
+
+## Breaking Changes
+
+- Removed `DisableDiagnosticSettings` from `Create-AppInsights-Resource.ps1`. Diagnostic settings will no be disabled by default for an App Insights resource. Added the possibility to add these Diagnostic settings to a separate workspace by using the parameter `DiagnosticSettingsLogAnalyticsWorkspaceResourceId`.
+
+## [2022.01.18]
+
+- Fixed `Create-Cost-Alert.ps1`
+
+## [2022.01.10]
+
+- Added documentation and example piplines to the AzDocs for a Dependabot integration with Azure Devops.
+
+## [2021.12.21]
+
+## Added
+
+- Added `Create-Static-Web-App.ps1` for creating Static Web apps.
+
+## [2021.12.09]
+
+## Added
+
+- Added script `Set-Tags-For-Resources.ps1`.
+
+## [2021.12.08]
+
+## Updated
+
+- Updated `Create-Function-App.ps1` with added functionality for setting the default CORS settings for deployment slots.
+
+## Breaking Changes
+
+- Changed the default route all traffic throught vnet behaviour for Application service with vnet integration(`Add-VNet-integration-to-AppService.ps1`). The `RouteAllTrafficThroughVnet` is set to `false` now.
+- Changed the default route all traffic throught vnet behaviour for Function app with vnet integration(`Add-VNet-integration-to-Function-App.ps1`). The `RouteAllTrafficThroughVnet` is set to `false` now.
+
+## [2021.12.07]
+
+## Added
+
+- Added script `Deprovision-Cost-Alert.ps1`.
+
+## [2021.12.01]
+
+## Added
+
+- Added script `Get-Monitor-Action-Group-Id-for-Pipeline.ps1`.
+
+## [2021.11.24]
+
+## Updated
+
+- Improved the `Add-AD-Authentication-for-App-Service.ps1` script so that it can work with the `authv2` option.
+
+## [2021.11.22]
+
+## Updated
+
+- Default CORS settings for function app have changes, by default the portal test urls are added, see `Azure.PlatformProvisioning\src\Functions\Create-Function-App.ps1` `CORSUrls` and `DisableCORSPortalTestUrls` settings.
+  To disable this use the `DisableCORSPortalTestUrls` switch
+
+## [2021.11.16]
+
+## Updated
+
+- Changed and added functionality to the `Create-CosmosDbAccount.ps1` script. Functionality has been added for: `Table`, `Gremlin` and `MongoDb`.
+- Added the ability to pick a set of diagnostic settings for every resource.
+- Added the ability to disable diagnostic settings for every resource.
+
 ## [2021.11.01]
 
 ## Breaking Changes

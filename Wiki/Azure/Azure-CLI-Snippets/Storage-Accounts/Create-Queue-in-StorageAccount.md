@@ -8,12 +8,15 @@ This snippet will create a queue inside a specified (pre-existing) storageaccoun
 
 Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 
-| Parameter                       | Required                        | Example Value                                                                                                                                   | Description                                                           |
-| ------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| StorageAccountName              | <input type="checkbox" checked> | `myteststgaccount$(Release.EnvironmentName)`                                                                                                    | The name of the storageaccount which will be used                     |
-| QueueName                       | <input type="checkbox" checked> | `images`                                                                                                                                        | The name of the queue to create.                                      |
-| StorageAccountResourceGroupName | <input type="checkbox" checked> | `my-resource-group`                                                                                                                             | The name of the resourcegroup in which the storage account resides.   |
-| LogAnalyticsWorkspaceResourceId | <input type="checkbox" checked> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The Log Analytics Workspace the diagnostic setting will be linked to. |
+| Parameter                       | Required                        | Example Value                                                                                                                                   | Description                                                                                                                                       |
+| ------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| StorageAccountName              | <input type="checkbox" checked> | `myteststgaccount$(Release.EnvironmentName)`                                                                                                    | The name of the storageaccount which will be used                                                                                                 |
+| QueueName                       | <input type="checkbox" checked> | `images`                                                                                                                                        | The name of the queue to create.                                                                                                                  |
+| StorageAccountResourceGroupName | <input type="checkbox" checked> | `my-resource-group`                                                                                                                             | The name of the resourcegroup in which the storage account resides.                                                                               |
+| LogAnalyticsWorkspaceResourceId | <input type="checkbox" checked> | `/subscriptions/<subscriptionid>/resourceGroups/<resourcegroup>/providers/Microsoft.OperationalInsights/workspaces/<loganalyticsworkspacename>` | The Log Analytics Workspace the diagnostic setting will be linked to.                                                                             |
+| DiagnosticSettingsLogs          | <input type="checkbox">         | `@('Requests';'MongoRequests';)`                                                                                                                | If you want to enable a specific set of diagnostic settings for the category 'Logs'. By default, all categories for 'Logs' will be enabled.       |
+| DiagnosticSettingsMetrics       | <input type="checkbox">         | `@('Requests';'MongoRequests';)`                                                                                                                | If you want to enable a specific set of diagnostic settings for the category 'Metrics'. By default, all categories for 'Metrics' will be enabled. |
+| DiagnosticSettingsDisabled      | <input type="checkbox">         | n.a.                                                                                                                                            | If you don't want to enable any diagnostic settings, you can pass this as a switch witout a value(`-DiagnosticsettingsDisabled`).                 |
 
 # YAML
 
@@ -27,7 +30,7 @@ Be aware that this YAML example contains all parameters that can be used with th
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
     scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Create-Queue-in-StorageAccount.ps1"
-    arguments: "-StorageAccountName '$(StorageAccountName)' -QueueName '$(QueueName)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)'"
+    arguments: "-StorageAccountName '$(StorageAccountName)' -QueueName '$(QueueName)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DiagnosticSettingsLogs $(DiagnosticSettingsLogs) -DiagnosticSettingsDisabled $(DiagnosticSettingsDisabled)"
 ```
 
 # Code

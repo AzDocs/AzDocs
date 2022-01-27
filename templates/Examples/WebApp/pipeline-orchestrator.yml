@@ -52,8 +52,6 @@ stages:
         displayName: "Build"
         steps:
           - template: pipeline-build.yml
-            parameters:
-              ProjectName: "TestApi/TestApi.csproj"
 
   - stage: "dev"
     displayName: "Deploy to dev"
