@@ -19,13 +19,12 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 
 > NOTE: These parameters are only required when you want to use a private endpoint for this resource.
 
-| Parameter                                        | Required for Pvt Endpoint       | Example Value                           | Description                                                                                                              |
-| ------------------------------------------------ | ------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| StaticWebAppPrivateEndpointVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`    | The name of the VNET to place the Static Web App  Private Endpoint in.                                                   |
-| StaticWebAppPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                     | The ResourceGroup where your VNET, for your App Service Private Endpoint, resides in.                                    |
-| DNSZoneResourceGroupName                         | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription).                |
-| StaticWebAppPrivateDnsZoneName                   | <input type="checkbox">         | `privatelink.azurestaticapps.net`       | The DNS Zone to use. If you are not sure, it's safe to use `privatelink.azurestaticapps.net` as value for StaticWebApps. |
-| StaticWebAppPrivateEndpointSubnetName            | <input type="checkbox" checked> | `app-subnet-3`                          | The subnet to place the private endpoint for this StaticWebApp in                                                        |
+| Parameter                                        | Required for Pvt Endpoint       | Example Value                           | Description                                                                                               |
+| ------------------------------------------------ | ------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| StaticWebAppPrivateEndpointVnetName              | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`    | The name of the VNET to place the Static Web App  Private Endpoint in.                                    |
+| StaticWebAppPrivateEndpointVnetResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg`                     | The ResourceGroup where your VNET, for your App Service Private Endpoint, resides in.                     |
+| DNSZoneResourceGroupName                         | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription). |
+| StaticWebAppPrivateEndpointSubnetName            | <input type="checkbox" checked> | `app-subnet-3`                          | The subnet to place the private endpoint for this StaticWebApp in                                         |
 
 # YAML task
 
