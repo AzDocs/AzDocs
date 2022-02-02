@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.02.02]
+
+- Added `PathBasedRouting` to `Create-Application-Gateway-Entrypoint-for-ContainerInstances.ps1` and `Create-Application-Gateway-Entrypoint-for-DomainName.ps1`
+
 ## [2022.01.21]
 
 ## Breaking Changes
