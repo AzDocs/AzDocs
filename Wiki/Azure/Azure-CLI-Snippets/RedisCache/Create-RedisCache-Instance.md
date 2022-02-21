@@ -45,6 +45,16 @@ If you want to use private endpoints on your resource. Use these parameters. Pri
 | DNSZoneResourceGroupName                          | <input type="checkbox" checked> | `MyDNSZones-$(Release.EnvironmentName)` | Make sure to use the shared DNS Zone resource group (you can only register a zone once per subscription).                    |
 | RedisInstancePrivateDnsZoneName                   | <input type="checkbox">         | `privatelink.redis.cache.windows.net`   | The name of DNS zone where your private endpoint will be created in. This defaults to `privatelink.redis.cache.windows.net`. |
 
+# VNet Parameters
+
+If you want to integrate your Redis Instance with a subnet, please use the parameters below.
+
+| Parameter                                         | Required for VNet Integration   | Example Value    | Description                                                    |
+| ------------------------------------------------- | ------------------------------- | ---------------- | -------------------------------------------------------------- |
+| RedisInstanceVNetIntegrationVnetName              | <input type="checkbox" checked> | `vnet-01`        | The name of the VNet to place the Redis Cache in.              |
+| RedisInstanceVNetIntegrationVnetResourceGroupName | <input type="checkbox" checked> | `resource-group` | The name of the resourcegroup your VNet resides in.            |
+| RedisInstanceVNetIntegrationSubnetName            | <input type="checkbox" checked> | `subnet01`       | The name of the subnet you want your Redis Cache to reside in. |
+
 # YAML
 
 Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
@@ -57,7 +67,26 @@ Be aware that this YAML example contains all parameters that can be used with th
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
     scriptPath: "$(Pipeline.Workspace)/AzDocs/RedisCache/Create-RedisCache-Instance.ps1"
-    arguments: "-RedisInstanceLocation '$(RedisInstanceLocation)' -RedisInstanceName '$(RedisInstanceName)' -RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' -RedisInstanceSkuName '$(RedisInstanceSkuName)' -RedisInstanceVmSize '$(RedisInstanceVmSize)' -RedisInstanceEnableNonSslPort '$(RedisInstanceEnableNonSslPort)' -RedisInstanceMinimalTlsVersion '$(RedisInstanceMinimalTlsVersion)' -ResourceTags $(ResourceTags) -RedisInstancePrivateEndpointVnetResourceGroupName '$(RedisInstancePrivateEndpointVnetResourceGroupName)' -RedisInstancePrivateEndpointVnetName '$(RedisInstancePrivateEndpointVnetName)' -RedisInstancePrivateEndpointSubnetName '$(RedisInstancePrivateEndpointSubnetName)' -RedisInstancePrivateDnsZoneName '$(RedisInstancePrivateDnsZoneName)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DiagnosticSettingsLogs $(DiagnosticSettingsLogs) -DiagnosticSettingsDisabled $(DiagnosticSettingsDisabled)"
+    arguments: >
+      -RedisInstanceLocation '$(RedisInstanceLocation)' 
+      -RedisInstanceName '$(RedisInstanceName)' 
+      -RedisInstanceResourceGroupName '$(RedisInstanceResourceGroupName)' 
+      -RedisInstanceSkuName '$(RedisInstanceSkuName)' 
+      -RedisInstanceVmSize '$(RedisInstanceVmSize)' 
+      -RedisInstanceEnableNonSslPort '$(RedisInstanceEnableNonSslPort)' 
+      -RedisInstanceMinimalTlsVersion '$(RedisInstanceMinimalTlsVersion)' 
+      -ResourceTags $(ResourceTags) 
+      -RedisInstancePrivateEndpointVnetResourceGroupName '$(RedisInstancePrivateEndpointVnetResourceGroupName)' 
+      -RedisInstancePrivateEndpointVnetName '$(RedisInstancePrivateEndpointVnetName)' 
+      -RedisInstancePrivateEndpointSubnetName '$(RedisInstancePrivateEndpointSubnetName)' 
+      -RedisInstancePrivateDnsZoneName '$(RedisInstancePrivateDnsZoneName)' 
+      -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' 
+      -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' 
+      -DiagnosticSettingsLogs $(DiagnosticSettingsLogs) 
+      -DiagnosticSettingsDisabled $(DiagnosticSettingsDisabled) 
+      -RedisInstanceVNetIntegrationVnetName '$(RedisInstanceVNetIntegrationVnetName)' 
+      -RedisInstanceVNetIntegrationVnetResourceGroupName '$(RedisInstanceVNetIntegrationVnetResourceGroupName)' 
+      -RedisInstanceVNetIntegrationSubnetName '$(RedisInstanceVNetIntegrationSubnetName)'
 ```
 
 # Code
