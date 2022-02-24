@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.02.24]
+
+## Changes
+
+- Added the following scripts for Logic Apps, `Create-Logic-App-Consumption.ps1` and `Create-Logic-App-Standard.ps1`.
+
 ## [2022.02.21]
 
 ## Breaking Changes
