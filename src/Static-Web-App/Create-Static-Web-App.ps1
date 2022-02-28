@@ -10,8 +10,8 @@ param (
     [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $StaticWebAppPrivateEndpointVnetResourceGroupName,
     [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $StaticWebAppPrivateEndpointVnetName,
     [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $StaticWebAppPrivateEndpointSubnetName,
-    [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $DNSZoneResourceGroupName,
-    [Parameter(ParameterSetName = 'PrivateEndpoint')][string] $StaticWebAppPrivateDnsZoneName = 'privatelink.azurestaticapps.net'
+    [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $DNSZoneResourceGroupName
+   
 )
 
 #region ===BEGIN IMPORTS===
@@ -29,6 +29,7 @@ if ($null -eq $StaticWebAppLocation -or $StaticWebAppLocation -eq '')
 $staticWebApp = Invoke-Executable az staticwebapp list --resource-group $StaticWebAppResourceGroupName | ConvertFrom-Json | Where-Object name -EQ $StaticWebAppName
 if ($staticWebApp)
 {
+    $hostname = $staticWebApp.defaultHostname
     Write-Host "Static web app $StaticWebAppName already exists"
 }
 else
@@ -55,12 +56,25 @@ else
         Get-Error
         throw 'Could not create static webapp'
     }
+    $hostname = $staticWebApp.properties.defaultHostname
 }
 
 # Add private endpoint & Setup Private DNS
-if ($StaticWebAppPrivateEndpointVnetResourceGroupName -and $StaticWebAppPrivateEndpointVnetName -and $StaticWebAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $StaticWebAppPrivateDnsZoneName)
+if ($StaticWebAppPrivateEndpointVnetResourceGroupName -and $StaticWebAppPrivateEndpointVnetName -and $StaticWebAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName)
 {
     Write-Host 'A private endpoint is desired. Adding the needed components.'
+    
+    $regexString = '^(?<host>[^.]+)\.(?<address>.+)$'
+    if ($hostname -match $regexString )
+    {
+        $staticWebAppPrivateDnsZoneName = "privatelink.$($Matches.address)"
+        Write-Host "Private DNS name: $staticWebAppPrivateDnsZoneName"
+    }
+    else
+    {
+        throw "Could not resolve url '$hostname' with regex '$regexString'"
+    }
+
 
     $abbrStaticWebApp = 'swa'
     # Fetch needed information
@@ -68,7 +82,7 @@ if ($StaticWebAppPrivateEndpointVnetResourceGroupName -and $StaticWebAppPrivateE
     $StaticWebAppPrivateEndpointName = "$StaticWebAppName-pvt$abbrStaticWebApp"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $VnetSubnetIdentifiers.VnetIdentifier -PrivateEndpointSubnetId $VnetSubnetIdentifiers.SubnetIdentifier -PrivateEndpointName $StaticWebAppPrivateEndpointName -PrivateEndpointResourceGroupName $StaticWebAppResourceGroupName -TargetResourceId $staticWebApp.id -PrivateEndpointGroupId 'staticSites' -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $StaticWebAppPrivateDnsZoneName -PrivateDnsLinkName "$StaticWebAppPrivateEndpointVnetName-$abbrStaticWebApp"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $VnetSubnetIdentifiers.VnetIdentifier -PrivateEndpointSubnetId $VnetSubnetIdentifiers.SubnetIdentifier -PrivateEndpointName $StaticWebAppPrivateEndpointName -PrivateEndpointResourceGroupName $StaticWebAppResourceGroupName -TargetResourceId $staticWebApp.id -PrivateEndpointGroupId 'staticSites' -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $staticWebAppPrivateDnsZoneName -PrivateDnsLinkName "$StaticWebAppPrivateEndpointVnetName-$abbrStaticWebApp"
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

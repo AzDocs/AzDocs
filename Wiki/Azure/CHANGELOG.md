@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.02.24]
+
+## Changes
+
+- Added the following scripts for Logic Apps, `Create-Logic-App-Consumption.ps1` and `Create-Logic-App-Standard.ps1`.
+
+## [2022.02.21]
+
+## Breaking Changes
+
+- When using the `Create-RedisCache-Instance.ps1` script, `ForcePublic` also has to be used when using the `RedisInstanceEnableNonSslPort` parameter.
+
+## Changes
+
+- Updated `Create-RedisCache-Instance.ps1` to be idempotent.
+- Updated `Create-RedisCache-Instance.ps1` to be able to integrate your Redis Instance into a subnet.
+
+## [2022.02.02]
+
+- Added `PathBasedRouting` to `Create-Application-Gateway-Entrypoint-for-ContainerInstances.ps1` and `Create-Application-Gateway-Entrypoint-for-DomainName.ps1`
+
 ## [2022.01.21]
 
 ## Breaking Changes

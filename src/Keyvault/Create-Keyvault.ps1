@@ -65,7 +65,9 @@ else
 $optionalParameters += '--retention-days', $KeyvaultRetentionInDays
 
 # Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/pull/18520
-$keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }
+$subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
+$keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' --subscription $subscriptionId | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }
+
 if (!$keyvaultExists)
 {
     # check if keyvault exists soft-deleted

@@ -4,7 +4,7 @@
 .DESCRIPTION
     Long description
 .EXAMPLE
-    PS C:\> Convert-WriteHeaderToString -inputLine @'
+    PS C:\> . Azure.PlatformProvisioning\Tools\Convert-WriteHeaderToString.ps1 ; Convert-WriteHeaderToString -inputLine @'
 >  ParameterSetName : DeploymentSlot
 >  AppServicePlanName : ASP-dev-Linux
 >  AppServicePlanResourceGroupName : ASP-dev
