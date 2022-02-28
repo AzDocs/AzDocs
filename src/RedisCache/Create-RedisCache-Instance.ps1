@@ -92,7 +92,7 @@ function WaitForRedisProvisioningToBeDone
 }
 
 WaitForRedisProvisioningToBeDone -RedisInstanceName $RedisInstanceName -RedisInstanceResourceGroupName $RedisInstanceResourceGroupName
-$redisInstance = Invoke-Executable az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName | ConvertFrom-Json
+$redisInstance = Invoke-Executable -AllowToFail az redis show --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName | ConvertFrom-Json
 if (!$redisInstance)
 {
     $redisInstanceResourceId = (Invoke-Executable az redis create --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --sku $RedisInstanceSkuName --vm-size $RedisInstanceVmSize --location $RedisInstanceLocation --minimum-tls-version $RedisInstanceMinimalTlsVersion --tags @ResourceTags @additionalParameters | ConvertFrom-Json).id
