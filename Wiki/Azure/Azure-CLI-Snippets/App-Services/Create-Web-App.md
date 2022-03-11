@@ -42,6 +42,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | DiagnosticSettingsLogs | <input type="checkbox"> | `@('Requests';'MongoRequests';)` | If you want to enable a specific set of diagnostic settings for the category 'Logs'. By default, all categories for 'Logs' will be enabled. |
 | DiagnosticSettingsMetrics | <input type="checkbox"> | `@('Requests';'MongoRequests';)` | If you want to enable a specific set of diagnostic settings for the category 'Metrics'. By default, all categories for 'Metrics' will be enabled. |
 | DiagnosticSettingsDisabled | <input type="checkbox"> | n.a. | If you don't want to enable any diagnostic settings, you can pass this as a switch witout a value(`-DiagnosticsettingsDisabled`). |
+| CORSUrls | <input type="checkbox"> | `'https://other.website.com','https://admin.website.com'` or `@('https://other.website.com','https://admin.website.com')` |  CORS urls to set |
 
 # VNET Whitelisting Parameters
 
