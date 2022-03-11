@@ -55,7 +55,7 @@ param (
     [Parameter()][switch] $DiagnosticSettingsDisabled,
 
     # CORS urls to set
-    [Parameter()][string[]] $CORSUrls = @(),
+    [Parameter()][string[]] $CORSUrls,
 
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Web-App-with-App-Service-Plan-Linux.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
@@ -145,7 +145,10 @@ else
 Invoke-Executable az webapp identity assign --ids $webAppId
 
 # Set CORS settings
-Set-CorsSettings -AppType 'webapp' -CORSUrls $CORSUrls -ResourceId $webAppId
+if($CORSUrls)
+{
+    Set-CorsSettings -AppType 'webapp' -CORSUrls $CORSUrls -ResourceId $webAppId
+}
 
 # Create Deployment Slot
 if ($EnableAppServiceDeploymentSlot)
