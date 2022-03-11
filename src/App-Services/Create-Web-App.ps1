@@ -145,7 +145,10 @@ else
 Invoke-Executable az webapp identity assign --ids $webAppId
 
 # Set CORS settings
-Set-CorsSettings -AppType 'webapp' -CORSUrls $CORSUrls -ResourceId $webAppId
+if ($CORSUrls)
+{
+    Set-CorsSettings -AppType 'webapp' -CORSUrls $CORSUrls -ResourceId $webAppId
+}
 
 # Create Deployment Slot
 if ($EnableAppServiceDeploymentSlot)
