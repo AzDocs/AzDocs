@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.03.11]
+
+## Changes
+
+- Added `CORSUrls` param to `Create-Web-App.ps1` to configure allowed origins on app service
+
 ## [2022.02.24]
 
 ## Changes
