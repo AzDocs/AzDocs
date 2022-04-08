@@ -2,6 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $FrontDoorProfileName,
     [Parameter(Mandatory)][string] $FrontDoorResourceGroup,
+    [Parameter(Mandatory, ParameterSetName = "rule")]
     [Parameter(Mandatory, ParameterSetName = "ruleset")][string] $RuleSetName,
 
     # Rule
