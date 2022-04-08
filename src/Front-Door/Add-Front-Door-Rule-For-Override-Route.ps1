@@ -23,7 +23,7 @@ param (
     [ValidateSet('RouteConfigurationOverride')]
     $ActionActionName,
     [Parameter(Mandatory, ParameterSetName = "rule")][string] $OriginGroupName,
-    [Parameter()][string][ValidateSet('MatchRequest', 'Http', 'Https')] $ActionForwardingProtocol = "MatchRequest"
+    [Parameter()][string][ValidateSet('MatchRequest', 'HttpOnly', 'HttpsOnly')] $ActionForwardingProtocol = "MatchRequest"
 )
 
 #region ===BEGIN IMPORTS===
