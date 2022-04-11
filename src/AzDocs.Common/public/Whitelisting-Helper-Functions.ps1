@@ -122,6 +122,10 @@ function Remove-AccessRestrictionIfExists
     {
         $optionalParameters += "--subnet", "$SubnetResourceId"
     }
+    elseif ($ServiceTag)
+    {
+        $optionalParameters += "--service-tag", "$ServiceTag"
+    }
 
     # Deploymentslot
     if ($DeploymentSlotName)
@@ -300,6 +304,33 @@ function Confirm-AccessRestriction
                 $resultObject = [PSCustomObject]@{
                     Exists = $false
                     Action = $null
+                }
+                $result += $resultObject
+                return $result
+            }
+        }
+        elseif($ServiceTag)
+        {
+            Write-Host "Checking for service tag with $ServiceTag"
+            $matchingServiceTag = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object { $_.Name -eq $AccessRestrictionRuleName -and $_.ip_address -eq $ServiceTag -and $_.tag -eq 'ServiceTag' }
+            if ($matchingServiceTag.Length -gt 0)
+            {
+                Write-Host "Access restriction for type $SecurityRestrictionObjectName exists for $AccessRestrictionRuleName and $ServiceTag with action "$matchingServiceTag.action", continueing"
+                $resultObject = [PSCustomObject]@{
+                    Exists = $true
+                    Action = $matchingServiceTag.action
+                    Headers = $matchingServiceTag.headers
+                }
+                $result += $resultObject
+                return $result
+            }
+            else
+            {
+                Write-Host "Access restriction for type $SecurityRestrictionObjectName does not exist for $AccessRestrictionRuleName and $ServiceTag."
+                $resultObject = [PSCustomObject]@{
+                    Exists = $false
+                    Action = $null
+                    Headers = $null
                 }
                 $result += $resultObject
                 return $result
