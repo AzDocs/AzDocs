@@ -36,8 +36,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 Invoke-Executable az afd rule-set create --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup --rule-set-name $RuleSetName
 
 # Get latest rule order
-if ($RuleName -and $ConditionMatchVariable -and $ConditionOperator -and $ConditionMatchValues -and $ActionActionName -and $OriginGroupName) 
-{
+if ($RuleName -and $ConditionMatchVariable -and $ConditionOperator -and $ConditionMatchValues -and $ActionActionName -and $OriginGroupName) {
     $subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
     if (!$RuleOrder) {
         Write-Host "Generating order in which the rule should be applied.."
@@ -46,7 +45,13 @@ if ($RuleName -and $ConditionMatchVariable -and $ConditionOperator -and $Conditi
         $rules = Invoke-AzRestCall -Method GET -ResourceUrl $getUrl -ApiVersion '2021-06-01' -Body $body | ConvertFrom-Json
     
         if ($rules.value) {
-            $existingRuleOrder = ($rules | Where-Object { $_.value.name -eq $RuleName }).value.properties.order
+            foreach ($name in $rules.value.name) {
+                if ($name -eq $RuleName) {
+                    $existingRuleOrder = $rule.value.properties.order
+                    return;
+                }
+            }
+
             if ($existingRuleOrder) {
                 $RuleOrder = $existingRuleOrder
                 Write-Host "Rule with $RuleName already exists. Setting RuleOrder to  $RuleOrder. Continueing.."
@@ -99,8 +104,7 @@ if ($RuleName -and $ConditionMatchVariable -and $ConditionOperator -and $Conditi
     $url = "https://management.azure.com/subscriptions/$($subscriptionId)/resourceGroups/$($FrontDoorResourceGroup)/providers/Microsoft.Cdn/profiles/$($FrontDoorProfileName)/ruleSets/$($RuleSetName)/rules/$($RuleName)"
     Invoke-AzRestCall -Method PUT -ResourceUrl $url -ApiVersion '2021-06-01' -Body $body
 }
-else
-{
+else {
     Write-Host "Not all parameters were supplied to create a rule. Skipped."
 }
 
