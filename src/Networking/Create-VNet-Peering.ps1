@@ -6,7 +6,8 @@ param (
     [Parameter(Mandatory)][string] $RemoteVnetName,
     [Parameter(Mandatory)][string] $RemoteVnetSubscriptionId,
     [Parameter()][bool] $AllowForwardedTrafficToRemoteVnet = $true, 
-    [Parameter()][bool] $AllowVnetAccessToRemoteVnet = $true
+    [Parameter()][bool] $AllowVnetAccessToRemoteVnet = $true,
+    [Parameter(Mandatory)][string] $CurrentSubscriptionId
 )
 
 #region ===BEGIN IMPORTS===
@@ -27,6 +28,6 @@ if ($AllowVNetAccessToRemoteVnet) {
     $optionalArguments += '--allow-vnet-access'
 }
 
-Invoke-Executable az network vnet peering create --name $vnetPeeringName --vnet-name $VnetName --resource-group $VnetResourceGroupName --remote-vnet $remoteVnetId @optionalArguments
+Invoke-Executable az network vnet peering create --name $vnetPeeringName --vnet-name $VnetName --resource-group $VnetResourceGroupName --remote-vnet $remoteVnetId --subscription $CurrentSubscriptionId @optionalArguments
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

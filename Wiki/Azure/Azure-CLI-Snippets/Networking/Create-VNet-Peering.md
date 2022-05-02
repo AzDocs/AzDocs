@@ -19,11 +19,12 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | --------------------------------- | ------------------------------- | -------------------------------------- | --------------------------------------------------------------------- |
 | VnetName                          | <input type="checkbox" checked> | `my-vnet-$(Release.EnvironmentName)`   | The name of the VNet you want to peer from.                           |
 | VnetResourceGroupName             | <input type="checkbox" checked> | `my-resourcegroup`                     | The resourcegroup your VNet resides in.                               |
-| RemoteVnetResourceGroupName       | <input type="checkbox" checked> | `other-resourcegroup`                  | The remote VNet resourcegroup you want to peer to.                                  |
-| RemoteVnetName                    | <input type="checkbox" checked> | `my-vnet-2-$(Release.EnvironmentName)` | The name of the remote VNet you want to peer to.                            |
-| RemoteVnetSubscriptionId          | <input type="checkbox" checked> | `subscription-id`                      | The id of the subscription where your remote VNet resides.             |
+| RemoteVnetResourceGroupName       | <input type="checkbox" checked> | `other-resourcegroup`                  | The remote VNet resourcegroup you want to peer to.                    |
+| RemoteVnetName                    | <input type="checkbox" checked> | `my-vnet-2-$(Release.EnvironmentName)` | The name of the remote VNet you want to peer to.                      |
+| RemoteVnetSubscriptionId          | <input type="checkbox" checked> | `subscription-id`                      | The id of the subscription where your remote VNet resides.            |
 | AllowForwardedTrafficToRemoteVnet | <input type="checkbox">         | `true`/`false`                         | If you allow forwarding traffic to the remote VNet. Defaults to true. |
-| AllowVnetAccessToRemoteVnet       | <input type="checkbox">         | `true`/`false`                         | If you allow VNet access to the remote VNet. Defaults to true.                        |
+| AllowVnetAccessToRemoteVnet       | <input type="checkbox">         | `true`/`false`                         | If you allow VNet access to the remote VNet. Defaults to true.        |
+| CurrentSubscriptionId             | <input type="checkbox" checked> | `subscription-id`                      | The current subscription id you are peering from.                     |
 
 # YAML
 
