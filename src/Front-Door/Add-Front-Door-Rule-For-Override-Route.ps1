@@ -17,6 +17,7 @@ param (
     [ValidateSet('Any', 'BeginsWith', 'Contains', 'EndsWith', 'Equal', 'GreaterThan', 'GreaterThanOrEqual', 'LessThan', 'LessThanOrEqual', 'RegEx')]
     $ConditionOperator,
     [Parameter(Mandatory, ParameterSetName = "rule")][string[]] $ConditionMatchValues,
+    [Parameter(ParameterSetName = "rule")][string][ValidateSet("Continue", "Stop")] $ConditionMatchProcessingBehavior = "Stop",
 
     # Action
     [Parameter(Mandatory, ParameterSetName = "rule")][string] 
@@ -37,28 +38,22 @@ Invoke-Executable az afd rule-set create --profile-name $FrontDoorProfileName --
 
 # Get latest rule order
 if ($RuleName -and $ConditionMatchVariable -and $ConditionOperator -and $ConditionMatchValues -and $ActionActionName -and $OriginGroupName) {
-    $subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
     if (!$RuleOrder) {
         Write-Host "Generating order in which the rule should be applied.."
 
-        $getUrl = "https://management.azure.com/subscriptions/$($subscriptionId)/resourceGroups/$($FrontDoorResourceGroup)/providers/Microsoft.Cdn/profiles/$($FrontDoorProfileName)/ruleSets/$($RuleSetName)/rules"
-        $rules = Invoke-AzRestCall -Method GET -ResourceUrl $getUrl -ApiVersion '2021-06-01' -Body $body | ConvertFrom-Json
-    
-        if ($rules.value) {
-            foreach ($name in $rules.value.name) {
-                if ($name -eq $RuleName) {
-                    $existingRuleOrder = $rule.value.properties.order
-                    return;
+        $rules = Invoke-Executable az afd rule list --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup --rule-set-name $RuleSetName | ConvertFrom-Json
+        if ($rules) {
+            foreach ($rule in $rules) {
+                if ($rule.name -eq $RuleName) {
+                    Write-Host "Found existing rule with $RuleName and order $($rule.order)"
+                    $RuleOrder = $rule.order
+                    break;
                 }
             }
 
-            if ($existingRuleOrder) {
-                $RuleOrder = $existingRuleOrder
-                Write-Host "Rule with $RuleName already exists. Setting RuleOrder to  $RuleOrder. Continueing.."
-            }
-            else {
-                $oldRuleOrder = ($rules.value.properties | Sort-Object -Property @{Expression = "order"; Descending = $true })[0]
-                $RuleOrder = $oldRuleOrder.order + 1; 
+            if(!$RuleOrder){
+                $oldRuleOrder = ($rules | Sort-Object -Property order -Descending)[0].order
+                $RuleOrder = $oldRuleOrder + 1; 
                 Write-Host "Created new rule order with order $RuleOrder. Continueing.."
             }
         }
@@ -71,38 +66,7 @@ if ($RuleName -and $ConditionMatchVariable -and $ConditionOperator -and $Conditi
     }
 
     # Create rule, condition and action 
-    #TODO: At this moment, not possible in the CLI - 2.34.1
-    $originGroupId = (Invoke-Executable az afd origin-group show --origin-group-name $OriginGroupName --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup | ConvertFrom-Json).id
-    $body = @{
-        properties = @{
-            order      = $RuleOrder;
-            conditions = @(@{
-                    name       = $ConditionMatchVariable;
-                    parameters = @{
-                        typeName        = "DeliveryRuleRequestUriConditionParameters";
-                        operator        = $ConditionOperator;
-                        matchValues     = $ConditionMatchValues;
-                        negateCondition = "false"
-                    }
-                });
-            actions    = @(@{
-                    name       = $ActionActionName;
-                    parameters = @{
-                        originGroupOverride = @{
-                            originGroup        = @{
-                                id = $originGroupId;
-                            };
-                            forwardingProtocol = $ActionForwardingProtocol;
-                        };
-                        cacheConfiguration  = $null;
-                        typeName            = "DeliveryRuleRouteConfigurationOverrideActionParameters";
-                    }
-                });
-        }
-    }
-
-    $url = "https://management.azure.com/subscriptions/$($subscriptionId)/resourceGroups/$($FrontDoorResourceGroup)/providers/Microsoft.Cdn/profiles/$($FrontDoorProfileName)/ruleSets/$($RuleSetName)/rules/$($RuleName)"
-    Invoke-AzRestCall -Method PUT -ResourceUrl $url -ApiVersion '2021-06-01' -Body $body
+    Invoke-Executable az afd rule create --action-name $ActionActionName --order $RuleOrder --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup --rule-name $RuleName --rule-set-name $RuleSetName --forwarding-protocol $ActionForwardingProtocol --origin-group $OriginGroupName --match-variable $ConditionMatchVariable --operator $ConditionOperator --match-values $ConditionMatchValues --match-processing-behavior $ConditionMatchProcessingBehavior
 }
 else {
     Write-Host "Not all parameters were supplied to create a rule. Skipped."

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.04.05]
+
+## Changes
+- Updated `Add-Front-Door-Rule-For-Override.ps1` to be able to work with cli 2.36. 
+- Updated `Create-Front-Door-EntryPoint.ps1`, removed `EndpointOriginResponseTimeoutInSeconds` parameter. 
+- Added parameter `KeyvaultBypassTraffic` for `Create-Keyvault.ps1`.
+
 ## [2022.04.08]
 
 ## Added

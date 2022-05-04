@@ -106,7 +106,7 @@ function Add-SecretToFrontDoor {
 
         Write-Host "Adding Certificate to FrontDoor"
         $subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
-        $certificateSource = "/subscriptions/$($subscriptionId)/resourceGroups/$($CertificateKeyvaultResourceGroupName)/providers/Microsoft.KeyVault/vaults/$($CertificateKeyvaultName)/certificates/$($CertificateName)"
+        $certificateSource = "/subscriptions/$($subscriptionId)/resourceGroups/$($CertificateKeyvaultResourceGroupName)/providers/Microsoft.KeyVault/vaults/$($CertificateKeyvaultName)/secrets/$($CertificateName)"
         Add-CertificateToFrontDoor -FrontDoorProfileName $FrontDoorProfileName -FrontDoorResourceGroup $FrontDoorResourceGroup -CertificateName $CertificateName -CertificateSource $certificateSource
         Write-Host "Cert added/replaced to FrontDoor"
     }
@@ -153,7 +153,6 @@ function Add-CertificateToFrontDoor {
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
-    # TODO WHEN NEW RELEASE IS AVAILABLE https://github.com/Azure/azure-cli/pull/21786/files#diff-dbb722b9f4730160e726bf257cd01c118e57cd73311564cbd6bb2997216dfd03
     Invoke-Executable az afd secret create --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup --secret-name $CertificateName --secret-source $CertificateSource --use-latest-version 'true'
     Write-Host "Added certificate with name $($CertificateName) to Front Door"
 
@@ -244,7 +243,6 @@ function Add-OriginGroupToFrontDoor {
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
-
 
 function Add-RouteToEndpointToFrontDoor {
     [CmdletBinding()]

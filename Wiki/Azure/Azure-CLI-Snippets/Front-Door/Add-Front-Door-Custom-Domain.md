@@ -6,11 +6,12 @@ Create a custom domain in a front door profile. After adding the custom domain, 
 - TXT record with `dns_auth{your_domain}` and a validation token
 - CNAME record
 
-In this script the certificate from your Azure Devops library will also be added to your keyvault and added to the front door profile. 
+In this script the certificate from your Azure Devops library will also be added to your keyvault and added to the front door profile. Make sure your Keyvault has allowed the trusted services from Microsoft to be able to connect from Azure Frontdoor to the specified Keyvault.
 
 Do not forget to add the service principal to your global tenant, see https://docs.microsoft.com/en-us/azure/frontdoor/standard-premium/how-to-configure-https-custom-domain. To get the service principal object id for your service principal, use the following command: 
 
 `az ad sp show --id {service-principal-id}`
+
 
 # Parameters
 

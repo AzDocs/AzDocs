@@ -4,7 +4,6 @@ param (
     [Parameter(Mandatory)][string] $FrontDoorResourceGroup,
     [Parameter(Mandatory)][string] $EndpointName,
     [Parameter()][string][ValidateSet('Disabled', 'Enabled')] $EndpointIsEnabled = 'Enabled',
-    [Parameter()][string] $EndpointOriginResponseTimeoutInSeconds = 60,
 
     # Origin group
     [Parameter(Mandatory)][string] $OriginGroupName,
@@ -35,10 +34,9 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 # Create Endpoint 
 Write-Host "Creating endpoint for $EndpointName"
 
-# TODO REMOVE THIS WHEN UPDATING TO 2.0.35 --origin-response-timeout-seconds and remove if statement. Is idempotent in 2.0.35
 $endpointExists = Invoke-Executable -AllowToFail az afd endpoint show --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup --endpoint-name $EndpointName
-if(!$endpointExists){
-    Invoke-Executable az afd endpoint create --enabled-state $EndpointIsEnabled --endpoint-name $EndpointName --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup --origin-response-timeout-seconds $EndpointOriginResponseTimeoutInSeconds
+if (!$endpointExists) {
+    Invoke-Executable az afd endpoint create --enabled-state $EndpointIsEnabled --endpoint-name $EndpointName --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup
 }
 
 Write-Host "Done creating endpoint for $EndpointName"

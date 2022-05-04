@@ -12,7 +12,6 @@ Add an entrypoint to the Azure Front Door profile.
 | FrontDoorResourceGroup                 | <input type="checkbox" checked> | `rg-$(Release.EnvironmentName)`       | The name of the resourcegroup the Front Door Profile resides in.                   |
 | EndpointName                           | <input type="checkbox" checked> | `myendpoint`                          | The endpoint name.                                                                 |
 | EndpointIsEnabled                      | <input type="checkbox" checked> | `Enabled`/`Disabled`                  | Determines if the endpoint is enabled. Defaults to `Enabled`.                      |
-| EndpointOriginResponseTimeoutInSeconds | <input type="checkbox">         | `60`                                  | The origin response timeout in seconds. Defaults to `60`.                          |
 | OriginGroupName                        | <input type="checkbox" checked> | `myorigingroup`                       | The origin group the endpoint has to be attached to.                               |
 | RuleSetName                            | <input type="checkbox">         | `myruleset`                           | The rule set name the endpoint can be attached to.                                 |
 | RouteName                              | <input type="checkbox" checked> | `myroute`                             | The name for the route that will be attached to the endpoint.                      |
@@ -42,7 +41,6 @@ Be aware that this YAML example contains all parameters that can be used with th
         -FrontDoorResourceGroup '$(FrontDoorResourceGroup)'
         -EndpointName '$(EndpointName)'
         -EndpointIsEnabled '$(EndpointIsEnabled)'
-        -EndpointOriginResponseTimeoutInSeconds '$(EndpointOriginResponseTimeoutInSeconds)'
         -OriginGroupName '$(OriginGroupName)'
         -RuleSetName '$(RuleSetName)'
         -RouteName '$(RouteName)'
