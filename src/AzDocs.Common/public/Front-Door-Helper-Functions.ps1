@@ -137,7 +137,7 @@ function Grant-AzureFrontDoorSPPermissionsOnKeyvault{
     # Todo: fix that this can be done automatically, for now skipping because of permission issues
     # 205478c0-bd83-4e1b-a9d6-db63a3e1e1c8 is the hardcoded id for the application Azure Frontdoor, see https://docs.microsoft.com/en-us/azure/frontdoor/standard-premium/how-to-configure-https-custom-domain
     # $objectId = (Invoke-Executable az ad sp show --id '205478c0-bd83-4e1b-a9d6-db63a3e1e1c8' | ConvertFrom-Json).objectId
-    Invoke-Executable az keyvault set-policy --name $CertificateKeyvaultName --certificate-permissions get list create update import delete recover --object-id $ServicePrincipalObjectId --resource-group $CertificateKeyvaultResourceGroupName | Out-Null
+    Invoke-Executable az keyvault set-policy --name $CertificateKeyvaultName --certificate-permissions get list create update import delete recover --secret-permissions get --object-id $ServicePrincipalObjectId --resource-group $CertificateKeyvaultResourceGroupName | Out-Null
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
