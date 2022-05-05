@@ -18,6 +18,7 @@ param (
     $ConditionOperator,
     [Parameter(Mandatory, ParameterSetName = "rule")][string[]] $ConditionMatchValues,
     [Parameter(ParameterSetName = "rule")][string][ValidateSet("Continue", "Stop")] $ConditionMatchProcessingBehavior = "Stop",
+    [Parameter(ParameterSetName = "rule")][string][ValidateSet("Lowercase", "RemoveNulls", "Trim", "Uppercase", "UrlDecode", "UrlEncode")] $ConditionTransformBehavior = "Lowercase",
 
     # Action
     [Parameter(Mandatory, ParameterSetName = "rule")][string] 
@@ -66,7 +67,7 @@ if ($RuleName -and $ConditionMatchVariable -and $ConditionOperator -and $Conditi
     }
 
     # Create rule, condition and action 
-    Invoke-Executable az afd rule create --action-name $ActionActionName --order $RuleOrder --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup --rule-name $RuleName --rule-set-name $RuleSetName --forwarding-protocol $ActionForwardingProtocol --origin-group $OriginGroupName --match-variable $ConditionMatchVariable --operator $ConditionOperator --match-values $ConditionMatchValues --match-processing-behavior $ConditionMatchProcessingBehavior
+    Invoke-Executable az afd rule create --action-name $ActionActionName --order $RuleOrder --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup --rule-name $RuleName --rule-set-name $RuleSetName --forwarding-protocol $ActionForwardingProtocol --origin-group $OriginGroupName --match-variable $ConditionMatchVariable --operator $ConditionOperator --match-values $ConditionMatchValues --match-processing-behavior $ConditionMatchProcessingBehavior --transforms $ConditionTransformBehavior
 }
 else {
     Write-Host "Not all parameters were supplied to create a rule. Skipped."
