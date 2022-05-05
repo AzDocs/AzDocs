@@ -28,6 +28,7 @@ When wanting to add a rule all of the below parameters are required. If you don'
 | OriginGroupName                  | <input type="checkbox" checked> | `myorigingroup`                                                                                                            | The name of the origin group you want to override the route with.                                                                             |
 | ActionForwardingProtocol         | <input type="checkbox">         | `MatchRequest`/`Http`/ `Https`                                                                                             | The forwarding protocol for your action. Defaults to `MatchRequest`.                                                                          |
 | ConditionMatchProcessingBehavior | <input type="checkbox">         | `Continue`/`Stop`                                                                                                          | The match processing behavior when the rule has been found. By default `Stop`.                                                                |
+| ConditionTransformBehavior       | <input type="checkbox">         | `Lowercase`/`RemoveNulls`/`Trim`/`Uppercase`/`UrlDecode`/`UrlEncode`                                                       | The transform that will be applied on the condition of the rule. By default `Lowercase`.                                                      |
 
 
 _Note: A rule with order 0 is a special rule that does not require any conditions nor any actions. This rule will always be applied. This rule should be made consciously and is not part of the generated set._
@@ -57,6 +58,7 @@ Be aware that this YAML example contains all parameters that can be used with th
         -OriginGroupName '$(OriginGroupName)'
         -ActionForwardingProtocol '$(ActionForwardingProtocol)'
         -ConditionMatchProcessingBehavior '$(ConditionMatchProcessingBehavior)'
+        -ConditionTransformBehavior '$(ConditionTransformBehavior)'
 ```
 
 # Code
