@@ -26,7 +26,8 @@ param (
     [Parameter()][string] $OriginHttpsPort = "443",
     [Parameter()][string] $OriginPriority = "1", 
     [Parameter()][string] $OriginWeight = "1000", 
-    [Parameter()][string][ValidateSet("Enabled", "Disabled")] $OriginEnabled = "Enabled"
+    [Parameter()][string][ValidateSet("Enabled", "Disabled")] $OriginEnabled = "Enabled",
+    [Parameter()][string] $OriginHostHeader
 )
 
 #region ===BEGIN IMPORTS===
@@ -77,6 +78,7 @@ $paramsForOrigin = @{
     OriginPriority         = $OriginPriority;
     OriginWeight           = $OriginWeight;
     OriginEnabled          = $OriginEnabled;
+    OriginHostHeader       = $OriginHostHeader;
 }
 
 Add-OriginToOriginGroup @paramsForOrigin

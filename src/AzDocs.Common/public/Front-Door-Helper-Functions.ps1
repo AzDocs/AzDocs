@@ -171,7 +171,8 @@ function Add-OriginToOriginGroup {
         [Parameter()][string] $OriginHttpsPort = "443",
         [Parameter()][string] $OriginPriority = "1", 
         [Parameter()][string] $OriginWeight = "1000", 
-        [Parameter()][string][ValidateSet("Enabled", "Disabled")] $OriginEnabled = "Enabled"
+        [Parameter()][string][ValidateSet("Enabled", "Disabled")] $OriginEnabled = "Enabled",
+        [Parameter()][string] $OriginHostHeader
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -189,7 +190,12 @@ function Add-OriginToOriginGroup {
         '--enabled-state', $OriginEnabled
     )
 
-    Invoke-Executable az afd origin create @params
+    $optionalParameters = @()
+    if($OriginHostHeader){
+        $optionalParameters += '--origin-host-header', $OriginHostHeader
+    }
+
+    Invoke-Executable az afd origin create @params @optionalParameters
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
