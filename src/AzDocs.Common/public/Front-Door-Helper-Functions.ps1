@@ -17,8 +17,8 @@ function Get-CommonNameAndCertificateName {
     Write-Host "Certificatename: $CertificateName"
 
     $returnValue = [PSCustomObject]@{
-        CommonName                    = $CommonName
-        CertificateName               = $CertificateName
+        CommonName      = $CommonName
+        CertificateName = $CertificateName
     }
 
     Write-Output $returnValue
@@ -123,7 +123,7 @@ function Add-SecretToFrontDoor {
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
-function Grant-AzureFrontDoorSPPermissionsOnKeyvault{
+function Grant-AzureFrontDoorSPPermissionsOnKeyvault {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)][string] $CertificateKeyvaultName,
@@ -171,7 +171,8 @@ function Add-OriginToOriginGroup {
         [Parameter()][string] $OriginHttpsPort = "443",
         [Parameter()][string] $OriginPriority = "1", 
         [Parameter()][string] $OriginWeight = "1000", 
-        [Parameter()][string][ValidateSet("Enabled", "Disabled")] $OriginEnabled = "Enabled"
+        [Parameter()][string][ValidateSet("Enabled", "Disabled")] $OriginEnabled = "Enabled",
+        [Parameter()][string] $OriginHostHeader
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -189,7 +190,12 @@ function Add-OriginToOriginGroup {
         '--enabled-state', $OriginEnabled
     )
 
-    Invoke-Executable az afd origin create @params
+    $optionalParameters = @()
+    if ($OriginHostHeader) {
+        $optionalParameters += '--origin-host-header', $OriginHostHeader
+    }
+
+    Invoke-Executable az afd origin create @params @optionalParameters
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
@@ -254,7 +260,7 @@ function Add-RouteToEndpointToFrontDoor {
         [Parameter(Mandatory)][string][ValidateSet("HttpOnly", "HttpsOnly", "MatchRequest")] $RouteForwardingProtocol,
         [Parameter()][string][ValidateSet("Disabled", "Enabled")] $RouteHttpsRedirect = "Enabled",
         [Parameter(Mandatory)][string] $OriginGroupName, 
-        [Parameter()][string][ValidateSet("Http", "Https")] $RouteSupportedProtocols = "Https",
+        [Parameter()][string][ValidateSet("Http", "Https", "HttpAndHttps")] $RouteSupportedProtocols = "Https",
         [Parameter()][string] $CustomDomainName,
         [Parameter()][string] $RuleSetName,
         [Parameter()][string][ValidateSet('Disabled', 'Enabled')] $LinkToDefaultDomain = 'Disabled'
@@ -270,24 +276,29 @@ function Add-RouteToEndpointToFrontDoor {
         '--route-name', $RouteName
         '--forwarding-protocol', $RouteForwardingProtocol
         '--https-redirect', $RouteHttpsRedirect
-        '--supported-protocols', $RouteSupportedProtocols
     )
 
     if ($CustomDomainName) {
         $params += '--custom-domains', $CustomDomainName
-
     }
     if ($RuleSetName) {
         $params += '--rule-sets', $RuleSetName
     }
-    if($LinkToDefaultDomain){
+    if ($LinkToDefaultDomain) {
         # Because of bug, when LinkToDefaultDomain is disabled, we won't add it to the params
-        if($LinkToDefaultDomain -eq 'Enabled'){
+        if ($LinkToDefaultDomain -eq 'Enabled') {
             $params += '--link-to-default-domain', $LinkToDefaultDomain
         }
     }
 
-    Invoke-Executable az afd route create @params
+    if ($RouteSupportedProtocols -eq "HttpAndHttps") {
+        # Workaround: When splatting the supported protocols parameter, an error occurs for the supported protocols. When adding it like this, it does accept both of the values.
+        Invoke-Executable az afd route create @params --supported-protocols Http Https
+    }
+    else {
+        $params += '--supported-protocols', $RouteSupportedProtocols
+        Invoke-Executable az afd route create @params
+    }
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }

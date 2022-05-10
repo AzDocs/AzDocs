@@ -1,6 +1,8 @@
 # Change Log
 
 All notable changes to this project will be documented in this file.
+## [2022.05.09]
+- Added `OriginHostHeader` to `Add-Origin-To-Front-Door.ps1`
 
 ## [2022.05.05]
 

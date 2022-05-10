@@ -6,23 +6,23 @@ Add an entrypoint to the Azure Front Door profile.
 
 # Parameters
 
-| Parameter                              | Required                        | Example Value                         | Description                                                                        |
-| -------------------------------------- | ------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------- |
-| FrontDoorProfileName                   | <input type="checkbox" checked> | `azurefrontdoorprofile`               | The name of the Front Door profile                                                 |
-| FrontDoorResourceGroup                 | <input type="checkbox" checked> | `rg-$(Release.EnvironmentName)`       | The name of the resourcegroup the Front Door Profile resides in.                   |
-| EndpointName                           | <input type="checkbox" checked> | `myendpoint`                          | The endpoint name.                                                                 |
-| EndpointIsEnabled                      | <input type="checkbox" checked> | `Enabled`/`Disabled`                  | Determines if the endpoint is enabled. Defaults to `Enabled`.                      |
-| OriginGroupName                        | <input type="checkbox" checked> | `myorigingroup`                       | The origin group the endpoint has to be attached to.                               |
-| RuleSetName                            | <input type="checkbox">         | `myruleset`                           | The rule set name the endpoint can be attached to.                                 |
-| RouteName                              | <input type="checkbox" checked> | `myroute`                             | The name for the route that will be attached to the endpoint.                      |
-| CustomDomainHostName                   | <input type="checkbox" checked> | `*.wildcard.nl`                       | The custom domain host name the endpoint has to be attached to.                    |
-| RouteForwardingProtocol                | <input type="checkbox">         | `HttpOnly`/`HttpsOnly`/`MatchRequest` | The forwarding protocol of the route. Defaults to `HttpsOnly`.                     |
-| RouteHttpsRedirect                     | <input type="checkbox">         | `Enabled` / `Disabled`                | If the route has to redirect to Https. Defaults to `Enabled`.                      |
-| RouteSupportedProtocols                | <input type="checkbox">         | `Http`/ `Https`                       | The supported protocol the route will use. Defaults to `Https`.                    |
-| LinkRouteToDefaultDomain               | <input type="checkbox">         | `Enabled`/`Disabled`                  | The ability to route to the default front door domain. Defaults to `Disabled`.     |
-| SecurityPolicyName                     | <input type="checkbox">         | `mysecuritypolicy`                    | The security policy name you want to add to your endpoint.                         |
-| WAFPolicyName                          | <input type="checkbox">         | `mywafpolicy`                         | The name of your Web Application Firewall policy you want to add to your endpoint. |
-| WAFPolicyResourceGroup                 | <input type="checkbox">         | `rg-policy`                           | The resourcegroup the Web Application Firewall policy resides in.                  |
+| Parameter                | Required                        | Example Value                         | Description                                                                        |
+| ------------------------ | ------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------- |
+| FrontDoorProfileName     | <input type="checkbox" checked> | `azurefrontdoorprofile`               | The name of the Front Door profile                                                 |
+| FrontDoorResourceGroup   | <input type="checkbox" checked> | `rg-$(Release.EnvironmentName)`       | The name of the resourcegroup the Front Door Profile resides in.                   |
+| EndpointName             | <input type="checkbox" checked> | `myendpoint`                          | The endpoint name.                                                                 |
+| EndpointIsEnabled        | <input type="checkbox" checked> | `Enabled`/`Disabled`                  | Determines if the endpoint is enabled. Defaults to `Enabled`.                      |
+| OriginGroupName          | <input type="checkbox" checked> | `myorigingroup`                       | The origin group the endpoint has to be attached to.                               |
+| RuleSetName              | <input type="checkbox">         | `myruleset`                           | The rule set name the endpoint can be attached to.                                 |
+| RouteName                | <input type="checkbox" checked> | `myroute`                             | The name for the route that will be attached to the endpoint.                      |
+| CustomDomainHostName     | <input type="checkbox" checked> | `*.wildcard.nl`                       | The custom domain host name the endpoint has to be attached to.                    |
+| RouteForwardingProtocol  | <input type="checkbox">         | `HttpOnly`/`HttpsOnly`/`MatchRequest` | The forwarding protocol of the route. Defaults to `HttpsOnly`.                     |
+| RouteHttpsRedirect       | <input type="checkbox">         | `Enabled` / `Disabled`                | If the route has to redirect to Https. Defaults to `Enabled`.                      |
+| RouteSupportedProtocols  | <input type="checkbox">         | `Http`/ `Https` / `HttpAndHttps`      | The supported protocol the route will use. Defaults to `Https`.                    |
+| LinkRouteToDefaultDomain | <input type="checkbox">         | `Enabled`/`Disabled`                  | The ability to route to the default front door domain. Defaults to `Disabled`.     |
+| SecurityPolicyName       | <input type="checkbox">         | `mysecuritypolicy`                    | The security policy name you want to add to your endpoint.                         |
+| WAFPolicyName            | <input type="checkbox">         | `mywafpolicy`                         | The name of your Web Application Firewall policy you want to add to your endpoint. |
+| WAFPolicyResourceGroup   | <input type="checkbox">         | `rg-policy`                           | The resourcegroup the Web Application Firewall policy resides in.                  |
 
 # YAML task
 

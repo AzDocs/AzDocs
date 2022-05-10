@@ -16,7 +16,7 @@ param (
     [Parameter(Mandatory)][string] $CustomDomainHostName,
     [Parameter()][string][ValidateSet("HttpOnly", "HttpsOnly", "MatchRequest")] $RouteForwardingProtocol = "HttpsOnly",
     [Parameter()][string][ValidateSet("Disabled", "Enabled")] $RouteHttpsRedirect = "Enabled",
-    [Parameter()][string][ValidateSet("Http", "Https")] $RouteSupportedProtocols = "Https",
+    [Parameter()][string][ValidateSet("Http", "Https", "HttpAndHttps")] $RouteSupportedProtocols = "Https",
     [Parameter()][string][ValidateSet("Enabled", "Disabled")] $LinkRouteToDefaultDomain = "Disabled",
 
     # Security Policy name
