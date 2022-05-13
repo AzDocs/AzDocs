@@ -66,7 +66,6 @@ switch ($ResourceType) {
 Write-Host "Generated hostname $hostname"
 Write-Host "Creating origin for host $hostName"
 
-
 $paramsForOrigin = @{
     FrontDoorProfileName   = $FrontDoorProfileName;
     FrontDoorResourceGroup = $FrontDoorResourceGroup;
