@@ -42,14 +42,15 @@ else
     $scriptArguments += "--query-access", "Disabled"
 }
 
-$logAnalyticsWorkspaceId = (Invoke-Executable az monitor log-analytics workspace create @scriptArguments | ConvertFrom-Json).id
+# Added the -AsHashtable because of bugs in the cli with duplicate etag parameters 
+$logAnalyticsWorkspaceId = (Invoke-Executable az monitor log-analytics workspace create @scriptArguments | ConvertFrom-Json -AsHashtable).id
 
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $logAnalyticsWorkspaceId -ResourceTags ${ResourceTags}
 
 if ($LogAnalyticsWorkspaceSolutionTypes)
 {
-    $logAnalyticsWorkspaceResourceId = (Invoke-Executable -AllowToFail az monitor log-analytics workspace show --workspace-name $LogAnalyticsWorkspaceName --resource-group $LogAnalyticsWorkspaceResourceGroupName.ToLower() | ConvertFrom-Json).Id
+    $logAnalyticsWorkspaceResourceId = (Invoke-Executable -AllowToFail az monitor log-analytics workspace show --workspace-name $LogAnalyticsWorkspaceName --resource-group $LogAnalyticsWorkspaceResourceGroupName.ToLower() | ConvertFrom-Json -AsHashtable).Id
     if ($logAnalyticsWorkspaceResourceId)
     {
         foreach ($type in $LogAnalyticsWorkspaceSolutionTypes)
