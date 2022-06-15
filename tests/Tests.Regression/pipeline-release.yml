@@ -107,7 +107,7 @@ stages:
       - name: AppServicePlanSkuName
         value: P1v3
       - name: AppServiceRunTime
-        value: DOTNET|5.0
+        value: DOTNET|6.0
       - name: LinuxAppServicePlanName
         value: "${{ format('{0}-ASP-{1}-Linux', variables.ResourceBaseName, parameters.EnvironmentName) }}"
       - name: WindowsAppServicePlanName

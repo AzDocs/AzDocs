@@ -743,6 +743,11 @@ function New-ApplicationGatewayRule
     if (!$gatewayRule)
     {
         Write-Host "Creating routing rule"
+        $lastPriority = [nullable[int]](Invoke-Executable az network application-gateway rule list --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --query "[? priority!=null]|max_by([].{Priority:priority}, &Priority) | Priority")
+        if($lastPriority -ne $null){
+            $priority = $lastPriority + 10
+            $optionalParameters += "--priority", $priority
+        }
         Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$DashedDomainName-httpsrule" --http-listener "$DashedDomainName-httpslistener" --address-pool "$DashedDomainName-httpspool" --http-settings "$DashedDomainName-httpssettings" --rule-type $ApplicationGatewayRuleType --resource-group $ApplicationGatewayResourceGroupName @optionalParameters | Out-Null
         Write-Host "Created routing rule"
     }
@@ -1218,8 +1223,15 @@ function New-ApplicationGatewayEntrypoint
         $gatewayRule = Invoke-Executable -AllowToFail az network application-gateway rule show --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" | ConvertFrom-Json
         if (!$gatewayRule)
         {
+            $optionalParameters = @()
             Write-Host "Creating routing rule for HTTP entrypoint"
-            Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" | Out-Null
+
+            $lastPriority = [nullable[int]](Invoke-Executable az network application-gateway rule list --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --query "[? priority!=null]|max_by([].{Priority:priority}, &Priority) | Priority")
+            if($lastPriority -ne $null){
+                $priority = $lastPriority + 10
+                $optionalParameters += "--priority", $priority
+            }
+            Invoke-Executable az network application-gateway rule create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httprule" --resource-group $ApplicationGatewayResourceGroupName --http-listener "$($dashedDomainName)-httplistener" --rule-type Basic --redirect-config "$($dashedDomainName)-httpredirector" @optionalParameters| Out-Null
             Write-Host "Created routing rule for HTTP entrypoint"
         }
         else
