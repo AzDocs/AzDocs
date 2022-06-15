@@ -49,7 +49,7 @@ Set-ResourceTagsForResource -ResourceId $logAnalyticsWorkspaceId -ResourceTags $
 
 if ($LogAnalyticsWorkspaceSolutionTypes)
 {
-    $logAnalyticsWorkspaceResourceId = (Invoke-Executable -AllowToFail az monitor log-analytics workspace show --workspace-name $LogAnalyticsWorkspaceName --resource-group $LogAnalyticsWorkspaceResourceGroupName.ToLower() | ConvertFrom-Json).Id
+    $logAnalyticsWorkspaceResourceId = (Invoke-Executable -AllowToFail az monitor log-analytics workspace show --workspace-name $LogAnalyticsWorkspaceName --resource-group $LogAnalyticsWorkspaceResourceGroupName.ToLower() | ConvertFrom-Json -AsHashTable).Id
     if ($logAnalyticsWorkspaceResourceId)
     {
         foreach ($type in $LogAnalyticsWorkspaceSolutionTypes)

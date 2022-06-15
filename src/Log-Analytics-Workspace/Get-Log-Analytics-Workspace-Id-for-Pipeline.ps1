@@ -11,7 +11,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$logAnalyticsWorkspaceId = (Invoke-Executable az monitor log-analytics workspace show --resource-group $LogAnalyticsWorkspaceResourceGroupName --workspace-name $LogAnalyticsWorkspaceName | ConvertFrom-Json).customerId
+$logAnalyticsWorkspaceId = (Invoke-Executable az monitor log-analytics workspace show --resource-group $LogAnalyticsWorkspaceResourceGroupName --workspace-name $LogAnalyticsWorkspaceName | ConvertFrom-Json -AsHashTable).customerId
 Write-Host "LogAnalyticsWorkspaceId: $logAnalyticsWorkspaceId"
 Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$logAnalyticsWorkspaceId"
 
