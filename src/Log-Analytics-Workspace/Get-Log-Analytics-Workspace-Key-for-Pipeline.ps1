@@ -11,7 +11,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$logAnalyticsWorkspaceKey = (Invoke-Executable az monitor log-analytics workspace get-shared-keys --resource-group $LogAnalyticsWorkspaceResourceGroupName --workspace-name $LogAnalyticsWorkspaceName | ConvertFrom-Json).primarySharedKey
+$logAnalyticsWorkspaceKey = (Invoke-Executable az monitor log-analytics workspace get-shared-keys --resource-group $LogAnalyticsWorkspaceResourceGroupName --workspace-name $LogAnalyticsWorkspaceName | ConvertFrom-Json -AsHashTable).primarySharedKey
 Write-Host "LogAnalyticsWorkspaceKey: $logAnalyticsWorkspaceKey"
 Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$logAnalyticsWorkspaceKey"
 
