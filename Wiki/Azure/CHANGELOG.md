@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.06.14]
+- Fixed bug in `Create-Log-Analytics-Workspace.ps1` for duplicate parameters.
+
+## [2022.05.09]
+- Added `OriginHostHeader` to `Add-Origin-To-Front-Door.ps1`
+
+## [2022.05.05]
+
+## Changes
+- Added `ConditionTransformBehavior` to `Add-Front-Door-Rule-For-Override-Route.ps1`.
+
+## [2022.05.04]
+
+## Changes
+- Updated `Add-Front-Door-Rule-For-Override-Route.ps1` to be able to work with cli 2.36. 
+- Updated `Create-Front-Door-EntryPoint.ps1`, removed `EndpointOriginResponseTimeoutInSeconds` parameter. 
+- Added parameter `KeyvaultBypassTraffic` for `Create-Keyvault.ps1`.
+
+## [2022.04.08]
+
+## Added
+- Added script `Add-Front-Door-Custom-Domain.ps1`
+- Added script `Add-Front-Door-Rule-For-Override-Route.ps1`
+- Added script `Add-Front-Door-ServiceTag-To-Resource.ps1`
+- Added script `Add-Origin-To-Front-Door.ps1`
+- Added script `Create-Front-Door-EntryPoint.ps1`
+- Added script `Create-Front-Door-Profile.ps1`
+- Added script `Create-WAF-Policy.ps1`
+- Added script `Get-Front-Door-Id.ps1`
+
+## [2022.03.22]
+
+## Changes
+
+- Added script `Create-VNet-Peering`.
+
+## [2022.03.11]
+
+## Changes
+
+- Added `CORSUrls` param to `Create-Web-App.ps1` to configure allowed origins on app service
+
 ## [2022.02.24]
 
 ## Changes

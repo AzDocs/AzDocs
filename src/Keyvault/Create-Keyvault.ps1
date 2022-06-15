@@ -35,7 +35,10 @@ param (
     [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
     
     # Disable diagnostic settings
-    [Parameter()][switch] $DiagnosticSettingsDisabled
+    [Parameter()][switch] $DiagnosticSettingsDisabled,
+
+    # Bypass
+    [Parameter()][string][ValidateSet('AzureServices', 'None')] $KeyvaultBypassTraffic = 'None'
     
 )
 
@@ -96,7 +99,7 @@ if (!$keyvaultExists)
         {
             $keyvaultParameters += '--default-action', 'Deny'
         }
-        Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --sku $KeyvaultSku --bypass None @keyvaultParameters --tags @ResourceTags @optionalParameters
+        Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --sku $KeyvaultSku --bypass $KeyvaultBypassTraffic @keyvaultParameters --tags @ResourceTags @optionalParameters
     }
 }
 
