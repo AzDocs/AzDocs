@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2022.06.20]
+- Added script `Get-CosmosDb-Connectionstring.ps1`
+- Updated script `Create-CosmosDbAccount.ps1` to add the capabilities parameter as an optional parameter during creation.
+
 ## [2022.06.14]
 - Fixed bug in `Create-Log-Analytics-Workspace.ps1` for duplicate parameters.
 
