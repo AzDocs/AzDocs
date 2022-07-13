@@ -3,7 +3,7 @@
 param (
     [Parameter(Mandatory)][string] $CdnEndpointName,
     [Parameter(Mandatory)][string] $CdnProfileName,
-    [Parameter(Mandatory)][string] $CdnResourceGroup,
+    [Parameter(Mandatory)][string] $CdnResourceGroupName,
     [Parameter(Mandatory)][string] $ActionName,
     [Parameter()][string] $CacheDuration = "01:00:00",
     [Parameter()][ValidateSet("BypassCache", "Override", "SetIfMissing")] $CacheBehavior = "Override",
@@ -16,6 +16,6 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-Invoke-Executable az cdn endpoint rule add --cache-behavior $CacheBehavior --action-name $ActionName --order $Order --cache-duration $CacheDuration --resource-group $CdnResourceGroup --name $CdnEndpointName --profile-name $CdnProfileName  
+Invoke-Executable az cdn endpoint rule add --cache-behavior $CacheBehavior --action-name $ActionName --order $Order --cache-duration $CacheDuration --resource-group $CdnResourceGroupName --name $CdnEndpointName --profile-name $CdnProfileName  
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

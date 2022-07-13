@@ -1,6 +1,11 @@
 # Change Log
-
 All notable changes to this project will be documented in this file.
+
+## [2022.07.13]
+- Added script `Create-CDN-Custom-Domain`
+- Added script `Create-CDN-Endpoint-Rule`
+- Added script `Create-CDN-Endpoint`
+- Added script `Create-CDN-Profile`
 
 ## [2022.06.20]
 - Added script `Get-CosmosDb-Connectionstring.ps1`

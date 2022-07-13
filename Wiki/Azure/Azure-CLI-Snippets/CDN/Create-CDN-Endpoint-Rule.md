@@ -12,7 +12,7 @@ Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
 | ------------------------------------------------- | ------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | CdnEndpointName                                    | <input type="checkbox" checked> | `shared-cdn`                                   | The name of the cdn endpoint.                                                                                                                                                       |
 | CdnProfileName                                     | <input type="checkbox" checked> | `shared-cdn`                                   | The name of the cdn profile name.                                                                                                                                   |
-| CdnResourceGroup                                  | <input type="checkbox" checked> | `my-resource-group-$(Release.EnvironmentName`  | The name of the resource group.                                                                                                                                   |
+| CdnResourceGroupName                                  | <input type="checkbox" checked> | `my-resource-group-$(Release.EnvironmentName`  | The name of the resource group.                                                                                                                                   |
 | ActionName                                         | <input type="checkbox" checked> | `UseQueryString`                | 
 The name of the action for the delivery. Options are currently: `BypassCaching`, `IgnoreQueryString` `NotSet`, `UseQueryString`, `IgnoreQueryString` `NotSet`, `UseQueryString`   rule                                                                                                                                |
 | CacheDuration                                      | <input type="checkbox">         | `01:00:00`                                     | The duration for which the content needs to be cached. Allowed format is [d.]hh:mm:ss.                                                                                                                 |
@@ -31,7 +31,7 @@ Be aware that this YAML example contains all parameters that can be used with th
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
     scriptPath: "$(Pipeline.Workspace)/AzDocs/CDN/Create-CDN-Endpoint-Rule.ps1"
-    arguments: "-CdnEndpointName '$(CdnEndpointName)' -CdnProfileName '$(CdnProfileName)' -CdnResourceGroup '$(CdnResourceGroup)' -ActionName '$(ActionName)' -CacheDuration '$(CacheDuration)' -Order '$(Order)'"
+    arguments: "-CdnEndpointName '$(CdnEndpointName)' -CdnProfileName '$(CdnProfileName)' -CdnResourceGroupName '$(CdnResourceGroupName)' -ActionName '$(ActionName)' -CacheDuration '$(CacheDuration)' -Order '$(Order)'"
 ```
 
 # Code
@@ -40,4 +40,4 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 # Links
 
-- [Azure Ccli - Configure CDN endpoint rule](https://docs.microsoft.com/nl-nl/cli/azure/cdn/endpoint/rule?view=azure-cli-latest)
+- [Azure Cli - Configure CDN endpoint rule](https://docs.microsoft.com/nl-nl/cli/azure/cdn/endpoint/rule?view=azure-cli-latest)
