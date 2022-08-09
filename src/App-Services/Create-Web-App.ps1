@@ -127,7 +127,7 @@ if ($StopAppServiceImmediatelyAfterCreation)
 Invoke-Executable az webapp update --ids $webAppId --https-only true
 
 # Disable/enable Client Affinity (ARR)
-Invoke-Executable az webapp update --ids $webAppId --client-affinity-enabled !$DisableClientAffinity
+Invoke-Executable az webapp update --ids $webAppId --client-affinity-enabled $(!$DisableClientAffinity)
 
 # Set Always On, the number of instances and the ftps-state to disable
 Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --min-tls-version $AppServiceMinimalTlsVersion
