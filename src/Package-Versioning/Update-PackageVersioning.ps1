@@ -42,9 +42,7 @@ Write-Host "Last $PackageType beta version: $betaVersion"
 
 $version = "0.0.0"
 if ($IsPreRelease) {
-    Write-Host "IsPreRelease"
     $versionToChange = $betaVersion
-
     $splittedLastVersion = $lastVersion.split('.')
     $splittedBetaVersion = $betaVersion.split('.')
 
