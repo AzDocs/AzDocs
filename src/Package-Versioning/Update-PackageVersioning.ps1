@@ -15,10 +15,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-switch($PackageType){
-    'npm'{
-        if(!$NpmWorkingDirectory)
-        {
+switch ($PackageType) {
+    'npm' {
+        if (!$NpmWorkingDirectory) {
             throw 'You need to specify the NPM working directory.'
         }
         # Need to set the Npm Working directory when working with npmAuthenticate@0 task
@@ -26,16 +25,15 @@ switch($PackageType){
         $lastVersion = npm show $PackageName dist-tags.latest
         $betaVersion = npm show $PackageName dist-tags.beta 
     }
-    'nuget'{
-        if(!$NugetSource)
-        {
+    'nuget' {
+        if (!$NugetSource) {
             throw 'You need to specify the nuget source.'
         }
         [string]$getLastVersion = nuget list $PackageName -Source $NugetSource
         [string]$getLastBetaVersion = nuget list $PackageName -Source $NugetSource -PreRelease
 
         $lastVersion = ($getLastVersion -split "$PackageName")[1].Trim();
-        $betaVersion = ($getLastBetaVersion -split "$PackageName")[1].Replace('-beta', '').Trim();
+        $betaVersion = ($getLastBetaVersion -split "$PackageName")[1].Replace('-beta', '').Trim().split('.');
     }
 }
             
@@ -43,38 +41,37 @@ Write-Host "Last $PackageType version: $lastVersion"
 Write-Host "Last $PackageType beta version: $betaVersion"
 
 $version = "0.0.0"
-if ($IsPreRelease) 
-{
+if ($IsPreRelease) {
     $versionToChange = $betaVersion
-    if ($lastVersion -ge $betaVersion) {
+
+    $splittedLastVersion = $lastVersion.split('.')
+    $splittedBetaVersion = $betaVersion.split('.')
+
+    if (($splittedLastVersion[0] -gt $splittedBetaVersion[0]) -and ($splittedLastVersion[1] -ge $splittedBetaVersion[1])) {
         Write-Host "Last version is greater than beta version: $versionToChange"
         $versionToChange = $lastVersion
     }
     
     $version = Get-UpdatedPackageVersion -VersionToChange $versionToChange -VersionSchemeToUpdate "Patch" 
 
-    if($PackageType -eq 'nuget')
-    {
+    if ($PackageType -eq 'nuget') {
         $version = "$version-beta"
     }
 
     Write-Host "New beta version $version"
 }
-else
-{
-    if($UpdateMajorVersion){
+else {
+    if ($UpdateMajorVersion) {
         $version = Get-UpdatedPackageVersion -VersionToChange $lastVersion -VersionSchemeToUpdate "Major"
     }
-    else 
-    {
+    else {
         $version = Get-UpdatedPackageVersion -VersionToChange $lastVersion -VersionSchemeToUpdate "Minor"
     }
 
     Write-Host "New main version $version"
 }
 
-if($version -eq "0.0.0")
-{
+if ($version -eq "0.0.0") {
     throw "Version did not get updated. Stopping script.."
 }
 
