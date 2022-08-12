@@ -32,8 +32,8 @@ switch ($PackageType) {
         [string]$getLastVersion = nuget list $PackageName -Source $NugetSource
         [string]$getLastBetaVersion = nuget list $PackageName -Source $NugetSource -PreRelease
 
-        $lastVersion = ($getLastVersion -split "$PackageName")[1].Trim();
-        $betaVersion = ($getLastBetaVersion -split "$PackageName")[1].Replace('-beta', '').Trim().split('.');
+        $lastVersion = ($getLastVersion -split "$PackageName")[1].Trim()
+        $betaVersion = ($getLastBetaVersion -split "$PackageName")[1].Replace('-beta', '').Trim()
     }
 }
 
