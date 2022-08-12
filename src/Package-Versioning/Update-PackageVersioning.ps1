@@ -47,7 +47,7 @@ if ($IsPreRelease) {
     $splittedLastVersion = $lastVersion.split('.')
     $splittedBetaVersion = $betaVersion.split('.')
 
-    if (($splittedLastVersion[0] -gt $splittedBetaVersion[0]) -and ($splittedLastVersion[1] -ge $splittedBetaVersion[1])) {
+    if (($splittedLastVersion[0] -ge $splittedBetaVersion[0]) -and ($splittedLastVersion[1] -ge $splittedBetaVersion[1])) {
         Write-Host "Last version is greater than beta version: $versionToChange"
         $versionToChange = $lastVersion
     }
