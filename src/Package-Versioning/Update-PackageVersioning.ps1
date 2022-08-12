@@ -36,18 +36,19 @@ switch ($PackageType) {
         $betaVersion = ($getLastBetaVersion -split "$PackageName")[1].Replace('-beta', '').Trim().split('.');
     }
 }
-            
+
 Write-Host "Last $PackageType version: $lastVersion"
 Write-Host "Last $PackageType beta version: $betaVersion"
 
 $version = "0.0.0"
 if ($IsPreRelease) {
+    Write-Host "IsPreRelease"
     $versionToChange = $betaVersion
 
     $splittedLastVersion = $lastVersion.split('.')
     $splittedBetaVersion = $betaVersion.split('.')
 
-    if (($splittedLastVersion[0] -ge $splittedBetaVersion[0]) -and ($splittedLastVersion[1] -ge $splittedBetaVersion[1])) {
+    if ([int]$splittedLastVersion[0] -ge [int]$splittedBetaVersion[0] -and [int]$splittedLastVersion[1] -ge [int]$splittedBetaVersion[1]) {
         Write-Host "Last version is greater than beta version: $versionToChange"
         $versionToChange = $lastVersion
     }
