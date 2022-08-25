@@ -1,28 +1,35 @@
+[[_TOC_]]
+
 # Change Log
 
 All notable changes to this project will be documented in this file.
 
 ## [2022.06.14]
+
 - Fixed bug in `Create-Log-Analytics-Workspace.ps1` for duplicate parameters.
 
 ## [2022.05.09]
+
 - Added `OriginHostHeader` to `Add-Origin-To-Front-Door.ps1`
 
 ## [2022.05.05]
 
-## Changes
+### Changes
+
 - Added `ConditionTransformBehavior` to `Add-Front-Door-Rule-For-Override-Route.ps1`.
 
 ## [2022.05.04]
 
-## Changes
-- Updated `Add-Front-Door-Rule-For-Override-Route.ps1` to be able to work with cli 2.36. 
-- Updated `Create-Front-Door-EntryPoint.ps1`, removed `EndpointOriginResponseTimeoutInSeconds` parameter. 
+### Changes
+
+- Updated `Add-Front-Door-Rule-For-Override-Route.ps1` to be able to work with cli 2.36.
+- Updated `Create-Front-Door-EntryPoint.ps1`, removed `EndpointOriginResponseTimeoutInSeconds` parameter.
 - Added parameter `KeyvaultBypassTraffic` for `Create-Keyvault.ps1`.
 
 ## [2022.04.08]
 
-## Added
+### Added
+
 - Added script `Add-Front-Door-Custom-Domain.ps1`
 - Added script `Add-Front-Door-Rule-For-Override-Route.ps1`
 - Added script `Add-Front-Door-ServiceTag-To-Resource.ps1`
@@ -34,29 +41,29 @@ All notable changes to this project will be documented in this file.
 
 ## [2022.03.22]
 
-## Changes
+### Changes
 
 - Added script `Create-VNet-Peering`.
 
 ## [2022.03.11]
 
-## Changes
+### Changes
 
 - Added `CORSUrls` param to `Create-Web-App.ps1` to configure allowed origins on app service
 
 ## [2022.02.24]
 
-## Changes
+### Changes
 
 - Added the following scripts for Logic Apps, `Create-Logic-App-Consumption.ps1` and `Create-Logic-App-Standard.ps1`.
 
 ## [2022.02.21]
 
-## Breaking Changes
+### Breaking Changes
 
 - When using the `Create-RedisCache-Instance.ps1` script, `ForcePublic` also has to be used when using the `RedisInstanceEnableNonSslPort` parameter.
 
-## Changes
+### Changes
 
 - Updated `Create-RedisCache-Instance.ps1` to be idempotent.
 - Updated `Create-RedisCache-Instance.ps1` to be able to integrate your Redis Instance into a subnet.
@@ -67,7 +74,7 @@ All notable changes to this project will be documented in this file.
 
 ## [2022.01.21]
 
-## Breaking Changes
+### Breaking Changes
 
 - Removed `DisableDiagnosticSettings` from `Create-AppInsights-Resource.ps1`. Diagnostic settings will no be disabled by default for an App Insights resource. Added the possibility to add these Diagnostic settings to a separate workspace by using the parameter `DiagnosticSettingsLogAnalyticsWorkspaceResourceId`.
 
@@ -81,55 +88,55 @@ All notable changes to this project will be documented in this file.
 
 ## [2021.12.21]
 
-## Added
+### Added
 
 - Added `Create-Static-Web-App.ps1` for creating Static Web apps.
 
 ## [2021.12.09]
 
-## Added
+### Added
 
 - Added script `Set-Tags-For-Resources.ps1`.
 
 ## [2021.12.08]
 
-## Updated
+### Updated
 
 - Updated `Create-Function-App.ps1` with added functionality for setting the default CORS settings for deployment slots.
 
-## Breaking Changes
+### Breaking Changes
 
 - Changed the default route all traffic throught vnet behaviour for Application service with vnet integration(`Add-VNet-integration-to-AppService.ps1`). The `RouteAllTrafficThroughVnet` is set to `false` now.
 - Changed the default route all traffic throught vnet behaviour for Function app with vnet integration(`Add-VNet-integration-to-Function-App.ps1`). The `RouteAllTrafficThroughVnet` is set to `false` now.
 
 ## [2021.12.07]
 
-## Added
+### Added
 
 - Added script `Deprovision-Cost-Alert.ps1`.
 
 ## [2021.12.01]
 
-## Added
+### Added
 
 - Added script `Get-Monitor-Action-Group-Id-for-Pipeline.ps1`.
 
 ## [2021.11.24]
 
-## Updated
+### Updated
 
 - Improved the `Add-AD-Authentication-for-App-Service.ps1` script so that it can work with the `authv2` option.
 
 ## [2021.11.22]
 
-## Updated
+### Updated
 
 - Default CORS settings for function app have changes, by default the portal test urls are added, see `Azure.PlatformProvisioning\src\Functions\Create-Function-App.ps1` `CORSUrls` and `DisableCORSPortalTestUrls` settings.
   To disable this use the `DisableCORSPortalTestUrls` switch
 
 ## [2021.11.16]
 
-## Updated
+### Updated
 
 - Changed and added functionality to the `Create-CosmosDbAccount.ps1` script. Functionality has been added for: `Table`, `Gremlin` and `MongoDb`.
 - Added the ability to pick a set of diagnostic settings for every resource.
@@ -137,31 +144,31 @@ All notable changes to this project will be documented in this file.
 
 ## [2021.11.01]
 
-## Breaking Changes
+### Breaking Changes
 
 - Added mandatory parameter `AppServiceResourceGroupName` to `Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1`
 
-## Added
+### Added
 
 - Added parameter `ApplyToAllSlots` to `Grant-AppService-dataread-write-ddladmin-rights-on-SQL-Server.ps1`
 - Added parameter `ManagedIdentityApplyToAllSlots` to `Grant-Permissions-to-ManagedIdentity-on-Resource.ps1`
 
 ## [2021.10.26]
 
-## Updated
+### Updated
 
 - Added update functionality of ssl-profile to `Create-SSLTLS-Profile.ps1`.
 
 ## [2021.10.12]
 
-## Updated
+### Updated
 
 - Improved CosmosDB scripts
 - Added Resource/ResourceGroup locking & unlocking
 
 ## [2021.10.06]
 
-## Updated
+### Updated
 
 - Updated `Create-CosmosDbCassandraKeyspace.ps1` with throughput functionality.
 - Updated `Create-CosmosDbCassandraTable.ps1` with throughput functionality.
@@ -225,7 +232,7 @@ All notable changes to this project will be documented in this file.
 - Added `KeyExpiresInDays` to `Create-Keyvault-Key.ps1`. Defaults to 397 days.
 - Added `KeyNotBeforeInDays` to `Create-Keyvault-Key.ps1`.
 
-## Breaking Changes
+### Breaking Changes
 
 - In script `Create-Keyvault-Secret` changed parameter `SecretExpires` in `SecretExpiresInDays` and `SecretNotBefore` in `SecretNotBeforeInDays`. This means the expiration date will now be calculated for you, and you are able to specify this by using days.
 
@@ -343,8 +350,8 @@ None!
   - Networking information (private endpoints & vnet whitelisting)
   - Logging & monitoring
   - Deprovisioning
-- Added WAF options to the [Create Application Gateway](/Azure/Azure-CLI-Snippets/Application-Gateway/Create-Application-Gateway) script.
-- Added the [Add DDoS Protection To Vnet](/Azure/Azure-CLI-Snippets/Networking/Add-DDoS-Protection-To-Vnet) script.
+- Added WAF options to the [Create Application Gateway](/Azure/AzDocs-v1/Scripts/Application-Gateway/Create-Application-Gateway) script.
+- Added the [Add DDoS Protection To Vnet](/Azure/AzDocs-v1/Scripts/Networking/Add-DDoS-Protection-To-Vnet) script.
 - Reset the Wiki order of components to alphabetical (for easier finding your components).
 
 Note: as always this is work in progress and will be subjected to changes & additions.
