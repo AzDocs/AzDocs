@@ -17,8 +17,8 @@ module vnet '../../AzDocs/src-bicep/Network/virtualNetworks.bicep' = {
 }
 </pre>
 <p>Creates a virtual network</p>
-.EXTERNAL_LINKS
-[Bicep Vnet documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/2022-01-01/virtualnetworks?pivots=deployment-language-bicep)
+.LINKS
+- [Bicep Vnet documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/2022-01-01/virtualnetworks?pivots=deployment-language-bicep)
 */
 
 

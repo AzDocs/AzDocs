@@ -18,8 +18,12 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
   }
 }
 </pre>
-<p>Creates a virtual machine with the name Blaaa</p>
+<p>Creates a virtual machine with the name MyFirstVM</p>
+.LINKS
+- [Bicep Microsoft.Compute virtualMachines](https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep)
+- [Virtual Machines sizes](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')
 */
+
 
 // ================================================= Parameters =================================================
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')

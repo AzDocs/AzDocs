@@ -52,6 +52,10 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
   }
 }
 </pre>
-<p>Creates a virtual machine with the name Blaaa</p>
+<p>Creates a virtual machine with the name MyFirstVM</p>
+
+## Links
+- [Bicep Microsoft.Compute virtualMachines](https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep)<br>
+- [Virtual Machines sizes](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')
 
 

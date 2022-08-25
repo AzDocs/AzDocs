@@ -34,7 +34,6 @@ Set-StrictMode -Version 3.0
 
     Loading the functions, fetching the metadata from the bicep files in te 'Azure.PlatformProvisioning\src-bicep' directory in the $metadata variable. 
     Creating the Markdown files in the 'docs' destination directory based on the given $metadata variable that has been created in the previous statement.
-
 #>
 function Update-MetadataMarkdown
 {
@@ -78,6 +77,7 @@ function Update-MetadataMarkdown
             return $newDescription
         }
     }
+
     Function New-MarkdownSection
     {
         [CmdletBinding()]
@@ -113,45 +113,22 @@ function Update-MetadataMarkdown
         }
     }
 
-    if (!$KeepDestinationPath)
+    Function Add-ParametersSection
     {
-        if (Test-Path $DestinationPath)
-        {
-            $cleanCurrentPath = $DestinationPath -eq $pwd
-            if ($cleanCurrentPath )
-            {
-                Push-Location
-                Set-Location '..'
-            }      
- 
-            Remove-Item $DestinationPath -Recurse
-           
-            if ($cleanCurrentPath )
-            {
-                Pop-Location
-            } 
-        }
-    }
+        [CmdletBinding()]
+        param ( 
+            [Parameter(Mandatory)]
+            [System.Text.StringBuilder]
+            $StringBuilder,
 
-
-    $Metadata | ForEach-Object {
-        $singleFileMetadata = $_ #  $singleFileMetadata  = $Metadata[0]
-        $sb = [System.Text.StringBuilder]::new()
-
-        $sb.AppendLine("# $($singleFileMetadata.Name)") | Out-Null
-       
-        $sb.AppendLine() | Out-Null
-        $sb.AppendLine("Target Scope: $($singleFileMetadata.TargetScope)") | Out-Null
-        $sb.AppendLine() | Out-Null
-
-        New-MarkdownSection -StringBuilder $sb -Header 'Synopsis' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Synopsis' | Select-Object -ExpandProperty Value)
-        New-MarkdownSection -StringBuilder $sb -Header 'Description' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Description' | Select-Object -ExpandProperty Value)
-        New-MarkdownSection -StringBuilder $sb -Header 'Security Default' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'SECURITY_DEFAULTS' | Select-Object -ExpandProperty Value)
-
-        $sb.AppendLine('## Parameters') | Out-Null
-        $sb.AppendLine('| Name | Type | Required | Validation | Default value | Description |') | Out-Null
-        $sb.AppendLine('| -- |  -- | -- | -- | -- | -- |') | Out-Null
-        $singleFileMetadata.ParameterInfo | ForEach-Object { 
+            [Parameter(Mandatory)]
+            [PSCustomObject[]]
+            $ParameterInfos
+        )
+        $StringBuilder.AppendLine('## Parameters') | Out-Null
+        $StringBuilder.AppendLine('| Name | Type | Required | Validation | Default value | Description |') | Out-Null
+        $StringBuilder.AppendLine('| -- |  -- | -- | -- | -- | -- |') | Out-Null
+        $ParameterInfos | ForEach-Object { 
             $parameterInfo = $_ #  $parameterInfo  =  $singleFileMetadata.ParameterInfo[0]
             $validation = 'None'
             $allowedDecorator = $parameterInfo.Decorators['allowed'] ?? $null
@@ -204,26 +181,97 @@ function Update-MetadataMarkdown
                 $defaultValue = $parameterInfo.DefaultValue | Join-String -Separator '<br>'
             }
             $required = "<input type=""checkbox""$($null -eq $parameterInfo.DefaultValue ? ' checked' : '')>"
-            $sb.AppendLine("| $($parameterInfo.Name) | $($parameterInfo.Type) | $required | $validation | <pre>$defaultValue</pre> | $description |") | Out-Null
-             
+            $StringBuilder.AppendLine("| $($parameterInfo.Name) | $($parameterInfo.Type) | $required | $validation | <pre>$defaultValue</pre> | $description |") | Out-Null   
         }
-        $sb.AppendLine('## Outputs') | Out-Null
-        $sb.AppendLine('| Name | Type | Description |') | Out-Null
-        $sb.AppendLine('| -- |  -- | -- |') | Out-Null
-        $singleFileMetadata.outputInfo | ForEach-Object { 
+    }
+
+    function Add-OutputsSection
+    {
+        [CmdletBinding()]
+        param (
+            [Parameter()]
+            [System.Text.StringBuilder]
+            $StringBuilder,
+
+            [Parameter()]
+            [PSCustomObject[]]
+            $Outputs
+        )
+        
+
+        $StringBuilder.AppendLine('## Outputs') | Out-Null
+        $StringBuilder.AppendLine('| Name | Type | Description |') | Out-Null
+        $StringBuilder.AppendLine('| -- |  -- | -- |') | Out-Null
+        $Outputs | ForEach-Object { 
             $outputInfo = $_ #  $parameterInfo  =  $singleFileMetadata.ParameterInfo[0]
-            $sb.AppendLine("| $($outputInfo.Name) | $($outputInfo.Type) | $($outputInfo.Decorators['description'] ?? $null ) |") | Out-Null
- 
+            $StringBuilder.AppendLine("| $($outputInfo.Name) | $($outputInfo.Type) | $($outputInfo.Decorators['description'] ?? $null ) |") | Out-Null
+
         }
+    }
+
+    function Add-TargetScopeSection
+    {
+        [CmdletBinding()]
+        param (
+            [Parameter()]
+            [System.Text.StringBuilder]
+            $StringBuilder,
+
+            [Parameter()]
+            [string]
+            $TargetScope
+        )
+        $StringBuilder.AppendLine("Target Scope: $($singleFileMetadata.TargetScope)") | Out-Null
+
+    }
+
+    if (!$KeepDestinationPath)
+    {
+        if (Test-Path $DestinationPath)
+        {
+            $cleanCurrentPath = $DestinationPath -eq $pwd
+            if ($cleanCurrentPath )
+            {
+                Push-Location
+                Set-Location '..'
+            }      
+ 
+            Remove-Item $DestinationPath -Recurse
+           
+            if ($cleanCurrentPath )
+            {
+                Pop-Location
+            } 
+        }
+    }
+
+
+    $Metadata | ForEach-Object {
+        $singleFileMetadata = $_ #  $singleFileMetadata  = $Metadata[0]
+        $sb = [System.Text.StringBuilder]::new()
+
+        $sb.AppendLine("# $($singleFileMetadata.Name)") | Out-Null
+        $sb.AppendLine() | Out-Null
+        Add-TargetScopeSection -StringBuilder $sb -TargetScope $singleFileMetadata.TargetScope
+
+        $sb.AppendLine() | Out-Null
+
+        New-MarkdownSection -StringBuilder $sb -Header 'Synopsis' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Synopsis' | Select-Object -ExpandProperty Value)
+        New-MarkdownSection -StringBuilder $sb -Header 'Description' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Description' | Select-Object -ExpandProperty Value)
+        New-MarkdownSection -StringBuilder $sb -Header 'Security Default' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'SECURITY_DEFAULTS' | Select-Object -ExpandProperty Value)
+
+        Add-ParametersSection -StringBuilder $sb -ParameterInfos $singleFileMetadata.ParameterInfo
+        Add-OutputsSection -StringBuilder $sb -Outputs $singleFileMetadata.outputInfo
 
         New-MarkdownSection -StringBuilder $sb -Header 'Examples' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Example' | Select-Object -ExpandProperty Value) -NoBreak
-        New-MarkdownSection -StringBuilder $sb -Header 'Links' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'EXTERNAL_LINKS' | Select-Object -ExpandProperty Value)
+        New-MarkdownSection -StringBuilder $sb -Header 'Links' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Links' | Select-Object -ExpandProperty Value)
 
         $destinationFolder = Join-Path -Path $DestinationPath -ChildPath $singleFileMetadata.Path
         if (!(Test-Path $destinationFolder))
         {
-            New-Item -Path $destinationFolder -ItemType Directory
+            New-Item -Path $destinationFolder -ItemType Directory | Out-Null
         }
+       
         $destinationFile = Join-Path -Path $destinationFolder -ChildPath "$($singleFileMetadata.Name).md"
         $sb.ToString() | Out-File $destinationFile
     }
