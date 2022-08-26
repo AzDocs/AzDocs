@@ -155,6 +155,8 @@ Define the inbound nat rules you want to use for this Load Balancer. For formatt
 ''')
 param inboundNatRules array = []
 
+param outboundNatRules array = []
+
 @description('The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`.')
 @minLength(1)
 @maxLength(260)
@@ -208,6 +210,7 @@ resource loadBalancer 'Microsoft.Network/loadBalancers@2022-01-01' = {
     loadBalancingRules: loadBalancingRules
     probes: loadBalancingProbes
     inboundNatRules: inboundNatRules
+    outboundRules: outboundNatRules
   }
   dependsOn: !empty(loadBalancerPublicIpAddress) ? [
     loadBalancerPublicIpAddress
