@@ -24,7 +24,6 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
 - [Virtual Machines sizes](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')
 */
 
-
 // ================================================= Parameters =================================================
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
@@ -195,7 +194,7 @@ Example:
 You cannot both have Availability Zone and Availability Set specified. Deploying an Availability Set to an Availability Zone is not supported.
 ''')
 @maxLength(1)
-param availabilityZones array = []
+param availabilityZones string
 
 // ================================================= Variables =================================================
 @description('The bicep object to configure the linux authentication when creating the vm.')
@@ -281,7 +280,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       }
     }
   }
-  zones: availabilityZones
+  zones: [
+    '${availabilityZones}'
+  ]
 }
 
 @description('Output the availability set\'s Resource ID.')
@@ -290,4 +291,3 @@ output availabilitysetResourceId string = !empty(availabilitySetName) ? availabi
 output virtualMachineName string = virtualMachine.name
 @description('Output the resourceId of the virtual machine created or upserted')
 output virtualMachineResourceId string = virtualMachine.id
-
