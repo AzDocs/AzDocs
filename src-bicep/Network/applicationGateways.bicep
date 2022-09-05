@@ -249,6 +249,15 @@ Example:
 ''')
 param tags object = {}
 
+@description('''
+The default frontend Ip Configuration that is used to attach the httplisteners to.
+''')
+@allowed([
+  'appGatewayFrontendIP'
+  'appGatewayPrivateFrontendIP'
+])
+param DefaultFrontendIpConfigurationName string = enablePrivateFrontendIp ?  'appGatewayPrivateFrontendIP' : 'appGatewayFrontendIP' 
+
 // ===================================== Variables =====================================
 
 var ezApplicationGatewayBackendAddressPools = [for entryPoint in ezApplicationGatewayEntrypoints: {
@@ -285,7 +294,7 @@ var ezApplicationGatewayHttpListeners = [for entryPoint in ezApplicationGatewayE
   name: replace(ezApplicationGatewayEntrypointsHttpsListenerName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
   properties: {
     frontendIPConfiguration: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, 'appGatewayFrontendIP')
+      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, DefaultFrontendIpConfigurationName)
     }
     frontendPort: {
       id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_443') // TODO: Hardcoded value
@@ -427,7 +436,7 @@ var unifiedHttpListeners = union(union([
             id: applicationGatewayWafPolicies.id
           }
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, 'appGatewayFrontendIP')
+            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, DefaultFrontendIpConfigurationName)
           }
           frontendPort: {
             id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_80')
