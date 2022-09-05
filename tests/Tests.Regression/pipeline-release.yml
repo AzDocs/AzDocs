@@ -200,7 +200,7 @@ stages:
       - name: PostgreSQLConnectionString
         value: '{"name": "PostgreSQLConnectionString", "value": "$(ConnectionStrings__PostgreSQL)", "type": "Custom", "slotSetting": false}'
       - name: ConnectionStrings__PostgreSQL
-        value: "Server=$(PublicPostgreSqlServerName).postgres.database.azure.com;User Id=$(PostgreSqlServerUsername)@$(PublicPostgreSqlServerName);Password=$(PostgreSqlServerPassword);Database=$(PostgreSqlDatabaseName);Ssl Mode=Require;"
+        value: "Server=$(PublicPostgreSqlServerName).postgres.database.azure.com;User Id=$(PostgreSqlServerUsername)@$(PublicPostgreSqlServerName);Password=$(PostgreSqlServerPassword);Database=$(PostgreSqlDatabaseName);Ssl Mode=VerifyFull;"
       - name: SqlConnectionString
         value: '{"name": "SqlConnectionString", "value": "$(ConnectionStrings__SqlServer)", "type": "Custom", "slotSetting": false}'
       - name: ConnectionStrings__SqlServer
@@ -223,7 +223,7 @@ stages:
       - name: PostgreSQLConnectionStringV
         value: '{"name": "PostgreSQLConnectionString", "value": "$(ConnectionStrings__PostgreSQLV)", "type": "Custom", "slotSetting": false}'
       - name: ConnectionStrings__PostgreSQLV
-        value: "Server=$(VNetWhitelistingPostgreSqlServerName).postgres.database.azure.com;User Id=$(PostgreSqlServerUsername)@$(VNetWhitelistingPostgreSqlServerName);Password=$(PostgreSqlServerPassword);Database=$(PostgreSqlDatabaseName);Ssl Mode=Require;"
+        value: "Server=$(VNetWhitelistingPostgreSqlServerName).postgres.database.azure.com;User Id=$(PostgreSqlServerUsername)@$(VNetWhitelistingPostgreSqlServerName);Password=$(PostgreSqlServerPassword);Database=$(PostgreSqlDatabaseName);Ssl Mode=VerifyFull;"
       - name: SqlConnectionStringV
         value: '{"name": "SqlConnectionString", "value": "$(ConnectionStrings__SqlServerV)", "type": "Custom", "slotSetting": false}'
       - name: ConnectionStrings__SqlServerV
