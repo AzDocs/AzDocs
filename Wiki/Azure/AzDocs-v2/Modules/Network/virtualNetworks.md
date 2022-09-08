@@ -23,12 +23,14 @@ Creating a virtual network with the proper settings
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings. |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
+| ddosProtectionPlanId | string | <input type="checkbox"> | None | <pre>''</pre> | If defined, the vlan will be added to the DDos Protection Plan |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | virtualNetworkName | string | Outputs the Virtual Network resourcename. |
 ## Examples
+<p>Creates a virtual network</p>
 <pre>
 module vnet '../../AzDocs/src-bicep/Network/virtualNetworks.bicep' = {
   name: 'Creating_vnet_MyFirstVnet'
@@ -39,7 +41,28 @@ module vnet '../../AzDocs/src-bicep/Network/virtualNetworks.bicep' = {
   }
 }
 </pre>
-<p>Creates a virtual network</p>
+
+---
+
+<p>Creates a virtual network and add it to the ddos protection plan.</p>
+<pre>
+var subscriptionID = '9c6d33c9-00dc-484f-be85-707aa44e908f' 
+var resourceGroupName = 'Hub-ddos'
+resource ddos 'Microsoft.Network/ddosProtectionPlans@2022-01-01' existing = {
+  name: 'ddos-protection'
+  scope: resourceGroup(subscriptionID, resourceGroupName)
+}
+
+module vnet '../../AzDocs/src-bicep/Network/virtualNetworks.bicep' = {
+  name: 'Creating_vnet_MyFirstVnet'
+  scope: resourceGroup
+  params: {
+    vnetName: 'MyFirstVnet'
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    ddosProtectionPlanId: ddos.id
+  }
+}
+</pre>
 
 ## Links
 - [Bicep Vnet documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/2022-01-01/virtualnetworks?pivots=deployment-language-bicep)

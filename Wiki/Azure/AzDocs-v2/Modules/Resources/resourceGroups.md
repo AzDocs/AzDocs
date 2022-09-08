@@ -2,6 +2,12 @@
 
 Target Scope: subscription
 
+## Synopsis
+Creating a Resource Group.
+
+## Description
+Creating a Resource Group.
+
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
@@ -12,4 +18,22 @@ Target Scope: subscription
 | Name | Type | Description |
 | -- |  -- | -- |
 | resourceGroupName | string | Output the name of the resourcegroup. |
+## Examples
+<p>Creates a Resource group with the name  MyFirstRg in subscriptionId a56350f0-347b-4393-963e-e3e090286fd6</p>
+<pre>
+param location string = 'westeurope'
+var subscriptionId = 'a56350f0-347b-4393-963e-e3e090286fd6'
+module rg '../../AzDocs/src-bicep/Resources/resourceGroups.bicep' = {
+  name: 'Creating_RG_MyFirstVM'
+  scope: az.subscription(subscriptionId)
+  params: {
+    resourceGroupName: 'MyFirstRg'
+    location: location
+  }
+}
+</pre>
+
+## Links
+- [Bicep Microsoft.Resources resourceGroups](https://docs.microsoft.com/en-us/azure/templates/microsoft.resources/resourcegroups?pivots=deployment-language-bicep)
+
 

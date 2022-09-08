@@ -6,6 +6,7 @@ Creating a virtual network with the proper settings
 .SECURITY_DEFAULTS
 - applied nsg
 .EXAMPLE
+<p>Creates a virtual network</p>
 <pre>
 module vnet '../../AzDocs/src-bicep/Network/virtualNetworks.bicep' = {
   name: 'Creating_vnet_MyFirstVnet'
@@ -16,11 +17,31 @@ module vnet '../../AzDocs/src-bicep/Network/virtualNetworks.bicep' = {
   }
 }
 </pre>
-<p>Creates a virtual network</p>
+
+---
+
+<p>Creates a virtual network and add it to the ddos protection plan.</p>
+<pre>
+var subscriptionID = '9c6d33c9-00dc-484f-be85-707aa44e908f' 
+var resourceGroupName = 'Hub-ddos'
+resource ddos 'Microsoft.Network/ddosProtectionPlans@2022-01-01' existing = {
+  name: 'ddos-protection'
+  scope: resourceGroup(subscriptionID, resourceGroupName)
+}
+
+module vnet '../../AzDocs/src-bicep/Network/virtualNetworks.bicep' = {
+  name: 'Creating_vnet_MyFirstVnet'
+  scope: resourceGroup
+  params: {
+    vnetName: 'MyFirstVnet'
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    ddosProtectionPlanId: ddos.id
+  }
+}
+</pre>
 .LINKS
 - [Bicep Vnet documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/2022-01-01/virtualnetworks?pivots=deployment-language-bicep)
 */
-
 
 @description('The name for the Virtual Network to upsert.')
 @minLength(2)
@@ -72,6 +93,9 @@ param diagnosticSettingsMetricsCategories array = [
   }
 ]
 
+@description('If defined, the vlan will be added to the DDos Protection Plan')
+param ddosProtectionPlanId string = ''
+
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
 Example:
@@ -82,13 +106,8 @@ Example:
 ''')
 param tags object = {}
 
-@description('Upsert the virtual network with the given parameters.')
-#disable-next-line BCP081
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-08-01' = {
-  name: virtualNetworkName
-  location: location
-  tags: tags
-  properties: {
+@description('Setting up the properties and add ddosprotectionplan if it is enabled')
+var properties = union({
     addressSpace: {
       addressPrefixes: virtualNetworkAddressPrefixes
     }
@@ -96,7 +115,22 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-08-01' = {
     dhcpOptions: {
       dnsServers: dnsServers
     }
+    enableDdosProtection: !empty(ddosProtectionPlanId)
+  },
+  empty(ddosProtectionPlanId) ? {} : { //Adding ddos protectionplan object
+    ddosProtectionPlan: {
+      id: ddosProtectionPlanId
+    }
   }
+)
+
+@description('Upsert the virtual network with the given parameters.')
+#disable-next-line BCP081
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-08-01' = {
+  name: virtualNetworkName
+  location: location
+  tags: tags
+  properties: properties
 }
 
 @description('Upsert the diagnostics for this virtual network with the given parameters.')
