@@ -194,7 +194,7 @@ Example:
 You cannot both have Availability Zone and Availability Set specified. Deploying an Availability Set to an Availability Zone is not supported.
 ''')
 @maxLength(1)
-param availabilityZones string
+param availabilityZones array = []
 
 // ================================================= Variables =================================================
 @description('The bicep object to configure the linux authentication when creating the vm.')
@@ -280,9 +280,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       }
     }
   }
-  zones: [
-    '${availabilityZones}'
-  ]
+  zones: availabilityZones
 }
 
 @description('Output the availability set\'s Resource ID.')
