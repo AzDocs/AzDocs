@@ -256,19 +256,19 @@ The default frontend Ip Configuration that is used to attach the httplisteners t
   'appGatewayFrontendIP'
   'appGatewayPrivateFrontendIP'
 ])
-param DefaultFrontendIpConfigurationName string = enablePrivateFrontendIp ?  'appGatewayPrivateFrontendIP' : 'appGatewayFrontendIP' 
+param DefaultFrontendIpConfigurationName string = enablePrivateFrontendIp ? 'appGatewayPrivateFrontendIP' : 'appGatewayFrontendIP'
 
 // ===================================== Variables =====================================
 
 var ezApplicationGatewayBackendAddressPools = [for entryPoint in ezApplicationGatewayEntrypoints: {
   name: replace(ezApplicationGatewayEntrypointsBackendAddressPoolName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-  properties: {
-    backendAddresses: [
-      {
-        fqdn: entryPoint.backendAddressFqdn
-      }
-    ]
-  }
+  properties: union({}, empty(entryPoint.backendAddressFqdn) ? { backendAddresses: [] } : {
+      backendAddresses: [
+        {
+          fqdn: entryPoint.backendAddressFqdn
+        }
+      ]
+    })
 }]
 
 var ezApplicationGatewayBackendHttpSettingsCollection = [for entryPoint in ezApplicationGatewayEntrypoints: {
