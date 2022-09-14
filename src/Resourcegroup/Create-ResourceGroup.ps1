@@ -11,9 +11,12 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 #endregion ===END IMPORTS===
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
+$response =invoke-executable az group create --location $ResourceGroupLocation --name $ResourceGroupName --tags $ResourceTags 
+$resourceGroupId = ( $response | ConvertFrom-Json).id
 
-$resourceGroupId = (Invoke-Executable az group create --location $ResourceGroupLocation --name $ResourceGroupName --tags @ResourceTags | ConvertFrom-Json).id
-
+if(!$resourceGroupId){
+    throw 'Could not create the resource group'
+}
 # Update Tags
 Set-ResourceTagsForResource -ResourceId $resourceGroupId -ResourceTags ${ResourceTags}
 
