@@ -118,7 +118,7 @@ trigger:
       - main
 
 pool:
-  vmImage: "windows-2019"
+  vmImage: "ubuntu-20.04"
 
 variables:
   # Basic
@@ -181,7 +181,7 @@ variables:
 
   # Stage Pool
   - name: Stage.Pool
-    value: "windows-2019"
+    value: "ubuntu-20.04"
 stages:
   - stage: "Build"
     jobs:
