@@ -40,7 +40,7 @@ function Invoke-Executable
     # Execute the original executable with the original parameters in child scope
     if (!$WhatIf)
     {
-        & $ExecutableLiteralPath $ExecutableArguments
+        & $ExecutableLiteralPath @ExecutableArguments
     }
     # If an error was thrown from the last operation and -AllowToFail is not passed --> Break the pipeline. 
     if (!$AllowToFail -and !$?)
