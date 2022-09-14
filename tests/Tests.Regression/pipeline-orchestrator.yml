@@ -181,7 +181,7 @@ variables:
 
   # Stage Pool
   - name: Stage.Pool
-    value: "ubuntu-20.04"
+    value: "windows-2019"
 stages:
   - stage: "Build"
     jobs:
