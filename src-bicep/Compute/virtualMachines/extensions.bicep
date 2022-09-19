@@ -20,7 +20,12 @@ Example:
 ''')
 param tags object = {}
 
-param extensionName string = toLower('${virtualMachineName}/AADSSHLoginForLinux')
+@description('''
+The name of the extension.
+Example:
+'${virtualMachineName}/AADSSHLoginForLinux'
+''')
+param extensionName string
 
 @description('Setting up the properties.')
 param properties object = {
