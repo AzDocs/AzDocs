@@ -1,3 +1,30 @@
+/*
+.SYNOPSIS
+Creating an extension for a Virtual Machine
+.DESCRIPTION
+Creating an extension for a Virtual machine with the given specs.
+.EXAMPLE
+<pre>
+module extensionAAD '../modules/Compute/virtualMachines/extensions.bicep' = [for i in range(0, vmCount): {
+  name: format('{0}-{1}', take('${deployment().name}', 41), 'aadextDeploy-${i}')
+  params: {
+    extensionName: '${virtualMachineName}-${i}-${environmentType}/AADSSHLoginForLinux'
+    virtualMachineName: '${virtualMachineName}-${i}-${environmentType}'
+    location: location
+  }
+  dependsOn: [
+    vms
+  ]
+}]
+</pre>
+<p>Creates an extension called AADSSHLoginForLinux on a number of virtual machines with the name ${virtualMachineName}-${i}-${environmentType}</p>
+.LINKS
+- [Bicep Microsoft.Compute virtualMachines Extensions](https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines/extensions?pivots=deployment-language-bicep)
+*/
+
+// ================================================= Parameters =================================================
+
+
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
