@@ -100,6 +100,14 @@ var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
   action: 'Allow'
 }]
 
+@description('Setting up the networkAcls and add rules if any are defined.')
+var networkAcls = empty(virtualNetworkRules) ? {
+  defaultAction: 'Allow'
+} : {
+  defaultAction: 'Deny'
+  virtualNetworkRules: virtualNetworkRules
+}
+
 @description('Upsert the storage account based on the given parameters.')
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   name: toLower(storageAccountName)
@@ -114,10 +122,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
     allowBlobPublicAccess: allowBlobPublicAccess
     minimumTlsVersion: storageAccountMinimumTlsVersion
     supportsHttpsTrafficOnly: true
-    networkAcls: {
-      defaultAction: 'Deny'
-      virtualNetworkRules: virtualNetworkRules
-    }
+    networkAcls: networkAcls
   }
 }
 
