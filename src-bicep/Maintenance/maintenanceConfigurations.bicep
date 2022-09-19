@@ -16,7 +16,7 @@ param tags object = {}
 @maxLength(80)
 param maintenanceConfigurationsName string = 'maintenanceConfiguration'
 
-@description('Gets or sets extensionProperties of the maintenanceConfiguration')
+@description('Sets extensionProperties of the maintenanceConfiguration')
 param extensionProperties object = {
   InGuestPatchMode: 'User'
 }
@@ -52,7 +52,7 @@ param maintenanceWindow object = {
   recurEvery: '1Day'
 }
 
-@description('Input parameters specific to patching Linux machines. For Windows machines, do not pass this property.')
+@description('Input parameters specific to patching Linux machines.')
 param installPatchesLinuxParameters object = {
   classificationsToInclude: [
     'Critical'
@@ -62,7 +62,7 @@ param installPatchesLinuxParameters object = {
   packageNameMasksToInclude: null
 }
 
-@description('Input parameters specific to patching a Windows machine. For Linux machines, do not pass this property.')
+@description('Input parameters specific to patching a Windows machine.')
 param installPatchesWindowsParameters object = {
   classificationsToInclude: [
     'Critical'
