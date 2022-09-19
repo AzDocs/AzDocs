@@ -95,6 +95,10 @@ param tasks object = {
 param namespaceMaintenanceConfiguration string = ''
 
 @description('The visibility for the maintenance configuration.')
+@allowed([
+  'Public'
+  'Custom'
+])
 param visibilityMaintenanceConfiguration string = 'Custom'
 
 
