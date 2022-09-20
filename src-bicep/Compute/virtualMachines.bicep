@@ -83,7 +83,7 @@ param osDisk object = {
   name: 'osdisk-${virtualMachineName}'
   caching: 'ReadWrite'
   createOption: 'FromImage'
-  diskSizeGB: 200
+  diskSizeGB: 100
   managedDisk: {
     storageAccountType: 'StandardSSD_LRS'
   }
@@ -123,8 +123,14 @@ param networkInterfaces array = []
 
 @description('''
 Define the image you want to use for this VM. For formatting & options, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep#imagereference.
-
-Quick examples:
+Example:
+{
+  publisher: 'Canonical'
+  offer: '0001-com-ubuntu-server-focal'
+  sku: '20_04-lts'
+  version: 'latest'
+}
+Other examples:
 Among others, options are:
 `publisher`: Canonical (for Ubuntu), RedHat (for Red Hat Linux), MicrosoftWindowsServer (for Windows Server).
 `offer`: UbuntuServer (for Ubuntu), RHEL for (Red Hat Linux), WindowsServer (for Windows Server)
@@ -196,6 +202,9 @@ You cannot both have Availability Zone and Availability Set specified. Deploying
 @maxLength(1)
 param availabilityZones array = []
 
+@description('If you want to have bootdiagnostics enabled on the Virtual Machine. More info https://docs.microsoft.com/en-us/azure/virtual-machines/boot-diagnostics.')
+param bootdiagnosticsEnabled bool = true
+
 // ================================================= Variables =================================================
 @description('The bicep object to configure the linux authentication when creating the vm.')
 param linuxAuthenticationConfiguration object = {
@@ -254,6 +263,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: virtualMachineName
   location: location
   tags: tags
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: virtualMachineSize
@@ -275,7 +287,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     }
     diagnosticsProfile: {
       bootDiagnostics: {
-        enabled: !empty(bootDiagnosticsStorageAccountName)
+        enabled: bootdiagnosticsEnabled ? true: false
         storageUri: !empty(bootDiagnosticsStorageAccountName) ? reference(bootDiagnosticsStorageAccount.id, bootDiagnosticsStorageAccount.apiVersion).primaryEndpoints.blob : null
       }
     }
