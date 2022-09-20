@@ -91,8 +91,8 @@ param tasks object = {
   ]
 }
 
-@description('The namespace for the maintenance configuration')
-param namespaceMaintenanceConfiguration string = ''
+@description('The namespace for the maintenance configuration. Default this is "Microsoft.Maintenance".')
+param namespaceMaintenanceConfiguration string = 'Microsoft.Maintenance'
 
 @description('''
 The visibility for the maintenance configuration. Default is Custom, which means only visible to users with permissions.
