@@ -54,8 +54,20 @@ Example:
 ''')
 param extensionName string
 
-@description('Setting up the properties.')
-param properties object = {
+@description('''
+Setting up the properties for a particular extension. This cannot be empty.
+For options and structure see: https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines/extensions?pivots=deployment-language-bicep#virtualmachineextensionproperties
+Example:
+{
+  publisher: 'Microsoft.Azure.ActiveDirectory'
+  type: 'AADSSHLoginForLinux'
+  typeHandlerVersion: '1.0'
+  autoUpgradeMinorVersion: true
+  settings: {}
+  protectedSettings: {}
+}
+''')
+param extensionProperties object = {
   publisher: 'Microsoft.Azure.ActiveDirectory'
   type: 'AADSSHLoginForLinux'
   typeHandlerVersion: '1.0'
@@ -72,7 +84,7 @@ resource extension'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = {
   name: extensionName
   location: location
   tags: tags
-  properties: properties
+  properties: extensionProperties
   dependsOn: [
     virtualMachine
   ]
