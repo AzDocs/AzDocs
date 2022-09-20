@@ -1,3 +1,42 @@
+/*
+.SYNOPSIS
+Maintenance Configuration.
+.DESCRIPTION
+Creates a Maintenance Configuration. With Maintenance Configurations, you can take more control over when to apply updates to various Azure resources.
+.EXAMPLE
+<pre>
+module maintenanceConfiguration '../modules/Maintenance/maintenanceConfigurations.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 48), 'maintconf')
+  params: {
+    location: location
+    maintenanceConfigurationsName: maintenanceConfigurationsName
+    maintenanceWindow: {
+      startDateTime: '2022-09-16 03:00'
+      duration: '03:00'
+      timeZone: 'W. Europe Standard Time'
+      expirationDateTime: null
+      recurEvery: '1Day' //'Month Fourth Monday'
+    }
+    rebootSetting: 'IfRequired'
+    installPatchesLinuxParameters: {
+      classificationsToInclude: [
+        'Critical'
+        'Security'
+      ]
+      packageNameMasksToExclude: null
+      packageNameMasksToInclude: null
+    }
+  }
+}
+</pre>
+<p>Creates a maintenance configuration resource for Linux Virtual Machines.</p>
+.LINKS
+- [Maintenance Configuration](https://learn.microsoft.com/en-us/azure/templates/microsoft.maintenance/maintenanceconfigurations?pivots=deployment-language-bicep)
+- [Maintenance Configuration using the Portal](https://learn.microsoft.com/en-ca/azure/virtual-machines/maintenance-configurations-portal)
+- [Rest Api](https://learn.microsoft.com/en-us/rest/api/maintenance/maintenance-configurations/list?tabs=HTTP)
+*/
+
+// ================================================= Parameters =================================================
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -52,7 +91,9 @@ param maintenanceWindow object = {
   recurEvery: '1Day'
 }
 
-@description('Input parameters specific to patching Linux machines.')
+@description('''
+Input parameters specific to patching Linux machines. See https://learn.microsoft.com/en-us/azure/templates/microsoft.maintenance/maintenanceconfigurations?pivots=deployment-language-bicep for all options.
+''')
 param installPatchesLinuxParameters object = {
   classificationsToInclude: [
     'Critical'
@@ -62,7 +103,9 @@ param installPatchesLinuxParameters object = {
   packageNameMasksToInclude: null
 }
 
-@description('Input parameters specific to patching a Windows machine.')
+@description('''
+Input parameters specific to patching a Windows machine. https://learn.microsoft.com/en-us/azure/templates/microsoft.maintenance/maintenanceconfigurations?pivots=deployment-language-bicep
+''')
 param installPatchesWindowsParameters object = {
   classificationsToInclude: [
     'Critical'
