@@ -94,7 +94,10 @@ param tasks object = {
 @description('The namespace for the maintenance configuration')
 param namespaceMaintenanceConfiguration string = ''
 
-@description('The visibility for the maintenance configuration.')
+@description('''
+The visibility for the maintenance configuration. Default is Custom, which means only visible to users with permissions.
+Public means visible to all users.
+''')
 @allowed([
   'Public'
   'Custom'
