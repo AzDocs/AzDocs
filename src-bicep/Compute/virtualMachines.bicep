@@ -1,5 +1,3 @@
-// TODO: Add loganalyticsworkspace for Azure monitor agent (ama)
-
 /*
 .SYNOPSIS
 Creating a Virtual Machine
@@ -287,7 +285,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     }
     diagnosticsProfile: {
       bootDiagnostics: {
-        enabled: bootdiagnosticsEnabled ? true: false
+        enabled: bootdiagnosticsEnabled
         storageUri: !empty(bootDiagnosticsStorageAccountName) ? reference(bootDiagnosticsStorageAccount.id, bootDiagnosticsStorageAccount.apiVersion).primaryEndpoints.blob : null
       }
     }
