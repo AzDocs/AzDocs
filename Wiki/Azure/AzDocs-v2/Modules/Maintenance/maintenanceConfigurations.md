@@ -15,7 +15,7 @@ Target Scope: resourceGroup
 | installPatchesWindowsParameters | object | <input type="checkbox"> | None | <pre>{<br>  classificationsToInclude: [<br>    'Critical'<br>    'Security'<br>  ]<br>  kbNumbersToExclude: null<br>  kbNumbersToInclude: null<br>}</pre> | Input parameters specific to patching a Windows machine. |
 | rebootSetting | string | <input type="checkbox"> | `'Always'` or  `'IfRequired'` or  `'Never'` or  `'RebootIfRequired'` | <pre>'IfRequired'</pre> | Possible reboot preference as defined by the user based on which it would be decided to reboot the machine or not after the patch operation is completed. |
 | tasks | object | <input type="checkbox"> | None | <pre>{<br>  postTasks: [<br>    {}<br>  ]<br>  preTasks: [<br>    {}<br>  ]<br>}</pre> | Tasks information for the Software update configuration. See https://docs.microsoft.com/en-us/azure/templates/microsoft.maintenance/maintenanceconfigurations?pivots=deployment-language-bicep#softwareupdateconfigurationtasks |
-| namespaceMaintenanceConfiguration | string | <input type="checkbox"> | None | <pre>''</pre> | The namespace for the maintenance configuration |
+| namespaceMaintenanceConfiguration | string | <input type="checkbox"> | None | <pre>'Microsoft.Maintenance'</pre> | The namespace for the maintenance configuration. Default this is "Microsoft.Maintenance". |
 | visibilityMaintenanceConfiguration | string | <input type="checkbox"> | `'Public'` or  `'Custom'` | <pre>'Custom'</pre> | The visibility for the maintenance configuration. Default is Custom, which means only visible to users with permissions.<br>Public means visible to all users. |
 ## Outputs
 | Name | Type | Description |
