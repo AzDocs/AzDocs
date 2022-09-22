@@ -55,7 +55,9 @@ param tags object = {}
 @maxLength(80)
 param maintenanceConfigurationsName string = 'maintenanceConfiguration'
 
-@description('Sets extensionProperties of the maintenanceConfiguration')
+@description('''
+Sets extensionProperties of the maintenanceConfiguration.
+Extension properties must contain Patch mode. e.g. InGuestPatchMode = User or InGuestPatchMode = Platform.''')
 param extensionProperties object = {
   InGuestPatchMode: 'User'
 }
