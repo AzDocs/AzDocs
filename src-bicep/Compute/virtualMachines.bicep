@@ -10,7 +10,7 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
   scope: resourceGroup
   params: {
     virtualMachineName: 'MyFirstVM'
-    virtualMachineSubnetResourceId: '/subscriptions/043c11c5-65b1-4d04-b8ad-68a92ddfeeac/resourceGroups/sharedservices-rg/providers/Microsoft.Network/virtualNetworks/kpn-dc-acc-001-vnet/subnets/app-subnet'
+    virtualMachineSubnetResourceId: '/subscriptions/4baa21ce-2b26-4e50-82b2-059bdd0ef016/resourceGroups/platform-rg/providers/Microsoft.Network/virtualNetworks/comp-dc-acc-001-vnet/subnets/app-subnet'
     virtualMachineAdminUsername: 'adminny'
     virtualMachineAdminPasswordOrPublicKey: 'VerySecretPassW0rd'
   }

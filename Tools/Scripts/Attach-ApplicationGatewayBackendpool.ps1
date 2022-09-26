@@ -13,18 +13,18 @@
 param (
     [Parameter()]
     [string]
-    $SubscriptionName = 'kpn-azurept-dev',
+    $SubscriptionName = 'comp-azurept-dev',
 
     [Parameter()]
     [string]
-    $ResourceGroupVM = 'Azure4KPN-AppGwTst-dev',
+    $ResourceGroupVM = 'comp-AppGwTst-dev',
 
     [Parameter()]
     [string]
     $VirtualMachineName = 'myVM',
     [Parameter()]
     [string]
-    $ApplicationGatewayBackendAddressPoolId = '/subscriptions/27ea4b5d-5dcf-4a3d-a105-d3f0a498fb2b/resourceGroups/platform-dev/providers/Microsoft.Network/applicationGateways/agw-01-azurept-pub-dev/backendAddressPools/test-dev-personalcloud-kpn-com-backendaddresspool'
+    $ApplicationGatewayBackendAddressPoolId = '/subscriptions/5490ec8f-64bc-4d3d-81c7-7773551a8b51/resourceGroups/platform-rg/providers/Microsoft.Network/applicationGateways/agw-01-myteam-pub-dev/backendAddressPools/myapp-someorg-com-backendaddresspool'
 )
 
 Set-AzContext -Subscription $SubscriptionName
