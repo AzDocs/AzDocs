@@ -86,7 +86,7 @@ if (($ApplicationGatewayWafCustomRuleRequestHeader -and !$ApplicationGatewayWafC
 $defaultPriorityToStart = 50
 
 # Name for the rule in the WAF
-$ruleName = $IngressDomainName.ToLower().replace('.', 'DOT') + 'WhiteList'
+$ruleName = $IngressDomainName.ToLower().replace('.', 'DOT').replace('-', 'DASH') + 'WhiteList'
 
 $firewallCustomRules = @(New-AzApplicationGatewayFirewallCondition -MatchVariable (New-AzApplicationGatewayFirewallMatchVariable -VariableName 'RequestHeaders' -Selector 'host') -Operator Contains -MatchValue $IngressDomainName -Transform Lowercase -NegationCondition $False)
 

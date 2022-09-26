@@ -7,7 +7,7 @@ Next to that, it is also possible to delete these 'orphaned' private endpoint co
 
 # Parameters
 
-Some parameters from [General Parameter](/Azure/Azure-CLI-Snippets) list.
+Some parameters from [General Parameter](/Azure/AzDocs-v1/Scripts) list.
 
 | Parameter        | Required                        | Example Value      | Description                                                       |
 | ---------------- | ------------------------------- | ------------------ | ----------------------------------------------------------------- |
