@@ -8,7 +8,7 @@ param (
     [Parameter()][bool] $RedisInstanceEnableNonSslPort = $false,
     [Parameter()][ValidateSet('1.0', '1.1', '1.2')][string] $RedisInstanceMinimalTlsVersion = '1.2',
     [Parameter()][System.Object[]] $ResourceTags,
-    
+
     # Private Endpoints
     [Parameter()][string] $RedisInstancePrivateEndpointVnetResourceGroupName,
     [Parameter()][string] $RedisInstancePrivateEndpointVnetName,
@@ -28,7 +28,7 @@ param (
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
     [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
-    
+
     # Disable diagnostic settings
     [Parameter()][switch] $DiagnosticSettingsDisabled
 )
@@ -68,7 +68,7 @@ if ($RedisInstanceVNetIntegrationVnetName -and $RedisInstanceVNetIntegrationSubn
     $additionalParameters += '--subnet-id', $RedisInstanceSubnetId
     $updateParameters += "subnetId=$RedisInstanceSubnetId"
 }
-    
+
 function WaitForRedisProvisioningToBeDone
 {
     [CmdletBinding()]
@@ -154,7 +154,7 @@ if ($DiagnosticSettingsDisabled)
 }
 else
 {
-    Set-DiagnosticSettings -ResourceId $redisInstanceResourceId -ResourceName $RedisInstanceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+    Set-DiagnosticSettings -ResourceId $redisInstanceResourceId -ResourceName $RedisInstanceName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

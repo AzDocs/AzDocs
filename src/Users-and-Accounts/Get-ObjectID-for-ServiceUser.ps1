@@ -11,8 +11,10 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-Invoke-Executable az login --username $ServiceUserEmail --password $ServiceUserPassword --allow-no-subscriptions
-$objectId = (Invoke-Executable az ad user show --id $ServiceUserEmail | ConvertFrom-Json).objectId
+Write-Host "get token for Service Principal from service connection for this pipeline, prerequisite is having User.Read Permission on Microsoft Graph for this Service Principal"
+Invoke-Executable az account get-access-token --resource https://graph.microsoft.com
+
+$objectId = (Invoke-Executable az ad user show --id $ServiceUserEmail | ConvertFrom-Json).Id
 
 Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$objectId"
 
