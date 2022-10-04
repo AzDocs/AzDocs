@@ -21,6 +21,9 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 # Add extension for front-door
 Invoke-Executable az config set extension.use_dynamic_install=yes_without_prompt
 
+# TODO : -- does not contain
+# ADD NEGATE POSSIBILITY
+
 $optionalParameters = @()
 if ($WafPolicyCustomRuleConditionTransforms) {
     $optionalParameters += "--transforms", $WafPolicyCustomRuleConditionTransforms
