@@ -9,7 +9,7 @@ Create a WAF policy.
 | Parameter              | Required                        | Example Value                                                                 | Description                                               |
 | ---------------------- | ------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------- |
 | WafPolicyName          | <input type="checkbox" checked> | `mypolicy`                                                                    | The name of the policy.                                   |
-| WafPolicyResourceGroup | <input type="checkbox" checked> | `rg-$(Release.EnvironmentName)`                                               | The name of the resourcegroup the policy will reside in.  |
+| WafPolicyResourceGroupName | <input type="checkbox" checked> | `rg-$(Release.EnvironmentName)`                                               | The name of the resourcegroup the policy will reside in.  |
 | WafPolicySku           | <input type="checkbox" checked> | `Classic_AzureFrontDoor`/`Premium_AzureFrontDoor` / `Standard_AzureFrontDoor` | The front door sku.                                       |
 | WafPolicyFirewallMode  | <input type="checkbox">         | `Detection`/ `Prevention`                                                     | The policy firewall mode to set. Defaults to `Detection`. |
 
@@ -25,10 +25,10 @@ Be aware that this YAML example contains all parameters that can be used with th
   inputs:
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
-    scriptPath: "$(Pipeline.Workspace)/AzDocs/Front-Door/Create-WAF-Policy.ps1"
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Web-Application-Firewall-Policies/Create-WAF-Policy.ps1"
     arguments: >
         -WafPolicyName '$(WafPolicyName)'
-        -WafPolicyResourceGroup '$(WafPolicyResourceGroup)'
+        -WafPolicyResourceGroupName '$(WafPolicyResourceGroupName)'
         -WafPolicySku '$(WafPolicySku)'
         -WafPolicyFirewallMode '$(WafPolicyFirewallMode)'
         -ResourceTags '$(ResourceTags)'

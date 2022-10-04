@@ -3,6 +3,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2022.10.04]
+- Added script `Create-WAF-Policy-Custom-Rule`
+
 ## [2022.07.13]
 - Added script `Create-CDN-Custom-Domain`
 - Added script `Create-CDN-Endpoint-Rule`
