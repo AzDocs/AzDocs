@@ -12,6 +12,7 @@ Create a WAF policy.
 | WafPolicyResourceGroupName | <input type="checkbox" checked> | `rg-$(Release.EnvironmentName)`                                               | The name of the resourcegroup the policy will reside in.  |
 | WafPolicySku           | <input type="checkbox" checked> | `Classic_AzureFrontDoor`/`Premium_AzureFrontDoor` / `Standard_AzureFrontDoor` | The front door sku.                                       |
 | WafPolicyFirewallMode  | <input type="checkbox">         | `Detection`/ `Prevention`                                                     | The policy firewall mode to set. Defaults to `Detection`. |
+| WafPolicyRedirectUrl | <input type="checkbox"> | `uri` | The uri that can be set to add a redirect to the waf policy. | 
 
 
 # YAML task
@@ -32,6 +33,7 @@ Be aware that this YAML example contains all parameters that can be used with th
         -WafPolicySku '$(WafPolicySku)'
         -WafPolicyFirewallMode '$(WafPolicyFirewallMode)'
         -ResourceTags '$(ResourceTags)'
+        -WafPolicyRedirectUrl '$(WafPolicyRedirectUrl)'
 ```
 
 # Code
