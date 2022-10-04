@@ -21,7 +21,7 @@ param (
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
     [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
- 
+
     # Disable diagnostic settings
     [Parameter()][switch] $DiagnosticSettingsDisabled
 )
@@ -45,7 +45,7 @@ $applicationGatewayId = (Invoke-Executable -AllowToFail az network application-g
 
 if (!$applicationGatewayId)
 {
-    Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId
+    Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId --priority 10
 }
 
 $applicationGatewayId = (Invoke-Executable az network application-gateway show --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
@@ -93,7 +93,7 @@ if ($DiagnosticSettingsDisabled)
 }
 else
 {
-    Set-DiagnosticSettings -ResourceId $applicationGatewayId -ResourceName $ApplicationGatewayName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+    Set-DiagnosticSettings -ResourceId $applicationGatewayId -ResourceName $ApplicationGatewayName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

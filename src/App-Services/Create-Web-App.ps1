@@ -1,7 +1,7 @@
 [CmdletBinding(DefaultParameterSetName = 'default')]
 param (
     [Parameter(Mandatory)][string] $AppServicePlanName,
-    [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,    
+    [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
     [Alias('LogAnalyticsWorkspaceName')]
@@ -12,6 +12,7 @@ param (
     [Parameter()][bool] $StopAppServiceImmediatelyAfterCreation = $false,
     [Parameter()][bool] $StopAppServiceSlotImmediatelyAfterCreation = $false,
     [Parameter()][bool] $AppServiceAlwaysOn = $true,
+    [Parameter()][bool] $DisableClientAffinity = $false,
     [Parameter()][string][ValidateSet('1.0', '1.1', '1.2')] $AppServiceMinimalTlsVersion = '1.2',
     
     # Deployment Slots
@@ -125,6 +126,9 @@ if ($StopAppServiceImmediatelyAfterCreation)
 # Enforce HTTPS
 Invoke-Executable az webapp update --ids $webAppId --https-only true
 
+# Disable/enable Client Affinity (ARR)
+Invoke-Executable az webapp update --ids $webAppId --client-affinity-enabled $(!$DisableClientAffinity)
+
 # Set Always On, the number of instances and the ftps-state to disable
 Invoke-Executable az webapp config set --ids $webAppId --number-of-workers $AppServiceNumberOfInstances --always-on $AppServiceAlwaysOn --ftps-state Disabled --min-tls-version $AppServiceMinimalTlsVersion
 
@@ -153,10 +157,10 @@ if($CORSUrls)
 # Create Deployment Slot
 if ($EnableAppServiceDeploymentSlot)
 {
-    $parametersForDeploymentSlot = @{ 
-        AppType                                      = 'webapp'; 
-        ResourceResourceGroupName                    = $AppServiceResourceGroupName;    
-        ResourceName                                 = $AppServiceName; 
+    $parametersForDeploymentSlot = @{
+        AppType                                      = 'webapp';
+        ResourceResourceGroupName                    = $AppServiceResourceGroupName;
+        ResourceName                                 = $AppServiceName;
         ResourceDeploymentSlotName                   = $AppServiceDeploymentSlotName;
         LogAnalyticsWorkspaceResourceId              = $LogAnalyticsWorkspaceResourceId;
         StopResourceSlotImmediatelyAfterCreation     = $StopAppServiceSlotImmediatelyAfterCreation;

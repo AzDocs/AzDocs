@@ -9,3 +9,4 @@ The idea behind this repository is that you are able to create compliant & secur
 - The documentation can be found in the `Wiki` directory. In Azure DevOps you can publish the `Wiki` folder as a Wiki (Publish Code as Wiki).
 - The source code for the code snippits can be found in `src`.
 - Unit tests for the snippits can be found in the tests directory. `NOTE: As of yet there are no unit tests yet.`
+- tools can be found in the [`Tools`](Tools/) directory. For generating the bicep markdown documentation see [bicep](Tools/Bicep/).

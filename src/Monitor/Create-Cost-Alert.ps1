@@ -27,13 +27,13 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 # Check if we don't have mixed scopes
 if ($BudgetResourceGroupScope -and $BudgetManagementGroupScope)
 {
-    throw "Fill out either BudgetResourceGroupScope OR BudgetManagementGroupScope. At least one must be empty."
+    throw 'Fill out either BudgetResourceGroupScope OR BudgetManagementGroupScope. At least one must be empty.'
 }
 
 # Make sure we have at least one notification group
 if (!$AlertContactEmails -and !$AlertContactRoles -and !$AlertContactActionGroups)
 {
-    throw "Please make sure to fill either AlertContactEmails, AlertContactRoles or AlertContactActionGroups."
+    throw 'Please make sure to fill either AlertContactEmails, AlertContactRoles or AlertContactActionGroups.'
 }
 
 # Define scope (subscription/managementgroup/rg)
@@ -109,17 +109,15 @@ switch ($PSCmdlet.ParameterSetName)
     'FilterOnSingleTag'
     {
         $filters = @{
-            and = @(
-                @{
-                    tags = @{
-                        name     = $FilterOnTagName;
-                        operator = 'In';
-                        values   = @(
-                            $FilterOnTagValue
-                        )
-                    }
-                }
-            )
+
+            tags = @{
+                name     = $FilterOnTagName;
+                operator = 'In';
+                values   = @(
+                    $FilterOnTagValue
+                )
+            }
+
         }
     }
 }
