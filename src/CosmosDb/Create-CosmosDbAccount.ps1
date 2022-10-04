@@ -190,6 +190,7 @@ if ($CosmosDbCapabilities)
 {
     # Set custom capabilities on the Cosmos DB database account.Set custom capabilities on the Cosmos DB database account.
     $capabilities += $CosmosDbCapabilities
+    $optionalParameters += '--capabilities', $capabilities
 }
 
 ####################################### VNET WHITELISTING #########################################
