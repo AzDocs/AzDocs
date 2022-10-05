@@ -9,7 +9,8 @@ param (
     [Parameter()][string][ValidateSet("LowerCase", "RemoveNulls", "Trim", "UpperCase", "UrlDecode", "UrlEncode")] $WafPolicyCustomRuleConditionTransforms,
     [Parameter()][string][ValidateSet("MatchRule", "RateLimitRule")] $WafPolicyCustomRuleType = "MatchRule",
     [Parameter()][string][ValidateSet("Allow", "Block", "Log", "Redirect")] $WafPolicyCustomRuleAction = "Block",
-    [Parameter()][int]$WafPolicyCustomRulePriority = 100
+    [Parameter()][int] $WafPolicyCustomRulePriority = 100,
+    [Parameter()][bool] $WafPolicyCustomRuleConditionNegate = $false
 )
 
 #region ===BEGIN IMPORTS===
@@ -23,6 +24,9 @@ Invoke-Executable az config set extension.use_dynamic_install=yes_without_prompt
 
 # TODO : -- does not contain
 # ADD NEGATE POSSIBILITY
+# https://learn.microsoft.com/en-us/rest/api/frontdoor/webapplicationfirewall/policies/create-or-update
+# because of caching
+Invoke-Executable az cache purge
 
 $optionalParameters = @()
 if ($WafPolicyCustomRuleConditionTransforms) {
@@ -40,14 +44,14 @@ else {
 $existingMatchConditions = Invoke-Executable az network front-door waf-policy rule match-condition list --name $WafPolicyCustomRuleName --policy-name $WafPolicyName --resource-group $WafPolicyResourceGroupName | ConvertFrom-Json
 $index = 0
 $added = $false
-if ($existingMatchConditions | Where-Object { $_.operator -eq $WafPolicyCustomRuleConditionOperator }) {
-    Write-Host "Found a match condition with the same operator : $WafPolicyCustomRuleConditionOperator"
+if ($existingMatchConditions | Where-Object { $_.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $_.operator -eq $WafPolicyCustomRuleConditionOperator }) {
+    Write-Host "Found a match condition with the same operator : $WafPolicyCustomRuleConditionOperator and match variable $WafPolicyCustomRuleConditionMatchVariable"
     foreach ($matchCondition in $existingMatchConditions) {
-        if ($matchCondition.operator -eq $WafPolicyCustomRuleConditionOperator) {
+        if ($matchCondition.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $matchCondition.operator -eq $WafPolicyCustomRuleConditionOperator) {
             Write-Host "Removing existing.."
             Invoke-Executable az network front-door waf-policy rule match-condition remove --index $index --name $WafPolicyCustomRuleName --policy-name $WafPolicyName --resource-group $WafPolicyResourceGroupName
             Write-Host "Adding.."
-            Invoke-Executable az network front-door waf-policy rule match-condition add --match-variable $WafPolicyCustomRuleConditionMatchVariable --operator $WafPolicyCustomRuleConditionOperator --values @WafPolicyCustomRuleConditionValues --name $WafPolicyCustomRuleName --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName @optionalParameters
+            Invoke-Executable az network front-door waf-policy rule match-condition add --match-variable $WafPolicyCustomRuleConditionMatchVariable --operator $WafPolicyCustomRuleConditionOperator --values @WafPolicyCustomRuleConditionValues --name $WafPolicyCustomRuleName --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName --negate $WafPolicyCustomRuleConditionNegate @optionalParameters
             $added = $true
         }
         $index++
@@ -55,7 +59,7 @@ if ($existingMatchConditions | Where-Object { $_.operator -eq $WafPolicyCustomRu
 }
 
 if (!$added) {
-    Invoke-Executable az network front-door waf-policy rule match-condition add --match-variable $WafPolicyCustomRuleConditionMatchVariable --operator $WafPolicyCustomRuleConditionOperator --values @WafPolicyCustomRuleConditionValues --name $WafPolicyCustomRuleName --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName @optionalParameters
+    Invoke-Executable az network front-door waf-policy rule match-condition add --match-variable $WafPolicyCustomRuleConditionMatchVariable --operator $WafPolicyCustomRuleConditionOperator --values @WafPolicyCustomRuleConditionValues --name $WafPolicyCustomRuleName --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName --negate $WafPolicyCustomRuleConditionNegate @optionalParameters
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
