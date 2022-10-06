@@ -18,7 +18,7 @@ param principalId string
 ])
 param principalType string = 'ServicePrincipal'
 
-@description('The name of the Azure Automation Account to assign the permissions on. This Automation Account should already exist.')
+@description('The name of the Azure Automation Account to assign the permissions on. This Automation Account should already be existing.')
 @minLength(6)
 @maxLength(50)
 param automationAccountName string

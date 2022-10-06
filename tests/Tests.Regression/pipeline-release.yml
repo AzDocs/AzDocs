@@ -1039,6 +1039,14 @@ stages:
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
                 # ========================================= APP CONFIG =========================================
+                - task: PowerShell@2
+                  displayName: "Get Build URL"
+                  inputs:
+                    targetType: 'inline'
+                    pwsh: true
+                    script: |
+                      $buildId = "$(Build.BuildId)"
+                      Write-Host "##vso[task.setvariable variable=buildId;]$buildId"
                 - task: AzureCLI@2
                   displayName: "Create (Public) App Configuration"
                   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'), eq(variables['ResourceCreation.AppConfiguration.Enabled'], 'true'))
@@ -1046,7 +1054,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Configuration/Create-App-Configuration.ps1"
-                    arguments: "-AppConfigName '$(PublicAppConfigName)' -AppConfigLocation '$(AppConfigLocation)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppConfigSku '$(AppConfigSku)' -AppConfigAllowPublicAccess $true -ForcePublic"
+                    arguments: "-AppConfigName 'pubappconfig$(buildId)' -AppConfigLocation '$(AppConfigLocation)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -AppConfigSku '$(AppConfigSku)' -AppConfigAllowPublicAccess $true -ForcePublic"
                 - checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
                 - task: AzureCLI@2
                   displayName: "Import Json Configuration File"
@@ -1056,7 +1064,7 @@ stages:
                     scriptType: pscore
                     failOnStandardError: true
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Configuration/Import-Json-Configuration-File.ps1"
-                    arguments: "-AppConfigName '$(PublicAppConfigName)' -Label '$(AppConfigLabel)' -JsonFilePath 'tests/Tests.Regression/Pipeline.TestFiles/appconfig.json' -KeyPrefix '$(AppConfigKeyPrefix)'"
+                    arguments: "-AppConfigName 'pubappconfig$(buildId)' -Label '$(AppConfigLabel)' -JsonFilePath 'tests/Tests.Regression/Pipeline.TestFiles/appconfig.json' -KeyPrefix '$(AppConfigKeyPrefix)'"
       - deployment: "PrivateEndpoint_AppConfig"
         displayName: "AppConfig (Private Endpoint)"
         dependsOn: ["ResourceGroup", "BaseResources"]
@@ -1082,6 +1090,14 @@ stages:
                     branchName: $(AzDocs.SourceBranch)
                     artifactName: azdocs-src
                     targetPath: $(Pipeline.Workspace)/AzDocs
+                - task: PowerShell@2
+                  displayName: "Get Build URL"
+                  inputs:
+                    targetType: 'inline'
+                    pwsh: true
+                    script: |
+                      $buildId = "$(Build.BuildId)"
+                      Write-Host "##vso[task.setvariable variable=buildId;]$buildId"
                 # ========================================= APP CONFIG =========================================
                 - task: AzureCLI@2
                   displayName: "Create (Private Endpoint) App Configuration"
@@ -1090,7 +1106,7 @@ stages:
                     azureSubscription: "${{ parameters.SubscriptionName }}"
                     scriptType: pscore
                     scriptPath: "$(Pipeline.Workspace)/AzDocs/App-Configuration/Create-App-Configuration.ps1"
-                    arguments: "-AppConfigPrivateEndpointVnetResourceGroupName '$(AppConfigPrivateEndpointVnetResourceGroupName)' -AppConfigPrivateEndpointVnetName '$(AppConfigPrivateEndpointVnetName)' -AppConfigPrivateEndpointSubnetName '$(AppConfigPrivateEndpointSubnetName)' -AppConfigName '$(PrivateEndpointAppConfigName)' -AppConfigLocation '$(AppConfigLocation)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppConfigSku '$(AppConfigSku)' -AppConfigAllowPublicAccess $false"
+                    arguments: "-AppConfigPrivateEndpointVnetResourceGroupName '$(AppConfigPrivateEndpointVnetResourceGroupName)' -AppConfigPrivateEndpointVnetName '$(AppConfigPrivateEndpointVnetName)' -AppConfigPrivateEndpointSubnetName '$(AppConfigPrivateEndpointSubnetName)' -AppConfigName 'privappconfig$(buildId)' -AppConfigLocation '$(AppConfigLocation)' -AppConfigResourceGroupName '$(AppConfigResourceGroupName)' -LogAnalyticsWorkspaceResourceId '$(LogAnalyticsWorkspaceResourceId)' -DNSZoneResourceGroupName '$(DNSZoneResourceGroupName)' -AppConfigSku '$(AppConfigSku)' -AppConfigAllowPublicAccess $false"
                 # THIS CURRENTLY DOESNT WORK DUE TO PVT ENDPOINTS
                 #- checkout: self # MAKE SURE WE CHECKOUT THE REPO FOR THE PIPELINE TEST FILES
                 #- task: AzureCLI@2
