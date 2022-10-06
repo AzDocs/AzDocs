@@ -21,7 +21,7 @@ parameters:
     - false
   - name: EnvironmentType
     type: string
-    default: dev
+    default: prd
     values:
       - dev
       - prd
