@@ -15,7 +15,7 @@ pool:
 parameters:
   - name: RunUpload
     type: string
-    default: false
+    default: true
     values:
     - true
     - false

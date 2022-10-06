@@ -13,7 +13,7 @@ param(
 
     # Name of the Azure Container Registry
     [Parameter()]
-    [string]$registryName = 'acrazdocsdev'
+    [string]$registryName
 )
 
 
