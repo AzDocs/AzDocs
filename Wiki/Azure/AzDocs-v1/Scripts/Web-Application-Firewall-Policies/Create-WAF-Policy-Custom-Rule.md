@@ -18,6 +18,7 @@ Create a custom rule for the WAF policy.
 | WafPolicyCustomRuleType | <input type="checkbox"> | `MatchRule` | The rule type for the custom rule. The following are available: `MatchRule` and `RateLimitRule`. Defaults to `MatchRule`. | 
 | WafPolicyCustomRuleAction | <input type="checkbox"> | `Allow` | The action that happens when the condition has been matched. The following are available: `Allow`, `Block`, `Log`, `Redirect`. Defaults to `Block`. | 
 | WafPolicyCustomRulePriority | <input type="checkbox"> |`100` | The priority of the rule. Defaults to `100`.|
+| WafPolicyCustomRuleConditionNegate | <input type="checkbox"> | `$false` | The negate of the rule. Defaults to `false`. |
 
 # YAML task
 
@@ -42,6 +43,7 @@ Be aware that this YAML example contains all parameters that can be used with th
         -WafPolicyCustomRuleType '$(WafPolicyCustomRuleType)'
         -WafPolicyCustomRuleAction '$(WafPolicyCustomRuleAction)'
         -WafPolicyCustomRulePriority $(WafPolicyCustomRulePriority)
+        -WafPolicyCustomRuleConditionNegate $(WafPolicyCustomRuleConditionNegate)
 ```
 
 # Code

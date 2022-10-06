@@ -22,10 +22,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 # Add extension for front-door
 Invoke-Executable az config set extension.use_dynamic_install=yes_without_prompt
 
-# TODO : -- does not contain
-# ADD NEGATE POSSIBILITY
-# https://learn.microsoft.com/en-us/rest/api/frontdoor/webapplicationfirewall/policies/create-or-update
-# because of caching
+# Part of the calls get cached for this extension. To make sure we get the latest results from the cli, we are first purging the cache
 Invoke-Executable az cache purge
 
 $optionalParameters = @()
@@ -33,22 +30,35 @@ if ($WafPolicyCustomRuleConditionTransforms) {
     $optionalParameters += "--transforms", $WafPolicyCustomRuleConditionTransforms
 }
 
+$existingMatchConditions = $null;
 $existingRule = Invoke-Executable -AllowToFail az network front-door waf-policy rule show --name $WafPolicyCustomRuleName --policy-name $WafPolicyName --resource-group $WafPolicyResourceGroupName
-if (!$existingRule) {
-    Invoke-Executable az network front-door waf-policy rule create --name $WafPolicyCustomRuleName --priority $WafPolicyCustomRulePriority --rule-type $WafPolicyCustomRuleType --action $WafPolicyCustomRuleAction --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName --defer
+if ($existingRule) {
+    $existingMatchConditions = Invoke-Executable az network front-door waf-policy rule match-condition list --name $WafPolicyCustomRuleName --policy-name $WafPolicyName --resource-group $WafPolicyResourceGroupName | ConvertFrom-Json
+    if ($existingMatchConditions.count -eq 1) {
+        # Since we are not able to update the match conditions without removing and adding again
+        # but we cannot remove the match-condition if there is only one
+        # we will remove the rule and recreate it.
+        Invoke-Executable az network front-door waf-policy rule delete --name $WafPolicyCustomRuleName --policy-name $WafPolicyName --resource-group $WafPolicyResourceGroupName
+        Invoke-Executable az network front-door waf-policy rule create --name $WafPolicyCustomRuleName --priority $WafPolicyCustomRulePriority --rule-type $WafPolicyCustomRuleType --action $WafPolicyCustomRuleAction --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName --defer
+        $existingMatchConditions = $null
+    }
+    else {
+        Invoke-Executable az network front-door waf-policy rule update --name $WafPolicyCustomRuleName --priority $WafPolicyCustomRulePriority --action $WafPolicyCustomRuleAction --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName
+    }
 }
 else {
-    Invoke-Executable az network front-door waf-policy rule update --name $WafPolicyCustomRuleName --priority $WafPolicyCustomRulePriority --action $WafPolicyCustomRuleAction --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName
+    Invoke-Executable az network front-door waf-policy rule create --name $WafPolicyCustomRuleName --priority $WafPolicyCustomRulePriority --rule-type $WafPolicyCustomRuleType --action $WafPolicyCustomRuleAction --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName --defer
 }
 
+
 $existingMatchConditions = Invoke-Executable az network front-door waf-policy rule match-condition list --name $WafPolicyCustomRuleName --policy-name $WafPolicyName --resource-group $WafPolicyResourceGroupName | ConvertFrom-Json
-$index = 0
 $added = $false
-if ($existingMatchConditions | Where-Object { $_.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $_.operator -eq $WafPolicyCustomRuleConditionOperator }) {
+if ($existingMatchConditions -and $existingMatchConditions | Where-Object { $_.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $_.operator -eq $WafPolicyCustomRuleConditionOperator }) {
+    $index = 0
     Write-Host "Found a match condition with the same operator : $WafPolicyCustomRuleConditionOperator and match variable $WafPolicyCustomRuleConditionMatchVariable"
     foreach ($matchCondition in $existingMatchConditions) {
         if ($matchCondition.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $matchCondition.operator -eq $WafPolicyCustomRuleConditionOperator) {
-            Write-Host "Removing existing.."
+            Write-Host "Removing existing match-condition"
             Invoke-Executable az network front-door waf-policy rule match-condition remove --index $index --name $WafPolicyCustomRuleName --policy-name $WafPolicyName --resource-group $WafPolicyResourceGroupName
             Write-Host "Adding.."
             Invoke-Executable az network front-door waf-policy rule match-condition add --match-variable $WafPolicyCustomRuleConditionMatchVariable --operator $WafPolicyCustomRuleConditionOperator --values @WafPolicyCustomRuleConditionValues --name $WafPolicyCustomRuleName --resource-group $WafPolicyResourceGroupName --policy-name $WafPolicyName --negate $WafPolicyCustomRuleConditionNegate @optionalParameters
