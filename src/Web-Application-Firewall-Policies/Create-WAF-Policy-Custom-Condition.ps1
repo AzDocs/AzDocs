@@ -21,9 +21,6 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 # Add extension for front-door
 Invoke-Executable az config set extension.use_dynamic_install=yes_without_prompt
 
-# Part of the calls get cached for this extension. To make sure we get the latest results from the cli, we are first purging the cache
-Invoke-Executable az cache purge
-
 $optionalParameters = @()
 if ($WafPolicyCustomRuleConditionTransforms) {
     $optionalParameters += "--transforms", $WafPolicyCustomRuleConditionTransforms
