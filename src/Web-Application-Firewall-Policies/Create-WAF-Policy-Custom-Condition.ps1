@@ -7,7 +7,9 @@ param (
     [Parameter(Mandatory)][string][ValidateSet("Any", "IPMatch", "GeoMatch", "Equal", "Contains", "LessThan", "GreaterThan", "LessThanOrEqual", "GreaterThanOrEqual", "BeginsWith", "EndsWith", "RegEx")] $WafPolicyCustomRuleConditionOperator,
     [Parameter(Mandatory)][System.Object] $WafPolicyCustomRuleConditionValues,
     [Parameter()][string][ValidateSet("LowerCase", "RemoveNulls", "Trim", "UpperCase", "UrlDecode", "UrlEncode")] $WafPolicyCustomRuleConditionTransforms,
-    [Parameter()][bool] $WafPolicyCustomRuleConditionNegate = $false
+    [Parameter()][bool] $WafPolicyCustomRuleConditionNegate = $false,
+    # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters.
+    [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
 )
 
 #region ===BEGIN IMPORTS===
