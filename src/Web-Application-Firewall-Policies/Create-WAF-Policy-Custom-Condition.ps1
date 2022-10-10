@@ -38,7 +38,7 @@ foreach ($matchCondition in $existingMatchConditions) {
 }
 
 $added = $false
-if ($existingMatchConditions -and $existingMatchConditions | Where-Object { $_.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $_.operator -eq $WafPolicyCustomRuleConditionOperator }) {
+if ($existingMatchConditions -and ($existingMatchConditions | Where-Object { $_.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $_.operator -eq $WafPolicyCustomRuleConditionOperator })) {
     $index = 0
     Write-Host "Found a match condition with the same operator : $WafPolicyCustomRuleConditionOperator and match variable $WafPolicyCustomRuleConditionMatchVariable"
     foreach ($matchCondition in $existingMatchConditions) {
