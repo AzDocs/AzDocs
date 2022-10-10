@@ -3,6 +3,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2022.10.10]
+- Added script `Get-Public-Ip-From-NAT-Gateway`
+
 ## [2022.10.04]
 - Added script `Create-WAF-Policy-Custom-Rule`
 - Changed variable `ASPNETCORE_ENVIRONMENT` to `AZURE_FUNCTIONS_ENVIRONMENT` in `Create-Function-App.ps1`
