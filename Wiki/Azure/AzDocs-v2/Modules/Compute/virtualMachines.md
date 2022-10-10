@@ -34,12 +34,10 @@ Creating a Virtual machine with the given specs.
 | availabilityZones | array | <input type="checkbox"> | Length between 0-1 | <pre>[]</pre> | Example:<br>[1]<br>You cannot both have Availability Zone and Availability Set specified. Deploying an Availability Set to an Availability Zone is not supported. |
 | bootdiagnosticsEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | If you want to have bootdiagnostics enabled on the Virtual Machine. More info https://docs.microsoft.com/en-us/azure/virtual-machines/boot-diagnostics. |
 | linuxAuthenticationConfiguration | object | <input type="checkbox"> | None | <pre>{<br>  disablePasswordAuthentication: true<br>  ssh: {<br>    publicKeys: [<br>      {<br>        path: '/home/${virtualMachineAdminUsername}/.ssh/authorized_keys'<br>        keyData: virtualMachineAdminPasswordOrPublicKey<br>      }<br>    ]<br>  }<br>  provisionVMAgent: true<br>}</pre> | The bicep object to configure the linux authentication when creating the vm. |
+| windowsConfiguration | object | <input type="checkbox"> | None | <pre>{<br>    provisionVMAgent: true<br>    enableAutomaticUpdates: true<br>    patchSettings: {<br>        patchMode: 'AutomaticByOS'<br>        assessmentMode: 'ImageDefault'<br>    }<br>    enableVMAgentPlatformUpdates: false<br>}</pre> | The bicep object to configure the Windows authentication when creating the vm. |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
-| availabilitysetResourceId | string | Output the availability set\'s Resource ID. |
-| virtualMachineName | string | Outputs the name of the virtual machine created or upserted |
-| virtualMachineResourceId | string | Output the resourceId of the virtual machine created or upserted |
 ## Examples
 <pre>
 module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
@@ -57,6 +55,7 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
 
 ## Links
 - [Bicep Microsoft.Compute virtualMachines](https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep)<br>
-- [Virtual Machines sizes](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')
+- [Virtual Machines sizes](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')<br>
+- [BYOL, Hybrid Benefit](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing)
 
 

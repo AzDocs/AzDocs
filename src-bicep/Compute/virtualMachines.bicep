@@ -20,6 +20,7 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
 .LINKS
 - [Bicep Microsoft.Compute virtualMachines](https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep)
 - [Virtual Machines sizes](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')
+- [BYOL, Hybrid Benefit](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing)
 */
 
 // ================================================= Parameters =================================================
@@ -203,7 +204,6 @@ param availabilityZones array = []
 @description('If you want to have bootdiagnostics enabled on the Virtual Machine. More info https://docs.microsoft.com/en-us/azure/virtual-machines/boot-diagnostics.')
 param bootdiagnosticsEnabled bool = true
 
-// ================================================= Variables =================================================
 @description('The bicep object to configure the linux authentication when creating the vm.')
 param linuxAuthenticationConfiguration object = {
   disablePasswordAuthentication: true
@@ -217,6 +217,46 @@ param linuxAuthenticationConfiguration object = {
   }
   provisionVMAgent: true
 }
+
+@description('The bicep object to configure the Windows authentication when creating the vm.')
+param windowsConfiguration object = {
+    provisionVMAgent: true
+    enableAutomaticUpdates: true
+    patchSettings: {
+        patchMode: 'AutomaticByOS'
+        assessmentMode: 'ImageDefault'
+    }
+    enableVMAgentPlatformUpdates: false
+}
+
+@description('''
+Type of OS licensing.
+For customers with Software Assurance, Azure Hybrid Benefit for Windows Server allows you to use your on-premises Windows Server licenses and run Windows virtual machines on Azure at a reduced cost.
+You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machines with Windows OS.
+Azure Hybrid Benefit provides software updates and integrated support directly from Azure infrastructure for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines.
+''')
+@allowed(
+  [
+    'RHEL_BYOS'
+    'SLES_STANDARD'
+    'SLES_SAP'
+    'SLES_HPC'
+    'SLES'
+    'RHEL_SAPHA'
+    'RHEL_SAPAPPS'
+    'RHEL_ELS_6'
+    'RHEL_EUS'
+    'RHEL_BASE'
+    'SLES_BYOS'
+    'RHEL_BASESAPAPPS'
+    'RHEL_BASESAPHA'
+    'Windows_Server'
+    'Windows_Client'
+    'None'
+    ''
+  ]
+  )
+param OSLicenseType string = ''
 
 // ================================================= Resources =================================================
 @description('Upsert the availabilitySet using the given parameters if desired.')
@@ -268,11 +308,13 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     hardwareProfile: {
       vmSize: virtualMachineSize
     }
+    licenseType: empty(OSLicenseType) ? json('null'): OSLicenseType
     osProfile: {
       computerName: virtualMachineName
       adminUsername: virtualMachineAdminUsername
       adminPassword: virtualMachineAdminPasswordOrPublicKey
       linuxConfiguration: (virtualMachineAuthenticationMethod == 'password' || virtualMachineImageReference.publisher == 'MicrosoftWindowsServer') ? json('null') : linuxAuthenticationConfiguration
+      windowsConfiguration: (virtualMachineImageReference.publisher == 'MicrosoftWindowsServer') ? windowsConfiguration : json('null')
     }
     storageProfile: {
       imageReference: virtualMachineImageReference

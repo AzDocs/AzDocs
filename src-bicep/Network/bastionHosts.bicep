@@ -1,4 +1,26 @@
-// TODO: Go through this. New file.
+/*
+.SYNOPSIS
+Creating a Bastion Host.
+.DESCRIPTION
+Creating a Bastion Host with the given specs.
+.EXAMPLE
+<pre>
+module bastion '../../AzDocs/src-bicep/Network/bastionHosts.bicep' = {
+  name: '${deployment().name}-bastion'
+  params: {
+    bastionHostName: bastionHostName
+    location: location
+    vnetName: vnetExisting.name
+    bastionHostEnableFileCopy: true
+    bastionHostEnableTunneling: true
+  }
+}
+</pre>
+<p>Creates a Bastion Host with the name bastionHostName that has native client support and allows copy and paste.</p>
+.LINKS
+- [Bicep Microsoft.Network bastionHosts](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/bastionhosts?pivots=deployment-language-bicep)
+- [Bastion and NSGs](https://learn.microsoft.com/en-gb/azure/bastion/bastion-nsg)
+*/
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -16,7 +38,7 @@ param bastionHostEnableFileCopy bool = false
 @description('Enable/Disable IP Connect feature of the Bastion Host resource. This will allow you to connect to VM\'s (either azure or non-azure) using the VM\'s private IP address through Bastion.')
 param bastionHostEnableIpConnect bool = false
 
-@description('Enable/Disable Shareable Link of the Bastion Host resource.') // TODO: Find out what this exactly does
+@description('Enable/Disable Shareable Link of the Bastion Host resource which is a URL to the bastion remote to the VM.')
 param bastionHostEnableShareableLink bool = false
 
 @description('''
@@ -50,9 +72,45 @@ param bastionPublicIpAddressName string = 'pip-${bastionHostName}'
 @maxLength(64)
 param vnetName string = ''
 
-@description('Fetch existing virtual network')
+@description('The sku for the Bastion host.')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param bastionHostSku string = 'Standard'
+
+@description('The resource group of the virtual network the bastion subnet is in.')
+param bastionVirtualNetworkResourceGroupName string
+
+@description('The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`.')
+@minLength(1)
+@maxLength(260)
+param diagnosticsName string = 'AzurePlatformCentralizedLogging'
+
+@description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
+@minLength(0)
+param logAnalyticsWorkspaceResourceId string
+
+@description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings.')
+param diagnosticSettingsLogsCategories array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings')
+param diagnosticSettingsMetricsCategories array = [
+  {
+    categoryGroup: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('Fetch existing virtual network.')
 resource vnetExisting 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
   name: vnetName
+  scope: az.resourceGroup(bastionVirtualNetworkResourceGroupName)
 }
 
 @description('Upsert the public ip needed for the Azure Bastion host.')
@@ -76,6 +134,9 @@ module bastionPublicIpAddress 'publicIPAddresses.bicep' = {
 resource bastionHost 'Microsoft.Network/bastionHosts@2021-08-01' = {
   name: bastionHostName
   location: location
+  sku: {
+    name: bastionHostSku
+  }
   tags: tags
   properties: {
     disableCopyPaste: bastionHostDisableCopyPaste
@@ -99,148 +160,17 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2021-08-01' = {
   }
 }
 
-@description('The default needed NSG rules which you need to apply to your Azure Bastion Subnet.')
-output neededNsgRulesForBastionSubnet array = [
-  {
-    name: 'AllowHttpsInBound'
-    properties: {
-      protocol: 'Tcp'
-      sourcePortRange: '*'
-      sourceAddressPrefix: 'Internet'
-      destinationPortRange: '443'
-      destinationAddressPrefix: '*'
-      access: 'Allow'
-      priority: 100
-      direction: 'Inbound'
-    }
+@description('Upsert the diagnostics for this bastion host.')
+resource bastionDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
+  name: diagnosticsName
+  scope: bastionHost
+  properties: {
+    workspaceId: logAnalyticsWorkspaceResourceId
+    logs: diagnosticSettingsLogsCategories
+    metrics: diagnosticSettingsMetricsCategories
   }
-  {
-    name: 'AllowGatewayManagerInBound'
-    properties: {
-      protocol: 'Tcp'
-      sourcePortRange: '*'
-      sourceAddressPrefix: 'GatewayManager'
-      destinationPortRange: '443'
-      destinationAddressPrefix: '*'
-      access: 'Allow'
-      priority: 110
-      direction: 'Inbound'
-    }
-  }
-  {
-    name: 'AllowLoadBalancerInBound'
-    properties: {
-      protocol: 'Tcp'
-      sourcePortRange: '*'
-      sourceAddressPrefix: 'AzureLoadBalancer'
-      destinationPortRange: '443'
-      destinationAddressPrefix: '*'
-      access: 'Allow'
-      priority: 120
-      direction: 'Inbound'
-    }
-  }
-  {
-    name: 'AllowBastionHostCommunicationInBound'
-    properties: {
-      protocol: '*'
-      sourcePortRange: '*'
-      sourceAddressPrefix: 'VirtualNetwork'
-      destinationPortRanges: [
-        '8080'
-        '5701'
-      ]
-      destinationAddressPrefix: 'VirtualNetwork'
-      access: 'Allow'
-      priority: 130
-      direction: 'Inbound'
-    }
-  }
-  {
-    name: 'DenyAllInBound'
-    properties: {
-      protocol: '*'
-      sourcePortRange: '*'
-      sourceAddressPrefix: '*'
-      destinationPortRange: '*'
-      destinationAddressPrefix: '*'
-      access: 'Deny'
-      priority: 1000
-      direction: 'Inbound'
-    }
-  }
-  {
-    name: 'AllowSshRdpOutBound'
-    properties: {
-      protocol: 'Tcp'
-      sourcePortRange: '*'
-      sourceAddressPrefix: '*'
-      destinationPortRanges: [
-        '22'
-        '3389'
-      ]
-      destinationAddressPrefix: 'VirtualNetwork'
-      access: 'Allow'
-      priority: 100
-      direction: 'Outbound'
-    }
-  }
-  {
-    name: 'AllowAzureCloudCommunicationOutBound'
-    properties: {
-      protocol: 'Tcp'
-      sourcePortRange: '*'
-      sourceAddressPrefix: '*'
-      destinationPortRange: '443'
-      destinationAddressPrefix: 'AzureCloud'
-      access: 'Allow'
-      priority: 110
-      direction: 'Outbound'
-    }
-  }
-  {
-    name: 'AllowBastionHostCommunicationOutBound'
-    properties: {
-      protocol: '*'
-      sourcePortRange: '*'
-      sourceAddressPrefix: 'VirtualNetwork'
-      destinationPortRanges: [
-        '8080'
-        '5701'
-      ]
-      destinationAddressPrefix: 'VirtualNetwork'
-      access: 'Allow'
-      priority: 120
-      direction: 'Outbound'
-    }
-  }
-  {
-    name: 'AllowGetSessionInformationOutBound'
-    properties: {
-      protocol: '*'
-      sourcePortRange: '*'
-      sourceAddressPrefix: '*'
-      destinationAddressPrefix: 'Internet'
-      destinationPortRanges: [
-        '80'
-        '443'
-      ]
-      access: 'Allow'
-      priority: 130
-      direction: 'Outbound'
-    }
-  }
-  {
-    name: 'DenyAllOutBound'
-    properties: {
-      protocol: '*'
-      sourcePortRange: '*'
-      destinationPortRange: '*'
-      sourceAddressPrefix: '*'
-      destinationAddressPrefix: '*'
-      access: 'Deny'
-      priority: 1000
-      direction: 'Outbound'
-    }
-  }
-]
+}
+
+
+@description('Outputs the name of the created Bastion Host.')
+output bastionHostName string = bastionHost.name
