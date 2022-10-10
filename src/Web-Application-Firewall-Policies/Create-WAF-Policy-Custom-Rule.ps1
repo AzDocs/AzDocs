@@ -51,7 +51,7 @@ else {
 }
 
 # Call script for custom rule
-& "$PSScriptRoot\Create-WAF-Policy-Custom-Rules.ps1" @PSBoundParameters
+& "$PSScriptRoot\Create-WAF-Policy-Custom-Condition.ps1" @PSBoundParameters
 
 # $existingMatchConditions = Invoke-Executable az network front-door waf-policy rule match-condition list --name $WafPolicyCustomRuleName --policy-name $WafPolicyName --resource-group $WafPolicyResourceGroupName | ConvertFrom-Json
 # $added = $false
