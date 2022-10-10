@@ -23,7 +23,7 @@ if ($WafPolicyRedirectUrl) {
     $optionalParameters += "--redirect-url", $WafPolicyRedirectUrl
 }
 
-$wafPolicyId = (Invoke-Executable az network front-door waf-policy create --name $WafPolicyName --resource-group $WafPolicyResourceGroupName --sku $WafPolicySku --redirect-url $ | ConvertFrom-Json).id
+$wafPolicyId = (Invoke-Executable az network front-door waf-policy create --name $WafPolicyName --resource-group $WafPolicyResourceGroupName --sku $WafPolicySku @optionalParameters | ConvertFrom-Json).id
 
 # Update Tags
 if ($ResourceTags) {
