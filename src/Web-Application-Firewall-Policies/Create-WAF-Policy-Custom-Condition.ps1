@@ -27,6 +27,9 @@ if ($WafPolicyCustomRuleConditionTransforms) {
 }
 
 $existingMatchConditions = Invoke-Executable az network front-door waf-policy rule match-condition list --name $WafPolicyCustomRuleName --policy-name $WafPolicyName --resource-group $WafPolicyResourceGroupName | ConvertFrom-Json
+
+Write-Host $existingMatchConditions
+
 $added = $false
 if ($existingMatchConditions -and $existingMatchConditions | Where-Object { $_.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $_.operator -eq $WafPolicyCustomRuleConditionOperator }) {
     $index = 0
