@@ -30,6 +30,13 @@ $existingMatchConditions = Invoke-Executable az network front-door waf-policy ru
 
 Write-Host $existingMatchConditions
 
+Write-Host $existingMatchConditions | Where-Object { $_.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $_.operator -eq $WafPolicyCustomRuleConditionOperator }
+
+foreach ($matchCondition in $existingMatchConditions) {
+    Write-Host $matchCondition.matchVariable
+    Write-Host $matchCondition.operator
+}
+
 $added = $false
 if ($existingMatchConditions -and $existingMatchConditions | Where-Object { $_.matchVariable -eq $WafPolicyCustomRuleConditionMatchVariable -and $_.operator -eq $WafPolicyCustomRuleConditionOperator }) {
     $index = 0
