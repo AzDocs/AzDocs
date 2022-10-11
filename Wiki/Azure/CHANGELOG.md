@@ -3,6 +3,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2022.10.11]
+- Added script `List-All-Functions-Inside-Function-App`
+- Updated scripts `Set-AppSettings-For-Function-App`
+
 ## [2022.10.10]
 - Added script `Get-Public-Ip-From-NAT-Gateway`
 - Added script `Create-WAF-Policy-Custom-Condition`
