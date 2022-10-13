@@ -26,7 +26,10 @@ try
     Get-ChildItem -Recurse -Path '*.bicep' | ForEach-Object { 
         $bicepFile = $_
         Write-Host "Bicep file: $bicepFile"
-        $repositoryName = $bicepFile.BaseName.ToLowerInvariant()
+
+        $relativePath = Resolve-Path $bicepFile.Directory -Relative
+        $repositoryName = (Join-Path -Path $relativePath.TrimStart('.', '\', '/') -ChildPath $bicepFile.BaseName).ToLowerInvariant().Replace('\', '/')
+
         $repositoryUrl = "$registryName.azurecr.io/$repositoryName"
         Write-Host "Registry url $repositoryUrl"
         if ($env:BUILD_SOURCEBRANCHNAME -eq 'main')
