@@ -9,7 +9,7 @@
     $env:BUILD_SOURCEBRANCHNAME = 'test_branch'
     $env:BUILD_BUILDNUMBER = (Get-Date -Format "yyyy.MM.dd.1-") + $env:BUILD_SOURCEBRANCHNAME
 
-    . .\scripts\Upload-BicepModules.ps1 -registryName 'acrazdocsdev'
+    . .\scripts\Upload-BicepModules.ps1 -registryName 'acrazdocsdev' -DebugMode true
 .EXAMPLE
     $env:BUILD_SOURCEBRANCHNAME = 'main'
     $env:BUILD_BUILDNUMBER = (Get-Date -Format "yyyy.MM.dd.1-") + $env:BUILD_SOURCEBRANCHNAME
@@ -18,15 +18,21 @@
   #>
 param(
 
-    # Name of the Azure Container Registry
-    [Parameter(Mandatory)]
-    [string]$RegistryName,
+  # Name of the Azure Container Registry
+  [Parameter(Mandatory)]
+  [string]$RegistryName,
 
-    [Parameter()]
-    [string]$SourceBranchName = $env:BUILD_SOURCEBRANCHNAME,
+  [Parameter()]
+  [string]$SourceBranchName = $env:BUILD_SOURCEBRANCHNAME,
 
-    [Parameter()]
-    [string]$TagName = $env:BUILD_BUILDNUMBER
+  [Parameter()]
+  [string]$TagName = $env:BUILD_BUILDNUMBER,
+
+  [Parameter()]
+  [bool]$DebugMode = $false,
+
+  [Parameter()]
+  [int]$NrOfParallelProcesses = 4
 
 )
 
@@ -34,30 +40,38 @@ Push-Location
 try
 {
     
-    Write-Host "Branch $SourceBranchName"
-    Set-Location .\src-bicep
-    Get-ChildItem -Recurse -Path '*.bicep' | ForEach-Object -ThrottleLimit 16 -Parallel  { 
-        $bicepFile = $_
-        $localTagName = $using:TagName
-        $localRegistryName = $using:RegistryName
-        $localSourceBranchName = $using:SourceBranchName
-        Write-Host "Bicep file: $bicepFile"
+  Write-Host "Branch $SourceBranchName"
+  Set-Location .\src-bicep
+  Get-ChildItem -Recurse -Path '*.bicep' | ForEach-Object -ThrottleLimit $NrOfParallelProcesses -Parallel { 
+    $bicepFile = $_
+    $localTagName = $using:TagName
+    $localRegistryName = $using:RegistryName
+    $localSourceBranchName = $using:SourceBranchName
+    $localDebugMode = $using:DebugMode
+    Write-Host "Bicep file: $bicepFile"
 
-        $relativePath = Resolve-Path $bicepFile.Directory -Relative
-        $repositoryName = (Join-Path -Path $relativePath.TrimStart('.', '\', '/') -ChildPath $bicepFile.BaseName).ToLowerInvariant().Replace('\', '/')
+    $relativePath = Resolve-Path $bicepFile.Directory -Relative
+    $repositoryName = (Join-Path -Path $relativePath.TrimStart('.', '\', '/') -ChildPath $bicepFile.BaseName).ToLowerInvariant().Replace('\', '/')
 
-        $repositoryUrl = "$localRegistryName.azurecr.io/$repositoryName"
-        Write-Host "Registry url $repositoryUrl"
-        if ($localSourceBranchName -eq 'main')
-        {
-            Write-Host 'Pushing latest tag'
-           az bicep publish --file $bicepFile --target "br:$($repositoryUrl):latest"
-        }
-        Write-Host "Pushing tag $localTagName"
-        az bicep publish --file $bicepFile --target "br:$($repositoryUrl):$localTagName"
+    $repositoryUrl = "$localRegistryName.azurecr.io/$repositoryName"
+    Write-Host "Registry url $repositoryUrl"
+    $optionalParams = @()
+    if ($localDebugMode)
+    {
+      $optionalParams += '--debug'
     }
+
+
+    if ($localSourceBranchName -eq 'main')
+    {
+      Write-Host 'Pushing latest tag'
+      az bicep publish --file $bicepFile --target "br:$($repositoryUrl):latest" @optionalParams
+    }
+    Write-Host "Pushing tag $localTagName"
+    az bicep publish --file $bicepFile --target "br:$($repositoryUrl):$localTagName" @optionalParams
+  }
 }
 finally
 {
-    Pop-Location
+  Pop-Location
 }

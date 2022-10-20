@@ -25,14 +25,15 @@ parameters:
     values:
       - dev
       - prd
-
+  - name: DebugMode
+    type: boolean    
+    default: false
+  
 jobs:
 # Doing the actual deployment
 - deployment:
   displayName: "Deploy to ${{ parameters.EnvironmentType }}"
   variables:
-    - name: registryName
-      value: "acrazdocs${{ parameters.EnvironmentType }}"
       # Include the environment specific runtime variables for the deployment
     - template: "${{ parameters.EnvironmentType }}.variables.yml"
     - name: PipelineEnvironment
@@ -50,7 +51,14 @@ jobs:
         steps:
           # Checkout the repository to make sure we have the needed files in the default directory.
           - checkout: self
-
+          - task: AzureCLI@2
+            displayName: "Install Az Bicep module"
+            condition: eq(${{ parameters.runupload }}, true)
+            inputs:
+              azureSubscription: "${{ variables.AzureDevOpsServiceConnectionName }}"
+              scriptType: 'pscore'
+              scriptLocation: inlineScript
+              inlineScript: az bicep install
           - task: AzureCLI@2
             displayName: "Upload modules to ACR"
             condition: eq(${{ parameters.runupload }}, true)
@@ -59,4 +67,5 @@ jobs:
               scriptType: 'pscore'
               scriptLocation: 'scriptPath'
               scriptPath: "scripts/Upload-BicepModules.ps1"
-              arguments: "-registryName ${{ variables.registryName }}"
+              arguments: "-RegistryName ${{ variables.registryName }} -DebugMode $${{ parameters.DebugMode }}"
+              powerShellErrorActionPreference: continue
