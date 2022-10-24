@@ -46,6 +46,9 @@ param sslProfiles array = []
 @description('SSL Certificates. For object structure, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslcertificate.')
 param sslCertificates array = []
 
+@description('Trusted Root Certificates for this App GW. For object structure, refer to https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep#applicationgatewaytrustedrootcertificate')
+param trustedRootCertificates array = []
+
 @description('Cookie based affinity.')
 @allowed([
   'Enabled'
@@ -520,6 +523,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2021-08-01' =
     probes: unifiedProbes
     rewriteRuleSets: rewriteRuleSets
     redirectConfigurations: redirectConfigurations
+    trustedRootCertificates: trustedRootCertificates
   }
 }
 
