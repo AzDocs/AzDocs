@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][String] $FunctionAppResourceGroupName,
     [Parameter(Mandatory)][string] $FunctionAppName, 
-    [Parameter()][ValidateSet("httpTrigger", "serviceBusTrigger", "all")][string] $FunctionTypeToReturn = "all",
+    [Parameter()][ValidateSet("httpTrigger", "serviceBusTrigger", "orchestrationTrigger", "activityTrigger", "all")][string[]] $FunctionTypesToReturn = ("all"),
     [Parameter()][ValidateSet("all", "functionNames")][string] $FunctionValuetoReturn = "all",
     [Parameter()][string] $OutputPipelineVariableName = "FunctionList"
 )
@@ -16,7 +16,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 $subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
 $functions = Invoke-AzRestCall -Method "GET" -ResourceId "/subscriptions/$subscriptionId/resourceGroups/$FunctionAppResourceGroupName/providers/Microsoft.Web/sites/$FunctionAppName/functions" -ApiVersion "2015-08-01" | ConvertFrom-Json
 
-if ($FunctionTypeToReturn -eq "all") {
+if ($FunctionTypesToReturn -eq "all") {
     switch ($FunctionValuetoReturn) {
         "all" { Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$functions" }
         "functionNames" { Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$($functions.value.properties.name)" }
@@ -24,8 +24,8 @@ if ($FunctionTypeToReturn -eq "all") {
 }
 else {
     switch ($FunctionValueToReturn) {
-        "all" { Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$($functions | Where-Object {$_.value.properties.config.bindings.type -eq $FunctionTypeToReturn})" }
-        "functionNames" { Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$(($functions.value.properties | Where-Object {$_.config.bindings.type -eq $FunctionTypeToReturn}).name)" }
+        "all" { Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$($functions | Where-Object {$_.value.properties.config.bindings.type -in $FunctionTypesToReturn})" }
+        "functionNames" { Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$(($functions.value.properties | Where-Object {$_.config.bindings.type -in $FunctionTypesToReturn}).name)" }
     }
 }
 
