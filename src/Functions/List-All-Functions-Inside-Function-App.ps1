@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][String] $FunctionAppResourceGroupName,
     [Parameter(Mandatory)][string] $FunctionAppName, 
-    [Parameter()][ValidateSet("httpTrigger", "serviceBusTrigger", "orchestrationTrigger", "activityTrigger", "all")][string[]] $FunctionTypesToReturn = ("all"),
+    [Parameter()][ValidateSet("httpTrigger", "serviceBusTrigger", "orchestrationTrigger", "activityTrigger", "timerTrigger", "all")][string[]] $FunctionTypesToReturn = ("all"),
     [Parameter()][ValidateSet("all", "functionNames")][string] $FunctionValuetoReturn = "all",
     [Parameter()][string] $OutputPipelineVariableName = "FunctionList"
 )
