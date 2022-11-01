@@ -29,11 +29,19 @@ switch ($PackageType) {
         if (!$NugetSource) {
             throw 'You need to specify the nuget source.'
         }
-        [string]$getLastVersion = nuget list $PackageName -Source $NugetSource
-        [string]$getLastBetaVersion = nuget list $PackageName -Source $NugetSource -PreRelease
 
-        $lastVersion = ($getLastVersion -split "$PackageName")[1].Trim()
-        $betaVersion = ($getLastBetaVersion -split "$PackageName")[1].Replace('-beta', '').Trim()
+        Write-Host "Getting packages from nuget"
+        try {
+            [string]$getLastVersion = nuget list $PackageName -Source $NugetSource
+            [string]$getLastBetaVersion = nuget list $PackageName -Source $NugetSource -PreRelease
+            $lastVersion = ($getLastVersion -split "$PackageName")[1].Trim()
+            $betaVersion = ($getLastBetaVersion -split "$PackageName")[1].Replace('-beta', '').Trim()
+        }
+        catch {
+            Write-Host "No packages were found for "$PackageName". Creating new package."
+            $betaVersion = "1.0.0"
+            $lastVersion = "1.0.0"
+        }
     }
 }
 
