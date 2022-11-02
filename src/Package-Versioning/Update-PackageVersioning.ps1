@@ -15,6 +15,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
+$errorMessage = "No packages found."
 switch ($PackageType) {
     'npm' {
         if (!$NpmWorkingDirectory) {
@@ -22,8 +23,18 @@ switch ($PackageType) {
         }
         # Need to set the Npm Working directory when working with npmAuthenticate@0 task
         Set-Location -Path $NpmWorkingDirectory
-        $lastVersion = npm show $PackageName dist-tags.latest
-        $betaVersion = npm show $PackageName dist-tags.beta 
+        $lastVersion = Invoke-Executable -AllowToFail npm show $PackageName dist-tags.latest
+        $betaVersion = Invoke-Executable -AllowToFail npm show $PackageName dist-tags.beta 
+
+        if (!$lastVersion) {
+            Write-Host "There's no main version. Setting version to 1.0.0."
+            $lastVersion = "1.0.0"
+        }
+
+        if (!$betaVersion) {
+            Write-Host "There's no beta-version. Setting version to 1.0.0."
+            $betaVersion = "1.0.0"
+        }
     }
     'nuget' {
         if (!$NugetSource) {
@@ -31,16 +42,23 @@ switch ($PackageType) {
         }
 
         Write-Host "Getting packages from nuget"
-        try {
-            [string]$getLastVersion = nuget list $PackageName -Source $NugetSource
-            [string]$getLastBetaVersion = nuget list $PackageName -Source $NugetSource -PreRelease
+        [string]$getLastVersion = Invoke-Executable -AllowToFail nuget list $PackageName -Source $NugetSource
+        [string]$getLastBetaVersion = Invoke-Executable -AllowToFail nuget list $PackageName -Source $NugetSource -PreRelease
+
+        if (!($getLastVersion.Contains($errorMessage))) {
             $lastVersion = ($getLastVersion -split "$PackageName")[1].Trim()
+        }
+        else {
+            Write-Host "No latest package found. Setting version to 1.0.0"
+            $lastVersion = "1.0.0"
+        }
+
+        if (!($getLastBetaVersion.Contains($errorMessage))) {
             $betaVersion = ($getLastBetaVersion -split "$PackageName")[1].Replace('-beta', '').Trim()
         }
-        catch {
-            Write-Host "No packages were found for "$PackageName". Creating new package."
+        else {
+            Write-Host "No beta package found. Setting version to 1.0.0"
             $betaVersion = "1.0.0"
-            $lastVersion = "1.0.0"
         }
     }
 }
