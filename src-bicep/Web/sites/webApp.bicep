@@ -129,23 +129,6 @@ Example:
 ''')
 param extendedLocation string = ''
 
-@description('Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).')
-var internalSettings = !empty(appInsightsName) ? {
-  APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
-} : {}
-
-@description('Fetch the app service plan to be used for this logic app. This app service plan should be pre-existing.')
-resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' existing = {
-  scope: az.resourceGroup(appServicePlanResourceGroupName)
-  name: appServicePlanName
-}
-
-@description('Fetch the application insights instance. This application insights instance should be pre-existing.')
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
-  scope: az.resourceGroup(appInsightsResourceGroupName)
-  name: appInsightsName
-}
-
 @description('Configures a web site to accept only https requests. Issues redirect for http requests')
 param httpsOnly bool = true
 
@@ -190,7 +173,30 @@ Example:
 ''')
 param clientCertMode string  = ''
 
+@description('Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled` or an empty string.')
+@allowed([
+  'Enabled'
+  'Disabled'
+  ''
+])
 param publicNetworkAccess string = 'Enabled'
+
+@description('Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).')
+var internalSettings = !empty(appInsightsName) ? {
+  APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+} : {}
+
+@description('Fetch the app service plan to be used for this logic app. This app service plan should be pre-existing.')
+resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' existing = {
+  scope: az.resourceGroup(appServicePlanResourceGroupName)
+  name: appServicePlanName
+}
+
+@description('Fetch the application insights instance. This application insights instance should be pre-existing.')
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  scope: az.resourceGroup(appInsightsResourceGroupName)
+  name: appInsightsName
+}
 
 @description('Upsert the webApp & potential VNet integration with the given parameters.')
 resource webApp 'Microsoft.Web/sites@2022-03-01' = {
@@ -208,7 +214,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
     clientAffinityEnabled: clientAffinityEnabled
     clientCertEnabled: clientCertEnabled
     clientCertMode: empty(clientCertMode)? null : clientCertMode
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: publicNetworkAccess
     siteConfig: {
       vnetRouteAllEnabled: vnetRouteAllEnabled
       alwaysOn: alwaysOn
