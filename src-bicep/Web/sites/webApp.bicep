@@ -152,18 +152,6 @@ Example:
 ''')
 param tags object = {}
 
-@description('''
-To provide Azure with the ability to create resources on the Azure Arc enabled Kubernetes cluster a Custom Location needs to be created.
-Use e.g. `az customlocation create` (which is just creating another resource type) in Azure.
-This will effectively allow Azure to “route” the creation request to the appropriate location (i.e. a namespace on our cluster).
-You will need to associate the App Service Kubernetes environment with that custom location.
-Example:
-{
-  name: customLocationId
-}
-''')
-param extendedLocation string = ''
-
 @description('Configures a web site to accept only https requests. Issues redirect for http requests')
 param httpsOnly bool = true
 
@@ -230,7 +218,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
 }
 
 @description('Fetch the application insights instance. This application insights instance should be pre-existing.')
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = if (!empty(appInsightsName)) {
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   scope: az.resourceGroup(appInsightsResourceGroupName)
   name: appInsightsName
 }
@@ -240,9 +228,6 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   name: appServiceName
   location: location
   kind: webAppKind
-  extendedLocation: {
-    name: empty(extendedLocation) ? null : extendedLocation
-  }
   identity: identity
   tags: tags
   properties: {
