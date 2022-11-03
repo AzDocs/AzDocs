@@ -54,7 +54,6 @@ param appServicePlanName string
 param appServicePlanResourceGroupName string = az.resourceGroup().name
 
 @description('The name of the application insights instance to attach to this app service. This App Insights instance should be pre-existing.')
-@minLength(1)
 @maxLength(260)
 param appInsightsName string = ''
 
@@ -225,13 +224,13 @@ var internalSettings = !empty(appInsightsName) ? {
 
 // ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this logic app. This app service plan should be pre-existing.')
-resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' existing = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
   scope: az.resourceGroup(appServicePlanResourceGroupName)
   name: appServicePlanName
 }
 
 @description('Fetch the application insights instance. This application insights instance should be pre-existing.')
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = if (!empty(appInsightsName)) {
   scope: az.resourceGroup(appInsightsResourceGroupName)
   name: appInsightsName
 }
@@ -264,7 +263,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 
-  resource vnetIntegration 'networkConfig@2021-03-01' = if (!empty(vNetIntegrationSubnetResourceId)) {
+  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId)) {
     name: 'virtualNetwork'
     properties: {
       subnetResourceId: vNetIntegrationSubnetResourceId
@@ -274,7 +273,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
-resource webAppStagingSlot 'Microsoft.Web/sites/slots@2021-03-01' = {
+resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = {
   name: '${webApp.name}/staging'
   location: location
   kind: webAppKind
@@ -295,7 +294,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2021-03-01' = {
     }
   }
 
-  resource vnetIntegration 'networkConfig@2021-03-01' = if (!empty(vNetIntegrationSubnetResourceId)) {
+  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId)) {
     name: 'virtualNetwork'
     properties: {
       subnetResourceId: vNetIntegrationSubnetResourceId
@@ -306,7 +305,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2021-03-01' = {
     ]
   }
 
-  resource config 'config@2021-03-01' = {
+  resource config 'config@2022-03-01' = {
     name: 'appsettings'
     properties: union(internalSettings, appSettings)
     dependsOn: [
@@ -314,7 +313,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2021-03-01' = {
     ]
   }
 
-  resource connectionString 'config@2020-12-01' = {
+  resource connectionString 'config@2022-03-01' = {
     name: 'connectionstrings'
     properties: connectionStrings
     dependsOn: [
