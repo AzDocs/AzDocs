@@ -1,3 +1,4 @@
+//https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -61,6 +62,8 @@ The type of webapp to create. Options are:
   'app,linux' --> Linux WebApp
   'functionapp' --> Windows FunctionApp
   'functionapp,linux' --> Linux FunctionApp.
+  'functionapp,linux,kubernetes'
+  'functionapp,linux,kubernetes,container'
 ''')
 param webAppKind string = 'app,linux'
 
@@ -114,6 +117,18 @@ Example:
 ''')
 param tags object = {}
 
+@description('''
+To provide Azure with the ability to create resources on the Azure Arc enabled Kubernetes cluster a Custom Location needs to be created.
+Use e.g. `az customlocation create` (which is just creating another resource type) in Azure.
+This will effectively allow Azure to “route” the creation request to the appropriate location (i.e. a namespace on our cluster).
+You will need to associate the App Service Kubernetes environment with that custom location.
+Example:
+{
+  name: customLocationId
+}
+''')
+param extendedLocation string = ''
+
 @description('Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).')
 var internalSettings = !empty(appInsightsName) ? {
   APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
@@ -131,26 +146,77 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: appInsightsName
 }
 
-// TODO: Make parameters configurable
+@description('Configures a web site to accept only https requests. Issues redirect for http requests')
+param httpsOnly bool = true
+
+@description('True to enable client affinity; false to stop sending session affinity cookies, which route client requests in the same session to the same instance. Default is true.')
+param clientAffinityEnabled bool = true
+
+@description('Virtual Network Route All enabled. This causes all outbound traffic to have Virtual Network Security Groups and User Defined Routes applied.')
+param vnetRouteAllEnabled bool = false
+
+@description('True if Always On is enabled; otherwise, false.')
+param alwaysOn bool = true
+
+@description('IP security restrictions for scm to use the same settings as main.')
+param scmIpSecurityRestrictionsUseMain bool = true
+
+@description('State of FTP / FTPS service')
+@allowed([
+  'AllAllowed'
+  'Disabled'
+  'FtpsOnly'
+])
+param ftpsState string = 'Disabled'
+
+@description('Http20Enabled: configures a web site to allow clients to connect over http2.0')
+param http20Enabled bool = true
+
+@description('Linux App Framework and version')
+param linuxFxVersion string = 'DOTNETCORE|6.0'
+
+@description('True to enable client certificate authentication (TLS mutual authentication); otherwise, false. Default is false.')
+param clientCertEnabled bool = false
+
+@description('''
+Setting is linked to clientCertEnabled parameter.
+ClientCertEnabled: false means ClientCert is ignored.
+ClientCertEnabled: true and ClientCertMode: Required means ClientCert is required.
+ClientCertEnabled: true and ClientCertMode: Optional means ClientCert is optional or accepted.
+Example:
+'Optional',
+'OptionalInteractiveUser',
+'Required'
+''')
+param clientCertMode string  = ''
+
+param publicNetworkAccess string = 'Enabled'
+
 @description('Upsert the webApp & potential VNet integration with the given parameters.')
-resource webApp 'Microsoft.Web/sites@2021-03-01' = {
+resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   name: appServiceName
   location: location
   kind: webAppKind
+  extendedLocation: {
+    name: empty(extendedLocation)? null : extendedLocation
+  }
   identity: identity
   tags: tags
   properties: {
     serverFarmId: appServicePlan.id
-    httpsOnly: true
-    clientAffinityEnabled: true
+    httpsOnly: httpsOnly
+    clientAffinityEnabled: clientAffinityEnabled
+    clientCertEnabled: clientCertEnabled
+    clientCertMode: empty(clientCertMode)? null : clientCertMode
+    publicNetworkAccess: 'Enabled'
     siteConfig: {
-      vnetRouteAllEnabled: false
-      alwaysOn: true
+      vnetRouteAllEnabled: vnetRouteAllEnabled
+      alwaysOn: alwaysOn
       ipSecurityRestrictions: ipSecurityRestrictions
-      scmIpSecurityRestrictionsUseMain: true
-      ftpsState: 'Disabled'
-      http20Enabled: true
-      linuxFxVersion: 'DOTNETCORE|6.0'
+      scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
+      ftpsState: ftpsState
+      http20Enabled: http20Enabled
+      linuxFxVersion: linuxFxVersion
     }
   }
 
@@ -163,7 +229,6 @@ resource webApp 'Microsoft.Web/sites@2021-03-01' = {
   }
 }
 
-// TODO: Make parameters configurable
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
 resource webAppStagingSlot 'Microsoft.Web/sites/slots@2021-03-01' = {
   name: '${webApp.name}/staging'
@@ -173,16 +238,16 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2021-03-01' = {
   tags: tags
   properties: {
     serverFarmId: appServicePlan.id
-    httpsOnly: true
-    clientAffinityEnabled: true
+    httpsOnly: httpsOnly
+    clientAffinityEnabled: clientAffinityEnabled
     siteConfig: {
-      vnetRouteAllEnabled: false
-      alwaysOn: true
+      vnetRouteAllEnabled: vnetRouteAllEnabled
+      alwaysOn: alwaysOn
       ipSecurityRestrictions: ipSecurityRestrictions
-      scmIpSecurityRestrictionsUseMain: true
-      ftpsState: 'Disabled'
-      http20Enabled: true
-      linuxFxVersion: 'DOTNETCORE|6.0'
+      scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
+      ftpsState: ftpsState
+      http20Enabled: http20Enabled
+      linuxFxVersion: linuxFxVersion
     }
   }
 
