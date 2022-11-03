@@ -1,4 +1,40 @@
-//https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep
+/*
+.SYNOPSIS
+Creating an AppService Instance: WebApp, FunctionApp etc.
+.DESCRIPTION
+Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
+.EXAMPLE
+<pre>
+module webApp 'br:acrazdocsprd.azurecr.io/web/sites/webapp:2022.10.27.1-main' = {
+  name: '${deployment().name}-webApp'
+  params: {
+    appServiceName: webAppName
+    appInsightsName: appInsights.outputs.appInsightsName
+    ipSecurityRestrictions: union(homeIps, [
+      {
+        action: 'Allow'
+        description: 'subnet'
+        name: 'subnet'
+        priority: 20
+        tag: 'Default'
+        vnetSubnetResourceId: gatewaySubnetExisting.id
+      }
+    ])
+    appServicePlanName: appServicePlan.outputs.appServicePlanResourceName
+    vNetIntegrationSubnetResourceId: vNetIntegrationSubnetResourceId
+    location: location
+    appSettings: {}
+    connectionStrings: {}
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+  }
+}
+</pre>
+<p>Creates a WebApp with the name webAppName</p>
+.LINKS
+- [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)
+*/
+
+// ================================================= Parameters =================================================
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -171,7 +207,7 @@ Example:
 'OptionalInteractiveUser',
 'Required'
 ''')
-param clientCertMode string  = ''
+param clientCertMode string = ''
 
 @description('Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled` or an empty string.')
 @allowed([
@@ -181,11 +217,13 @@ param clientCertMode string  = ''
 ])
 param publicNetworkAccess string = 'Enabled'
 
+// ================================================= Variables =================================================
 @description('Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).')
 var internalSettings = !empty(appInsightsName) ? {
   APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
 } : {}
 
+// ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this logic app. This app service plan should be pre-existing.')
 resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' existing = {
   scope: az.resourceGroup(appServicePlanResourceGroupName)
@@ -204,7 +242,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   location: location
   kind: webAppKind
   extendedLocation: {
-    name: empty(extendedLocation)? null : extendedLocation
+    name: empty(extendedLocation) ? null : extendedLocation
   }
   identity: identity
   tags: tags
@@ -213,7 +251,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
     httpsOnly: httpsOnly
     clientAffinityEnabled: clientAffinityEnabled
     clientCertEnabled: clientCertEnabled
-    clientCertMode: empty(clientCertMode)? null : clientCertMode
+    clientCertMode: empty(clientCertMode) ? null : clientCertMode
     publicNetworkAccess: publicNetworkAccess
     siteConfig: {
       vnetRouteAllEnabled: vnetRouteAllEnabled
