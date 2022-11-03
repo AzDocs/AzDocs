@@ -12,6 +12,7 @@ Target Scope: resourceGroup
 | Name | Type | Description |
 | -- |  -- | -- |
 | userManagedIdentityId | string | The User Assigned Managed Identities Resource ID. |
+| userManagedIdentityPrincipalId | string | The User Assigned Managed Identities Principal ID. |
 | userManagedIdentityName | string | The User Assigned Managed Identities Resource name. |
 | userManagedIdentityObjectId | string | The User Assigned Managed Identities Object ID. |
 
