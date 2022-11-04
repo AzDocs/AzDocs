@@ -260,7 +260,6 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
 resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' =  if (deploySlot == true) {
   name: '${webApp.name}/staging'
