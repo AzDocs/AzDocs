@@ -258,6 +258,22 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
       swiftSupported: true
     }
   }
+
+  resource config 'config@2022-03-01' = {
+    name: 'appsettings'
+    properties: union(internalSettings, appSettings)
+    dependsOn: [
+      vnetIntegration
+    ]
+  }
+
+  resource connectionString 'config@2022-03-01' = {
+    name: 'connectionstrings'
+    properties: connectionStrings
+    dependsOn: [
+      config
+    ]
+  }
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
