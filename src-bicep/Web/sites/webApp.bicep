@@ -204,8 +204,8 @@ param clientCertMode string = ''
 ])
 param publicNetworkAccess string = 'Enabled'
 
-@description('Determine whether to deploy a staging slot in the webApp.')
-param deploySlot bool = false
+@description('Determine whether to deploy a staging slot in the webApp (default: true).')
+param deploySlot bool = true
 
 // ================================================= Variables =================================================
 @description('Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).')
