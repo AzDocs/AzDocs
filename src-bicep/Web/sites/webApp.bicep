@@ -29,40 +29,41 @@ module webApp 'br:acrazdocsprd.azurecr.io/web/sites/webapp:2022.10.27.1-main' = 
   }
 }
 </pre>
-<p>Creates a WebApp with the name webAppName</p>
+<p>Creates a WebApp with the name '${deployment().name}-webApp'</p>
 .LINKS
 - [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)
+- [Azure App Service Kind](https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
 */
 
 // ================================================= Parameters =================================================
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
-@description('The name of the App Service app.')
+@description('The name of the App Service Instance.')
 @minLength(2)
 @maxLength(60)
 param appServiceName string
 
-@description('The resource name of the appserviceplan to use for this logic app.')
+@description('The resource name of the appserviceplan to use for this App Service Instance.')
 @minLength(1)
 @maxLength(40)
 param appServicePlanName string
 
-@description('The name of the resourcegroup where the appserviceplan resides in to use for this logic app. Defaults to the current resourcegroup.')
+@description('The name of the resourcegroup where the appserviceplan resides in to use for this App Service Instance. Defaults to the current resourcegroup.')
 @minLength(1)
 @maxLength(90)
 param appServicePlanResourceGroupName string = az.resourceGroup().name
 
-@description('The name of the application insights instance to attach to this app service. This App Insights instance should be pre-existing.')
+@description('The name of the application insights instance to attach to this app service. This application insights instance should be pre-existing.')
 @maxLength(260)
 param appInsightsName string = ''
 
-@description('The name of the resourcegroup where the application insights instance resides in to attach to this app service. This App Insights instance should be pre-existing. Defaults to the current resourcegroup.')
+@description('The name of the resourcegroup where the application insights instance resides in to attach to this app service. This application insights instance should be pre-existing. Defaults to the current resourcegroup.')
 @minLength(1)
 @maxLength(90)
 param appInsightsResourceGroupName string = az.resourceGroup().name
 
-@description('Managed service identity to use for this logic app. Defaults to a system assigned managed identity. For object format, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity.')
+@description('Managed service identity to use for this App Service Instance. Defaults to a system assigned managed identity. For object format, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity.')
 param identity object = {
   type: 'SystemAssigned'
 }
@@ -83,26 +84,25 @@ For example:
 ''')
 param connectionStrings object = {}
 
+@description('''
+The type of webapp to create. Defaults to a Linux App Service Instance.
+''')
 @allowed([
   'api'
   'app'
   'app,linux'
+  'app,linux,container'
+  'hyperV'
+  'app,container,windows'
+  'app,linux,kubernetes'
   'functionapp'
   'functionapp,linux'
-])
-@description('''
-The type of webapp to create. Options are:
-  'api' --> API App
-  'app' --> Windows WebApp
-  'app,linux' --> Linux WebApp
-  'functionapp' --> Windows FunctionApp
-  'functionapp,linux' --> Linux FunctionApp.
   'functionapp,linux,kubernetes'
   'functionapp,linux,kubernetes,container'
-''')
+])
 param webAppKind string = 'app,linux'
 
-@description('IP security restrictions for the main entrypoint. Defaults to closing down the appservice for all connections (you need to manually define this). For object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#ipsecurityrestriction.')
+@description('IP security restrictions for the main entrypoint. Defaults to closing down the appservice instance for all connections (you need to manually define this). For object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#ipsecurityrestriction.')
 param ipSecurityRestrictions array = [
   {
     ipAddress: '0.0.0.0/0'
@@ -143,7 +143,7 @@ param diagnosticSettingsMetricsCategories array = [
 ]
 
 @description('''
-The tags to apply to this resource. This is an object with key/value pairs.
+The tags to apply to this resource. This is an object with key/value pairs. Resource may inherit tags from the ResourceGroup instead.
 Example:
 {
   FirstTag: myvalue
@@ -214,7 +214,7 @@ var internalSettings = !empty(appInsightsName) ? {
 } : {}
 
 // ================================================= Resources =================================================
-@description('Fetch the app service plan to be used for this logic app. This app service plan should be pre-existing.')
+@description('Fetch the app service plan to be used for this appservice instance. This app service plan should be pre-existing.')
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
   scope: az.resourceGroup(appServicePlanResourceGroupName)
   name: appServicePlanName
