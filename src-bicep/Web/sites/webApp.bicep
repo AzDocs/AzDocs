@@ -191,20 +191,21 @@ param linuxFxVersion string = 'DOTNETCORE|6.0'
 You can restrict access to your Azure App Service app by enabling different types of authentication for it.
 One way to do it is to request a client certificate when the client request is over TLS/SSL and validate the certificate.
 This mechanism is called TLS mutual authentication or client certificate authentication.
+If you put the value on true, the setting will be 'require' for the setting  `Client certificate mode`, unless determined elsewise by the clientCertMode parameter.
 ''')
-param clientCertEnabled bool = false //TODO: test effects
+param clientCertEnabled bool = false
 
 @description('''
 This setting is linked to the clientCertEnabled parameter.
 ClientCertEnabled: false means ClientCert is ignored.
-ClientCertEnabled: true and ClientCertMode: Required means ClientCert is required.
-ClientCertEnabled: true and ClientCertMode: Optional means ClientCert is optional or accepted.
+ClientCertEnabled: true and ClientCertMode: Required, means ClientCert is required.
+ClientCertEnabled: true and ClientCertMode: Optional means ClientCert is optional or allow.
 Example:
 'Optional',
 'OptionalInteractiveUser',
 'Required'
 ''')
-param clientCertMode string = '' //TODO test effects
+param clientCertMode string = ''
 
 @description('Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled` or an empty string.')
 @allowed([
