@@ -102,7 +102,7 @@ The type of webapp to create. Defaults to a Linux App Service Instance.
 ])
 param webAppKind string = 'app,linux'
 
-@description('IP security restrictions for the main entrypoint. Defaults to closing down the appservice instance for all connections (you need to manually define this). For object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#ipsecurityrestriction.')
+@description('IP security restrictions for the main entrypoint. Defaults to closing down the appservice instance for all connections. For object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#ipsecurityrestriction.')
 param ipSecurityRestrictions array = [
   {
     ipAddress: '0.0.0.0/0'
@@ -158,10 +158,14 @@ param httpsOnly bool = true
 @description('True to enable client affinity; false to stop sending session affinity cookies, which route client requests in the same session to the same instance. Default is true.')
 param clientAffinityEnabled bool = true
 
-@description('Virtual Network Route All enabled. This causes all outbound traffic to have Virtual Network Security Groups and User Defined Routes applied.')
+@description('Virtual Network `route all` enabled. This causes all outbound traffic to have Virtual Network Network Security Groups (nsg) and User Defined Routes applied.')
 param vnetRouteAllEnabled bool = false
 
-@description('True if Always On is enabled; otherwise, false.')
+@description('''
+The `Always On` feature of Azure App Service, keeps the host process running.
+This allows your site to be more responsive to request after significant idle periods.
+Otherwise, once a request comes in, the App Service will have to cold boot and load into memory before responding to the request.
+''')
 param alwaysOn bool = true
 
 @description('IP security restrictions for scm to use the same settings as main.')
@@ -181,11 +185,15 @@ param http20Enabled bool = true
 @description('Linux App Framework and version')
 param linuxFxVersion string = 'DOTNETCORE|6.0'
 
-@description('True to enable client certificate authentication (TLS mutual authentication); otherwise, false. Default is false.')
-param clientCertEnabled bool = false
+@description('''
+You can restrict access to your Azure App Service app by enabling different types of authentication for it.
+One way to do it is to request a client certificate when the client request is over TLS/SSL and validate the certificate.
+This mechanism is called TLS mutual authentication or client certificate authentication.
+''')
+param clientCertEnabled bool = false //TODO: test effects
 
 @description('''
-Setting is linked to clientCertEnabled parameter.
+This setting is linked to the clientCertEnabled parameter.
 ClientCertEnabled: false means ClientCert is ignored.
 ClientCertEnabled: true and ClientCertMode: Required means ClientCert is required.
 ClientCertEnabled: true and ClientCertMode: Optional means ClientCert is optional or accepted.
@@ -194,7 +202,7 @@ Example:
 'OptionalInteractiveUser',
 'Required'
 ''')
-param clientCertMode string = ''
+param clientCertMode string = '' //TODO test effects
 
 @description('Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled` or an empty string.')
 @allowed([
