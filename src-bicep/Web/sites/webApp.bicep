@@ -273,22 +273,16 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   resource config 'config@2022-03-01' = {
     name: 'appsettings'
     properties: union(internalSettings, appSettings)
-    dependsOn: [
-      vnetIntegration
-    ]
   }
 
   resource connectionString 'config@2022-03-01' = {
     name: 'connectionstrings'
     properties: connectionStrings
-    dependsOn: [
-      config
-    ]
   }
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
-resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' =  if (deploySlot == true) {
+resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySlot) {
   name: '${webApp.name}/staging'
   location: location
   kind: webAppKind
@@ -309,31 +303,22 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' =  if (deployS
     }
   }
 
-  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId)) {
+  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId) && (deploySlot)) {
     name: 'virtualNetwork'
     properties: {
       subnetResourceId: vNetIntegrationSubnetResourceId
       swiftSupported: true
     }
-    dependsOn: [
-      webApp::vnetIntegration
-    ]
   }
 
-  resource config 'config@2022-03-01' = {
+  resource config 'config@2022-03-01' = if (deploySlot) {
     name: 'appsettings'
     properties: union(internalSettings, appSettings)
-    dependsOn: [
-      vnetIntegration
-    ]
   }
 
-  resource connectionString 'config@2022-03-01' = {
+  resource connectionString 'config@2022-03-01' = if (deploySlot) {
     name: 'connectionstrings'
     properties: connectionStrings
-    dependsOn: [
-      config
-    ]
   }
 }
 
@@ -349,7 +334,7 @@ resource webAppDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05
 }
 
 @description('Upsert the diagnostic settings for the webapp\'s staging slot with the given parameters.')
-resource webappdiagnosticSettingAppSlot 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
+resource webappdiagnosticSettingAppSlot 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId) && (deploySlot)) {
   name: diagnosticsName
   scope: webAppStagingSlot
   properties: {
@@ -362,12 +347,12 @@ resource webappdiagnosticSettingAppSlot 'Microsoft.Insights/diagnosticSettings@2
 @description('Output the default host name of the webapp.')
 output webAppHostName string = webApp.properties.defaultHostName
 @description('Output the default host name of the webapp\'s staging slot.')
-output webAppStagingSlotHostName string = webAppStagingSlot.properties.defaultHostName
+output webAppStagingSlotHostName string = (deploySlot) ? webAppStagingSlot.properties.defaultHostName : ''
 @description('The principal id of the identity running this webapp')
 output webAppPrincipalId string = webApp.identity.principalId
 @description('The principal id of the identity running this webapp\'s staging slot')
-output webAppStagingSlotPrincipalId string = webAppStagingSlot.identity.principalId
+output webAppStagingSlotPrincipalId string = (deploySlot) ? webAppStagingSlot.identity.principalId : ''
 @description('The resource name of the webapp.')
 output webAppResourceName string = webApp.name
 @description('The resource name of the webapp\'s staging slot.')
-output webAppStagingSlotResourceName string = webAppStagingSlot.name
+output webAppStagingSlotResourceName string = (deploySlot) ? webAppStagingSlot.name : ''
