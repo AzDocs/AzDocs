@@ -5,11 +5,12 @@ Creating an AppService Instance: WebApp, FunctionApp etc.
 Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 .EXAMPLE
 <pre>
-module webApp 'br:acrazdocsprd.azurecr.io/web/sites/webapp:2022.10.27.1-main' = {
-  name: '${deployment().name}-webApp'
+module webApp 'br:acrazdocsprd.azurecr.io/web/sites/webapp:2022.11.12.1-renewwebapp' = {
+  name: format('{0}-{1}', take('${deployment().name}', 57), 'webapp')
   params: {
     appServiceName: webAppName
     appInsightsName: appInsights.outputs.appInsightsName
+    appServicePlanResourceGroupName: appServicePlanResourceGroupName
     ipSecurityRestrictions: union(homeIps, [
       {
         action: 'Allow'
@@ -23,13 +24,14 @@ module webApp 'br:acrazdocsprd.azurecr.io/web/sites/webapp:2022.10.27.1-main' = 
     appServicePlanName: appServicePlan.outputs.appServicePlanResourceName
     vNetIntegrationSubnetResourceId: vNetIntegrationSubnetResourceId
     location: location
+    vnetRouteAllEnabled: true
     appSettings: {}
     connectionStrings: {}
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
   }
 }
 </pre>
-<p>Creates a WebApp with the name '${deployment().name}-webApp'</p>
+<p>Creates a WebApp with the name 'webAppName'</p>
 .LINKS
 - [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)
 - [Azure App Service Kind](https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
@@ -54,7 +56,7 @@ param appServicePlanName string
 @maxLength(90)
 param appServicePlanResourceGroupName string = az.resourceGroup().name
 
-@description('The name of the application insights instance to attach to this app service. This application insights instance should be pre-existing.')
+@description('The name of the application insights instance to attach to this app service. If you leave this empty, no AppInsights resource will be created.')
 @maxLength(260)
 param appInsightsName string = ''
 
