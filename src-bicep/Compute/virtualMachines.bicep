@@ -313,8 +313,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       computerName: virtualMachineName
       adminUsername: virtualMachineAdminUsername
       adminPassword: virtualMachineAdminPasswordOrPublicKey
-      linuxConfiguration: (virtualMachineAuthenticationMethod == 'password' || virtualMachineImageReference.publisher == 'MicrosoftWindowsServer') ? json('null') : linuxAuthenticationConfiguration
-      windowsConfiguration: (virtualMachineImageReference.publisher == 'MicrosoftWindowsServer') ? windowsConfiguration : json('null')
+      linuxConfiguration: ((virtualMachineAuthenticationMethod == 'password') ? json('null') : linuxAuthenticationConfiguration)
     }
     storageProfile: {
       imageReference: virtualMachineImageReference
