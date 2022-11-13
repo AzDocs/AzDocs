@@ -45,9 +45,10 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
   name: 'Creating_VM_MyFirstVM'
   scope: resourceGroup
   params: {
+    operatingSystem: 'Windows'
     virtualMachineName: 'MyFirstVM'
-    virtualMachineSubnetResourceId: '/subscriptions/4baa21ce-2b26-4e50-82b2-059bdd0ef016/resourceGroups/platform-rg/providers/Microsoft.Network/virtualNetworks/comp-dc-acc-001-vnet/subnets/app-subnet'
-    virtualMachineAdminUsername: 'adminny'
+    virtualMachineSubnetResourceId: virtualMachineSubnetResourceId
+    virtualMachineAdminUsername: 'vmadmin'
     virtualMachineAdminPasswordOrPublicKey: 'VerySecretPassW0rd'
   }
 }
