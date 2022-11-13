@@ -27,6 +27,13 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
+@description('Select the OS type to deploy:')
+@allowed([
+  'Windows'
+  'Linux'
+])
+param operatingSystem string
+
 @description('''
 The name of the virtual machine to be upserted.
 Min length: 1
@@ -313,8 +320,8 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       computerName: virtualMachineName
       adminUsername: virtualMachineAdminUsername
       adminPassword: virtualMachineAdminPasswordOrPublicKey
-      linuxConfiguration: (virtualMachineAuthenticationMethod == 'password' || virtualMachineImageReference.publisher == 'MicrosoftWindowsServer') ? json('null') : linuxAuthenticationConfiguration
-      windowsConfiguration: (virtualMachineImageReference.publisher == 'MicrosoftWindowsServer') ? windowsConfiguration : json('null')
+      linuxConfiguration: (virtualMachineAuthenticationMethod == 'sshPublicKey') ? linuxAuthenticationConfiguration : json('null')
+      windowsConfiguration: operatingSystem == 'Windows'? windowsConfiguration : json('null')
     }
     storageProfile: {
       imageReference: virtualMachineImageReference
