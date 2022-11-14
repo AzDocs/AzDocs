@@ -23,7 +23,15 @@ if ($WafPolicyRedirectUrl) {
     $optionalParameters += "--redirect-url", $WafPolicyRedirectUrl
 }
 
-$wafPolicyId = (Invoke-Executable az network front-door waf-policy create --name $WafPolicyName --resource-group $WafPolicyResourceGroupName --sku $WafPolicySku @optionalParameters | ConvertFrom-Json).id
+$wafPolicyId = (Invoke-Executable -AllowToFail az network front-door waf-policy show --name $WafPolicyName --resource-group $WafPolicyResourceGroupName | ConvertFrom-Json).id
+if ($wafPolicyId) {
+    Write-Host "Waf policy already exists, updating.."
+    Invoke-Executable az network front-door waf-policy update --name $WafPolicyName --resource-group $WafPolicyResourceGroupName --sku $WafPolicySku @optionalParameters
+}
+else {
+    Write-Host "Waf policy does not exist, creating.."
+    $wafPolicyId = (Invoke-Executable az network front-door waf-policy create --name $WafPolicyName --resource-group $WafPolicyResourceGroupName --sku $WafPolicySku @optionalParameters | ConvertFrom-Json).id
+}
 
 # Update Tags
 if ($ResourceTags) {

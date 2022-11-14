@@ -4,6 +4,7 @@
 All notable changes to this project will be documented in this file.
 ## [2022.11.14]
 - Added mongodb version 4.2 to `Create-CosmosDbAccount.ps1`
+- Updated `Create-WAF-Policy.ps1` to update the `WAF policy` when it already exists.
 
 ## [2022.10.11]
 - Added script `List-All-Functions-Inside-Function-App`
