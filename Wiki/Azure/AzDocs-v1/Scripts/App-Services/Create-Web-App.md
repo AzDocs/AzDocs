@@ -91,7 +91,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 The snippet for creating a webapp with linux and using the given runtime environment.
 
-[Click here to download this script](../../../../src/App-Services/Create-Web-App-Linux.ps1)
+[Click here to download this script](../../../../../src/App-Services/Create-Web-App-Linux.ps1)
 
 # Links
 

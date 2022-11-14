@@ -32,7 +32,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 # Code
 
-[Click here to download this script](../../../../src/Storage-Accounts/Add-IP-Whitelist-to-StorageAccount)
+[Click here to download this script](../../../../../src/Storage-Accounts/Add-IP-Whitelist-to-StorageAccount)
 
 # Links
 

@@ -43,6 +43,6 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 # Code
 
-[Click here to download this script](../../../../src/Functions/Set-App-Key-to-Function-App.ps1)
+[Click here to download this script](../../../../../src/Functions/Set-App-Key-to-Function-App.ps1)
 
 [Click here to go to azure cli documentation](https://docs.microsoft.com/en-us/cli/azure/functionapp/keys?view=azure-cli-latest#az-functionapp-keys-set)

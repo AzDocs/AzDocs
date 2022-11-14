@@ -106,7 +106,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 The snippet to create a Logic App.
 
-[Click here to download this script](../../../../src/Logic-App/Create-Logic-App.ps1)
+[Click here to download this script](../../../../../src/Logic-App/Create-Logic-App.ps1)
 
 # Links
 

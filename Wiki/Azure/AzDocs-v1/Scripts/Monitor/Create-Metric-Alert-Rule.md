@@ -57,7 +57,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 # Code
 
-[Click here to download this script](../../../../src/Monitor/Create-Metric-Alert-Rule.ps1)
+[Click here to download this script](../../../../../src/Monitor/Create-Metric-Alert-Rule.ps1)
 
 # Links
 
