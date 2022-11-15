@@ -13,7 +13,7 @@ Some parameters from [General Parameter](/Azure/AzDocs-v1/Scripts) list.
 | StorageAccountResourceGroupname | <input type="checkbox" checked> | `MyTeam-TestApi-$(Release.EnvironmentName)`  | The resourcegroup where the storageaccount resides in. |
 | StorageAccountName              | <input type="checkbox" checked> | `myteststgaccount$(Release.EnvironmentName)` | The name of the storageaccount which will be used      |
 | FileshareName                   | <input type="checkbox" checked> | `images`                                     | The name of the fileshare                              |
-| SourceFilePath                  | <input type="checkbox" checked> | `some/file/path`                             | The path of the local directory to upload.                    |
+| SourceDirectoryPath                  | <input type="checkbox" checked> | `some/file/path`                             | The path of the local directory to upload.                    |
 | DestinationPath                 | <input type="checkbox" checked> | `some/file/path`                     | The path on the fileshare to upload the directory to.                        |
 
 # YAML
@@ -28,7 +28,7 @@ Be aware that this YAML example contains all parameters that can be used with th
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
     scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Upload-Directory-To-Fileshare.ps1"
-    arguments: "-StorageAccountName '$(StorageAccountName)' -StorageAccountResourceGroupname '$(StorageAccountResourceGroupname)' -FileshareName '$(FileshareName)' -SourceFilePath '$(SourceFilePath)' -DestinationPath '$(DestinationPath)'"
+    arguments: "-StorageAccountName '$(StorageAccountName)' -StorageAccountResourceGroupname '$(StorageAccountResourceGroupname)' -FileshareName '$(FileshareName)' -SourceDirectoryPath '$(SourceDirectoryPath)' -DestinationPath '$(DestinationPath)'"
 ```
 
 # Code
