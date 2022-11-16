@@ -38,7 +38,7 @@ module webApp 'br:acrazdocsprd.azurecr.io/web/sites/webapp:latest' = {
 */
 
 // ================================================= Parameters =================================================
-@description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
+@description('Specifies the Azure location where the resource should be created.')
 param location string = resourceGroup().location
 
 @description('The name of the App Service Instance.')
@@ -65,7 +65,7 @@ param appInsightsName string = ''
 @maxLength(90)
 param appInsightsResourceGroupName string = az.resourceGroup().name
 
-@description('Managed service identity to use for this App Service Instance. Defaults to a system assigned managed identity. For object format, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity.')
+@description('Managed service identity to use for this App Service Instance. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).')
 param identity object = {
   type: 'SystemAssigned'
 }
@@ -104,8 +104,20 @@ The type of webapp to create. Defaults to a Linux App Service Instance.
 ])
 param webAppKind string = 'app,linux'
 
-@description('IP security restrictions for the main entrypoint. Defaults to closing down the appservice instance for all connections. For object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#ipsecurityrestriction.')
+@description('IP security restrictions for the main entrypoint. Defaults to closing down the appservice instance for all connections. For object format, please refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#ipsecurityrestriction).')
 param ipSecurityRestrictions array = [
+  {
+    ipAddress: '0.0.0.0/0'
+    action: 'Deny'
+    tag: 'Default'
+    priority: 10
+    name: 'DefaultDeny'
+    description: 'Default deny to make sure that something isnt publicly exposed on accident.'
+  }
+]
+
+@description('SCM(kudu) IP security restrictions for the SCM entrypoint. Defaults to closing down the appservice SCM instance for all connections. For object format, please refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#ipsecurityrestriction).')
+param scmIpSecurityRestrictions array = [
   {
     ipAddress: '0.0.0.0/0'
     action: 'Deny'
@@ -128,7 +140,7 @@ param logAnalyticsWorkspaceResourceId string
 @maxLength(260)
 param diagnosticsName string = 'AzurePlatformCentralizedLogging'
 
-@description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings.')
+@description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
 param diagnosticSettingsLogsCategories array = [
   {
     categoryGroup: 'allLogs'
@@ -136,7 +148,7 @@ param diagnosticSettingsLogsCategories array = [
   }
 ]
 
-@description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings')
+@description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings).')
 param diagnosticSettingsMetricsCategories array = [
   {
     categoryGroup: 'AllMetrics'
@@ -255,6 +267,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
       vnetRouteAllEnabled: vnetRouteAllEnabled
       alwaysOn: alwaysOn
       ipSecurityRestrictions: ipSecurityRestrictions
+      scmIpSecurityRestrictions: scmIpSecurityRestrictions
       scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
       ftpsState: ftpsState
       http20Enabled: http20Enabled
@@ -303,7 +316,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySl
     }
   }
 
-  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId) && (deploySlot)) {
+  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId) && deploySlot) {
     name: 'virtualNetwork'
     properties: {
       subnetResourceId: vNetIntegrationSubnetResourceId
@@ -334,7 +347,7 @@ resource webAppDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05
 }
 
 @description('Upsert the diagnostic settings for the webapp\'s staging slot with the given parameters.')
-resource webappdiagnosticSettingAppSlot 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId) && (deploySlot)) {
+resource webappdiagnosticSettingAppSlot 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId) && deploySlot) {
   name: diagnosticsName
   scope: webAppStagingSlot
   properties: {
@@ -347,12 +360,12 @@ resource webappdiagnosticSettingAppSlot 'Microsoft.Insights/diagnosticSettings@2
 @description('Output the default host name of the webapp.')
 output webAppHostName string = webApp.properties.defaultHostName
 @description('Output the default host name of the webapp\'s staging slot.')
-output webAppStagingSlotHostName string = (deploySlot) ? webAppStagingSlot.properties.defaultHostName : ''
+output webAppStagingSlotHostName string = deploySlot ? webAppStagingSlot.properties.defaultHostName : ''
 @description('The principal id of the identity running this webapp')
 output webAppPrincipalId string = webApp.identity.principalId
 @description('The principal id of the identity running this webapp\'s staging slot')
-output webAppStagingSlotPrincipalId string = (deploySlot) ? webAppStagingSlot.identity.principalId : ''
+output webAppStagingSlotPrincipalId string = deploySlot ? webAppStagingSlot.identity.principalId : ''
 @description('The resource name of the webapp.')
 output webAppResourceName string = webApp.name
 @description('The resource name of the webapp\'s staging slot.')
-output webAppStagingSlotResourceName string = (deploySlot) ? webAppStagingSlot.name : ''
+output webAppStagingSlotResourceName string = deploySlot ? webAppStagingSlot.name : ''
