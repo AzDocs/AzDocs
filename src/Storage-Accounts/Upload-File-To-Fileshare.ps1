@@ -22,6 +22,7 @@ $additionalParameters = @()
 if($DestinationPath){
     $additionalParameters += '--path', $DestinationPath
 }
+
 Invoke-Executable az storage file upload --account-name $StorageAccountName --connection-string $StorageAccountConnectionString --share-name $FileshareName --source $SourceFilePath @additionalParameters
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
