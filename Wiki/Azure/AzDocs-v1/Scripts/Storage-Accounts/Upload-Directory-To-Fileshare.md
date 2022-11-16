@@ -14,7 +14,7 @@ Some parameters from [General Parameter](/Azure/AzDocs-v1/Scripts) list.
 | StorageAccountName              | <input type="checkbox" checked> | `myteststgaccount$(Release.EnvironmentName)` | The name of the storageaccount which will be used      |
 | FileshareName                   | <input type="checkbox" checked> | `images`                                     | The name of the fileshare                              |
 | SourceDirectoryPath                  | <input type="checkbox" checked> | `some/file/path`                             | The path of the local directory to upload.                    |
-| DestinationPath                 | <input type="checkbox" checked> | `some/file/path`                     | The path on the fileshare to upload the directory to.                        |
+| DestinationPath                 | <input type="checkbox"> | `some/file/path`                     | The path on the fileshare to upload the directory to.                        |
 
 # YAML
 
