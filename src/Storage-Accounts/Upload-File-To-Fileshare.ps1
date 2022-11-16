@@ -17,12 +17,11 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 $storageAccountConnectionString = (Invoke-Executable az storage account show-connection-string --resource-group $StorageAccountResourceGroupName --name $StorageAccountName | ConvertFrom-Json).connectionString
 
 # Upload file to Fileshare
+$additionalParameters = @()
 
 if($DestinationPath){
-    Invoke-Executable az storage file upload --account-name $StorageAccountName --connection-string $StorageAccountConnectionString --share-name $FileshareName --path $DestinationPath --source $SourceFilePath
-
-} else {
-    Invoke-Executable az storage file upload --account-name $StorageAccountName --connection-string $StorageAccountConnectionString --share-name $FileshareName --source $SourceFilePath
+    $additionalParameters += '--path', $DestinationPath
 }
+Invoke-Executable az storage file upload --account-name $StorageAccountName --connection-string $StorageAccountConnectionString --share-name $FileshareName --source $SourceFilePath @additionalParameters
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
