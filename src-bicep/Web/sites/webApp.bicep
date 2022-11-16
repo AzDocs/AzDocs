@@ -87,7 +87,7 @@ For example:
 param connectionStrings object = {}
 
 @description('''
-The type of webapp to create. Defaults to a Linux App Service Instance.
+The type of webapp to create.
 ''')
 @allowed([
   'api'
