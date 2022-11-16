@@ -215,10 +215,10 @@ param bootdiagnosticsEnabled bool = true
 @description('If the provision agent should be installed.')
 param provisionVMAgent bool = true
 
-@description('The bicep object to configure the linux authentication when creating the vm.')
-param linuxAuthenticationConfiguration object = {}
+@description('The bicep object to configure the linux vm configuration when creating the vm.')
+param linuxConfiguration object = {}
 
-@description('The bicep object to configure the Windows authentication when creating the vm.')
+@description('The bicep object to configure the Windows vm configuration when creating the vm.')
 param windowsConfiguration object = {
   enableAutomaticUpdates: true
   patchSettings: {
@@ -257,12 +257,11 @@ Azure Hybrid Benefit provides software updates and integrated support directly f
 )
 param OSLicenseType string = ''
 
+@description('Union the different settings for the linux vm configuration')
 var linuxConfigurationUnion = union(
-  linuxAuthenticationConfiguration,
-  {
-    provisionVMAgent: provisionVMAgent
-  },
-  virtualMachineAuthenticationMethod == 'sshPublicKey' ? {
+  linuxConfiguration, //default configuration
+  { provisionVMAgent: provisionVMAgent }, //adding the provision vm agent setting
+  virtualMachineAuthenticationMethod == 'sshPublicKey' ? { //adding ssh public key authorization settings
     disablePasswordAuthentication: true
     ssh: {
       publicKeys: [
@@ -275,7 +274,11 @@ var linuxConfigurationUnion = union(
   } : {}
 )
 
-var windowsConfigurationUnion = union(windowsConfiguration, { provisionVMAgent: provisionVMAgent })
+@description('Union the different settings for the windows vm configuration')
+var windowsConfigurationUnion = union(
+  windowsConfiguration, //default configuration
+  { provisionVMAgent: provisionVMAgent } //adding the provision vm agent setting
+)
 
 // ================================================= Resources =================================================
 @description('Upsert the availabilitySet using the given parameters if desired.')
