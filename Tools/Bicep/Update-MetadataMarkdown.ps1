@@ -113,6 +113,21 @@ function Update-MetadataMarkdown
         }
     }
 
+    function ConvertTo-MarkDownSanitizedText
+    {
+        [CmdletBinding()]
+        param (
+            [Parameter( ValueFromPipeline)]
+            [string]
+            $string
+        )
+        process
+        {
+            return $string | ForEach-Object { $_.Replace('|' , '&#124;') } 
+        }
+       
+    }
+
     Function Add-ParametersSection
     {
         [CmdletBinding()]
@@ -167,16 +182,16 @@ function Update-MetadataMarkdown
                     
             }
             
-
-            $description = $parameterInfo.Decorators['description'] ?? $null
-            if ( $null -ne $description -and $parameterInfo.Decorators.description -is [array] -and $parameterInfo.Decorators.description.Count -gt 1 )
+            $description = $parameterInfo.Decorators['description'] ?? $null | ConvertTo-MarkDownSanitizedText
+   
+            if (![string]::IsNullOrEmpty($description) -and $parameterInfo.Decorators.description -is [array] -and $parameterInfo.Decorators.description.Count -gt 1 )
             {
                 $spacedDescription = ConvertTo-SpaceWithHtmlSpaces -lines $parameterInfo.Decorators.description
                 $description = $spacedDescription | Join-String -Separator '<br>'
             }
    
-            $defaultValue = $parameterInfo.DefaultValue
-            if ($parameterInfo.DefaultValue -is [array] -and $parameterInfo.DefaultValue.Count -gt 1)
+            $defaultValue = $parameterInfo.DefaultValue | ConvertTo-MarkDownSanitizedText
+            if (![string]::IsNullOrEmpty($description) -and $parameterInfo.DefaultValue -is [array] -and $parameterInfo.DefaultValue.Count -gt 1)
             {
                 $defaultValue = $parameterInfo.DefaultValue | Join-String -Separator '<br>'
             }
