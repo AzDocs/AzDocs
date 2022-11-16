@@ -212,29 +212,20 @@ param availabilityZones array = []
 @description('If you want to have bootdiagnostics enabled on the Virtual Machine. More info https://docs.microsoft.com/en-us/azure/virtual-machines/boot-diagnostics.')
 param bootdiagnosticsEnabled bool = true
 
+@description('If the provision agent should be installed.')
+param provisionVMAgent bool = true
+
 @description('The bicep object to configure the linux authentication when creating the vm.')
-param linuxAuthenticationConfiguration object = {
-  disablePasswordAuthentication: true
-  ssh: {
-    publicKeys: [
-      {
-        path: '/home/${virtualMachineAdminUsername}/.ssh/authorized_keys'
-        keyData: virtualMachineAdminPasswordOrPublicKey
-      }
-    ]
-  }
-  provisionVMAgent: true
-}
+param linuxAuthenticationConfiguration object = {}
 
 @description('The bicep object to configure the Windows authentication when creating the vm.')
 param windowsConfiguration object = {
-    provisionVMAgent: true
-    enableAutomaticUpdates: true
-    patchSettings: {
-        patchMode: 'AutomaticByOS'
-        assessmentMode: 'ImageDefault'
-    }
-    enableVMAgentPlatformUpdates: false
+  enableAutomaticUpdates: true
+  patchSettings: {
+    patchMode: 'AutomaticByOS'
+    assessmentMode: 'ImageDefault'
+  }
+  enableVMAgentPlatformUpdates: false
 }
 
 @description('''
@@ -263,8 +254,28 @@ Azure Hybrid Benefit provides software updates and integrated support directly f
     'None'
     ''
   ]
-  )
+)
 param OSLicenseType string = ''
+
+var linuxConfigurationUnion = union(
+  linuxAuthenticationConfiguration,
+  {
+    provisionVMAgent: provisionVMAgent
+  },
+  virtualMachineAuthenticationMethod == 'sshPublicKey' ? {
+    disablePasswordAuthentication: true
+    ssh: {
+      publicKeys: [
+        {
+          path: '/home/${virtualMachineAdminUsername}/.ssh/authorized_keys'
+          keyData: virtualMachineAdminPasswordOrPublicKey
+        }
+      ]
+    }
+  } : {}
+)
+
+var windowsConfigurationUnion = union(windowsConfiguration, { provisionVMAgent: provisionVMAgent })
 
 // ================================================= Resources =================================================
 @description('Upsert the availabilitySet using the given parameters if desired.')
@@ -316,13 +327,13 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     hardwareProfile: {
       vmSize: virtualMachineSize
     }
-    licenseType: empty(OSLicenseType) ? json('null'): OSLicenseType
+    licenseType: empty(OSLicenseType) ? json('null') : OSLicenseType
     osProfile: {
       computerName: virtualMachineName
       adminUsername: virtualMachineAdminUsername
       adminPassword: virtualMachineAdminPasswordOrPublicKey
-      linuxConfiguration: (virtualMachineAuthenticationMethod == 'sshPublicKey') ? linuxAuthenticationConfiguration : json('null')
-      windowsConfiguration: operatingSystem == 'Windows'? windowsConfiguration : json('null')
+      linuxConfiguration: operatingSystem == 'Linux' ? linuxConfigurationUnion : json('null')
+      windowsConfiguration: operatingSystem == 'Windows' ? windowsConfigurationUnion : json('null')
     }
     storageProfile: {
       imageReference: virtualMachineImageReference
