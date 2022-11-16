@@ -36,9 +36,13 @@ Creating a Virtual machine with the given specs.
 | bootdiagnosticsEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | If you want to have bootdiagnostics enabled on the Virtual Machine. More info https://docs.microsoft.com/en-us/azure/virtual-machines/boot-diagnostics. |
 | linuxAuthenticationConfiguration | object | <input type="checkbox"> | None | <pre>{<br>  disablePasswordAuthentication: true<br>  ssh: {<br>    publicKeys: [<br>      {<br>        path: '/home/${virtualMachineAdminUsername}/.ssh/authorized_keys'<br>        keyData: virtualMachineAdminPasswordOrPublicKey<br>      }<br>    ]<br>  }<br>  provisionVMAgent: true<br>}</pre> | The bicep object to configure the linux authentication when creating the vm. |
 | windowsConfiguration | object | <input type="checkbox"> | None | <pre>{<br>    provisionVMAgent: true<br>    enableAutomaticUpdates: true<br>    patchSettings: {<br>        patchMode: 'AutomaticByOS'<br>        assessmentMode: 'ImageDefault'<br>    }<br>    enableVMAgentPlatformUpdates: false<br>}</pre> | The bicep object to configure the Windows authentication when creating the vm. |
+| OSLicenseType | string | <input type="checkbox"> | `'RHEL_BYOS'` or  `'SLES_STANDARD'` or  `'SLES_SAP'` or  `'SLES_HPC'` or  `'SLES'` or  `'RHEL_SAPHA'` or  `'RHEL_SAPAPPS'` or  `'RHEL_ELS_6'` or  `'RHEL_EUS'` or  `'RHEL_BASE'` or  `'SLES_BYOS'` or  `'RHEL_BASESAPAPPS'` or  `'RHEL_BASESAPHA'` or  `'Windows_Server'` or  `'Windows_Client'` or  `'None'` or  `''` | <pre>''</pre> | Type of OS licensing.<br>For customers with Software Assurance, Azure Hybrid Benefit for Windows Server allows you to use your on-premises Windows Server licenses and run Windows virtual machines on Azure at a reduced cost.<br>You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machines with Windows OS.<br>Azure Hybrid Benefit provides software updates and integrated support directly from Azure infrastructure for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines. |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
+| availabilitysetResourceId | string | Output the availability set\'s Resource ID. |
+| virtualMachineName | string | Outputs the name of the virtual machine created or upserted |
+| virtualMachineResourceId | string | Output the resourceId of the virtual machine created or upserted |
 ## Examples
 <pre>
 module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {

@@ -234,8 +234,7 @@ For customers with Software Assurance, Azure Hybrid Benefit for Windows Server a
 You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machines with Windows OS.
 Azure Hybrid Benefit provides software updates and integrated support directly from Azure infrastructure for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines.
 ''')
-@allowed(
-  [
+@allowed([
     'RHEL_BYOS'
     'SLES_STANDARD'
     'SLES_SAP'
@@ -253,8 +252,7 @@ Azure Hybrid Benefit provides software updates and integrated support directly f
     'Windows_Client'
     'None'
     ''
-  ]
-)
+])
 param OSLicenseType string = ''
 
 @description('Union the different settings for the linux vm configuration')
