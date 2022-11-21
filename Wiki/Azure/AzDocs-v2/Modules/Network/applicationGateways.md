@@ -7,6 +7,7 @@ Target Scope: resourceGroup
 | -- |  -- | -- | -- | -- | -- |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
 | applicationGatewayVirtualNetworkName | string | <input type="checkbox" checked> | Length between 2-64 | <pre></pre> | The name of the VNet where you want to onboard this Application Gateway into. |
+| virtualNetworkResourceGroupName | string | <input type="checkbox"> | None | <pre>az.resourceGroup().name</pre> | The name resourcegroup where the virtual network resource is allocated. |
 | applicationGatewaySubnetName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | Name of the subnet where the Application Gateway should reside in. |
 | applicationGatewayName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | The name of the Application Gateway. |
 | minCapacity | int | <input type="checkbox"> | Value between 0-125 | <pre>2</pre> | The minimum instance count for Application Gateway. The Application Gateway will scale out with a minimum of this minCapacity. For highly available Application Gateways, please use 2 or higher. |
