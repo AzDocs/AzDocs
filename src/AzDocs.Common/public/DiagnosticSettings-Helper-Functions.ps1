@@ -131,7 +131,7 @@ function New-DiagnosticSetting
             Enabled  = $true
         }
     }
-
+    $PSNativeCommandArgumentPassing = "Legacy"
     Write-Output ($diagnosticSettingsToCreate | ConvertTo-Json -Compress -AsArray).Replace('"', '\"')
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
