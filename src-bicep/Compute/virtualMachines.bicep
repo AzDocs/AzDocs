@@ -306,9 +306,6 @@ module virtualMachineNetworkInterface '../Network/networkInterfaces.bicep' = if 
     tags: tags
     networkInterfaceName: virtualMachineNetworkInterfaceName
   }
-  dependsOn: !empty(availabilitySetName) ? [
-    availabilitySet
-  ] : []
 }
 
 @description('Fetch the storageaccount used for boot diagnostics if desired.')
@@ -353,6 +350,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     }
   }
   zones: availabilityZones
+  dependsOn: !empty(availabilitySetName) ? [
+    availabilitySet
+  ] : []
 }
 
 @description('Output the availability set\'s Resource ID.')
