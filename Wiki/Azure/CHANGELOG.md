@@ -2,6 +2,10 @@
 
 # Change Log
 All notable changes to this project will be documented in this file.
+
+## [2022.11.22]
+- Updated `Create-SQL-Server` to get the correct object-id for the service principal.
+
 ## [2022.11.14]
 - Added mongodb version 4.2 to `Create-CosmosDbAccount.ps1`
 - Updated `Create-WAF-Policy.ps1` to update the `WAF policy` when it already exists.
