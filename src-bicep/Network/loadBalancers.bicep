@@ -208,7 +208,7 @@ resource loadBalancer 'Microsoft.Network/loadBalancers@2022-01-01' = {
   sku: loadBalancerSku
   tags: tags
   properties: {
-    frontendIPConfigurations: frontendIPConfigurations
+    frontendIPConfigurations: frontendIPConfigurations ?? []
     backendAddressPools: backendAddressPools
     loadBalancingRules: loadBalancingRules
     probes: loadBalancingProbes
