@@ -3,6 +3,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2022.11.25]
+- Added script `Create-User-Assigned-Managed-Identity.ps1`
+- Added script `Get-User-Assigned-Managed-Identity.Id.ps1`
+
 ## [2022.11.22]
 - Updated `Create-SQL-Server` to get the correct object-id for the service principal.
 
