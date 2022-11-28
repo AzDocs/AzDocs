@@ -3,8 +3,8 @@ The name of the private DNS zone the private endpoint can be looked up.
 ''')
 param privateDnsZoneName string
 
-@description('Auto register your eligible private endpoints within this DNS zone.')
-param registrationEnabled bool = true
+@description('Auto register your eligible private endpoints within this DNS zone. Note: This should be default unless you have a good reason to make this true.')
+param registrationEnabled bool = false
 
 @description('''
 The name of the virtual network you want to create the private endpoint in. Should be pre-existing.
