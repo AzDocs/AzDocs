@@ -21,6 +21,7 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2018-09-01' = {
 
   resource symbolicname 'virtualNetworkLinks@2020-06-01' = {
     name: privateDnsLinkName
+    location: 'global'
     properties: {
       registrationEnabled: registrationEnabled
       virtualNetwork: {
