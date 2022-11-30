@@ -996,6 +996,7 @@ function New-ApplicationGatewayEntrypoint
         [Parameter()][ValidateSet("Disabled", "Enabled")][string] $HttpsSettingsRequestToBackendCookieAffinity = "Disabled",
         [Parameter()][int] $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds = 0,
         [Parameter()][int] $HttpsSettingsRequestToBackendTimeoutInSeconds = 30,
+        [Parameter()][string] $HttpsSettingsCustomRootCertificateFilePath,
         [Parameter()][string] $HealthProbeMatchStatusCodes = "200-399",
         [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType,
         [Parameter()][string] $ApplicationGatewayRuleDefaultIngressDomainName, 
@@ -1170,14 +1171,17 @@ function New-ApplicationGatewayEntrypoint
 
     # Create HTTP settings
     Write-Host "Creating HTTP settings"
-    if (!$IngressDomainName.StartsWith("*"))
+    $optionalParameters = @(
+        '--host-name-from-backend-pool', (!$IngressDomainName.StartsWith("*"))
+    )
+    if (Test-Path -Path ($HttpsSettingsCustomRootCertificateFilePath ?? '') )
     {
-        Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --host-name-from-backend-pool $true --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+        $certificateName = Split-Path $HttpsSettingsCustomRootCertificateFilePath -LeafBase
+        Invoke-Executable az network application-gateway root-cert create --cert-file $HttpsSettingsCustomRootCertificateFilePath --gateway-name $ApplicationGatewayName --name $certificateName --resource-group $ApplicationGatewayResourceGroupName
+
+        $optionalParameters += '--root-certs', $certificateName
     }
-    else
-    {
-        Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --host-name-from-backend-pool $false --resource-group $ApplicationGatewayResourceGroupName | Out-Null
-    }
+    Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --resource-group $ApplicationGatewayResourceGroupName @optionalParameters | Out-Null
     Write-Host "Created HTTP settings"
 
     # Get the id of the SSL certificate available for the Applicaton Gateway to use in the next step for creating the listener
