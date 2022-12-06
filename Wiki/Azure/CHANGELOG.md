@@ -3,6 +3,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2022.12.06]
+- Added script `Create-ServiceBus-Queue.ps1`
+- Added script `Create-ServiceBus-Queue-Authorization-Rule.ps1`
+
 ## [2022.11.25]
 - Added script `Create-User-Assigned-Managed-Identity.ps1`
 - Added script `Get-User-Assigned-Managed-Identity.Id.ps1`
