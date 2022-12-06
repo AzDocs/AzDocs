@@ -16,7 +16,7 @@ Some parameters from [General Parameter](/Azure/AzDocs-v1/Scripts) list.
 | RuleName                                  | <input type="checkbox" checked> | `MyRule`                                         | The name of the rule.                                                                                                                                                                                                                     |
 | GrantSend                                 | <input type="checkbox">         | $true                                            | Grant the Send permission. Defaults to false.                              |
 | GrantListen                               | <input type="checkbox">         | $true                                            | Grant the Listen permission. Defaults to false.                                                                        |
-| GrantManage                               | <input type="checkbox">         | $false                                           | Grants the Manage permission. When setting this permission you automatically grant Send and Listen permission. Default to false.                                                                                       |
+| GrantManage                               | <input type="checkbox">         | $false                                           | Grants the Manage permission. When setting this permission you automatically grant Send and Listen permission. Defaults to false.                                                                                       |
 
 
 # YAML

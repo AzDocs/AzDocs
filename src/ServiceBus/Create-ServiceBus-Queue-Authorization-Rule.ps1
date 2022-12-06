@@ -45,7 +45,6 @@ if (!$queueInformation) {
 
 Write-Host "Queue exists. Dispatch update command."
 $authorizationRule = Invoke-Executable -AllowToFail az servicebus queue authorization-rule show --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --queue-name $QueueName --name $RuleName | ConvertFrom-Json
-Write-Host $authorizationRule
 if (!$authorizationRule) {
     Write-Host "Authorization Rule was not found: $ServiceBusNamespaceResourceGroupName - $ServiceBusNamespaceName - $QueueName - $RuleName"
     Invoke-Executable az servicebus queue authorization-rule create --resource-group $ServiceBusNamespaceResourceGroupName --namespace-name $ServiceBusNamespaceName --queue-name $QueueName --name $RuleName --rights @optionalParameters

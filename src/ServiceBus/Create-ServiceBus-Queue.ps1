@@ -37,13 +37,11 @@ if (!$serviceBusNamespace -or $serviceBusNamespace.provisioningState -ne 'Succee
 $queueInformation = Invoke-Executable -AllowToFail az servicebus queue show --resource-group $ServiceBusNamespaceResourceGroupName --namespace $ServiceBusNamespaceName --name $QueueName | ConvertFrom-Json
 if ($queueInformation) {
     Write-Host "Queue exists. Dispatch update command."
-    $provisioningCommand = Invoke-Executable az servicebus queue update --resource-group $ServiceBusNamespaceResourceGroupName --namespace $ServiceBusNamespaceName --name $QueueName --max-size $MaxSize --max-delivery-count @MaxDeliveryCount @optionalParameters | ConvertFrom-Json
-    Write-Host $provisioningCommand
+    Invoke-Executable az servicebus queue update --resource-group $ServiceBusNamespaceResourceGroupName --namespace $ServiceBusNamespaceName --name $QueueName --max-size $MaxSize --max-delivery-count $MaxDeliveryCount @optionalParameters
 }
 else {
     Write-Host "Queue does not exist. Dispatch create command"
-    $provisioningCommand = Invoke-Executable az servicebus queue create --resource-group $ServiceBusNamespaceResourceGroupName --namespace $ServiceBusNamespaceName --name $QueueName --max-size $MaxSize --max-delivery-count @MaxDeliveryCount @optionalParameters | ConvertFrom-Json
-    Write-Host $provisioningCommand
+    Invoke-Executable az servicebus queue create --resource-group $ServiceBusNamespaceResourceGroupName --namespace $ServiceBusNamespaceName --name $QueueName --max-size $MaxSize --max-delivery-count $MaxDeliveryCount @optionalParameters
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
