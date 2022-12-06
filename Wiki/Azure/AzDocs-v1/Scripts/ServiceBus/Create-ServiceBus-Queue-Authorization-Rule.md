@@ -25,7 +25,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 ```yaml
 - task: AzureCLI@2
-  displayName: "Create ServiceBus Queue"
+  displayName: "Create ServiceBus Queue Authorization Rule"
   condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
   inputs:
     azureSubscription: "${{ parameters.SubscriptionName }}"
