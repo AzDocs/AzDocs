@@ -25,7 +25,7 @@ if ($FunctionTypesToReturn -eq "all") {
 else {
     switch ($FunctionValueToReturn) {
         "all" { Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$($functions | Where-Object {$_.value.properties.config.bindings.type -in $FunctionTypesToReturn})" }
-        "functionNames" { Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$(($functions.value.properties | Where-Object {$_.config.bindings.type -in $FunctionTypesToReturn}).name)" }
+        "functionNames" { Write-Host "##vso[task.setvariable variable=$($OutputPipelineVariableName);isOutput=true]$(($functions.value.properties | Where-Object {$_.config.bindings.type -contains $FunctionTypesToReturn}).name)" }
     }
 }
 

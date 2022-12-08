@@ -3,6 +3,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2022.12.08]
+- Updated `List-All-Functions-Inside-Function-App.ps1`. It is now able to handle functions with multiple bindings, for example `serviceBusTrigger serviceBus`.
+
 ## [2022.12.06]
 - Added script `Create-ServiceBus-Queue.ps1`
 - Added script `Create-ServiceBus-Queue-Authorization-Rule.ps1`
