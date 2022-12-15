@@ -10,7 +10,8 @@ param (
     [Alias('AlwaysOn')]
     [Parameter()][bool] $FunctionAppAlwaysOn = $true,
     [Parameter(Mandatory)][string] $FUNCTIONS_EXTENSION_VERSION,
-    [Parameter(Mandatory)][string] $ASPNETCORE_ENVIRONMENT,
+    [Alias('ASPNETCORE_ENVIRONMENT')]
+    [Parameter(Mandatory)][string] $AZURE_FUNCTIONS_ENVIRONMENT,
     [Parameter()][string] $FunctionAppNumberOfInstances = 2,
     [Parameter()][ValidateSet('dotnet-isolated', 'dotnet', 'node', 'python', 'custom', 'java', 'powershell')][string] $FunctionAppRuntime = 'dotnet',
     [Parameter()][System.Object[]] $ResourceTags,
@@ -71,18 +72,15 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if ($FunctionAppName.Length -gt 40)
-{
+if ($FunctionAppName.Length -gt 40) {
     Write-Warning 'Please note that the App Service name is longer than 40 characters. This can give some unexpected urls for additional slots.'
     Write-Warning 'See last paragraph of https://docs.microsoft.com/en-us/azure/app-service/deploy-staging-slots#add-a-slot.'
-    if (!$SuppressTruncatedSiteName)
-    {
+    if (!$SuppressTruncatedSiteName) {
         Write-Host '##vso[task.complete result=SucceededWithIssues;]'
     } 
 }
 
-if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetName -or !$GatewayWhitelistRulePriority) -and (!$FunctionAppPrivateEndpointVnetResourceGroupName -or !$FunctionAppPrivateEndpointVnetName -or !$FunctionAppPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$FunctionAppPrivateDnsZoneName))
-{
+if ((!$GatewayVnetResourceGroupName -or !$GatewayVnetName -or !$GatewaySubnetName -or !$GatewayWhitelistRulePriority) -and (!$FunctionAppPrivateEndpointVnetResourceGroupName -or !$FunctionAppPrivateEndpointVnetName -or !$FunctionAppPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$FunctionAppPrivateDnsZoneName)) {
     # Check if we are making this resource public intentionally
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
@@ -97,22 +95,19 @@ $appServicePlan = (Invoke-Executable az appservice plan show --resource-group $A
 $functionAppId = (Invoke-Executable -AllowToFail az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 
 #TODO: az functionapp create is not idempotent, therefore the following fix. For more information, see https://github.com/Azure/azure-cli/issues/11863
-if (!$functionAppId)
-{
+if (!$functionAppId) {
     # Create FunctionApp
     Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlan.id --os-type $FunctionAppOSType --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime $FunctionAppRuntime --functions-version 3 --disable-app-insights --tags @ResourceTags
     $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 }
 
 # Immediately stop functionapp after creation
-if ($StopFunctionAppImmediatelyAfterCreation)
-{
+if ($StopFunctionAppImmediatelyAfterCreation) {
     Invoke-Executable az functionapp stop --name $FunctionAppName --resource-group $FunctionAppResourceGroupName
 }
 
 # Update Tags
-if ($ResourceTags)
-{
+if ($ResourceTags) {
     Set-ResourceTagsForResource -ResourceId $functionAppId -ResourceTags ${ResourceTags}
 }
 
@@ -123,15 +118,13 @@ Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=tru
 Invoke-Executable az functionapp config set --ids $functionAppId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled --min-tls-version $FunctionAppMinimalTlsVersion
 
 # Set some basic configs (including vnet route all)
-Invoke-Executable az functionapp config appsettings set --ids $functionAppId --settings "ASPNETCORE_ENVIRONMENT=$($ASPNETCORE_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
+Invoke-Executable az functionapp config appsettings set --ids $functionAppId --settings "AZURE_FUNCTIONS_ENVIRONMENT=$($AZURE_FUNCTIONS_ENVIRONMENT)" "FUNCTIONS_EXTENSION_VERSION=$($FUNCTIONS_EXTENSION_VERSION)"
 
 #  Create diagnostics settings
-if ($DiagnosticSettingsDisabled)
-{
+if ($DiagnosticSettingsDisabled) {
     Remove-DiagnosticSetting -ResourceId $functionAppId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $FunctionAppName
 }
-else
-{
+else {
     Set-DiagnosticSettings -ResourceId $functionAppId -ResourceName $FunctionAppName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
 }
 
@@ -139,8 +132,7 @@ else
 Invoke-Executable az functionapp identity assign --ids $functionAppId
 
 # Set CORS settings, please note that CORS settings do not get swapped
-if (!$DisableCORSPortalTestUrls)
-{
+if (!$DisableCORSPortalTestUrls) {
     $CORSUrls += Get-DefaultCorsSettings -AppType 'functionapp'
 }
 
@@ -148,8 +140,7 @@ Set-CorsSettings -AppType 'functionapp' -CORSUrls $CORSUrls -ResourceId $functio
 
 
 # Create Deployment Slot
-if ($EnableFunctionAppDeploymentSlot)
-{
+if ($EnableFunctionAppDeploymentSlot) {
     $parametersForDeploymentSlot = @{ 
         AppType                                      = 'functionapp'; 
         ResourceResourceGroupName                    = $FunctionAppResourceGroupName;    
@@ -183,8 +174,7 @@ if ($EnableFunctionAppDeploymentSlot)
 }
 
 # VNET Whitelisting
-if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
-{
+if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName) {
     # REMOVE OLD NAMES
     $oldAccessRestrictionRuleName = ToMd5Hash -InputString "$($GatewayVnetName)_$($GatewaySubnetName)_allow"
     Remove-AccessRestrictionIfExists -AppType functionapp -ResourceGroupName $FunctionAppResourceGroupName -ResourceName $FunctionAppName -AccessRestrictionRuleName $oldAccessRestrictionRuleName -AutoGeneratedAccessRestrictionRuleName $False
@@ -197,8 +187,7 @@ if ($GatewayVnetResourceGroupName -and $GatewayVnetName -and $GatewaySubnetName)
 }
 
 # Add private endpoint & Setup Private DNS
-if ($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName)
-{
+if ($FunctionAppPrivateEndpointVnetResourceGroupName -and $FunctionAppPrivateEndpointVnetName -and $FunctionAppPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $FunctionAppPrivateDnsZoneName) {
     Write-Host 'A private endpoint is desired. Adding the needed components.'
     # Fetch needed information
     $vnetId = (Invoke-Executable az network vnet show --resource-group $FunctionAppPrivateEndpointVnetResourceGroupName --name $FunctionAppPrivateEndpointVnetName | ConvertFrom-Json).id

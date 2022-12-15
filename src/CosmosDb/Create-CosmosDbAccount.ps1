@@ -23,7 +23,7 @@ param (
     [Parameter()][ValidateRange(1, 100)][int] $CosmosDbMaxStalenessInterval,
     [Parameter()][ValidateRange(1, 2147483647)][int] $CosmosDbMaxStalenessPrefix,
 
-    [Parameter()][ValidateSet("3.2", "3.6", "4.0")][string] $CosmosMongoDbServerVersion,
+    [Parameter()][ValidateSet("3.2", "3.6", "4.0", "4.2")][string] $CosmosMongoDbServerVersion,
 
     # Private Endpoints
     [Parameter()][string] $CosmosDbPrivateEndpointVnetName,
@@ -75,64 +75,52 @@ $CosmosDBAccountName = $CosmosDBAccountName.ToLower()
 $optionalParameters = @()
 $capabilities = @()
 
-if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$CosmosDbPrivateEndpointVnetName -or !$CosmosDbPrivateEndpointVnetResourceGroupName -or !$CosmosDbPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$CosmosDbAccountPrivateDnsZoneName))
-{
+if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$ApplicationSubnetName) -and (!$CosmosDbPrivateEndpointVnetName -or !$CosmosDbPrivateEndpointVnetResourceGroupName -or !$CosmosDbPrivateEndpointSubnetName -or !$DNSZoneResourceGroupName -or !$CosmosDbAccountPrivateDnsZoneName)) {
     # Check if we are making this resource public intentionally
     Assert-IntentionallyCreatedPublicResource -ForcePublic $ForcePublic
 }
 
 ####################################### PUBLIC #########################################
 
-if ($ForcePublic)
-{
+if ($ForcePublic) {
     $optionalParameters += '--enable-public-network', "true"
 }
 
 ####################################### CONSISTENCY LEVELS #########################################
 
-if ($CosmosDbDefaultConsistencyLevel -eq 'BoundedStaleness')
-{
+if ($CosmosDbDefaultConsistencyLevel -eq 'BoundedStaleness') {
     # Bounded staleness > time amount
-    if ($CosmosDbMaxStalenessInterval)
-    {
+    if ($CosmosDbMaxStalenessInterval) {
         $optionalParameters += '--max-interval', "$CosmosDbMaxStalenessInterval"
     }
 
     # Bounded staleness > stale requests tolerated
-    if ($CosmosDbMaxStalenessPrefix)
-    {
+    if ($CosmosDbMaxStalenessPrefix) {
         $optionalParameters += '--max-staleness-prefix', "$CosmosDbMaxStalenessPrefix"
     }
 }
 
 ####################################### KIND #########################################
-switch ($CosmosDbKind)
-{
-    "SQL"
-    {
+switch ($CosmosDbKind) {
+    "SQL" {
         $CosmosDbKind = "GlobalDocumentDB"
     }
-    "MongoDB"
-    {
-        if ($CosmosMongoDbServerVersion)
-        {
+    "MongoDB" {
+        if ($CosmosMongoDbServerVersion) {
             $optionalParameters += '--server-version', "$CosmosMongoDbServerVersion"
         }
     }
-    "Cassandra"
-    {
+    "Cassandra" {
         $CosmosDbKind = "GlobalDocumentDB"
         $capabilities += "EnableCassandra"
         $optionalParameters += '--capabilities', "EnableCassandra"
     }
-    "Table"
-    {
+    "Table" {
         $CosmosDbKind = "GlobalDocumentDB"
         $capabilities += "EnableTable"
         $optionalParameters += '--capabilities', "EnableTable"
     }
-    "Gremlin"
-    {
+    "Gremlin" {
         $CosmosDbKind = "GlobalDocumentDB"
         $capabilities += "EnableGremlin"
         $optionalParameters += '--capabilities', "EnableGremlin"
@@ -141,42 +129,34 @@ switch ($CosmosDbKind)
 
 ####################################### BACKUP #########################################
 
-if ($CosmosDbBackupInterval)
-{
+if ($CosmosDbBackupInterval) {
     $optionalParameters += '--backup-interval', "$CosmosDbBackupIntervalInMinutes"
 }
 
-if ($CosmosDbBackupRetention)
-{
+if ($CosmosDbBackupRetention) {
     $optionalParameters += '--backup-retention', "$CosmosDbBackupRetentionInHours"
 }
 
-if ($CosmosDbEnableAutomaticFailover)
-{
+if ($CosmosDbEnableAutomaticFailover) {
     $optionalParameters += '--enable-automatic-failover', "true"
 }
 
 ####################################### KEYVAULT #########################################
 
-if ($CosmosDbKeyvaultKeyUri)
-{
+if ($CosmosDbKeyvaultKeyUri) {
     $optionalParameters += '--key-uri', "$CosmosDbKeyvaultKeyUri"
 }
 
 ####################################### LOCATION #########################################
 
-if ($CosmosDbEnableMultipleWriteCosmosDbLocations)
-{
+if ($CosmosDbEnableMultipleWriteCosmosDbLocations) {
     $optionalParameters += '--enable-multiple-write-locations', "true"
 }
 
-if ($CosmosDbLocations)
-{
-    foreach ($cosmosDbLocation in $CosmosDbLocations)
-    {
+if ($CosmosDbLocations) {
+    foreach ($cosmosDbLocation in $CosmosDbLocations) {
         Write-Host "regionName=$($cosmosDbLocation.regionName) failoverPriority=$($cosmosDbLocation.failoverPriority) isZoneRedundant=$($cosmosDbLocation.isZoneRedundant)"
-        if (!$cosmosDbLocation.regionName -or $null -eq $cosmosDbLocation.failoverPriority -or $null -eq $cosmosDbLocation.failoverPriority)
-        {
+        if (!$cosmosDbLocation.regionName -or $null -eq $cosmosDbLocation.failoverPriority -or $null -eq $cosmosDbLocation.failoverPriority) {
             Write-Warning "Malformed region found. Please make sure regionName, failoverPriority & isZoneRedundant parameters are present. Please review the documentation on the Wiki."
             continue
         }
@@ -186,8 +166,7 @@ if ($CosmosDbLocations)
 }
 
 ####################################### CUSTOM CAPABILITIES #########################################
-if ($CosmosDbCapabilities)
-{
+if ($CosmosDbCapabilities) {
     # Set custom capabilities on the Cosmos DB database account.Set custom capabilities on the Cosmos DB database account.
     $capabilities += $CosmosDbCapabilities
     $optionalParameters += '--capabilities', $capabilities
@@ -195,20 +174,17 @@ if ($CosmosDbCapabilities)
 
 ####################################### VNET WHITELISTING #########################################
 
-if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
-{
+if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName) {
     $optionalParameters += '--enable-virtual-network', "true"
 }
 
 ####################################### CREATION #########################################
 
-if (Invoke-Executable -AllowToFail az cosmosdb show --name $CosmosDbAccountName --resource-group $CosmosDbAccountResourceGroupName)
-{
+if (Invoke-Executable -AllowToFail az cosmosdb show --name $CosmosDbAccountName --resource-group $CosmosDbAccountResourceGroupName) {
     Write-Host "CosmosDB already found. Updating..."
     Invoke-Executable az cosmosdb update --name $CosmosDbAccountName --resource-group $CosmosDbAccountResourceGroupName --default-consistency-level $CosmosDbDefaultConsistencyLevel @optionalParameters
 }
-else
-{
+else {
     Write-Host "CosmosDB not found. Creating..."
     Invoke-Executable az cosmosdb create --name $CosmosDbAccountName --resource-group $CosmosDbAccountResourceGroupName --kind $CosmosDbKind --default-consistency-level $CosmosDbDefaultConsistencyLevel @optionalParameters
 }
@@ -218,14 +194,12 @@ $cosmosResource = ((Invoke-Executable az cosmosdb show --name $CosmosDbAccountNa
 
 ####################################### TAGS #########################################
 
-if ($ResourceTags)
-{
+if ($ResourceTags) {
     Set-ResourceTagsForResource -ResourceId $cosmosResource.id -ResourceTags ${ResourceTags}
 }
 
 ####################################### BACKUP STORAGE REDUNDANCY #######################################
-if ($CosmosDbBackupStorageRedundancy)
-{
+if ($CosmosDbBackupStorageRedundancy) {
     Wait-ForClusterToBeReady -CosmosDBAccountName $CosmosDBAccountName -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName
 
     $body = @{
@@ -242,16 +216,14 @@ if ($CosmosDbBackupStorageRedundancy)
 }
 ####################################### NETWORKING #########################################
 
-if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
-{
+if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName) {
     Write-Host "VNET Whitelisting is desired. Adding the needed components."
 
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-CosmosDb-Account.ps1" -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName -CosmosDBAccountName $CosmosDBAccountName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
 }
 
-if ($CosmosDbPrivateEndpointVnetResourceGroupName -and $CosmosDbPrivateEndpointVnetName -and $CosmosDbPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $CosmosDbAccountPrivateDnsZoneName -and $CosmosDbPrivateEndpointGroupId)
-{
+if ($CosmosDbPrivateEndpointVnetResourceGroupName -and $CosmosDbPrivateEndpointVnetName -and $CosmosDbPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $CosmosDbAccountPrivateDnsZoneName -and $CosmosDbPrivateEndpointGroupId) {
     Write-Host "A private endpoint is desired. Adding the needed components."
     # Fetch needed information
     $vnetId = (Invoke-Executable az network vnet show --resource-group $CosmosDbPrivateEndpointVnetResourceGroupName --name $CosmosDbPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -263,18 +235,15 @@ if ($CosmosDbPrivateEndpointVnetResourceGroupName -and $CosmosDbPrivateEndpointV
 }
 
 ####################################### DIAGNOSTIC SETTINGS #########################################
-if ($DiagnosticSettingsDisabled)
-{
+if ($DiagnosticSettingsDisabled) {
     Remove-DiagnosticSetting -ResourceId $cosmosResource.id -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $CosmosDbAccountName
 }
-else
-{
+else {
     Set-DiagnosticSettings -ResourceId $cosmosResource.id -ResourceName $CosmosDbAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
 }
 
 ####################################### CAPABILITIES #########################################
-if ($CosmosDbCapabilities)
-{
+if ($CosmosDbCapabilities) {
     Write-Host "Adding extra capabilities to the CosmosDb account"
     
     Wait-ForClusterToBeReady -CosmosDBAccountName $CosmosDBAccountName -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName

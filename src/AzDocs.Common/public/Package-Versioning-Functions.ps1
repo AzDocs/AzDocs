@@ -17,7 +17,7 @@ function Get-UpdatedPackageVersion
             $newMajorVersion = [int]$splittedVersion[0] + 1
             $currentMajorVersion = [int]$splittedVersion[0] 
             if($newMajorVersion -gt $currentMajorVersion){
-                $version = "$($MajorVersion).0.0"
+                $version = "$($newMajorVersion).0.0"
             }
             else
             {
