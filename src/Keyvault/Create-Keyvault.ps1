@@ -3,7 +3,7 @@ param (
     [Parameter(Mandatory)][string] $KeyvaultName,
     [Parameter(Mandatory)][string] $KeyvaultResourceGroupName,
     [Parameter()][System.Object[]] $ResourceTags,
-    [Alias("LogAnalyticsWorkspaceName")]
+    [Alias('LogAnalyticsWorkspaceName')]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
 
     # VNET Whitelisting
@@ -12,23 +12,33 @@ param (
     [Parameter()][string] $ApplicationSubnetName,
 
     # Private Endpoint
-    [Alias("VnetResourceGroupName")]
+    [Alias('VnetResourceGroupName')]
     [Parameter()][string] $KeyvaultPrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
+    [Alias('VnetName')]
     [Parameter()][string] $KeyvaultPrivateEndpointVnetName,
     [Parameter()][string] $KeyvaultPrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $KeyvaultPrivateDnsZoneName = "privatelink.vaultcore.azure.net",
+    [Alias('PrivateDnsZoneName')]
+    [Parameter()][string] $KeyvaultPrivateDnsZoneName = 'privatelink.vaultcore.azure.net',
     [Parameter()][bool] $KeyvaultPurgeProtectionEnabled = $true,
-    [Parameter()][string][ValidateSet("Premium", "Standard")] $KeyvaultSku = "Standard",
+    [Parameter()][string][ValidateSet('Premium', 'Standard')] $KeyvaultSku = 'Standard',
     [Parameter()][int][ValidateRange(7, 90)] $KeyvaultRetentionInDays = 90,
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
     
     # Forcefully agree to this resource to be spun up without purge protection
-    [Parameter()][switch] $ForceDisablePurgeProtection
+    [Parameter()][switch] $ForceDisablePurgeProtection,
+
+    # Diagnostic settings
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled,
+
+    # Bypass
+    [Parameter()][string][ValidateSet('AzureServices', 'None')] $KeyvaultBypassTraffic = 'None'
     
 )
 
@@ -58,20 +68,38 @@ else
 $optionalParameters += '--retention-days', $KeyvaultRetentionInDays
 
 # Warning: az keyvault create is not idempotent: https://github.com/Azure/azure-cli/pull/18520
-$keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }
+$subscriptionId = (Invoke-Executable az account show | ConvertFrom-Json).id
+$keyvaultExists = (Invoke-Executable az keyvault list --resource-group $KeyvaultResourceGroupName --resource-type 'vault' --subscription $subscriptionId | ConvertFrom-Json) | Where-Object { $_.name -eq $KeyvaultName }
+
 if (!$keyvaultExists)
 {
-
     # check if keyvault exists soft-deleted
-    $softDeletedKeyvault = Invoke-Executable -AllowToFail az keyvault show-deleted --name $KeyvaultName
+    $softDeletedKeyvault = Invoke-Executable -AllowToFail az keyvault show-deleted --name $KeyvaultName | ConvertFrom-Json
     if ($softDeletedKeyvault)
     {
-        Write-Host "Found soft-deleted keyvault. Recovering.."
-        Invoke-Executable az keyvault recover --name $KeyvaultName
+        # Check if the keyvault is in the same resource-group 
+        if ($softDeletedKeyvault.properties.vaultId -Match $KeyvaultResourceGroupName)
+        {
+            Write-Host 'Found soft-deleted keyvault. Recovering..'
+            Invoke-Executable az keyvault recover --name $KeyvaultName
+        }
+        else
+        {
+            throw 'The vaultname is globally unique and already exists in a soft-deleted state. Purge the keyvault that is in a soft-deleted state, or pick a different name.'
+        }
     }
     else
     {
-        Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --default-action Deny --sku $KeyvaultSku --bypass None --tags ${ResourceTags} @optionalParameters
+        $keyvaultParameters = @()
+        if ($ForcePublic)
+        {
+            $keyvaultParameters += '--default-action', 'Allow'
+        }
+        else
+        {
+            $keyvaultParameters += '--default-action', 'Deny'
+        }
+        Invoke-Executable az keyvault create --name $KeyvaultName --resource-group $KeyvaultResourceGroupName --sku $KeyvaultSku --bypass $KeyvaultBypassTraffic @keyvaultParameters --tags @ResourceTags @optionalParameters
     }
 }
 
@@ -79,15 +107,25 @@ if (!$keyvaultExists)
 $keyvaultId = (Invoke-Executable az keyvault show --name $KeyvaultName --resource-group $KeyvaultResourceGroupName | ConvertFrom-Json).id
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $keyvaultId -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $keyvaultId -ResourceTags ${ResourceTags}
+}
 
 # Create diagnostics settings for the Keyvault resource
-Set-DiagnosticSettings -ResourceId $keyvaultId -ResourceName $KeyvaultName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'AuditEvent', 'enabled': true } ]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $keyvaultId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $KeyvaultName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $keyvaultId -ResourceName $KeyvaultName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 # Private Endpoint
 if ($KeyvaultPrivateEndpointVnetResourceGroupName -and $KeyvaultPrivateEndpointVnetName -and $KeyvaultPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $KeyvaultPrivateDnsZoneName)
 {
-    Write-Host "A private endpoint is desired. Adding the needed components."
+    Write-Host 'A private endpoint is desired. Adding the needed components.'
     # Fetch information
     $vnetId = (Invoke-Executable az network vnet show --resource-group $KeyvaultPrivateEndpointVnetResourceGroupName --name $KeyvaultPrivateEndpointVnetName | ConvertFrom-Json).id
     $keyvaultPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $KeyvaultPrivateEndpointVnetResourceGroupName --name $KeyvaultPrivateEndpointSubnetName --vnet-name $KeyvaultPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -100,7 +138,7 @@ if ($KeyvaultPrivateEndpointVnetResourceGroupName -and $KeyvaultPrivateEndpointV
 # VNET Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
-    Write-Host "VNET Whitelisting is desired. Adding the needed components."
+    Write-Host 'VNET Whitelisting is desired. Adding the needed components.'
     
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-Keyvault.ps1" -KeyvaultName $KeyvaultName -KeyvaultResourceGroupName $KeyvaultResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName

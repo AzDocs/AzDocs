@@ -10,10 +10,15 @@ param (
     [Parameter()][string][ValidateSet('', 'Gen4', 'Gen5')] $ElasticPoolVCoreFamily,
     [Parameter()][string] $ElasticPoolMaxStorageSize,
     [Parameter()][string][ValidateSet('', 'false', 'true')] $ElasticPoolZoneRedundancy,
-    [Parameter(Mandatory)][System.Object[]] $ResourceTags, 
+    [Parameter()][System.Object[]] $ResourceTags, 
     
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -53,9 +58,22 @@ if ($ElasticPoolZoneRedundancy)
 }
 
 # Create Elastic Pool
-$elasticPoolId = (Invoke-Executable az sql elastic-pool create --name $ElasticPoolName --resource-group $SqlServerResourceGroupName --server $SqlServerName --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+$elasticPoolId = (Invoke-Executable az sql elastic-pool create --name $ElasticPoolName --resource-group $SqlServerResourceGroupName --server $SqlServerName @additionalParameters | ConvertFrom-Json).id
+
+# Add ResourceTags
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $elasticPoolId -ResourceTags ${ResourceTags}
+}
 
 # Add diagnostic settings to Elastic Pool
-Set-DiagnosticSettings -ResourceId $elasticPoolId -ResourceName $ElasticPoolName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'Basic', 'enabled': true }, { 'category': 'InstanceAndAppAdvanced', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $elasticPoolId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $ElasticPoolName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $elasticPoolId -ResourceName $ElasticPoolName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

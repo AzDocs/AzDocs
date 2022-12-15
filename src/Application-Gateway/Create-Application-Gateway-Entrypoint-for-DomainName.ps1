@@ -13,6 +13,7 @@ param (
     [Alias("SharedServicesKeyvaultName")]
     [Parameter(Mandatory)][string] $CertificateKeyvaultName,
     [Parameter(Mandatory)][string] $BackendDomainname,
+    [Parameter()][string] $HealthProbeDomainName,
     [Alias("HealthProbePath")]
     [Parameter(Mandatory)][string] $HealthProbeUrlPath,
     [Alias("HealthProbeInterval")]
@@ -32,10 +33,13 @@ param (
     [Parameter()][int] $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds = 0,
     [Alias("HttpsSettingsTimeout")]
     [Parameter()][int] $HttpsSettingsRequestToBackendTimeoutInSeconds = 30,
+    [Parameter()][string] $HttpsSettingsCustomRootCertificateFilePath,
     [Alias("MatchStatusCodes")]
     [Parameter()][string] $HealthProbeMatchStatusCodes = "200-399",
     [Alias("GatewayRuleType")]
-    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType
+    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType = "Basic",
+    [Parameter()][string] $ApplicationGatewayRuleDefaultIngressDomainName, 
+    [Parameter()][string] $ApplicationGatewayRulePath
 )
 
 #region ===BEGIN IMPORTS===
@@ -50,8 +54,8 @@ try
     New-ApplicationGatewayEntrypoint -CertificatePath $CertificatePath -IngressDomainName $IngressDomainName -ApplicationGatewayName $ApplicationGatewayName -ApplicationGatewayFacingType $ApplicationGatewayFacingType -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -CertificateKeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName `
         -CertificateKeyvaultName $CertificateKeyvaultName -CertificatePassword $CertificatePassword -BackendDomainName $BackendDomainname -HealthProbeUrlPath $HealthProbeUrlPath -HealthProbeIntervalInSeconds $HealthProbeIntervalInSeconds `
         -HealthProbeNumberOfTriesBeforeMarkedDown $HealthProbeNumberOfTriesBeforeMarkedDown -HealthProbeTimeoutInSeconds $HealthProbeTimeoutInSeconds -HealthProbeProtocol $HealthProbeProtocol -HttpsSettingsRequestToBackendProtocol $HttpsSettingsRequestToBackendProtocol -HttpsSettingsRequestToBackendPort $HttpsSettingsRequestToBackendPort `
-        -HttpsSettingsRequestToBackendCookieAffinity $HttpsSettingsRequestToBackendCookieAffinity -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds -HttpsSettingsRequestToBackendTimeoutInSeconds $HttpsSettingsRequestToBackendTimeoutInSeconds -HealthProbeMatchStatusCodes $HealthProbeMatchStatusCodes `
-        -ApplicationGatewayRuleType $ApplicationGatewayRuleType
+        -HttpsSettingsRequestToBackendCookieAffinity $HttpsSettingsRequestToBackendCookieAffinity -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds -HttpsSettingsRequestToBackendTimeoutInSeconds $HttpsSettingsRequestToBackendTimeoutInSeconds -HttpsSettingsCustomRootCertificateFilePath $HttpsSettingsCustomRootCertificateFilePath `
+        -HealthProbeMatchStatusCodes $HealthProbeMatchStatusCodes -ApplicationGatewayRuleType $ApplicationGatewayRuleType -HealthProbeDomainName $HealthProbeDomainName -ApplicationGatewayRuleDefaultIngressDomainName $ApplicationGatewayRuleDefaultIngressDomainName -ApplicationGatewayRulePath $ApplicationGatewayRulePath
 }
 catch
 {

@@ -1,0 +1,19 @@
+# Build versionstring
+name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
+# When to autotrigger this pipeline
+trigger:
+  branches:
+    include:
+      - '*'
+
+# Pick the default Azure DevOps Agent OS type & version to run this pipeline on
+pool:
+  vmImage: "ubuntu-20.04"
+
+steps:
+- checkout: self
+  persistCredentials: true
+- script: |
+     git tag $(Build.BuildNumber)
+     git push origin $(Build.BuildNumber)
+  workingDirectory: $(Build.SourcesDirectory)

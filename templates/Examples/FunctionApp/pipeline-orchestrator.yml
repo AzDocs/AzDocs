@@ -38,6 +38,8 @@ variables:
     value: Application
   - name: Tag.Tier
     value: App
+  - name: Tag.TeamName
+    value: Team
 
   # Stage Pool
   - name: Stage.Pool
@@ -50,8 +52,6 @@ stages:
         displayName: "Build"
         steps:
           - template: pipeline-build.yml
-            parameters:
-              ProjectName: "TestApi.Functions/TestApi.Functions.csproj"
 
   - stage: "dev"
     displayName: "Deploy to dev"

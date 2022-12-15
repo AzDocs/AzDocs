@@ -6,8 +6,13 @@ param (
     [Parameter(Mandatory)][string] $StorageAccountName,
     [Alias("ShareName")]
     [Parameter(Mandatory)][string] $FileshareName,
-    # [Parameter(Mandatory)][string] $FileshareDiagnosticsName,
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    # Diagnostic settings
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -20,7 +25,14 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 Invoke-Executable az storage share-rm create --storage-account $StorageAccountName --name $FileshareName
 
 # Enable diagnostic settings for storage fileshare
-$storageAccountId = (Invoke-Executable az storage account show --name $StorageAccountName --resource-group $StorageAccountResourceGroupName | ConvertFrom-Json).id 
-Set-DiagnosticSettings -ResourceId "$storageAccountId/fileServices/default" -ResourceName $StorageAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'StorageRead', 'enabled': true }, { 'category': 'StorageWrite', 'enabled': true }, { 'category': 'StorageDelete', 'enabled': true }]".Replace("'", '\"')  -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"') 
+$storageAccountId = (Invoke-Executable az storage account show --name $StorageAccountName --resource-group $StorageAccountResourceGroupName | ConvertFrom-Json).id
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId "$storageAccountId/fileServices/default" -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $StorageAccountName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId "$storageAccountId/fileServices/default" -ResourceName $StorageAccountName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

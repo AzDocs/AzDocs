@@ -19,7 +19,17 @@ namespace TestApi.Controllers
             _logger = logger;
             Configuration = configuration;
         }
-
+        /// <summary>
+        /// Returns numbers from the configured table in the MySQL database. Table is created if it does not exist. Numbers are inserted automatically.
+        /// </summary>
+        /// <returns>A string response.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /mysql
+        ///
+        /// </remarks>
+        /// <response code="200">Returns the result of a query of a table.</response>
         [HttpGet]
         public IEnumerable<int> Get()
         {

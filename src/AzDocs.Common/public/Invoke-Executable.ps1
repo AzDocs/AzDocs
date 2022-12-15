@@ -14,25 +14,34 @@ function Invoke-Executable
     param(
         [Parameter(Mandatory)][string] $ExecutableLiteralPath,
         [Parameter(ValueFromRemainingArguments)] $ExecutableArguments,
-        [Parameter()][switch] $AllowToFail
+        [Parameter()][switch] $AllowToFail,
+        [Parameter()][switch] $PreventDebugging,
+        [Parameter()][switch] $WhatIf 
     )
 
     # Saving the LASTEXITCODE for when we enable -AllowToFail to reset the LASTEXITCODE later
     $lastKnownExitCode = $global:LASTEXITCODE
 
-    # Make sure to append --debug when using Azure CLI with $env:System_Debug set to $true
-    if ($ExecutableLiteralPath -eq 'az')
+    # Make sure to append --debug when using Azure CLI with $env:SYSTEM_DEBUG set to $true
+    if (!$PreventDebugging -and $ExecutableLiteralPath -eq 'az')
     {
-        if ($env:System_Debug -and $env:System_Debug -eq $true)
+        if ($env:SYSTEM_DEBUG -and $env:SYSTEM_DEBUG -eq $true)
         {
-            $ExecutableArguments += "--debug"
+            $ExecutableArguments += '--debug'
         }
+    }
+    if ($WhatIf)
+    {
+        $ExecutableArguments += ' [WHATIF]'
     }
 
     Write-Header -ScopedPSCmdlet $PSCmdlet -OverrideMessage "$ExecutableLiteralPath $ExecutableArguments" -OmitOutputParameters
 
     # Execute the original executable with the original parameters in child scope
-    & $ExecutableLiteralPath $ExecutableArguments
+    if (!$WhatIf)
+    {
+        & $ExecutableLiteralPath @ExecutableArguments
+    }
     # If an error was thrown from the last operation and -AllowToFail is not passed --> Break the pipeline. 
     if (!$AllowToFail -and !$?)
     {
@@ -42,7 +51,7 @@ function Invoke-Executable
         throw $Error
     }
 
-    if ($env:System_Debug -and $env:System_Debug -eq $true)
+    if ($env:SYSTEM_DEBUG -and $env:SYSTEM_DEBUG -eq $true)
     {
         Write-Host "Returncode: $LASTEXITCODE"
     }
@@ -50,7 +59,7 @@ function Invoke-Executable
     # Restore original $LASTEXITCODE when -AllowToFail is passed
     if ($AllowToFail)
     {
-        if ($env:System_Debug -and $env:System_Debug -eq $true)
+        if ($env:SYSTEM_DEBUG -and $env:SYSTEM_DEBUG -eq $true)
         {
             Write-Host "Overriding LASTEXITCODE to $lastKnownExitCode due to -AllowToFail."
         }

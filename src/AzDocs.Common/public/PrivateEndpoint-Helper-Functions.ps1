@@ -9,7 +9,7 @@ function Set-SubnetServiceEndpoint
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)][string] $SubnetResourceId,
-        [Parameter(Mandatory)][string][ValidateSet("Microsoft.Storage", "Microsoft.Sql", "Microsoft.AzureActiveDirectory", "Microsoft.AzureCosmosDB", "Microsoft.Web", "Microsoft.KeyVault", "Microsoft.EventHub", "Microsoft.ServiceBus", "Microsoft.ContainerRegistry", "Microsoft.CognitiveServices")] $ServiceEndpointServiceIdentifier
+        [Parameter(Mandatory)][string][ValidateSet('Microsoft.Storage', 'Microsoft.Sql', 'Microsoft.AzureActiveDirectory', 'Microsoft.AzureCosmosDB', 'Microsoft.Web', 'Microsoft.KeyVault', 'Microsoft.EventHub', 'Microsoft.ServiceBus', 'Microsoft.ContainerRegistry', 'Microsoft.CognitiveServices')] $ServiceEndpointServiceIdentifier
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -51,41 +51,44 @@ function Add-PrivateEndpoint
         [Parameter(Mandatory)][string] $PrivateDnsLinkName
     )
 
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+
     # Disable private-endpoint-network-policies
     Invoke-Executable az network vnet subnet update --ids $PrivateEndpointSubnetId --disable-private-endpoint-network-policies true
 
     # === BEGIN Removal of the old deprecated setup. ===
-    Write-Host "Checking for an old deprecated private endpoint setup"
+    Write-Host 'Checking for an old deprecated private endpoint setup'
     $foundDeprecatedSetup = $false
-    $privateEndpointResourceId = ((Invoke-Executable -AllowToFail az resource show --ids $TargetResourceId | ConvertFrom-Json).properties.privateEndpointConnections.properties.privateEndpoint.id) | Select-Object -first 1
-    if($privateEndpointResourceId)
+    $privateEndpointResourceId = ((Invoke-Executable -AllowToFail az resource show --ids $TargetResourceId | ConvertFrom-Json).properties.privateEndpointConnections.properties.privateEndpoint.id) | Select-Object -First 1
+    if ($privateEndpointResourceId)
     {
-        $privateLinkServiceConnection = (Invoke-Executable -AllowToFail az network private-endpoint show --id $privateEndpointResourceId | ConvertFrom-Json).privateLinkServiceConnections | Select-Object -first 1
+        $privateLinkServiceConnection = (Invoke-Executable -AllowToFail az network private-endpoint show --id $privateEndpointResourceId | ConvertFrom-Json).privateLinkServiceConnections | Select-Object -First 1
         Write-Host "privateEndpointResourceId: $privateEndpointResourceId"
         Write-Host "privateLinkServiceConnection: $privateLinkServiceConnection"
         if ($privateLinkServiceConnection)
         {
             Write-Host "privateLinkServiceConnection.name: $($privateLinkServiceConnection.name)"
-            if ($privateLinkServiceConnection.name -like "*-connection")
+            if ($privateLinkServiceConnection.name -like '*-connection')
             {
-                Write-Host "Old deprecated private endpoint setup found. Removing..."
+                Write-Host 'Old deprecated private endpoint setup found. Removing...'
                 $foundDeprecatedSetup = $true
                 Write-Host "privateLinkServiceConnection.name: $($privateLinkServiceConnection.id)"
                 Invoke-Executable az network private-endpoint delete --id $privateLinkServiceConnection.id
-                Write-Host "Old deprecated private endpoint setup removed"
+                Write-Host 'Old deprecated private endpoint setup removed'
             }
         }
     }
-    if(!$foundDeprecatedSetup)
+    if (!$foundDeprecatedSetup)
     {
-        Write-Host "No old deprecated private endpoint setup found. Continuing..."
+        Write-Host 'No old deprecated private endpoint setup found. Continuing...'
     }
     # === END Removal of the old deprecated setup. ===
 
     # Create private endpoint for resource
-    $vnetName = (Invoke-Executable az network vnet show --ids $PrivateEndpointVnetId | ConvertFrom-Json).name
-    $privateEndpointSubnetName = (Invoke-Executable az network vnet subnet show --ids $PrivateEndpointSubnetId | ConvertFrom-Json).name
-    Invoke-Executable az network private-endpoint create --name $PrivateEndpointName --resource-group $PrivateEndpointResourceGroupName --subnet $PrivateEndpointSubnetId --connection-name "$($PrivateEndpointName)-$($vnetName)-$($privateEndpointSubnetName)" --private-connection-resource-id $TargetResourceId --group-id $PrivateEndpointGroupId
+    $vnetName = $PrivateEndpointVnetId.Substring($PrivateEndpointVnetId.LastIndexOf('/') + 1)
+    $privateEndpointSubnetName = $PrivateEndpointSubnetId.Substring($PrivateEndpointSubnetId.LastIndexOf('/') + 1)
+
+    Invoke-Executable az network private-endpoint create --name $PrivateEndpointName --resource-group $PrivateEndpointResourceGroupName --subnet $PrivateEndpointSubnetId --connection-name "$PrivateEndpointName-$vnetName-$privateEndpointSubnetName" --private-connection-resource-id $TargetResourceId --group-id $PrivateEndpointGroupId
 
     # Create Private DNS zone & set it up
     Add-DnsZone -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $PrivateDnsZoneName -PrivateDnsLinkName $PrivateDnsLinkName -PrivateEndpointVnetId $PrivateEndpointVnetId
@@ -95,13 +98,13 @@ function Add-PrivateEndpoint
     $dnsZoneGroups = Invoke-Executable -AllowToFail az network private-endpoint dns-zone-group list --resource-group $PrivateEndpointResourceGroupName --endpoint-name $PrivateEndpointName
     if ($dnsZoneGroups)
     {
-        Write-Host "DnsZoneGroups found"
+        Write-Host 'DnsZoneGroups found'
         $dnsZoneGroups = $dnsZoneGroups | ConvertFrom-Json
         foreach ($dnsZoneGroup in $dnsZoneGroups)
         {
-            if (!($dnsZoneGroup.name -like "*-zonegroup"))
+            if (!($dnsZoneGroup.name -like '*-zonegroup'))
             {
-                Write-Host "No dnsZoneGroup found with deprecated setup name. Continue;"
+                Write-Host 'No dnsZoneGroup found with deprecated setup name. Continue;'
                 # Nothing to do. Continue to the next entry.
                 continue;
             }
@@ -117,8 +120,10 @@ function Add-PrivateEndpoint
     $dnsZoneId = (Invoke-Executable az network private-dns zone show --resource-group $DNSZoneResourceGroupName --name $PrivateDnsZoneName | ConvertFrom-Json).id
     
     Write-Host "Creating private-endpoint dns-zone-group with dnsZoneId: $dnsZoneId"
-    Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $PrivateEndpointResourceGroupName --endpoint-name $PrivateEndpointName --name "dnsgroupname" --private-dns-zone $dnsZoneId --zone-name $dashedPrivateDnsZoneName
+    Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $PrivateEndpointResourceGroupName --endpoint-name $PrivateEndpointName --name 'dnsgroupname' --private-dns-zone $dnsZoneId --zone-name $dashedPrivateDnsZoneName
     Write-Host "Created private-endpoint dns-zone-group with dnsZoneId: $dnsZoneId"
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 function Add-DnsZone

@@ -44,7 +44,7 @@ jobs:
       - name: Location
         value: ${{ parameters.Location }}
       - name: ResourceTags
-        value: "@('BillingIdentifier=$(Tag.BillingIdentifier)'; 'EnvironmentType=${{ parameters.EnvironmentName }}';  'ApplicationName=$(Tag.ApplicationName)'; 'AppTechOwner=$(Tag.AppTechOwner)'; 'ApplicationOwner=$(Tag.ApplicationOwner)'; 'ApplicationID=$(Tag.ApplicationID)'; 'BusinessUnit=$(Tag.BusinessUnit)'; 'CostType=$(Tag.CostType)'; 'Tier=$(Tag.Tier)')"
+        value: "@('BillingIdentifier=$(Tag.BillingIdentifier)'; 'EnvironmentType=${{ parameters.EnvironmentName }}'; 'ApplicationName=$(Tag.ApplicationName)'; 'AppTechOwner=$(Tag.AppTechOwner)'; 'ApplicationOwner=$(Tag.ApplicationOwner)'; 'ApplicationID=$(Tag.ApplicationID)'; 'BusinessUnit=$(Tag.BusinessUnit)'; 'CostType=$(Tag.CostType)'; 'Tier=$(Tag.Tier)';'TeamName=$(Tag.TeamName)';'ProjectName=$(ProjectName)')"
 
       # Log Analytics Workspace
       - name: LogAnalyticsWorkspaceResourceGroupName
@@ -52,7 +52,7 @@ jobs:
       - name: LogAnalyticsWorkspaceName
         value: $(ResourceBaseName)-${{ parameters.EnvironmentName }}
       - name: LogAnalyticsWorkspaceRetentionInDays
-        value: 90
+        value: 180
       - name: LogAnalyticsWorkspaceSolutionTypes
         value: "@('VMInsights', 'AlertManagement')"
 
@@ -144,15 +144,15 @@ jobs:
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Create-Log-Analytics-Workspace.ps1"
                 arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -LogAnalyticsWorkspaceRetentionInDays '$(LogAnalyticsWorkspaceRetentionInDays)' -PublicInterfaceIngestionEnabled -PublicInterfaceQueryAccess -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceSolutionTypes $(LogAnalyticsWorkspaceSolutionTypes)"
-            # Get your log analytics workspace id, output variable is $(LogAnalyticsWorkspaceResourceId)
+            # Get your log analytics workspace id, output variable is $(GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId)
             - task: AzureCLI@2
-              displayName: "Get Log Analytics Workspace Id"
-              condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+              displayName: "Get Log Analytics Workspace Resource Id"
+              name: GetLogAnalyticsWorkspaceResourceIdforPipeline
               inputs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Log-Analytics-Workspace/Get-Log-Analytics-Workspace-ResourceId-for-Pipeline.ps1"
-                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)'"
+                arguments: "-LogAnalyticsWorkspaceResourceGroupName '$(LogAnalyticsWorkspaceResourceGroupName)' -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceName)' -OutputPipelineVariableName 'LogAnalyticsWorkspaceResourceId'"
             - task: AzureCLI@2
               displayName: "Create subnet with VNET if needed"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
@@ -168,7 +168,7 @@ jobs:
                 azureSubscription: "${{ parameters.SubscriptionName }}"
                 scriptType: pscore
                 scriptPath: "$(Pipeline.Workspace)/AzDocs/Keyvault/Create-Keyvault.ps1"
-                arguments: "-KeyvaultName '$(CertificateKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceName '$(LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
+                arguments: "-KeyvaultName '$(CertificateKeyvaultName)' -KeyvaultResourceGroupName '$(KeyvaultResourceGroupName)' -ResourceTags $(ResourceTags) -LogAnalyticsWorkspaceName '$(GetLogAnalyticsWorkspaceResourceIdforPipeline.LogAnalyticsWorkspaceResourceId)' -ApplicationVnetResourceGroupName '$(ApplicationVnetResourceGroupName)' -ApplicationVnetName '$(ApplicationVnetName)' -ApplicationSubnetName '$(ApplicationSubnetName)'"
             - task: AzureCLI@2
               displayName: "Create Application Gateway"
               condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))

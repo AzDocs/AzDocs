@@ -20,6 +20,17 @@ namespace TestApi.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Returns the content of a key in the configured keyvault.
+        /// </summary>
+        /// <returns>A string response</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /keyvault
+        ///
+        /// </remarks>
+        /// <response code="200">Returns the content of a key.</response>
         [HttpGet]
         public async Task<string> Get()
         {
@@ -37,6 +48,16 @@ namespace TestApi.Controllers
             return $"Returning the key with name {key.Value.Name} and the key was created on: {key.Value.Properties.CreatedOn}";
         }
 
+        /// <summary>
+        /// Returns the content of a secret in the configured keyvault.
+        /// </summary>
+        /// <returns>A string response</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get /keyvault/secret
+        ///
+        /// </remarks>
         [Route("secret")]
         [HttpGet]
         public async Task<string> GetSecret()

@@ -22,9 +22,6 @@ Assert-CIDR -CIDR:$CIDRToWhitelist
 
 # Autogenerate CIDR if no CIDR or Subnet is passed
 $CIDRToWhitelist = Get-CIDRForWhitelist -CIDR:$CIDRToWhitelist -CIDRSuffix '/32' -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
-
-# TODO: Github issue for being able to add the same ip-addressess: https://github.com/Azure/azure-cli/issues/18479
-# Have to add suffix because of bug: 
 $CIDRToWhitelist = Confirm-CIDRForWhitelist -ServiceType 'keyvault' -CIDR:$CIDRToWhitelist
 
 # Fetch Subnet ID when subnet option is given.

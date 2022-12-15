@@ -18,7 +18,12 @@ param (
     [Parameter()][System.Object[]] $ResourceTags,
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -40,7 +45,7 @@ $applicationGatewayId = (Invoke-Executable -AllowToFail az network application-g
 
 if (!$applicationGatewayId)
 {
-    Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId
+    Invoke-Executable az network application-gateway create --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --subnet $gatewaySubnetId --capacity $ApplicationGatewayCapacity --sku $ApplicationGatewaySku --http-settings-cookie-based-affinity Enabled --frontend-port 80 --http-settings-port 80 --http-settings-protocol Http --public-ip-address $publicIpId --priority 10
 }
 
 $applicationGatewayId = (Invoke-Executable az network application-gateway show --name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
@@ -74,13 +79,21 @@ Set-SubnetServiceEndpoint -SubnetResourceId $gatewaySubnetId -ServiceEndpointSer
 
 # Check if we need to add network rules to our keyvault
 $keyvaultNetworkRules = Invoke-Executable az keyvault network-rule list --resource-group $CertificateKeyvaultResourceGroupName --name $CertificateKeyvaultName | ConvertFrom-Json
-if ($keyvaultNetworkRules.virtualNetworkRules.count -gt 0 -or $keyvaultNetworkRules.virtualNetworkRules.count -gt 0)
+if (!$keyvaultNetworkRules.virtualNetworkRules.id -contains $gatewaySubnetId)
 {
     # Whitelist our Gateway's subnet in the Certificate Keyvault so we can connect
+    Write-Host 'Adding gateway subnet to the corresponding keyvault'
     Invoke-Executable az keyvault network-rule add --resource-group $CertificateKeyvaultResourceGroupName --name $CertificateKeyvaultName --subnet $gatewaySubnetId
 }
 
 # Add diagnostic settings to Application Gateway
-Set-DiagnosticSettings -ResourceId $applicationGatewayId -ResourceName $ApplicationGatewayName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'ApplicationGatewayAccessLog', 'enabled': true }, { 'category': 'ApplicationGatewayPerformanceLog', 'enabled': true }, { 'category': 'ApplicationGatewayFirewallLog', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $applicationGatewayId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $ApplicationGatewayName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $applicationGatewayId -ResourceName $ApplicationGatewayName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

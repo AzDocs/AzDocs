@@ -10,20 +10,47 @@
 #   GatewayIngressDomainName: The domainname you want to use as your entrypoint for this test application. This should be matching the certificate details below.
 #   GatewayCertificateSecureFileName: The name of the secure file containing your pfx for the AppGw certificate
 #   GatewayCertificatePassword: The password for the AppGw certificate pfx
-# 
+#   ServiceUserEmail: The service user to grant permissions to the SQL server
+#   ServiceUserObjectId: The object id of the service user to grant permissions to the SQL server
+#   ServiceUserPassword: The password of the service user to grant permissions to SQL Server
+#
+# The following vars can be optional in your pipeline-variable:
+#     TagApplicationId: A tag for the ApplicationId. If not added, defaults to: 0000.
+#     TagApplicationName: A tag for the ApplicationName. If not added, defaults to: MyApplication.
+#     TagApplicationOwner: A tag for the ApplicationOwner. If not added, defaults to: someuser@company.com.
+#     TagAppTechOwner: A tag for the AppTechOwner. If not added, defaults to: myteam@company.com.
+#     TagBillingIdentifier: A tag for the BillingIdentifier. If not added, defaults to: 0000.
+#     TagBusinessUnit: A tag for the BusinessUnit. If not added, defaults to: My Business Unit.
+#     TagCostType: A tag for the CostType. If not added, defaults to: Platform.
+#     TagTier: A tag for the Tier. If not added, defaults to: App.
+#     TagTeamName: A tag for the TeamName. If not added, defaults to: teamname.
+#     AlertEmail: If you would like to enable the alert to go to an actual emailaddress, specify it here. If not added, defaults to "someuser@company.com".
+
 # And finally add a Service Connection to your Azure DevOps Project to your Azure Subscription with the Service Connection Name "AZDOCSREGRESSIONTESTSUBSCRIPTION".
 # Unfortunately theres a technical limitation in Azure DevOps which prevents us from making this a pipeline variable.
 #
 ##############################################################################################################################################################################################################################
 
 parameters:
+  - name: AzDocs.SourceBranch
+    type: string
+    default: "refs/heads/master"
   - name: ResourceCreation.ResourceGroup.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.SetTags.Enabled
+    type: boolean
+    default: false
   - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
     type: boolean
     default: true
   - name: ResourceCreation.AppInsights.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.CostManagement.Dashboard.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.CostManagement.Alert.Enabled
     type: boolean
     default: true
   - name: ResourceCreation.Networking.Enabled
@@ -42,6 +69,9 @@ parameters:
     type: boolean
     default: true
   - name: ResourceCreation.MySQL.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.CosmosDB.Enabled
     type: boolean
     default: true
   - name: ResourceCreation.PostgreSQL.Enabled
@@ -68,25 +98,38 @@ parameters:
   - name: ResourceCreation.ApplicationGateway.Enabled
     type: boolean
     default: true
+  - name: ResourceCreation.AppMonitoring.Enabled
+    type: boolean
+    default: true
+  - name: ResourceCreation.LogicApp.Enabled
+    type: boolean
+    default: true
+  - name: ResourceDeletion.ResourceGroup.Enabled
+    type: boolean
+    default: true
+  - name: ResourceDeletion.CostManagement.Alert.Enabled
+    type: boolean
+    default: true
 
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:
   branches:
     include:
-    - main
-    - more-regression-tests
+      - main
 
 pool:
-    vmImage: 'ubuntu-20.04'
+  vmImage: "ubuntu-20.04"
 
 variables:
   # Basic
-  - name: ProjectName 
+  - name: ProjectName
     value: TestApi
 
   # Switches
   - name: ResourceCreation.ResourceGroup.Enabled
     value: ${{ parameters['ResourceCreation.ResourceGroup.Enabled'] }}
+  - name: ResourceCreation.SetTags.Enabled
+    value: ${{ parameters['ResourceCreation.SetTags.Enabled'] }}
   - name: ResourceCreation.LogAnalyticsWorkspace.Enabled
     value: ${{ parameters['ResourceCreation.LogAnalyticsWorkspace.Enabled'] }}
   - name: ResourceCreation.AppInsights.Enabled
@@ -101,6 +144,8 @@ variables:
     value: ${{ parameters['ResourceCreation.MSSQL.Enabled'] }}
   - name: ResourceCreation.MySQL.Enabled
     value: ${{ parameters['ResourceCreation.MySQL.Enabled'] }}
+  - name: ResourceCreation.CosmosDB.Enabled
+    value: ${{ parameters['ResourceCreation.CosmosDB.Enabled'] }}
   - name: ResourceCreation.PostgreSQL.Enabled
     value: ${{ parameters['ResourceCreation.PostgreSQL.Enabled'] }}
   - name: ResourceCreation.RedisCache.Enabled
@@ -119,38 +164,44 @@ variables:
     value: ${{ parameters['ResourceCreation.ServiceBus.Enabled'] }}
   - name: ResourceCreation.AppConfiguration.Enabled
     value: ${{ parameters['ResourceCreation.AppConfiguration.Enabled'] }}
-
-  # Tags
-  - name: Tag.ApplicationId
-    value: 0000
-  - name: Tag.ApplicationName 
-    value: MyApplication
-  - name: Tag.ApplicationOwner 
-    value: someuser@company.com
-  - name: Tag.AppTechOwner
-    value: myteam@company.com
-  - name: Tag.BillingIdentifier
-    value: 0000
-  - name: Tag.BusinessUnit
-    value: My Business Unit
-  - name: Tag.CostType
-    value: Platform
-  - name: Tag.Tier 
-    value: App
+  - name: ResourceCreation.AppMonitoring.Enabled
+    value: ${{ parameters['ResourceCreation.AppMonitoring.Enabled'] }}
+  - name: ResourceDeletion.ResourceGroup.Enabled
+    value: ${{ parameters['ResourceDeletion.ResourceGroup.Enabled'] }}
+  - name: ResourceCreation.CostManagement.Dashboard.Enabled
+    value: ${{ parameters['ResourceCreation.CostManagement.Dashboard.Enabled'] }}
+  - name: ResourceCreation.CostManagement.Alert.Enabled
+    value: ${{ parameters['ResourceCreation.CostManagement.Alert.Enabled'] }}
+  - name: ResourceDeletion.CostManagement.Alert.Enabled
+    value: ${{ parameters['ResourceDeletion.CostManagement.Alert.Enabled'] }}
+  - name: ResourceCreation.LogicApp.Enabled
+    value: ${{ parameters['ResourceCreation.LogicApp.Enabled'] }}
+  - name: AzDocs.SourceBranch
+    value: ${{ parameters['AzDocs.SourceBranch'] }}
 
   # Stage Pool
   - name: Stage.Pool
-    value: 'ubuntu-20.04'
+    value: "ubuntu-20.04"
 stages:
-- stage: 'Build'
-  jobs:
-    - job: Build
-      condition: eq(variables['ResourceCreation.AppService.Enabled'], 'true')
-      displayName: 'Build'
-      steps:
-       - template: pipeline-build.yml 
+  - stage: "Build"
+    jobs:
+      - job: Build
+        condition: eq(variables['ResourceCreation.AppService.Enabled'], 'true')
+        displayName: "Build"
+        steps:
+          - template: pipeline-build.yml
 
-- template: pipeline-release.yml
-  parameters:
-    EnvironmentName: dev
-    SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION
+  - template: pipeline-release.yml
+    parameters:
+      EnvironmentName: dev
+      SubscriptionName: AZDOCSREGRESSIONTESTSUBSCRIPTION
+      TagApplicationId: $(TagApplicationId)
+      TagApplicationName: $(TagApplicationName)
+      TagApplicationOwner: $(TagApplicationOwner)
+      TagAppTechOwner: $(TagAppTechOwner)
+      TagBillingIdentifier: $(TagBillingIdentifier)
+      TagBusinessUnit: $(TagBusinessUnit)
+      TagCostType: $(TagCostType)
+      TagTier: $(TagTier)
+      TagTeamName: $(TagTeamName)
+      # AlertEmail: $(AlertEmail)

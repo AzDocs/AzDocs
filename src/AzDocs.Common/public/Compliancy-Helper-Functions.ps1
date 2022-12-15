@@ -8,13 +8,27 @@ function Assert-CIDR
 {
     [CmdletBinding()]
     param (
-        [Parameter()][string] $CIDR
+        [Parameter()][string] $CIDR,
+        # Forcefully agree to this resource to be spun up to be publicly available
+        [Parameter()][bool] $ForcePublic = $false, 
+        [Parameter()][ValidateSet("Allow", "Deny")][string] $AccessRestrictionAction = "Allow"
     )
 
-    if ($CIDR -like '0.0.0.0*')
+    Write-Header -ScopedPSCmdlet $PSCmdlet
+    
+    if ($CIDR -like '0.0.0.0*' -and $AccessRestrictionAction -eq 'Allow')
     {
-        throw "CIDR contains 0.0.0.0/0. This will open up any access. This is not allowed."   
+        if ($ForcePublic -and $ForcePublic -eq $true)
+        {
+            Write-Warning "CIDR contains 0.0.0.0/0. This will open up any access. This is not recommended. You've passed the -ForcePublic flag, so we will continue."
+        }
+        else
+        {
+            throw "CIDR contains 0.0.0.0/0. This will open up any access. This is not recommended."
+        }
     }
+
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 

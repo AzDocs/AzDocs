@@ -6,7 +6,16 @@ function Get-StartIpInIpv4Network
 		[Parameter(Mandatory)][string] $SubnetCidr
 	)
 
+	if ($SubnetCidr -eq '0.0.0.0/0')
+	{
+		return "0.0.0.0"
+	}
+
 	$splittedIpAddress = $SubnetCidr -split '/'
+	if($splittedIpAddress.length -eq 1)
+	{
+		$splittedIpAddress += "32"
+	}
 	$subnetMask = ConvertTo-IPv4MaskString -MaskBits $splittedIpAddress[1]
 
 	$BinarySubnetMask = ""
@@ -35,7 +44,16 @@ function Get-EndIpInIpv4Network
 		[Parameter(Mandatory)][string] $SubnetCidr
 	)
 
+	if ($SubnetCidr -eq '0.0.0.0/0')
+	{
+		return "255.255.255.255"
+	}
+
 	$splittedIpAddress = $SubnetCidr -split '/'
+	if($splittedIpAddress.length -eq 1)
+	{
+		$splittedIpAddress += "32"
+	}
 	$subnetMask = ConvertTo-IPv4MaskString -MaskBits $splittedIpAddress[1]
 
 	$BinarySubnetMask = ""
@@ -229,4 +247,29 @@ function Assert-IntentionallyCreatedPublicResource
 	{
 		Write-Warning "You are creating a resource which is, from a network perspective, fully open to the internet. This is NOT recommended. You've passed the -ForcePublic flag so the pipeline will not break."
 	}
+}
+
+function Test-IpAddressInCidrRange
+{
+	[OutputType([bool])]
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory)][string] $IpAddress,
+		[Parameter(Mandatory)][string] $StartIpInIpv4Network,
+		[Parameter(Mandatory)][string] $EndIpInIpv4Network
+	)
+ 
+	$ip = [system.net.ipaddress]::Parse($IpAddress).GetAddressBytes()
+	[array]::Reverse($ip)
+	$ip = [system.BitConverter]::ToUInt32($ip, 0)
+ 
+	$from = [system.net.ipaddress]::Parse($StartIpInIpv4Network).GetAddressBytes()
+	[array]::Reverse($from)
+	$from = [system.BitConverter]::ToUInt32($from, 0)
+ 
+	$to = [system.net.ipaddress]::Parse($EndIpInIpv4Network).GetAddressBytes()
+	[array]::Reverse($to)
+	$to = [system.BitConverter]::ToUInt32($to, 0)
+ 
+	$from -le $ip -and $ip -le $to
 }

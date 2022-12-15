@@ -21,17 +21,15 @@
     <Parameter name="webAppUrl" value="http://localhost/" />
     <Parameter name="webAppUserName" value="admin" />
     <Parameter name="webAppPassword" value="password" />
-    <Parameter name="checkTextOnHomepage" value = "welcome" />
-    <Parameter name="checkTextOnKeyvaultPage" value = "keymyfirstsecretkey" />
-    <Parameter name="checkTextOnSQLPage" value = "[1,2]" />
-    <Parameter name="checkTextOnStoragePage" value = "volgende" />
-	<Parameter name="textOnSQLPage" value = "[1,2]" />
-    <Parameter name="textOnPostgreSql" value = "[1,2]" />
-    <Parameter name="textOnMySql" value = "[1,2]" />
-    <Parameter name="textOnFileshare" value = "[1,2]" />
-    <Parameter name="textOnRedis" value = "[1,2]" />
-    <Parameter name="textOnBlob" value = "volgende" />
-    <Parameter name="textOnQueue" value = "volgende" />
+    <Parameter name="textOnHomepage" value = "welcome" />
+    <Parameter name="textOnKeyvaultPage" value = "Returning" />
+    <Parameter name="textOnSQLPage" value = "This" />
+    <Parameter name="textOnPostgreSql" value = "\[\d+(,\d+)*\]" />
+    <Parameter name="textOnMySql" value = "\[\d+(,\d+)*\]" />
+    <Parameter name="textOnFileshare" value = "Lorem" />
+    <Parameter name="textOnRedis" value = "\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}" />
+    <Parameter name="textOnBlob" value = "Lorem" />
+    <Parameter name="textOnQueue" value = "queue" />
     <Parameter name="enableVideo" value="true"/>
     <Parameter name="enableScreenshot" value="true"/>
   </TestRunParameters>

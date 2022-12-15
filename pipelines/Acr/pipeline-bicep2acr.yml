@@ -1,0 +1,71 @@
+name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
+
+# When to autotrigger this pipeline
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - 'src-bicep/**/*.bicep'
+
+pool:
+  vmImage: "ubuntu-20.04"
+
+parameters:
+  - name: RunUpload
+    type: string
+    default: true
+    values:
+    - true
+    - false
+  - name: EnvironmentType
+    type: string
+    default: prd
+    values:
+      - dev
+      - prd
+  - name: DebugMode
+    type: boolean    
+    default: false
+  
+jobs:
+# Doing the actual deployment
+- deployment:
+  displayName: "Deploy to ${{ parameters.EnvironmentType }}"
+  variables:
+      # Include the environment specific runtime variables for the deployment
+    - template: "${{ parameters.EnvironmentType }}.variables.yml"
+    - name: PipelineEnvironment
+      ${{ if eq(parameters.EnvironmentType, 'prd') }}:
+        value: "${{ variables.AzureDevOpsServiceConnectionName }}"
+      ${{ else }}:
+        value: "KPN-Shared-${{ parameters.EnvironmentType }}"
+
+  environment:
+    name: "${{ variables.PipelineEnvironment }}"
+
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          # Checkout the repository to make sure we have the needed files in the default directory.
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: "Install Az Bicep module"
+            condition: eq(${{ parameters.runupload }}, true)
+            inputs:
+              azureSubscription: "${{ variables.AzureDevOpsServiceConnectionName }}"
+              scriptType: 'pscore'
+              scriptLocation: inlineScript
+              inlineScript: az bicep install
+          - task: AzureCLI@2
+            displayName: "Upload modules to ACR"
+            condition: eq(${{ parameters.runupload }}, true)
+            inputs:
+              azureSubscription: "${{ variables.AzureDevOpsServiceConnectionName }}"
+              scriptType: 'pscore'
+              scriptLocation: 'scriptPath'
+              scriptPath: "scripts/Upload-BicepModules.ps1"
+              arguments: "-RegistryName ${{ variables.registryName }} -DebugMode $${{ parameters.DebugMode }}"
+              powerShellErrorActionPreference: continue

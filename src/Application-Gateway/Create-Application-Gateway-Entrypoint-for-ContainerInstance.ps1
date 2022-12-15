@@ -33,10 +33,13 @@ param (
     [Parameter()][int] $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds = 0,
     [Alias("HttpsSettingsTimeout")]
     [Parameter()][int] $HttpsSettingsRequestToBackendTimeoutInSeconds = 30,
+    [Parameter()][string] $HttpsSettingsCustomRootCertificateFilePath,
     [Alias("MatchStatusCodes")]
     [Parameter()][string] $HealthProbeMatchStatusCodes = "200-399",
     [Alias("GatewayRuleType")]
-    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType
+    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType = "Basic", 
+    [Parameter()][string] $ApplicationGatewayRuleDefaultIngressDomainName, 
+    [Parameter()][string] $ApplicationGatewayRulePath
 )
 
 $ErrorActionPreference = "Continue"
@@ -52,17 +55,17 @@ try
     # Get the IP for the container instance
     $ipAddress = Invoke-Executable -AllowToFail az container show --name $ContainerName --resource-group $ContainerResourceGroupName --query=ipAddress.ip | ConvertFrom-Json
 
-    if(!$ipAddress)
+    if (!$ipAddress)
     {
         throw "IP Address for this container could not be found."
     }
 
     # Create the Entrypoint. In this script thats simply done with the backenddomain directly.
     New-ApplicationGatewayEntrypoint -CertificatePath $CertificatePath -IngressDomainName $IngressDomainName -ApplicationGatewayName $ApplicationGatewayName -ApplicationGatewayFacingType $ApplicationGatewayFacingType -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -CertificateKeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName `
-    -CertificateKeyvaultName $CertificateKeyvaultName -CertificatePassword $CertificatePassword -BackendDomainName $ipAddress -HealthProbeUrlPath $HealthProbeUrlPath -HealthProbeIntervalInSeconds $HealthProbeIntervalInSeconds `
-    -HealthProbeNumberOfTriesBeforeMarkedDown $HealthProbeNumberOfTriesBeforeMarkedDown -HealthProbeTimeoutInSeconds $HealthProbeTimeoutInSeconds -HealthProbeProtocol $HealthProbeProtocol -HttpsSettingsRequestToBackendProtocol $HttpsSettingsRequestToBackendProtocol -HttpsSettingsRequestToBackendPort $HttpsSettingsRequestToBackendPort `
-    -HttpsSettingsRequestToBackendCookieAffinity $HttpsSettingsRequestToBackendCookieAffinity -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds -HttpsSettingsRequestToBackendTimeoutInSeconds $HttpsSettingsRequestToBackendTimeoutInSeconds -HealthProbeMatchStatusCodes $HealthProbeMatchStatusCodes `
-    -ApplicationGatewayRuleType $ApplicationGatewayRuleType
+        -CertificateKeyvaultName $CertificateKeyvaultName -CertificatePassword $CertificatePassword -BackendDomainName $ipAddress -HealthProbeUrlPath $HealthProbeUrlPath -HealthProbeIntervalInSeconds $HealthProbeIntervalInSeconds `
+        -HealthProbeNumberOfTriesBeforeMarkedDown $HealthProbeNumberOfTriesBeforeMarkedDown -HealthProbeTimeoutInSeconds $HealthProbeTimeoutInSeconds -HealthProbeProtocol $HealthProbeProtocol -HttpsSettingsRequestToBackendProtocol $HttpsSettingsRequestToBackendProtocol -HttpsSettingsRequestToBackendPort $HttpsSettingsRequestToBackendPort `
+        -HttpsSettingsRequestToBackendCookieAffinity $HttpsSettingsRequestToBackendCookieAffinity -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds -HttpsSettingsRequestToBackendTimeoutInSeconds $HttpsSettingsRequestToBackendTimeoutInSeconds -HttpsSettingsCustomRootCertificateFilePath $HttpsSettingsCustomRootCertificateFilePath `
+        -HealthProbeMatchStatusCodes $HealthProbeMatchStatusCodes -ApplicationGatewayRuleType $ApplicationGatewayRuleType -ApplicationGatewayRuleDefaultIngressDomainName $ApplicationGatewayRuleDefaultIngressDomainName -ApplicationGatewayRulePath $ApplicationGatewayRulePath
 }
 catch
 {

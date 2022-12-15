@@ -31,7 +31,12 @@ param (
     [Parameter()][switch] $ForceDisableTLS,
 
     # Diagnostic Settings
-    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId
+    [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics,
+    
+    # Disable diagnostic settings
+    [Parameter()][switch] $DiagnosticSettingsDisabled
 )
 
 #region ===BEGIN IMPORTS===
@@ -53,22 +58,25 @@ Assert-TLSVersion -TlsVersion $MySqlServerMinimalTlsVersion -ForceDisableTls $Fo
 $mySqlServerId = (Invoke-Executable -AllowToFail az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id
 
 $additionalParameters = @()
-if ($MySqlServerMinimalTlsVersion)
+if ($MySqlServerMinimalTlsVersion -and $ForceDisableTLS -eq $false)
 {
     $additionalParameters += '--minimal-tls-version', $MySqlServerMinimalTlsVersion
 }
 
 if (!$mySqlServerId)
 {
-    $mySqlServerId = (Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags ${ResourceTags} @additionalParameters | ConvertFrom-Json).id
+    $mySqlServerId = (Invoke-Executable az mysql server create --admin-password $MySqlServerPassword --admin-user $MySqlServerUsername --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --location $MySqlServerLocation --tags @ResourceTags @additionalParameters | ConvertFrom-Json).id
 }
 else
 {
-    Invoke-Executable az mysql server update --admin-password $MySqlServerPassword --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --tags ${ResourceTags} @additionalParameters
+    Invoke-Executable az mysql server update --admin-password $MySqlServerPassword --name $MySqlServerName --resource-group $MySqlServerResourceGroupName --sku-name $MySqlServerSkuName --storage-size $MySqlServerStorageSizeInMB --ssl-enforcement $MySqlServerSslEnforcement --tags @ResourceTags @additionalParameters
 }
 
 # Update Tags
-Set-ResourceTagsForResource -ResourceId $mySqlServerId -ResourceTags ${ResourceTags}
+if ($ResourceTags)
+{
+    Set-ResourceTagsForResource -ResourceId $mySqlServerId -ResourceTags ${ResourceTags}
+}
 
 if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEndpointVnetName -and $MySqlServerPrivateEndpointSubnetName -and $MySqlServerPrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {
@@ -97,6 +105,13 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
 }
 
 # Add diagnostic settings to mysql server
-Set-DiagnosticSettings -ResourceId $mySqlServerId -ResourceName $MySqlServerName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Logs "[{ 'category': 'MySqlAuditLogs', 'enabled': true }, { 'category': 'MySqlSlowLogs', 'enabled': true }]".Replace("'", '\"') -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsDisabled)
+{
+    Remove-DiagnosticSetting -ResourceId $mySqlServerId -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -ResourceName $MySqlServerName
+}
+else
+{
+    Set-DiagnosticSettings -ResourceId $mySqlServerId -ResourceName $MySqlServerName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

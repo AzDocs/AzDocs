@@ -6,7 +6,12 @@ param (
     [Parameter(Mandatory)][string] $AppInsightsLocation, 
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
 
-    [Parameter()][System.Object[]] $ResourceTags
+    [Parameter()][System.Object[]] $ResourceTags,
+
+    # Diagnostic settings
+    [Parameter()][string] $DiagnosticSettingsLogAnalyticsWorkspaceResourceId,
+    [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
+    [Parameter()][System.Object[]] $DiagnosticSettingsMetrics
 )
 
 #region ===BEGIN IMPORTS===
@@ -28,7 +33,10 @@ if ($ResourceTags)
 }
 
 # Add diagnostic settings to Application Insights
-Set-DiagnosticSettings -ResourceId $applicationInsightsId -ResourceName $AppInsightsName -LogAnalyticsWorkspaceResourceId $LogAnalyticsWorkspaceResourceId -Metrics "[ { 'category': 'AllMetrics', 'enabled': true } ]".Replace("'", '\"')
+if ($DiagnosticSettingsLogAnalyticsWorkspaceResourceId)
+{
+    Set-DiagnosticSettings -ResourceId $applicationInsightsId -ResourceName $AppInsightsName -LogAnalyticsWorkspaceResourceId $DiagnosticSettingsLogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
+}
 
 $instrumentationKey = (Invoke-Executable az resource show --resource-group $AppInsightsResourceGroupName --name $AppInsightsName --resource-type "Microsoft.Insights/components" | ConvertFrom-Json).properties.InstrumentationKey
 
