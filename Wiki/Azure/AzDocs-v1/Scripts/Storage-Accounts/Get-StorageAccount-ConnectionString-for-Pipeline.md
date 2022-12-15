@@ -30,13 +30,13 @@ Be aware that this YAML example contains all parameters that can be used with th
   inputs:
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
-    scriptPath: "$(Pipeline.Workspace)/AzDocs/RedisCache/Get-StorageAccount-ConnectionString-for-Pipeline.ps1"
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Storage-Accounts/Get-StorageAccount-ConnectionString-for-Pipeline.ps1"
     arguments: "-StorageAccountName '$(StorageAccountName)' -StorageAccountResourceGroupName '$(StorageAccountResourceGroupName)' -OutputPipelineVariableName '$(OutputPipelineVariableName)'"
 ```
 
 # Code
 
-[Click here to download this script](../../../../src/RedisCache/Get-StorageAccount-ConnectionString-for-Pipeline.ps1)
+[Click here to download this script](../../../../../src/Storage-Accounts/Get-StorageAccount-ConnectionString-for-Pipeline.ps1)
 
 # Links
 

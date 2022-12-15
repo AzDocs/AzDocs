@@ -1,0 +1,40 @@
+[[_TOC_]]
+
+# Description
+
+This snippet will get the public ip adress of the NAT Gateway for you and will output it in a pipeline variable.
+
+# Parameters
+
+Some parameters from [General Parameter](/Azure/AzDocs-v1/Scripts) list.
+
+| Parameter                  | Example Value                              | Description                                              |
+| -------------------------- | ------------------------------------------ | -------------------------------------------------------- |
+| NatGatewayName             | `mynatgateway-$(EnvironmentName)`          | The name of the NAT Gateway.                             |
+| NatGatewayResouceGroupName | `mysharedresourcegroup-$(EnvironmentName)` | The resource group where the NAT Gateway will reside in. |
+| OutputPipelineVariableName | `NatGatewayIpAddress` | The pipeline variable name to output the ip-adress in. Defaults to `NatGatewayIpAddress`. |
+
+# YAML
+
+Be aware that this YAML example contains all parameters that can be used with this script. You'll need to pick and choose the parameters that are needed for your desired action.
+
+```yaml
+- task: AzureCLI@2
+  displayName: "Get public ip address from NAT Gateway"
+  condition: and(succeeded(), eq(variables['DeployInfra'], 'true'))
+  inputs:
+    azureSubscription: "${{ parameters.SubscriptionName }}"
+    scriptType: pscore
+    scriptPath: "$(Pipeline.Workspace)/AzDocs/Networking/NAT-Gateway/Get-Public-Ip-From-NAT-Gateway.ps1"
+    arguments: "-NatGatewayName '$(NatGatewayName)' -NatGatewayResouceGroupName '$(NatGatewayResouceGroupName)' -OutputPipelineVariableName '$(OutputPipelineVariableName)'"
+```
+
+# Code
+
+[Click here to download this script](../../../../src/Networking/NAT-Gateway/Get-Public-Ip-From-NAT-Gateway.ps1)
+
+# Links
+
+[Azure CLI - az network public-ip show](https://docs.microsoft.com/en-us/cli/azure/network/public-ip?view=azure-cli-latest#az_network_public_ip_show)
+
+[Azure CLI - az network nat gateway show](https://docs.microsoft.com/nl-nl/cli/azure/network/nat/gateway?view=azure-cli-latest#az_network_nat_gateway_show)

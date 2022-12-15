@@ -29,7 +29,7 @@ Some parameters from [General Parameter](/Azure/AzDocs-v1/Scripts) list.
 | FunctionAppAlwaysOn | <input type="checkbox"> | `$true`/`$false` | Let the function app run in always on mode. This only works for consumption plans. |
 | FunctionAppMinimalTlsVersion | <input type="checkbox"> | `1.2` | Set the TLS Version for the function app. Defaults to 1.2 |
 | FUNCTIONS_EXTENSION_VERSION | <input type="checkbox" checked> | `~3` | Choose `~2` voor v2 and `~3` for v3 of Function Apps (if you are unsure, use `~3`) |
-| ASPNETCORE_ENVIRONMENT | <input type="checkbox" checked> | `Development` | Use either `Development`, `Acceptance` or `Production`. NOTE: `Development` and `Production` have features which are provided by the framework. [Read more here](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments) |
+| AZURE_FUNCTIONS_ENVIRONMENT | <input type="checkbox" checked> | `Development` | Use either `Development`, `Acceptance` or `Production`. NOTE: `Development` and `Production` have features which are provided by the framework. [Read more here](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments) |
 | EnableFunctionAppDeploymentSlot | <input type="checkbox"> | | If you pass this switch (without value), a deployment slot will be created. |
 | FunctionAppDeploymentSlotName | <input type="checkbox"> | `staging` | Name of the slot to create additional to the production slot. Has the default value of "staging". |
 | DisablePublicAccessForFunctionAppDeploymentSlot | <input type="checkbox"> | `$true` | Removing public access from the deployment slot. By default this has a value of true. |

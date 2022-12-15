@@ -1,8 +1,47 @@
 [[_TOC_]]
 
 # Change Log
-
 All notable changes to this project will be documented in this file.
+
+## [2022.12.08]
+- Updated `List-All-Functions-Inside-Function-App.ps1`. It is now able to handle functions with multiple bindings, for example `serviceBusTrigger serviceBus`.
+
+## [2022.12.06]
+- Added script `Create-ServiceBus-Queue.ps1`
+- Added script `Create-ServiceBus-Queue-Authorization-Rule.ps1`
+
+## [2022.11.25]
+- Added script `Create-User-Assigned-Managed-Identity.ps1`
+- Added script `Get-User-Assigned-Managed-Identity.Id.ps1`
+
+## [2022.11.22]
+- Updated `Create-SQL-Server` to get the correct object-id for the service principal.
+
+## [2022.11.14]
+- Added mongodb version 4.2 to `Create-CosmosDbAccount.ps1`
+- Updated `Create-WAF-Policy.ps1` to update the `WAF policy` when it already exists.
+
+## [2022.10.11]
+- Added script `List-All-Functions-Inside-Function-App`
+- Updated scripts `Set-AppSettings-For-Function-App`
+
+## [2022.10.10]
+- Added script `Get-Public-Ip-From-NAT-Gateway`
+- Added script `Create-WAF-Policy-Custom-Condition`
+
+## [2022.10.04]
+- Added script `Create-WAF-Policy-Custom-Rule`
+- Changed variable `ASPNETCORE_ENVIRONMENT` to `AZURE_FUNCTIONS_ENVIRONMENT` in `Create-Function-App.ps1`
+
+## [2022.07.13]
+- Added script `Create-CDN-Custom-Domain`
+- Added script `Create-CDN-Endpoint-Rule`
+- Added script `Create-CDN-Endpoint`
+- Added script `Create-CDN-Profile`
+
+## [2022.06.20]
+- Added script `Get-CosmosDb-Connectionstring.ps1`
+- Updated script `Create-CosmosDbAccount.ps1` to add the capabilities parameter as an optional parameter during creation.
 
 ## [2022.06.14]
 

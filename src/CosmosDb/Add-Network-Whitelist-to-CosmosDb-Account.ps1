@@ -21,8 +21,7 @@ $CosmosDBAccountName = $CosmosDBAccountName.ToLower()
 Confirm-ParametersForWhitelist -CIDR:$CIDRToWhitelist -SubnetName:$SubnetToWhitelistSubnetName -VnetName:$SubnetToWhitelistVnetName -VnetResourceGroupName:$SubnetToWhitelistVnetResourceGroupName
 
 # Fetch Subnet ID when subnet option is given.
-if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
-{
+if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName) {
     Write-Host 'Subnet whitelisting is desired. Whitelisting subnet...'
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
 
@@ -33,19 +32,16 @@ if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToW
     Wait-ForClusterToBeReady -CosmosDBAccountName $CosmosDBAccountName -CosmosDBAccountResourceGroupName $CosmosDBAccountResourceGroupName
 
     $currentSubnetWhitelistRules = Invoke-Executable -AllowToFail az cosmosdb network-rule list --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName | ConvertFrom-Json | Select-Object -ExpandProperty id
-    if(!($currentSubnetWhitelistRules -contains $subnetResourceId))
-    {
+    if (!($currentSubnetWhitelistRules -contains $subnetResourceId)) {
         # Add subnet
         Invoke-Executable az cosmosdb network-rule add --subnet $subnetResourceId --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName
         Write-Host "Subnet $subnetResourceId whitelisted."
     }
-    else
-    {
+    else {
         Write-Host "Subnet $subnetResourceId was already whitelisted."
     }
 }
-else
-{
+else {
     # Check if CIDR is passed, it adheres to restrictions
     Assert-CIDR -CIDR:$CIDRToWhitelist
 
@@ -60,18 +56,15 @@ else
     $foundCidrMatch = $null
     $currentIpRules = ((Invoke-Executable az cosmosdb show --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName | ConvertFrom-Json).ipRules) | Select-Object -ExpandProperty ipAddressOrRange
     
-    if ($currentIpRules)
-    {
+    if ($currentIpRules) {
         $startIpInCidr = Get-StartIpInIpv4Network -SubnetCidr $CIDRToWhitelist
         $endIpInCidr = Get-EndIpInIpv4Network -SubnetCidr $CIDRToWhitelist
 
-        foreach ($currentIpRule in $currentIpRules)
-        {
+        foreach ($currentIpRule in $currentIpRules) {
             $startIpInIpv4Network = Get-StartIpInIpv4Network -SubnetCidr $currentIpRule
             $endIpInIpv4Network = Get-EndIpInIpv4Network -SubnetCidr $currentIpRule
             if ((Test-IpAddressInCidrRange -IpAddress $startIpInCidr -StartIpInIpv4Network $startIpInIpv4Network -EndIpInIpv4Network $endIpInIpv4Network) -and
-            (Test-IpAddressInCidrRange -IpAddress $endIpInCidr -StartIpInIpv4Network $startIpInIpv4Network -EndIpInIpv4Network $endIpInIpv4Network))
-            {
+            (Test-IpAddressInCidrRange -IpAddress $endIpInCidr -StartIpInIpv4Network $startIpInIpv4Network -EndIpInIpv4Network $endIpInIpv4Network)) {
                 $ipAddressAlreadyPresent = $true
                 $foundCidrMatch = $currentIpRule
                 break
@@ -79,12 +72,12 @@ else
         }
     }
 
-    if (!$ipAddressAlreadyPresent)
-    {
+    if (!$ipAddressAlreadyPresent) {
         # If one, make sure to convert to array
-        if ($currentIpRules.GetType().Name -eq 'String')
-        {
-            $currentIpRules = @($currentIpRules)
+        if ($currentIpRules) {
+            if ($currentIpRules.GetType().Name -eq 'String') {
+                $currentIpRules = @($currentIpRules)
+            }
         }
         $currentIpRules += $CIDRToWhitelist
 
@@ -96,8 +89,7 @@ else
         Invoke-Executable az cosmosdb update --name $CosmosDBAccountName --resource-group $CosmosDBAccountResourceGroupName --ip-range-filter $ipSet
         Write-Host "CIDR $CIDRToWhitelist added"
     }
-    else
-    {
+    else {
         Write-Host "CIDR $CIDRToWhitelist already present in $foundCidrMatch"
     }
 }

@@ -154,7 +154,7 @@ if ($MakeCurrentServicePrincipalSqlServerAzureAdAdmin -and $MakeCurrentServicePr
 {
     $servicePrincipalName = (Invoke-Executable az account show | ConvertFrom-Json).user.name
     $servicePrincipal = Invoke-Executable az ad sp show --id $servicePrincipalName | ConvertFrom-Json
-    Invoke-Executable az sql server ad-admin create --resource-group $SqlServerResourceGroupName --server $SqlServerName --object-id $servicePrincipal.objectId --display-name $servicePrincipal.displayName
+    Invoke-Executable az sql server ad-admin create --resource-group $SqlServerResourceGroupName --server $SqlServerName --object-id $servicePrincipal.id --display-name $servicePrincipal.displayName
 }
 elseif ($SqlServerAzureAdAdminObjectId -and $SqlServerAzureAdAdminDisplayName)
 {

@@ -14,6 +14,7 @@ Some parameters from [General Parameter](/Azure/AzDocs-v1/Scripts) list.
 | FunctionAppAppSettings | `@("settingname=settingvalue"; "anothersettingname=anothersettingvalue")` and/or `@moreSettings.json` | Powershell string array with settings, Also you can load a file with JSON settings. |
 | FunctionAppDeploymentSlotName | `staging` | Name of the deployment slot to add ip whitelisting to. This is an optional field. |
 | ApplyToAllSlots | `$true`/`$false` | Applies the current script to all slots revolving this resource |
+| EnableDeploymentSetting | `$true`/`$false` | Makes the settings sticky for that specific deployment slot. |
 
 # YAML
 
@@ -27,7 +28,7 @@ Be aware that this YAML example contains all parameters that can be used with th
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
     scriptPath: "$(Pipeline.Workspace)/AzDocs/Functions/Set-AppSettings-For-Function-App.ps1"
-    arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppAppSettings $(FunctionAppAppSettings) -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -ApplyToAllSlots $(ApplyToAllSlots)"
+    arguments: "-FunctionAppResourceGroupName '$(FunctionAppResourceGroupName)' -FunctionAppName '$(FunctionAppName)' -FunctionAppAppSettings $(FunctionAppAppSettings) -FunctionAppDeploymentSlotName '$(FunctionAppDeploymentSlotName)' -ApplyToAllSlots $(ApplyToAllSlots) -EnableDeploymentSetting $(EnableDeploymentSetting)"
 ```
 
 # Code
