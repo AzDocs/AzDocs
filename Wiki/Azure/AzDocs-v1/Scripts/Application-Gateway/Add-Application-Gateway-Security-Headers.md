@@ -31,7 +31,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 # Code
 
-[Click here to download this script](../../../../src/Application-Gateway/Add-Application-Gateway-Security-Headers.ps1)
+[Click here to download this script](../../../../../src/Application-Gateway/Add-Application-Gateway-Security-Headers.ps1)
 
 # Links
 

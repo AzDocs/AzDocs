@@ -7,6 +7,9 @@ param location string = resourceGroup().location
 @maxLength(64)
 param applicationGatewayVirtualNetworkName string
 
+@description('The name resourcegroup where the virtual network resource is allocated.')
+param virtualNetworkResourceGroupName string = az.resourceGroup().name
+
 @description('Name of the subnet where the Application Gateway should reside in.')
 @minLength(1)
 @maxLength(80)
@@ -356,6 +359,10 @@ var publicFrontendIpConfiguration = {
     }
   }
 }
+resource vnet 'Microsoft.Network/virtualNetworks@2022-05-01' existing = {
+  name: applicationGatewayVirtualNetworkName
+  scope: az.resourceGroup(virtualNetworkResourceGroupName)
+}
 
 @description('The default frontend ip configurations. If the private frontend IP feature is enabled, this will prepare the correct object structure for both public & private ip\'s. If disabled, it will only include the public ip.')
 var frontendIpConfigurations = enablePrivateFrontendIp ? [
@@ -366,7 +373,7 @@ var frontendIpConfigurations = enablePrivateFrontendIp ? [
       privateIPAllocationMethod: 'Static'
       privateIPAddress: privateFrontendStaticIp
       subnet: {
-        id: '${resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', applicationGatewayVirtualNetworkName)}/subnets/${applicationGatewaySubnetName}'
+        id: '${vnet.id}/subnets/${applicationGatewaySubnetName}'
       }
     }
   }
@@ -473,7 +480,7 @@ var unifiedGatewayIPConfigurations = union(gatewayIPConfigurations, [
       name: 'appGatewayIpConfig'
       properties: {
         subnet: {
-          id: '${resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', applicationGatewayVirtualNetworkName)}/subnets/${applicationGatewaySubnetName}'
+          id: '${vnet.id}/subnets/${applicationGatewaySubnetName}'
         }
       }
     }

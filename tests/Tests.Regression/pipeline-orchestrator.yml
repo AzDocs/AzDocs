@@ -106,10 +106,10 @@ parameters:
     default: true
   - name: ResourceDeletion.ResourceGroup.Enabled
     type: boolean
-    default: false
+    default: true
   - name: ResourceDeletion.CostManagement.Alert.Enabled
     type: boolean
-    default: false
+    default: true
 
 name: $(date:yyyy.MM.dd)$(rev:.r)-$(Build.SourceBranchName)
 trigger:

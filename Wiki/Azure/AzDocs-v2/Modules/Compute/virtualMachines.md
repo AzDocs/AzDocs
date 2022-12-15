@@ -12,6 +12,7 @@ Creating a Virtual machine with the given specs.
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
+| operatingSystem | string | <input type="checkbox" checked> | `'Windows'` or  `'Linux'` | <pre></pre> | Select the OS type to deploy: |
 | virtualMachineName | string | <input type="checkbox" checked> | Length between 1-64 | <pre></pre> | The name of the virtual machine to be upserted.<br>Min length: 1<br>Max length: 15 for windows & 64 for linux. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | virtualMachineSubnetResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Specifies the resource id of the subnet where the default NIC should be onboarded into. If you don\'t fill the `networkInterfaces` parameter, this parameter is required. |
@@ -33,20 +34,26 @@ Creating a Virtual machine with the given specs.
 | enableAcceleratedNetworking | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable Accelerated Networking for the vm\'s default interface. Defaults to `false`.<br>NOTE: If you use the `networkInterfaces` parameter, this value is not used. |
 | availabilityZones | array | <input type="checkbox"> | Length between 0-1 | <pre>[]</pre> | Example:<br>[1]<br>You cannot both have Availability Zone and Availability Set specified. Deploying an Availability Set to an Availability Zone is not supported. |
 | bootdiagnosticsEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | If you want to have bootdiagnostics enabled on the Virtual Machine. More info https://docs.microsoft.com/en-us/azure/virtual-machines/boot-diagnostics. |
-| linuxAuthenticationConfiguration | object | <input type="checkbox"> | None | <pre>{<br>  disablePasswordAuthentication: true<br>  ssh: {<br>    publicKeys: [<br>      {<br>        path: '/home/${virtualMachineAdminUsername}/.ssh/authorized_keys'<br>        keyData: virtualMachineAdminPasswordOrPublicKey<br>      }<br>    ]<br>  }<br>  provisionVMAgent: true<br>}</pre> | The bicep object to configure the linux authentication when creating the vm. |
-| windowsConfiguration | object | <input type="checkbox"> | None | <pre>{<br>    provisionVMAgent: true<br>    enableAutomaticUpdates: true<br>    patchSettings: {<br>        patchMode: 'AutomaticByOS'<br>        assessmentMode: 'ImageDefault'<br>    }<br>    enableVMAgentPlatformUpdates: false<br>}</pre> | The bicep object to configure the Windows authentication when creating the vm. |
+| provisionVMAgent | bool | <input type="checkbox"> | None | <pre>true</pre> | If the provision agent should be installed. |
+| linuxConfiguration | object | <input type="checkbox"> | None | <pre>{}</pre> | The bicep object to configure the linux vm configuration when creating the vm. |
+| windowsConfiguration | object | <input type="checkbox"> | None | <pre>{<br>  enableAutomaticUpdates: true<br>  patchSettings: {<br>    patchMode: 'AutomaticByOS'<br>    assessmentMode: 'ImageDefault'<br>  }<br>  enableVMAgentPlatformUpdates: false<br>}</pre> | The bicep object to configure the Windows vm configuration when creating the vm. |
+| OSLicenseType | string | <input type="checkbox"> | `'RHEL_BYOS'` or  `'SLES_STANDARD'` or  `'SLES_SAP'` or  `'SLES_HPC'` or  `'SLES'` or  `'RHEL_SAPHA'` or  `'RHEL_SAPAPPS'` or  `'RHEL_ELS_6'` or  `'RHEL_EUS'` or  `'RHEL_BASE'` or  `'SLES_BYOS'` or  `'RHEL_BASESAPAPPS'` or  `'RHEL_BASESAPHA'` or  `'Windows_Server'` or  `'Windows_Client'` or  `'None'` or  `''` | <pre>''</pre> | Type of OS licensing.<br>For customers with Software Assurance, Azure Hybrid Benefit for Windows Server allows you to use your on-premises Windows Server licenses and run Windows virtual machines on Azure at a reduced cost.<br>You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machines with Windows OS.<br>Azure Hybrid Benefit provides software updates and integrated support directly from Azure infrastructure for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines. |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
+| availabilitysetResourceId | string | Output the availability set\'s Resource ID. |
+| virtualMachineName | string | Outputs the name of the virtual machine created or upserted |
+| virtualMachineResourceId | string | Output the resourceId of the virtual machine created or upserted |
 ## Examples
 <pre>
 module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
   name: 'Creating_VM_MyFirstVM'
   scope: resourceGroup
   params: {
+    operatingSystem: 'Windows'
     virtualMachineName: 'MyFirstVM'
-    virtualMachineSubnetResourceId: '/subscriptions/4baa21ce-2b26-4e50-82b2-059bdd0ef016/resourceGroups/platform-rg/providers/Microsoft.Network/virtualNetworks/comp-dc-acc-001-vnet/subnets/app-subnet'
-    virtualMachineAdminUsername: 'adminny'
+    virtualMachineSubnetResourceId: virtualMachineSubnetResourceId
+    virtualMachineAdminUsername: 'vmadmin'
     virtualMachineAdminPasswordOrPublicKey: 'VerySecretPassW0rd'
   }
 }

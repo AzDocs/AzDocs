@@ -96,7 +96,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 The snippet to create a Linux Function App.
 
-[Click here to download this script](../../../../src/Functions/Create-Function-App.ps1)
+[Click here to download this script](../../../../../src/Functions/Create-Function-App.ps1)
 
 # Links
 

@@ -33,7 +33,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 The snippet to create a Windows App Service Plan. Note that there can be no Linux App Service Plans in the same resourcegroup.
 
-[Click here to download this script](../../../../src/App-Services/Create-App-Service-Plan-Windows.ps1)
+[Click here to download this script](../../../../../src/App-Services/Create-App-Service-Plan-Windows.ps1)
 
 # Links
 

@@ -33,7 +33,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 The snippet creating the app service plan if it does not exist (Linux is defined during the AppServiceplan creation). Note that there can be no Windows App Service Plans in the same resourcegroup.
 
-[Click here to download this script](../../../../src/App-Services/Create-App-Service-Plan-Linux.ps1)
+[Click here to download this script](../../../../../src/App-Services/Create-App-Service-Plan-Linux.ps1)
 
 # Links
 

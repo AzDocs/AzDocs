@@ -29,6 +29,7 @@ Some parameters from [General Parameter](/Azure/AzDocs-v1/Scripts) list.
 | HttpsSettingsCookieAffinity |<input type="checkbox"> | `Disabled` | If the Application Gateway needs cookies to keep user on the same server |
 | HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds | <input type="checkbox"> | `0` (disabled) | The timeout to gracefully remove backend members during maintenance |
 | HttpsSettingsRequestToBackendTimeoutInSeconds | <input type="checkbox"> | `30` | The timeout for the Application Gateway to wait for the backend to respond |
+| HttpsSettingsCustomRootCertificateFilePath | <input type="checkbox"> | `$(trustedRootCA.secureFilePath)` | The path where the .cer file can be found. In a release, use the .cer you uploaded in (It's recommended to stick to lowercase alphanumeric characters when naming the .cer files in the portal) "secure files" (Pipelines\Library) and use the task "download a secure file". The filename must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens. |
 | HealthProbeMatchStatusCodes | <input type="checkbox"> | `200-399` | The response the Health probe considers healthy when checking the backend|
 | ApplicationGatewayRuleType |<input type="checkbox" checked>| `Basic` | Routing rule type. You can choose between `Basic` and `PathBasedRouting`. |
 | ApplicationGatewayResourceGroupName | <input type="checkbox" checked> | `sharedservices-rg` | The name of the Resource Group where the application gateway lives. |
@@ -75,7 +76,7 @@ Be aware that this YAML example contains all parameters that can be used with th
         -ApplicationGatewayRulePath '$(ApplicationGatewayRulePath)'
 # Code
 
-[Click here to download this script](../../../../src/Application-Gateway/Create-Application-Gateway-Entrypoint-for-ContainerInstance.ps1)
+[Click here to download this script](../../../../../src/Application-Gateway/Create-Application-Gateway-Entrypoint-for-ContainerInstance.ps1)
 
 # Links
 

@@ -4,7 +4,7 @@
 
 This snippet will assign a role to the given Azure identity with the specified scope. Scope refers to the scope of the permissions: permissions can apply to a specific (nested) resource, but also to a Resource Group, or possibly an entire Azure subscription.
 
-This snippet will only handle role assignments scoped to resources and nested resources. For broader assignment, you may want to call the [Add-ScopedRoleAssignment](../../../../src/AzDocs.Common/public/Add-ScopedRoleAssignment.ps1) function directly.
+This snippet will only handle role assignments scoped to resources and nested resources. For broader assignment, you may want to call the [Add-ScopedRoleAssignment](../../../../../src/AzDocs.Common/public/Add-ScopedRoleAssignment.ps1) function directly.
 
 # Parameters
 
@@ -91,7 +91,7 @@ To assign the `Azure Service Bus Data Sender` role to an identity (other than a 
 
 # Code
 
-[Click here to download this script](../../../../src/Roles/Grant-permissions-to-ManagedIdentity-on-Resource.ps1)
+[Click here to download this script](../../../../../src/Roles/Grant-permissions-to-ManagedIdentity-on-Resource.ps1)
 
 # Links
 

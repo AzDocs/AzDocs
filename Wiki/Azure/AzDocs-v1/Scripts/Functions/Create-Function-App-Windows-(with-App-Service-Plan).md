@@ -58,4 +58,4 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 The snippet to create a Windows Function App & ASP. Note that there can be no Linux App Service Plan in the same resourcegroup. This snippet will also create the app service plan if it does not exist.
 
-[Click here to download this script](../../../../src/Functions/Create-Function-App-with-App-Service-Plan-Windows.ps1)
+[Click here to download this script](../../../../../src/Functions/Create-Function-App-with-App-Service-Plan-Windows.ps1)

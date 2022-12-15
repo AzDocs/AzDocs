@@ -9,9 +9,10 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
   name: 'Creating_VM_MyFirstVM'
   scope: resourceGroup
   params: {
+    operatingSystem: 'Windows'
     virtualMachineName: 'MyFirstVM'
-    virtualMachineSubnetResourceId: '/subscriptions/4baa21ce-2b26-4e50-82b2-059bdd0ef016/resourceGroups/platform-rg/providers/Microsoft.Network/virtualNetworks/comp-dc-acc-001-vnet/subnets/app-subnet'
-    virtualMachineAdminUsername: 'adminny'
+    virtualMachineSubnetResourceId: virtualMachineSubnetResourceId
+    virtualMachineAdminUsername: 'vmadmin'
     virtualMachineAdminPasswordOrPublicKey: 'VerySecretPassW0rd'
   }
 }
@@ -26,6 +27,13 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
 // ================================================= Parameters =================================================
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
+
+@description('Select the OS type to deploy:')
+@allowed([
+  'Windows'
+  'Linux'
+])
+param operatingSystem string
 
 @description('''
 The name of the virtual machine to be upserted.
@@ -204,29 +212,20 @@ param availabilityZones array = []
 @description('If you want to have bootdiagnostics enabled on the Virtual Machine. More info https://docs.microsoft.com/en-us/azure/virtual-machines/boot-diagnostics.')
 param bootdiagnosticsEnabled bool = true
 
-@description('The bicep object to configure the linux authentication when creating the vm.')
-param linuxAuthenticationConfiguration object = {
-  disablePasswordAuthentication: true
-  ssh: {
-    publicKeys: [
-      {
-        path: '/home/${virtualMachineAdminUsername}/.ssh/authorized_keys'
-        keyData: virtualMachineAdminPasswordOrPublicKey
-      }
-    ]
-  }
-  provisionVMAgent: true
-}
+@description('If the provision agent should be installed.')
+param provisionVMAgent bool = true
 
-@description('The bicep object to configure the Windows authentication when creating the vm.')
+@description('The bicep object to configure the linux vm configuration when creating the vm.')
+param linuxConfiguration object = {}
+
+@description('The bicep object to configure the Windows vm configuration when creating the vm.')
 param windowsConfiguration object = {
-    provisionVMAgent: true
-    enableAutomaticUpdates: true
-    patchSettings: {
-        patchMode: 'AutomaticByOS'
-        assessmentMode: 'ImageDefault'
-    }
-    enableVMAgentPlatformUpdates: false
+  enableAutomaticUpdates: true
+  patchSettings: {
+    patchMode: 'AutomaticByOS'
+    assessmentMode: 'ImageDefault'
+  }
+  enableVMAgentPlatformUpdates: false
 }
 
 @description('''
@@ -235,8 +234,7 @@ For customers with Software Assurance, Azure Hybrid Benefit for Windows Server a
 You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machines with Windows OS.
 Azure Hybrid Benefit provides software updates and integrated support directly from Azure infrastructure for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines.
 ''')
-@allowed(
-  [
+@allowed([
     'RHEL_BYOS'
     'SLES_STANDARD'
     'SLES_SAP'
@@ -254,9 +252,31 @@ Azure Hybrid Benefit provides software updates and integrated support directly f
     'Windows_Client'
     'None'
     ''
-  ]
-  )
+])
 param OSLicenseType string = ''
+
+@description('Union the different settings for the linux vm configuration')
+var linuxConfigurationUnion = union(
+  linuxConfiguration, //default configuration
+  { provisionVMAgent: provisionVMAgent }, //adding the provision vm agent setting
+  virtualMachineAuthenticationMethod == 'sshPublicKey' ? { //adding ssh public key authorization settings
+    disablePasswordAuthentication: true
+    ssh: {
+      publicKeys: [
+        {
+          path: '/home/${virtualMachineAdminUsername}/.ssh/authorized_keys'
+          keyData: virtualMachineAdminPasswordOrPublicKey
+        }
+      ]
+    }
+  } : {}
+)
+
+@description('Union the different settings for the windows vm configuration')
+var windowsConfigurationUnion = union(
+  windowsConfiguration, //default configuration
+  { provisionVMAgent: provisionVMAgent } //adding the provision vm agent setting
+)
 
 // ================================================= Resources =================================================
 @description('Upsert the availabilitySet using the given parameters if desired.')
@@ -286,9 +306,6 @@ module virtualMachineNetworkInterface '../Network/networkInterfaces.bicep' = if 
     tags: tags
     networkInterfaceName: virtualMachineNetworkInterfaceName
   }
-  dependsOn: !empty(availabilitySetName) ? [
-    availabilitySet
-  ] : []
 }
 
 @description('Fetch the storageaccount used for boot diagnostics if desired.')
@@ -308,13 +325,13 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     hardwareProfile: {
       vmSize: virtualMachineSize
     }
-    licenseType: empty(OSLicenseType) ? json('null'): OSLicenseType
+    licenseType: empty(OSLicenseType) ? json('null') : OSLicenseType
     osProfile: {
       computerName: virtualMachineName
       adminUsername: virtualMachineAdminUsername
       adminPassword: virtualMachineAdminPasswordOrPublicKey
-      linuxConfiguration: (virtualMachineAuthenticationMethod == 'password' || virtualMachineImageReference.publisher == 'MicrosoftWindowsServer') ? json('null') : linuxAuthenticationConfiguration
-      windowsConfiguration: (virtualMachineImageReference.publisher == 'MicrosoftWindowsServer') ? windowsConfiguration : json('null')
+      linuxConfiguration: operatingSystem == 'Linux' ? linuxConfigurationUnion : json('null')
+      windowsConfiguration: operatingSystem == 'Windows' ? windowsConfigurationUnion : json('null')
     }
     storageProfile: {
       imageReference: virtualMachineImageReference
@@ -333,6 +350,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     }
   }
   zones: availabilityZones
+  dependsOn: !empty(availabilitySetName) ? [
+    availabilitySet
+  ] : []
 }
 
 @description('Output the availability set\'s Resource ID.')

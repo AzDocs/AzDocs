@@ -29,7 +29,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 # Code
 
-[Click here to download this script](../../../../src/Networking/Add-Custom-DNS-Server-To-VNET.ps1)
+[Click here to download this script](../../../../../src/Networking/Add-Custom-DNS-Server-To-VNET.ps1)
 
 # Links
 

@@ -2,7 +2,9 @@
 
 # Description
 
-This code will do a full configuration of the Application Gateway for directing SSL traffic to an AppService/Function App, including uploading a certificate (pfx) to a Keyvault and Application Gateway.
+This code will do a full configuration of the Application Gateway for directing SSL traffic to a backend pool, including uploading a certificate (pfx) to a Keyvault and Application Gateway.
+
+Note that the backend pool is created as an empty pool, so backends can be added to it lateron.
 
 Also it will update certificates if your source certificate (the certificate in Azure DevOps Secure Files) is newer than the one currently in use.
 
@@ -19,7 +21,6 @@ Some parameters from [General Parameter](/Azure/AzDocs-v1/Scripts) list.
 | CertificateKeyvaultName | <input type="checkbox" checked> | `myplatformkeyvault-$(Release.EnvironmentName)` | Name of your platform wide (shared) keyvault. |
 | CertificatePath | <input type="checkbox" checked> | `$(my-domain-com.secureFilePath)` | The path where the .pfx file for the SSL can be found. In a release to use the pfx you uploaded in "secure files" (Pipelines\Library), use the task "download a secure file". Set the certificatePath in the task output variables Reference name |
 | CertificatePassword | <input type="checkbox" checked> | `S0m3Amaz1n6P@ssw0rd123!` | The password you gave your pfx/certificate |
-| BackendDomainname | <input type="checkbox" checked> | `mycoolbackend.azurewebsites.net` | The (backend)domainname which you want to create this entrypoint for |
 | HealthProbeUrlPath | <input type="checkbox" checked> | `/` | The relative URL path the probe should check after your URI |
 | HealthProbeDomainName | <input type="checkbox"> | `mycoolbackend.azurewebsites.net` | OPTIONAL: Pass a domainname for the healthprobe to check. This is needed whenever you use wildcard domains. |
 | HealthProbeIntervalInSeconds | <input type="checkbox"> | `60` | Probe interval in seconds |
@@ -49,7 +50,7 @@ Be aware that this YAML example contains all parameters that can be used with th
     azureSubscription: "${{ parameters.SubscriptionName }}"
     scriptType: pscore
     scriptPath: "$(Pipeline.Workspace)/AzDocs/Application-Gateway/Create-Application-Gateway-Entrypoint-for-DomainName.ps1"
-    arguments: "-CertificatePath '$(CertificatePath)' -CertificatePassword '$(CertificatePassword)' -IngressDomainName '$(IngressDomainName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayFacingType '$(ApplicationGatewayFacingType)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -CertificateKeyvaultResourceGroupName '$(CertificateKeyvaultResourceGroupName)' -CertificateKeyvaultName '$(CertificateKeyvaultName)' -BackendDomainname '$(BackendDomainname)' -HealthProbeDomainName '$(HealthProbeDomainName)' -HealthProbeUrlPath '$(HealthProbeUrlPath)' -HealthProbeIntervalInSeconds '$(HealthProbeIntervalInSeconds)' -HealthProbeNumberOfTriesBeforeMarkedDown '$(HealthProbeNumberOfTriesBeforeMarkedDown)' -HealthProbeTimeoutInSeconds '$(HealthProbeTimeoutInSeconds)' -HealthProbeProtocol '$(HealthProbeProtocol)' -HttpsSettingsRequestToBackendProtocol '$(HttpsSettingsRequestToBackendProtocol)' -HttpsSettingsRequestToBackendPort '$(HttpsSettingsRequestToBackendPort)' -HttpsSettingsRequestToBackendCookieAffinity '$(HttpsSettingsRequestToBackendCookieAffinity)' -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds '$(HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds)' -HttpsSettingsRequestToBackendTimeoutInSeconds '$(HttpsSettingsRequestToBackendTimeoutInSeconds)' -HealthProbeMatchStatusCodes '$(HealthProbeMatchStatusCodes)' -ApplicationGatewayRuleType '$(ApplicationGatewayRuleType)' -ApplicationGatewayRuleDefaultIngressDomainName '$(ApplicationGatewayRuleDefaultIngressDomainName)' -ApplicationGatewayRulePath '$(ApplicationGatewayRulePath)'"
+    arguments: "-CertificatePath '$(CertificatePath)' -CertificatePassword '$(CertificatePassword)' -IngressDomainName '$(IngressDomainName)' -ApplicationGatewayName '$(ApplicationGatewayName)' -ApplicationGatewayFacingType '$(ApplicationGatewayFacingType)' -ApplicationGatewayResourceGroupName '$(ApplicationGatewayResourceGroupName)' -CertificateKeyvaultResourceGroupName '$(CertificateKeyvaultResourceGroupName)' -CertificateKeyvaultName '$(CertificateKeyvaultName)' -HealthProbeDomainName '$(HealthProbeDomainName)' -HealthProbeUrlPath '$(HealthProbeUrlPath)' -HealthProbeIntervalInSeconds '$(HealthProbeIntervalInSeconds)' -HealthProbeNumberOfTriesBeforeMarkedDown '$(HealthProbeNumberOfTriesBeforeMarkedDown)' -HealthProbeTimeoutInSeconds '$(HealthProbeTimeoutInSeconds)' -HealthProbeProtocol '$(HealthProbeProtocol)' -HttpsSettingsRequestToBackendProtocol '$(HttpsSettingsRequestToBackendProtocol)' -HttpsSettingsRequestToBackendPort '$(HttpsSettingsRequestToBackendPort)' -HttpsSettingsRequestToBackendCookieAffinity '$(HttpsSettingsRequestToBackendCookieAffinity)' -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds '$(HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds)' -HttpsSettingsRequestToBackendTimeoutInSeconds '$(HttpsSettingsRequestToBackendTimeoutInSeconds)' -HealthProbeMatchStatusCodes '$(HealthProbeMatchStatusCodes)' -ApplicationGatewayRuleType '$(ApplicationGatewayRuleType)' -ApplicationGatewayRuleDefaultIngressDomainName '$(ApplicationGatewayRuleDefaultIngressDomainName)' -ApplicationGatewayRulePath '$(ApplicationGatewayRulePath)'"
 ```
 
 # Code

@@ -12,8 +12,7 @@ param (
     [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName,
     [Alias("SharedServicesKeyvaultName")]
     [Parameter(Mandatory)][string] $CertificateKeyvaultName,
-    [Parameter(Mandatory)][string] $ContainerName,
-    [Parameter(Mandatory)][string] $ContainerResourceGroupName,
+    [Parameter()][string] $HealthProbeDomainName,
     [Alias("HealthProbePath")]
     [Parameter(Mandatory)][string] $HealthProbeUrlPath,
     [Alias("HealthProbeInterval")]
@@ -37,12 +36,10 @@ param (
     [Alias("MatchStatusCodes")]
     [Parameter()][string] $HealthProbeMatchStatusCodes = "200-399",
     [Alias("GatewayRuleType")]
-    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType = "Basic", 
+    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType = "Basic",
     [Parameter()][string] $ApplicationGatewayRuleDefaultIngressDomainName, 
     [Parameter()][string] $ApplicationGatewayRulePath
 )
-
-$ErrorActionPreference = "Continue"
 
 #region ===BEGIN IMPORTS===
 Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
@@ -52,20 +49,13 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 
 try
 {
-    # Get the IP for the container instance
-    $ipAddress = Invoke-Executable -AllowToFail az container show --name $ContainerName --resource-group $ContainerResourceGroupName --query=ipAddress.ip | ConvertFrom-Json
-
-    if (!$ipAddress)
-    {
-        throw "IP Address for this container could not be found."
-    }
-
     # Create the Entrypoint. In this script thats simply done with the backenddomain directly.
     New-ApplicationGatewayEntrypoint -CertificatePath $CertificatePath -IngressDomainName $IngressDomainName -ApplicationGatewayName $ApplicationGatewayName -ApplicationGatewayFacingType $ApplicationGatewayFacingType -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -CertificateKeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName `
-        -CertificateKeyvaultName $CertificateKeyvaultName -CertificatePassword $CertificatePassword -BackendDomainName $ipAddress -HealthProbeUrlPath $HealthProbeUrlPath -HealthProbeIntervalInSeconds $HealthProbeIntervalInSeconds `
+        -CertificateKeyvaultName $CertificateKeyvaultName -CertificatePassword $CertificatePassword -HealthProbeUrlPath $HealthProbeUrlPath -HealthProbeIntervalInSeconds $HealthProbeIntervalInSeconds `
         -HealthProbeNumberOfTriesBeforeMarkedDown $HealthProbeNumberOfTriesBeforeMarkedDown -HealthProbeTimeoutInSeconds $HealthProbeTimeoutInSeconds -HealthProbeProtocol $HealthProbeProtocol -HttpsSettingsRequestToBackendProtocol $HttpsSettingsRequestToBackendProtocol -HttpsSettingsRequestToBackendPort $HttpsSettingsRequestToBackendPort `
-        -HttpsSettingsRequestToBackendCookieAffinity $HttpsSettingsRequestToBackendCookieAffinity -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds -HttpsSettingsRequestToBackendTimeoutInSeconds $HttpsSettingsRequestToBackendTimeoutInSeconds -HttpsSettingsCustomRootCertificateFilePath $HttpsSettingsCustomRootCertificateFilePath `
-        -HealthProbeMatchStatusCodes $HealthProbeMatchStatusCodes -ApplicationGatewayRuleType $ApplicationGatewayRuleType -ApplicationGatewayRuleDefaultIngressDomainName $ApplicationGatewayRuleDefaultIngressDomainName -ApplicationGatewayRulePath $ApplicationGatewayRulePath
+        -HttpsSettingsRequestToBackendCookieAffinity $HttpsSettingsRequestToBackendCookieAffinity -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds -HttpsSettingsRequestToBackendTimeoutInSeconds $HttpsSettingsRequestToBackendTimeoutInSeconds `
+        -HttpsSettingsCustomRootCertificateFilePath $HttpsSettingsCustomRootCertificateFilePath-HealthProbeMatchStatusCodes $HealthProbeMatchStatusCodes -ApplicationGatewayRuleType $ApplicationGatewayRuleType -HealthProbeDomainName $HealthProbeDomainName -ApplicationGatewayRuleDefaultIngressDomainName $ApplicationGatewayRuleDefaultIngressDomainName `
+        -ApplicationGatewayRulePath $ApplicationGatewayRulePath
 }
 catch
 {

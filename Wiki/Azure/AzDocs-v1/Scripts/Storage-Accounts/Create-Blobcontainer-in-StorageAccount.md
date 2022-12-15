@@ -35,7 +35,7 @@ Be aware that this YAML example contains all parameters that can be used with th
 
 # Code
 
-[Click here to download this script](../../../../src/Storage-Accounts/Create-Blobcontainer-in-Storageaccount.ps1)
+[Click here to download this script](../../../../../src/Storage-Accounts/Create-Blobcontainer-in-Storageaccount.ps1)
 
 # Links
 

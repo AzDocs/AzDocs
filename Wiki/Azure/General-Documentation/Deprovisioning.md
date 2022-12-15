@@ -11,7 +11,7 @@ Another way would be to integrate this deletion as a separate stage in your regr
 ### Integrate deprovisioning in your regression pipeline
 The idea is that you spin up all the resources in your regression pipeline, do the automated checks (unittests, functional tests), publish the results and then deprovision the resources where you can decide to leave or remove the resources depending on the results.
 
-For this we created the Remove ResourceGroup script in AzDocs [Click here to download this script](../../../../src/Resourcegroup/Remove-ResourceGroup.ps1) and added this script as a separate stage to the pipeline-release.yml
+For this we created the Remove ResourceGroup script in AzDocs [Click here to download this script](../../../src/Resourcegroup/Remove-ResourceGroup.ps1) and added this script as a separate stage to the pipeline-release.yml
 
 ``` yaml
 

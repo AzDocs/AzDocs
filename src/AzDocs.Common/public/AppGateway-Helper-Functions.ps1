@@ -984,7 +984,7 @@ function New-ApplicationGatewayEntrypoint
         [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
         [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName,
         [Parameter(Mandatory)][string] $CertificateKeyvaultName,
-        [Parameter(Mandatory)][string] $BackendDomainName,
+        [Parameter()][string] $BackendDomainName,
         [Parameter(Mandatory)][string] $HealthProbeUrlPath,
         [Parameter()][string] $HealthProbeDomainName,
         [Parameter()][int] $HealthProbeIntervalInSeconds = 60,
@@ -996,6 +996,7 @@ function New-ApplicationGatewayEntrypoint
         [Parameter()][ValidateSet("Disabled", "Enabled")][string] $HttpsSettingsRequestToBackendCookieAffinity = "Disabled",
         [Parameter()][int] $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds = 0,
         [Parameter()][int] $HttpsSettingsRequestToBackendTimeoutInSeconds = 30,
+        [Parameter()][string] $HttpsSettingsCustomRootCertificateFilePath,
         [Parameter()][string] $HealthProbeMatchStatusCodes = "200-399",
         [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType,
         [Parameter()][string] $ApplicationGatewayRuleDefaultIngressDomainName, 
@@ -1146,9 +1147,14 @@ function New-ApplicationGatewayEntrypoint
 
     # ======= Create entry point =======
 
-    # Create Backend Pool for your site
+    # Create Backend Pool for your site (if no BackendDomainName was given, the pool will be empty)
     Write-Host "Creating backend pool"
-    Invoke-Executable az network application-gateway address-pool create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpspool" --servers $BackendDomainName --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+    $optionalParameters = @()
+    if (![string]::IsNullOrWhiteSpace($BackendDomainName))
+    {
+        $optionalParameters += '--servers', $BackendDomainName
+    }
+    Invoke-Executable az network application-gateway address-pool create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpspool" --resource-group $ApplicationGatewayResourceGroupName @optionalParameters | Out-Null
     Write-Host "Created backend pool"
 
     # Create Health Probe
@@ -1165,14 +1171,17 @@ function New-ApplicationGatewayEntrypoint
 
     # Create HTTP settings
     Write-Host "Creating HTTP settings"
-    if (!$IngressDomainName.StartsWith("*"))
+    $optionalParameters = @(
+        '--host-name-from-backend-pool', (!$IngressDomainName.StartsWith("*"))
+    )
+    if (Test-Path -Path ($HttpsSettingsCustomRootCertificateFilePath ?? '') )
     {
-        Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --host-name-from-backend-pool $true --resource-group $ApplicationGatewayResourceGroupName | Out-Null
+        $certificateName = Split-Path $HttpsSettingsCustomRootCertificateFilePath -LeafBase
+        Invoke-Executable az network application-gateway root-cert create --cert-file $HttpsSettingsCustomRootCertificateFilePath --gateway-name $ApplicationGatewayName --name $certificateName --resource-group $ApplicationGatewayResourceGroupName
+
+        $optionalParameters += '--root-certs', $certificateName
     }
-    else
-    {
-        Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --host-name-from-backend-pool $false --resource-group $ApplicationGatewayResourceGroupName | Out-Null
-    }
+    Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --resource-group $ApplicationGatewayResourceGroupName @optionalParameters | Out-Null
     Write-Host "Created HTTP settings"
 
     # Get the id of the SSL certificate available for the Applicaton Gateway to use in the next step for creating the listener
@@ -1247,17 +1256,20 @@ function New-ApplicationGatewayEntrypoint
     }
     # ======= End Create HTTP to HTTPS redirection entry point =======
 
-    # ======= Check if our backend is healthy =======
-    Write-Host "Checking if backend is healthy..."
-    $backendStatus = Test-ApplicationGatewayBackendIsHealthy -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -BackendDomainName $BackendDomainName
-    if ($backendStatus.BackendIsHealthy)
+    # ======= Check if our backend is healthy (if BackendDomainName was given) =======
+    if (![string]::IsNullOrWhiteSpace($BackendDomainName))
     {
-        Write-Host "$BackendDomainName online!"
-    }
-    else
-    {
-        Write-Footer -ScopedPSCmdlet $PSCmdlet
-        throw "Backend $BackendDomainName seems to be unhealthy! Please verify your backend & healthprobe settings. Healthprobelog: $($backendStatus.HealthProbeLog)"
+        Write-Host "Checking if backend is healthy..."
+        $backendStatus = Test-ApplicationGatewayBackendIsHealthy -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -ApplicationGatewayName $ApplicationGatewayName -BackendDomainName $BackendDomainName
+        if ($backendStatus.BackendIsHealthy)
+        {
+            Write-Host "$BackendDomainName online!"
+        }
+        else
+        {
+            Write-Footer -ScopedPSCmdlet $PSCmdlet
+            throw "Backend $BackendDomainName seems to be unhealthy! Please verify your backend & healthprobe settings. Healthprobelog: $($backendStatus.HealthProbeLog)"
+        }
     }
     # ======= End Check if our backend is healthy =======
 
