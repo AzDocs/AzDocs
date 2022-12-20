@@ -63,8 +63,15 @@ function Set-DiagnosticSettings
         $optionalParameters += "--logs", "$logs"
     }
        
+    if($ResourceId -match '^\/subscriptions\/[a-z0-9]{8}(?:-[a-z0-9]{4}){3}-[a-z0-9]{12}\/resourceGroups\/(?<ResourceGroupName>[\w-_]+)\/.*$'){
+        $resourceGroupName =  $Matches['ResourceGroupName']
+        Write-Host "Found resource group name:'$resourceGroupName'"
+    }
+    else{
+        throw "Cannot figure out what the resourcegroupname is based on the ResourceId:'$ResourceId'"
+    }
     # Create new diagnostic setting
-    Invoke-Executable az monitor diagnostic-settings create --resource $ResourceId --name $diagnosticSettingName --workspace $LogAnalyticsWorkspaceResourceId @optionalParameters
+    Invoke-Executable az monitor diagnostic-settings create --resource $ResourceId --resource-group $resourceGroupName --name $diagnosticSettingName --workspace $LogAnalyticsWorkspaceResourceId @optionalParameters
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
