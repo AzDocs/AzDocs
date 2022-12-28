@@ -381,31 +381,59 @@ var frontendIpConfigurations = enablePrivateFrontendIp ? [
   publicFrontendIpConfiguration
 ]
 
-@description('This unifies the user-defined SSL profiles & the default legacy profile we offer from this module.')
-var unifiedSslProfiles = union(sslProfiles, [
-    {
-      name: 'Legacy'
-      properties: {
-        sslPolicy: {
-          policyType: 'Custom'
-          minProtocolVersion: 'TLSv1_2'
-          cipherSuites: [
-            'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
-            'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
-            'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-            'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-            'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384'
-            'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
-            'TLS_RSA_WITH_AES_256_GCM_SHA384'
-            'TLS_RSA_WITH_AES_128_GCM_SHA256'
-          ]
-        }
-        clientAuthConfiguration: {
-          verifyClientCertIssuerDN: false
-        }
-      }
+@description('This is the custom v2 legacy profile')
+var legacyCustomV2Profile = {
+  name: 'Legacy'
+  properties: {
+    sslPolicy: {
+      policyType: 'CustomV2'
+      minProtocolVersion: 'TLSv1_2'
+      cipherSuites: [
+        'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+        'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+        'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+        'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+        'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384'
+        'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'
+        'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'
+        'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'
+    ]
     }
-  ])
+    clientAuthConfiguration: {
+      verifyClientCertIssuerDN: false
+    }
+  }
+}
+
+@description('This is the custom v1 legacy profile')
+var legacyCustomProfile = {
+  name: 'Legacy'
+  properties: {
+    sslPolicy: {
+      policyType: 'Custom'
+      minProtocolVersion: 'TLSv1_2'
+      cipherSuites: [
+        'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+        'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+        'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+        'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+        'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384'
+        'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
+        'TLS_RSA_WITH_AES_256_GCM_SHA384'
+        'TLS_RSA_WITH_AES_128_GCM_SHA256'
+      ]
+    }
+    clientAuthConfiguration: {
+      verifyClientCertIssuerDN: false
+    }
+  }
+}
+
+@description('Defines the default legacy profile, based on if the main profile is customv2 or something else.')
+var legacyProfile = sslPolicy.policyType == 'CustomV2' ? legacyCustomV2Profile : legacyCustomProfile 
+
+@description('This unifies the user-defined SSL profiles & the default legacy profile we offer from this module.')
+var unifiedSslProfiles = union(sslProfiles, [ legacyProfile ])
 
 @description('This unifies the user-defined backend pools & the ezApplicationGatewayBackendAddressPools with the default application gateway backendpool. We need at least 1 backendpool for the appgw to be created, so we just create a dummy default one.')
 var unifiedBackendAddressPools = union(union(backendAddressPools, [
