@@ -112,7 +112,7 @@ param ipSecurityRestrictions array = [
     tag: 'Default'
     priority: 10
     name: 'DefaultDeny'
-    description: 'Default deny to make sure that something isnt publicly exposed on accident.'
+    description: 'Default deny so that nothing is publicly exposed by accident'
   }
 ]
 
@@ -124,7 +124,7 @@ param scmIpSecurityRestrictions array = [
     tag: 'Default'
     priority: 10
     name: 'DefaultDeny'
-    description: 'Default deny to make sure that something isnt publicly exposed on accident.'
+    description: 'Default deny so that nothing is publicly exposed by accident'
   }
 ]
 
