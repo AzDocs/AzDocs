@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
-    removing a virtual machine to an application gateway backend address pool.
+    Removing a virtual machine from an application gateway backend address pool.
 .DESCRIPTION
-    removing a virtual machine to an application gateway backend address pool.
+    Removing a virtual machine from an application gateway backend address pool.
 .NOTES
-    Support virtual machine with 1 nic, 1 ipconfiguration on the nic
+    Support virtual machine with 1 nic and 1 ipconfiguration on the nic.
 .EXAMPLE
-    Azure.PlatformProvisioning\Tools\Scripts\Detach-ApplicationGatewayBackendpool.ps1
+    ./Azure.PlatformProvisioning\Tools\Scripts\Detach-ApplicationGatewayBackendpool.ps1
 #>
 
 [CmdletBinding()]
@@ -38,21 +38,24 @@ if ($virtualMachine.NetworkProfile.NetworkInterfaces.Count -eq 1)
     {
         $configuration = $nic.IpConfigurations[0]
         $pools = $configuration.ApplicationGatewayBackendAddressPools
-        $backendAddressPool = $pools | Where-Object Id -eq $ApplicationGatewayBackendAddressPoolId
-        if($backendAddressPool){
+        $backendAddressPool = $pools | Where-Object Id -EQ $ApplicationGatewayBackendAddressPoolId
+        if ($backendAddressPool)
+        {
             Write-Host 'BackendAddressPool found, going to remove it'
             $pools.Remove($backendAddressPool)
-            $nic | Set-AzNetworkInterfaceIpConfig -Name $configuration.Name -ApplicationGatewayBackendAddressPool $pools 
+            $nic | Set-AzNetworkInterfaceIpConfig -Name $configuration.Name -ApplicationGatewayBackendAddressPool $pools
             $nic | Set-AzNetworkInterface
             Write-Host 'BackendAddressPool removed'
-        }else{
+        }
+        else
+        {
             Write-Host 'Could not find backendAddressPool'
         }
     }
     else
     {
         Write-Warning 'Multiple configurations found for nic'
-    } 
+    }
 }
 else
 {
