@@ -109,7 +109,7 @@ param registrationEnabled bool = false
 @description('The resourceId of the subnet you want to put the private endpoint in.')
 var subnetResourceId = '${virtualNetworkResourceId}/subnets/${subnetName}'
 
-module privateDnsZone 'privateDnsZones.bicep' = {  //TODO: ?should this not be: br:acrazdocsprd.azurecr.io/network/privatednszones:latest
+module privateDnsZone 'privateDnsZones.bicep' = {
   name: format('{0}-{1}', take('${deployment().name}', 53), 'pvtDnsZone')
   scope: az.resourceGroup(az.subscription().subscriptionId, privateDnsZoneResourceGroupName)
   params: {
