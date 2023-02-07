@@ -34,7 +34,8 @@ param registrationEnabled bool = false
 
 @description('''
 The id of the virtual network you want to create the private endpoint in. Should be pre-existing.
-'${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}
+Example:
+'${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}'
 ''')
 param virtualNetworkResourceId string
 
