@@ -13,7 +13,7 @@ Creating a private DNS zone.
 | -- |  -- | -- | -- | -- | -- |
 | privateDnsZoneName | string | <input type="checkbox" checked> | Length between 1-63 | <pre></pre> | The name of the private DNS zone in which the private endpoint can be looked up.<br>Example<br>'privatelink.blob.${environment().suffixes.storage}' |
 | registrationEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Auto register your eligible private endpoints within this DNS zone. Note: This should be default false unless you have a good reason to make this true. |
-| virtualNetworkResourceId | string | <input type="checkbox" checked> | None | <pre></pre> | The id of the virtual network you want to create the private endpoint in. Should be pre-existing.<br>'${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName} |
+| virtualNetworkResourceId | string | <input type="checkbox" checked> | None | <pre></pre> | The id of the virtual network you want to create the private endpoint in. Should be pre-existing.<br>Example:<br>'${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}' |
 | privateDnsLinkName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | The name of the virtual network link in the DNS Zone.<br>After you create a private DNS zone in Azure, you will need to link a virtual network to it.<br>A virtual network can be linked to private DNS zone as a registration (autoregistration true) or as a resolution virtual network (autoregistration false). |
 ## Outputs
 | Name | Type | Description |
