@@ -895,42 +895,45 @@ function Remove-ApplicationGatewayEntrypoint
             Invoke-Executable az network application-gateway http-listener delete --ids $listenerFound.id
             if ($listenerFound.sslCertificate)
             {
-                Write-Host "Searching for ssl certificate attached to listener."
-                $sslCertFound = Invoke-Executable -AllowToFail az network application-gateway ssl-cert show --ids $listenerFound.sslCertificate.id | ConvertFrom-Json
-                $sslCertIsUsed = $false
-                if ($sslCertFound)
+                Write-Host 'Searching for ssl certificate attached to listener.'
+                if ($listenerFound.sslCertificate.id -match '^\/subscriptions\/(?<SubscriptionId>.*)\/resourceGroups\/(?<ResourceGroupName>.*)\/providers\/Microsoft.Network\/applicationGateways\/(?<ApplicationGatewayName>.*)\/sslCertificates\/(?<CertificateName>.*)$')
                 {
+                    $sslCertFound = Invoke-Executable -AllowToFail az network application-gateway ssl-cert show --gateway-name $Matches.ApplicationGatewayName --name $Matches.CertificateName --resource-group $Matches.ResourceGroupName | ConvertFrom-Json
+                    $sslCertIsUsed = $false
+                    if ($sslCertFound)
+                    {
                         Write-Host 'Checking if certificate is being used by other entrypoints..'
-                    $listenersCertificates = (Invoke-Executable az network application-gateway http-listener list --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).sslCertificate
-                    foreach ($certificate in $listenersCertificates)
-                    {
-                        if ($certificate.id -eq $sslCertFound.id)
+                        $listenersCertificates = (Invoke-Executable az network application-gateway http-listener list --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).sslCertificate
+                        foreach ($certificate in $listenersCertificates)
                         {
-                            Write-Host 'Certificate is being used by other entrypoints. Skipping removing from gateway and keyvault.'
-                            $sslCertIsUsed = $true
-                            break
+                            if ($certificate.id -eq $sslCertFound.id)
+                            {
+                                Write-Host 'Certificate is being used by other entrypoints. Skipping removing from gateway and keyvault.'
+                                $sslCertIsUsed = $true
+                                break
+                            }
                         }
-                    }
             
-                    if (!$sslCertIsUsed)
-                    {
+                        if (!$sslCertIsUsed)
+                        {
                             Write-Host 'Certificate is not being used by other entrypoints. Removing from gateway and keyvault..'
             
-                        Write-Host "Found SSL Certificate for $dashedDomainName. Removing.."
-                        Invoke-Executable az network application-gateway ssl-cert delete --ids $sslCertFound.id
+                            Write-Host "Found SSL Certificate for $dashedDomainName. Removing.."
+                            Invoke-Executable az network application-gateway ssl-cert delete --ids $sslCertFound.id
 
                             Write-Host 'Granting permissions on keyvault for executing user'
-                        # Grant the current logged in user (service principal) rights to modify certificates in the keyvault (for uploading & fetching the certificate)
-                        Grant-MePermissionsOnKeyvault -KeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName -KeyvaultName $CertificateKeyvaultName
+                            # Grant the current logged in user (service principal) rights to modify certificates in the keyvault (for uploading & fetching the certificate)
+                            Grant-MePermissionsOnKeyvault -KeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName -KeyvaultName $CertificateKeyvaultName
                             Write-Host 'Granted permissions on keyvault for executing user'
             
-                        # Removing from keyvault
-                        $keyvaultCertificate = Invoke-Executable az keyvault certificate show --vault-name $CertificateKeyvaultName --name $sslCertFound.name
-                        if ($keyvaultCertificate)
-                        {
+                            # Removing from keyvault
+                            $keyvaultCertificate = Invoke-Executable az keyvault certificate show --vault-name $CertificateKeyvaultName --name $sslCertFound.name
+                            if ($keyvaultCertificate)
+                            {
                                 Write-Host 'Removing certificate from keyvault.'
-                            Invoke-Executable az keyvault certificate delete --name $sslCertFound.name --vault-name $CertificateKeyvaultName
-                        }            
+                                Invoke-Executable az keyvault certificate delete --name $sslCertFound.name --vault-name $CertificateKeyvaultName
+                            }            
+                        }
                     }
                 }
             }            
@@ -1186,9 +1189,16 @@ function New-ApplicationGatewayEntrypoint
     Write-Host 'Created HTTP settings'
 
     # Get the id of the SSL certificate available for the Applicaton Gateway to use in the next step for creating the listener
-    Write-Host "Get SSL Certificate ID from AppGateway"
-    $sslCertId = (Invoke-Executable az network application-gateway ssl-cert show --gateway-name $ApplicationGatewayName --ids $appgatewayCertificate --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
-    Write-Host "AppGateway SSL Cert ID: $sslCertId"
+    Write-Host 'Get SSL Certificate ID from AppGateway'
+    if ($appgatewayCertificate -match '^\/subscriptions\/(?<SubscriptionId>.*)\/resourceGroups\/(?<ResourceGroupName>.*)\/providers\/Microsoft.Network\/applicationGateways\/(?<ApplicationGatewayName>.*)\/sslCertificates\/(?<CertificateName>.*)$')
+    {
+        $sslCertId = (Invoke-Executable az network application-gateway ssl-cert show --gateway-name $ApplicationGatewayName --name $Matches.CertificateName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
+        Write-Host "AppGateway SSL Cert ID: $sslCertId"
+    }
+    else
+    {
+        throw 'Could not get the SSL certificate ID'
+    }
 
     # Create Listener
     Write-Host 'Creating HTTPS Listener'
