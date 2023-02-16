@@ -84,6 +84,13 @@ param diagnosticSettingsMetricsCategories array = [
   }
 ]
 
+@description('Allow or disallow public network access to Storage Account. Value is optional but if passed in, must be `Enabled` or `Disabled`.')
+@allowed([
+  'Disabled'
+  'Enabled'
+])
+param publicNetworkAccess string = 'Enabled'
+
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
 Example:
@@ -123,6 +130,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
     minimumTlsVersion: storageAccountMinimumTlsVersion
     supportsHttpsTrafficOnly: true
     networkAcls: networkAcls
+    publicNetworkAccess: publicNetworkAccess
   }
 }
 

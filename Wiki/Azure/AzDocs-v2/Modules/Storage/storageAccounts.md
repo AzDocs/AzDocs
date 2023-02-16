@@ -16,6 +16,7 @@ Target Scope: resourceGroup
 | storageAccountMinimumTlsVersion | string | <input type="checkbox"> | `'TLS1_0'` or  `'TLS1_1'` or  `'TLS1_2'` | <pre>'TLS1_2'</pre> | Set the minimum TLS version to be permitted on requests to storage. |
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
+| publicNetworkAccess | string | <input type="checkbox"> | `'Disabled'` or  `'Enabled'` | <pre>'Enabled'</pre> | Allow or disallow public network access to Storage Account. Value is optional but if passed in, must be `Enabled` or `Disabled`. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 ## Outputs
 | Name | Type | Description |
