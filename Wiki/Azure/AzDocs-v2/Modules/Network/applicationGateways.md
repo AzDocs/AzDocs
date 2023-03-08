@@ -2,6 +2,12 @@
 
 Target Scope: resourceGroup
 
+## Synopsis
+Creating an application gateway 
+
+## Description
+Creating an application gateway
+
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
@@ -51,4 +57,7 @@ Target Scope: resourceGroup
 | -- |  -- | -- |
 | applicationGatewayId | string | Output the application gateway resource id. |
 | applicationGatewayName | string | Output the application gateway name. |
+## Links
+- [Bicep Microsoft.Network applicationGateways](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep)
+
 

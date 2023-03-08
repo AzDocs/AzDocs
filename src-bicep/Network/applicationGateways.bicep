@@ -1,3 +1,12 @@
+/*
+.SYNOPSIS
+Creating an application gateway 
+.DESCRIPTION
+Creating an application gateway
+.LINKS
+- [Bicep Microsoft.Network applicationGateways](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep)
+*/
+
 // ===================================== Parameters =====================================
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
@@ -445,13 +454,17 @@ var unifiedBackendAddressPools = union(union(backendAddressPools, [
       }
     ]), ezApplicationGatewayBackendAddressPools)
 
+
+@description('The priority should be between 1 and 20000')
+var maxPriority = 20000
+
 @description('This unifies the user-defined request routing rules & the ezApplicationGatewayRequestRoutingRules with the default application gateway request routing rule. We need at least 1 request routing rule for the appgw to be created, so we just create a dummy default one.')
 var unifiedRequestRoutingRules = union(union(requestRoutingRules, [
       {
         name: 'defaultRule'
         properties: {
           ruleType: 'Basic'
-          priority: 10
+          priority: maxPriority
           httpListener: {
             id: resourceId('Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'appGatewayHttpListener')
           }
@@ -517,19 +530,17 @@ var unifiedGatewayIPConfigurations = union(gatewayIPConfigurations, [
 // ===================================== Resources =====================================
 
 @description('Fetch the existing AppGW WAF policy for further use.')
-#disable-next-line BCP081
 resource applicationGatewayWafPolicies 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2021-08-01' existing = {
   name: applicationGatewayWebApplicationFirewallPolicyName
 }
 
 @description('Fetch the existing AppGW public IP address for further use.')
-#disable-next-line BCP081
-resource applicationGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2021-08-01' existing = {
+resource applicationGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2022-01-01' existing = {
   name: applicationGatewayPublicIpName
 }
 
 @description('Upsert the Application Gateway with the given parameters.')
-resource applicationGateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
+resource applicationGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
   name: applicationGatewayName
   tags: tags
   location: location
@@ -576,5 +587,6 @@ resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-pre
 // ===================================== Outputs =====================================
 @description('Output the application gateway resource id.')
 output applicationGatewayId string = applicationGateway.id
+
 @description('Output the application gateway name.')
 output applicationGatewayName string = applicationGateway.name
