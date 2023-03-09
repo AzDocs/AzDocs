@@ -233,7 +233,7 @@ This property can be used by user in the request to enable or disable the Host E
 This will enable the encryption for all the disks including Resource/Temp disk at host itself.
 
 For Linux operating systems this is a mandatory to be set to True.
-Azure Policy controling this is described here - https://confluence.kpn.org/pages/viewpage.action?pageId=214756974
+Azure Policy controling this is described here [Virtual machines and virtual machine scale sets should have encryption at host enabled](https://www.azadvertizer.com/azpolicyadvertizer/fc4d8e41-e223-45ea-9bf5-eada37891d87.html) 
 ''')
 param encryptionAtHost bool = false
 

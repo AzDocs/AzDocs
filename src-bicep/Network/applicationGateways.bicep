@@ -3,6 +3,35 @@
 Creating an application gateway 
 .DESCRIPTION
 Creating an application gateway
+.EXAMPLE
+<pre>
+module appgw '.br:acrazdocsprd.azurecr.io/network/applicationGateways:latest' = {
+  name: 'Deploymentname'
+  params: {
+    applicationGatewayVirtualNetworkName:'myfirstvnet'
+    applicationGatewaySubnetName: 'gateway-sub'
+    applicationGatewayName: 'myfirstappgwpub'
+    applicationGatewayPublicIpName 'myfirstappgwpubip'
+    applicationGatewayWebApplicationFirewallPolicyName: 'myfirstappgwpubwaf'
+    logAnalyticsWorkspaceResourceId: '/subscriptions/1896c5f9-5e13-4ed2-8018-16aba4e6e83d/resourcegroups/law-rg/providers/microsoft.operationalinsights/workspaces/mylaw'
+    ezApplicationGatewayEntrypoints: [
+      {
+        entrypointHostName: 'test1.com'
+        backendAddressFqdn": 'www.google.nl'
+        certificateName: 'certificate1.pfx'
+      },  
+      {
+        entrypointHostName: 'test2.com'
+        backendAddressFqdn: ''
+        certificateName: 'test2.pfx'
+        backendSettingsOverrideHostName: 'test2.org'
+        backendSettingsOverrideTrustedRootCertificates: true
+      }
+    ]  
+  }
+}
+</pre>
+<p>Creates a virtual machine with the name MyFirstVM</p>
 .LINKS
 - [Bicep Microsoft.Network applicationGateways](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep)
 */
@@ -203,6 +232,24 @@ param gatewayIPConfigurations array = []
     entrypointHostName: The hostname to use on the frontend. For example: 'my.website.contoso.com'
     backendAddressFqdn: The FQDN or IPAddress to use as the backend pool member. For example: 'www.google.nl' or 'myapp.azurewebsites.net'
     certificateName: The name of the certificate to use. For example: 'my.pfx'. This certificate should already be present in the AppGw.
+    (optional)backendSettingsOverrideHostName: Hostname used that is used for the backend resouces
+    (optional)backendSettingsOverrideTrustedRootCertificates: if true. all the given trusted root CA's are added
+
+<details>
+  <summary>Click to show examples</summary>
+  {
+    "entrypointHostName": "test1.com",
+    "backendAddressFqdn": "www.google.nl",
+    "certificateName": "certificate1.pfx"
+  },
+  {
+    "entrypointHostName": "test2.com",
+    "backendAddressFqdn": "",
+    "certificateName": "test2.pfx",
+    "backendSettingsOverrideHostName": "test2.org",
+    "backendSettingsOverrideTrustedRootCertificates": true
+  }
+</details>
 ''')
 param ezApplicationGatewayEntrypoints array = []
 
@@ -286,23 +333,33 @@ var ezApplicationGatewayBackendAddressPools = [for entryPoint in ezApplicationGa
     })
 }]
 
+@description('Create a list of trusted root ca id\'s based on the param trustedRootCertificates')
+var trustedRootCertificateIds = [for trustedRootCertificate in trustedRootCertificates: {
+  id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/trustedRootCertificates', applicationGatewayName, trustedRootCertificate.name)
+}]
+
 var ezApplicationGatewayBackendHttpSettingsCollection = [for entryPoint in ezApplicationGatewayEntrypoints: {
   name: replace(ezApplicationGatewayEntrypointsBackendHttpSettingsName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-  properties: {
-    port: 443
-    protocol: 'Https'
-    cookieBasedAffinity: 'Disabled'
-    connectionDraining: {
-      enabled: false
-      drainTimeoutInSec: 1
-    }
-    pickHostNameFromBackendAddress: true
-    affinityCookieName: replace(ezApplicationGatewayEntrypointsAfinityCookieNameName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-    requestTimeout: 30
-    probe: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, replace(ezApplicationGatewayEntrypointsProbeName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')))
-    }
-  }
+  properties: union(
+    {
+      port: 443
+      protocol: 'Https'
+      cookieBasedAffinity: 'Disabled'
+      connectionDraining: {
+        enabled: false
+        drainTimeoutInSec: 1
+      }
+      pickHostNameFromBackendAddress: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName) ? false : true
+      hostName: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName) ? entryPoint.backendSettingsOverrideHostName : ''
+      affinityCookieName: replace(ezApplicationGatewayEntrypointsAfinityCookieNameName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
+      requestTimeout: 30
+      probe: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, replace(ezApplicationGatewayEntrypointsProbeName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')))
+      }
+    }, contains(entryPoint, 'backendSettingsOverrideTrustedRootCertificates') && entryPoint.backendSettingsOverrideTrustedRootCertificates == true ? {
+      trustedRootCertificates: trustedRootCertificateIds
+    } : {}
+  )
 }]
 
 var ezApplicationGatewayHttpListeners = [for entryPoint in ezApplicationGatewayEntrypoints: {
@@ -406,7 +463,7 @@ var legacyCustomV2Profile = {
         'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'
         'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'
         'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'
-    ]
+      ]
     }
     clientAuthConfiguration: {
       verifyClientCertIssuerDN: false
@@ -439,7 +496,7 @@ var legacyCustomProfile = {
 }
 
 @description('Defines the default legacy profile, based on if the main profile is customv2 or something else.')
-var legacyProfile = sslPolicy.policyType == 'CustomV2' ? legacyCustomV2Profile : legacyCustomProfile 
+var legacyProfile = sslPolicy.policyType == 'CustomV2' ? legacyCustomV2Profile : legacyCustomProfile
 
 @description('This unifies the user-defined SSL profiles & the default legacy profile we offer from this module.')
 var unifiedSslProfiles = union(sslProfiles, [ legacyProfile ])
@@ -453,7 +510,6 @@ var unifiedBackendAddressPools = union(union(backendAddressPools, [
         }
       }
     ]), ezApplicationGatewayBackendAddressPools)
-
 
 @description('The priority should be between 1 and 20000')
 var maxPriority = 20000
@@ -540,7 +596,7 @@ resource applicationGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2022-01
 }
 
 @description('Upsert the Application Gateway with the given parameters.')
-resource applicationGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
+resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' = {
   name: applicationGatewayName
   tags: tags
   location: location
