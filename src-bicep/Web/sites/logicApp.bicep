@@ -21,8 +21,8 @@ module logicApp 'br:acrazdocsprd.azurecr.io/web/sites/logicapp:latest' = {
         value: appInsights.outputs.appInsightsInstrumentationKey
       }
       {
-        name: 'APPLICATIONSINSIGHTS_CONNECTION_STRING'
-        value: appInsights.outputs.appInsightsConnectionString
+        name: 'AzureFunctionsJobHost__extensionBundle__id'
+        value: 'Microsoft.Azure.Functions.ExtensionBundle.Workflows'
       }
       {
         name: 'APP_KIND'
@@ -111,12 +111,17 @@ param ipSecurityRestrictions array = [
 ]
 
 @description('''
-Application settings. Remark: if you want to use version 4 of the Azure Functions extension bundle, you should include the AzureFunctionsJobHost__extensionBundle__version and AzureFunctionsJobHost__extensionBundle__id setting in your configuration.
-However, if you don't need to specify a specific version, you can leave this setting out and the Logic App Standard will use the latest version of the extension bundle by default. For array/object format, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#namevaluepair.''')
+Application settings. For array/object format, refer to [the docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#namevaluepair).
+Remark: if you want to use version 4 of the Azure Functions extension bundle, you should include the AzureFunctionsJobHost__extensionBundle__version setting with value [1.*, 2.0.0) in your configuration.
+However, if you don't need to specify a specific version, you can leave this setting out and the Logic App Standard will use the latest version of the extension bundle by default.''')
 param appSettings array = [
   {
     name: 'APP_KIND'
     value: 'workflowApp'
+  }
+  {
+    name: 'AzureFunctionsJobHost__extensionBundle__id'
+    value: 'Microsoft.Azure.Functions.ExtensionBundle.Workflows'
   }
   {
     name: 'WEBSITE_ENABLE_SYNC_UPDATE_SITE'
@@ -207,8 +212,8 @@ param virtualApplications array = [
 @description('''
 Cross-Origin Resource Sharing (CORS) settings.Gets or sets the list of origins that should be allowed to make cross-origin calls,
 for example: http://example.com:12345). Use "*" to allow all.
-''')
-param logicAppCorsAllowedOrigins array = [
+Example:
+[
   'https://afd.hosting.portal.azure.net'
   'https://afd.hosting-ms.portal.azure.net'
   'https://hosting.portal.azure.net'
@@ -216,6 +221,8 @@ param logicAppCorsAllowedOrigins array = [
   'https://ema-ms.hosting.portal.azure.net'
   'https://ema.hosting.portal.azure.net'
 ]
+''')
+param logicAppCorsAllowedOrigins array = []
 
 @description('If the AppServicePlan has enabled per-app scaling, you can configure the number of instances the app can use.')
 param logicAppNumberOfWorkers int = -1
