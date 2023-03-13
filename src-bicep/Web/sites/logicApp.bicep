@@ -93,6 +93,31 @@ param storageAccountName string
 @maxLength(90)
 param storageAccountResourceGroupName string = az.resourceGroup().name
 
+@description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
+@minLength(0)
+param logAnalyticsWorkspaceResourceId string
+
+@description('The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`.')
+@minLength(1)
+@maxLength(260)
+param diagnosticsName string = 'AzurePlatformCentralizedLogging'
+
+@description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
+param diagnosticSettingsLogsCategories array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings).')
+param diagnosticSettingsMetricsCategories array = [
+  {
+    categoryGroup: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('Managed service identity to use for this logic app. Defaults to a system assigned managed identity. For object format, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity.')
 param identity object = {
   type: 'SystemAssigned'
@@ -391,6 +416,19 @@ resource workflowLogicApp 'Microsoft.Web/sites@2022-03-01' = {
   }
 
 }
+
+
+@description('Upsert the diagnostic settings for the webapp with the given parameters.')
+resource webAppDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
+  name: diagnosticsName
+  scope: workflowLogicApp
+  properties: {
+    workspaceId: logAnalyticsWorkspaceResourceId
+    logs: diagnosticSettingsLogsCategories
+    metrics: diagnosticSettingsMetricsCategories
+  }
+}
+
 
 @description('Output the logic app\'s resource name.')
 output logicAppName string = workflowLogicApp.name

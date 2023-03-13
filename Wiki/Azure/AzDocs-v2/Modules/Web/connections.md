@@ -27,6 +27,7 @@ Creating a Api connection resource for a web resource, e.g a Logic App.
 | connectionResourceName | string | Output the connection\'s resource name. |
 | connectionResourceId | string | Output the connection\'s resource id. |
 | connectionApiVersion | string | Output the connection\'s resource API Version. |
+| connectionRuntimeUrl | string | Output the connection\'s connection runtime url. |
 ## Examples
 <pre>
 module connections_azureautomation '.br:acrazdocsprd.azurecr.io/web/connections:latest' = {

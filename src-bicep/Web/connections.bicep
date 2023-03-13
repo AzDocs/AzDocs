@@ -121,3 +121,6 @@ output connectionResourceName string = connection.name
 output connectionResourceId string = connection.id
 @description('Output the connection\'s resource API Version.')
 output connectionApiVersion string = connection.apiVersion
+@description('Output the connection\'s connection runtime url.')
+output connectionRuntimeUrl string = reference(connection.id, connection.apiVersion, 'full').properties.connectionRuntimeUrl
+
