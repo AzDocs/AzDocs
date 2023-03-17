@@ -24,6 +24,7 @@ Be aware that this YAML example contains all parameters that can be used with th
   inputs:
     azureSubscription: "${{ parameters.SubscriptionName }}"
     ScriptType: "FilePath"
+    pwsh: true
     scriptPath: "$(Pipeline.Workspace)/AzDocs/VirtualMachine/Invoke-Virtual-Machine-Command.ps1"
     azurePowerShellVersion: "LatestVersion"
     ScriptArguments: -VirtualMachineResourceGroupName '$(ResourceGroupName)'

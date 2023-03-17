@@ -1,3 +1,49 @@
+/*
+.SYNOPSIS
+Creating scheduled rules in Azure Monitor.
+.DESCRIPTION
+Creating scheduled rules in Azure Monitor..
+.EXAMPLE
+<pre>
+module scheduledqueryalertrule 'br:acrazdocsprd.azurecr.io/insights/scheduledqueryrules:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 49), 'schedqryalrule')
+  params: {
+    location: location
+    scheduledQueryRuleName: scheduledQueryRuleName
+    actionGroups: [
+      actionGroup.outputs.actionGroupResourceId
+    ]
+    scheduledQueryRuleDescription: scheduledQueryRulesDescription
+    criteria: {
+      allOf: [
+        {
+          query: scheduledQueryRulesQuery
+          timeAggregation: 'Count'
+          dimensions: []
+          operator: 'GreaterThan'
+          threshold: 0
+          failingPeriods: {
+            numberOfEvaluationPeriods: 1
+            minFailingPeriodsToAlert: 1
+          }
+        }
+      ]
+    }
+    targetResourceTypes: [
+      'microsoft.insights/components'
+    ]
+    scopes: [
+      appInsights.outputs.appInsightsResourceId
+    ]
+  }
+}
+</pre>
+<p>Creates a schedules rules resource in azure monitor with the name 'scheduledQueryRuleName'</p>
+.LINKS
+- [Bicep Scheduled Rules](https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/scheduledqueryrules?pivots=deployment-language-bicep)
+*/
+
+// ================================================= Parameters =================================================
 @description('The location for this Application Insights instance to be upserted in.')
 param location string = resourceGroup().location
 
@@ -17,42 +63,65 @@ param scheduledQueryRuleDescription string = scheduledQueryRuleName
 @maxValue(4)
 param scheduledQueryRuleSeverity int = 3
 
-@description('''
-How often the scheduled query rule is evaluated represented in ISO 8601 duration format. Relevant and required only for rules of the kind LogAlert.
-The format for this string is P<days>DT<hours>H<minutes>M<seconds>S (for example, "PT5M" is 5 minutes, "PT1H" is 1 hour, and "PT20M" is 20 minutes).
-Defaults to PT5M.
-''')
+@description('how often the metric alert is evaluated represented in ISO 8601 duration format')
+@allowed([
+  'PT5M'
+  'PT15M'
+  'PT30M'
+  'PT1H'
+])
 param evaluationFrequency string = 'PT5M'
 
 @description('''
-The period of time (in ISO 8601 duration format) on which the Alert query will be executed (bin size). Relevant and required only for rules of the kind LogAlert.
-The format for this string is P<days>DT<hours>H<minutes>M<seconds>S (for example, "PT5M" is 5 minutes, "PT1H" is 1 hour, and "PT20M" is 20 minutes).
-Defaults to PT5M.
+The period of time (in [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations)) on which the Alert query will be executed (bin size). Relevant and required only for rules of the kind LogAlert.
+The format for this string is P<days>DT<hours>H<minutes>M<seconds>S. You always need to mention de T if something the time is needed.
+for example:
+P5D is 5 days
+P5M is 5 months
+P5DT5M is 5 days  and 5 minutes
+PT5M is 5 minutes
+PT1H is 1 hour
 ''')
+@allowed([
+  'PT1M'
+  'PT5M'
+  'PT15M'
+  'PT30M'
+  'PT1H'
+  'PT6H'
+  'PT12H'
+  'PT24H'
+])
 param windowSize string = 'PT5M'
 
 @description('''
-The criteria to alert. For options & formatting please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/scheduledqueryrules?pivots=deployment-language-bicep#scheduledqueryrulecriteria.
+The criteria to alert.  The AllOf: [] is required and it cannot be empty.
+For options & formatting please refer to [scheduledqueryrulecriteria](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/scheduledqueryrules?pivots=deployment-language-bicep#scheduledqueryrulecriteria).
 Example:
-[
-  {
-    failingPeriods: {
-      minFailingPeriodsToAlert: 1
-      numberOfEvaluationPeriods: 1
+{
+  allOf: [
+    {
+      query: 'traces | where operation_Name == "FlowRunLastJob"'
+      timeAggregation: 'Count'
+      dimensions: []
+      operator: 'GreaterThan'
+      threshold: 0
+      failingPeriods: {
+        numberOfEvaluationPeriods: 1
+        minFailingPeriodsToAlert: 1
+      }
     }
-    operator: 'GreaterThan'
-    query: '<input query here>'
-    threshold: 0
-    resourceIdColumn: ''
-    timeAggregation: 'Count'
-    dimensions: []
-  }
-]
+  ]
+}
 ''')
-param criteria array = []
+param criteria object
 
-@description('The list of resource id\'s that this scheduled query rule is scoped to.') // TODO: Explain a bit more?
-param scopes array = []
+@description('''The list of resource id\'s that this scheduled query rule is scoped to, for example the Application Insights Resource Id.
+Scopes list should contain at least 1 resource Id.
+Example:
+[ appInsights.outputs.appInsightsResourceId ]
+''')
+param scopes array
 
 @description('''
 List of resource type of the target resource(s) on which the alert is created/updated. For example if the scope is a resource group and targetResourceTypes is Microsoft.Compute/virtualMachines, then a different alert will be fired for each virtual machine in the resource group which meet the alert criteria. Relevant only for rules of the kind LogAlert.
@@ -64,10 +133,26 @@ param autoMitigate bool = true
 
 @description('''
 Mute actions for the chosen period of time (in ISO 8601 duration format) after the alert is fired. Relevant only for rules of the kind LogAlert.
-The format for this string is P<days>DT<hours>H<minutes>M<seconds>S (for example, "PT5M" is 5 minutes, "PT1H" is 1 hour, and "PT20M" is 20 minutes).
 Defaults to an empty string.
 ''')
+@allowed([
+  'PT1M'
+  'PT5M'
+  'PT15M'
+  'PT30M'
+  'PT1H'
+  'PT6H'
+  'PT12H'
+  'PT24H'
+  ''
+])
 param muteActionsDuration string = ''
+
+@description('Specifies whether to check linked storage and fail creation if the storage was not found')
+param checkWorkspaceAlertsStorageConfigured bool = false
+
+@description('Specifies whether the alert is enabled')
+param isEnabled bool = true
 
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
@@ -80,7 +165,7 @@ Example:
 param tags object = {}
 
 @description('Upsert the scheduledQueryRules resource with the given parameters.')
-resource scheduledQueryRule 'Microsoft.Insights/scheduledQueryRules@2021-08-01' = {
+resource scheduledQueryRule 'Microsoft.Insights/scheduledQueryRules@2022-08-01-preview' = {
   name: scheduledQueryRuleName
   location: location
   tags: tags
@@ -91,12 +176,12 @@ resource scheduledQueryRule 'Microsoft.Insights/scheduledQueryRules@2021-08-01' 
     }
     autoMitigate: autoMitigate
     muteActionsDuration: empty(muteActionsDuration) ? null : muteActionsDuration
-    checkWorkspaceAlertsStorageConfigured: false
+    checkWorkspaceAlertsStorageConfigured: checkWorkspaceAlertsStorageConfigured
     #disable-next-line BCP036
     criteria: criteria
     description: scheduledQueryRuleDescription
     displayName: scheduledQueryRuleName
-    enabled: true
+    enabled: isEnabled
     evaluationFrequency: evaluationFrequency
     scopes: scopes
     severity: scheduledQueryRuleSeverity

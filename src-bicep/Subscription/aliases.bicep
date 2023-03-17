@@ -18,6 +18,16 @@ param subscriptionWorkloadType string
 @maxLength(36)
 param subscriptionOwnerId string = ''
 
+@description('''
+The tags to apply to this resource. This is an object with key/value pairs.
+Example:
+{
+  FirstTag: myvalue
+  SecondTag: another value
+}
+''')
+param tags object = {}
+
 @description('Upsert the subscription with the given context')
 resource subscription 'Microsoft.Subscription/aliases@2021-10-01' = {
   scope: tenant() // Derived from the pipeline context
@@ -30,6 +40,7 @@ resource subscription 'Microsoft.Subscription/aliases@2021-10-01' = {
       managementGroupId: managementGroup().id // This is fetched from the pipeline where you define the management group context
       subscriptionOwnerId: subscriptionOwnerId
       subscriptionTenantId: tenant().tenantId // Derived from the pipeline context
+      tags: tags
     }
   }
 }
