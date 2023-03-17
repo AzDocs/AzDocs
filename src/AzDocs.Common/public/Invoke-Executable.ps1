@@ -59,6 +59,7 @@ function Invoke-Executable
     # Restore original $LASTEXITCODE when -AllowToFail is passed
     if ($AllowToFail)
     {
+        Write-ColorHost -Message "[AllowToFail previous command]" -Color 'Blue'
         if ($env:SYSTEM_DEBUG -and $env:SYSTEM_DEBUG -eq $true)
         {
             Write-Host "Overriding LASTEXITCODE to $lastKnownExitCode due to -AllowToFail."

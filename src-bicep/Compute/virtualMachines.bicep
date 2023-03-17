@@ -229,6 +229,15 @@ param windowsConfiguration object = {
 }
 
 @description('''
+This property can be used by user in the request to enable or disable the Host Encryption for the virtual machine or virtual machine scale set. 
+This will enable the encryption for all the disks including Resource/Temp disk at host itself.
+
+For Linux operating systems this is a mandatory to be set to True.
+Azure Policy controling this is described here [Virtual machines and virtual machine scale sets should have encryption at host enabled](https://www.azadvertizer.com/azpolicyadvertizer/fc4d8e41-e223-45ea-9bf5-eada37891d87.html) 
+''')
+param encryptionAtHost bool = false
+
+@description('''
 Type of OS licensing.
 For customers with Software Assurance, Azure Hybrid Benefit for Windows Server allows you to use your on-premises Windows Server licenses and run Windows virtual machines on Azure at a reduced cost.
 You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machines with Windows OS.
@@ -337,6 +346,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       imageReference: virtualMachineImageReference
       osDisk: osDisk
       dataDisks: dataDisks
+    }
+    securityProfile: {
+      encryptionAtHost: encryptionAtHost
     }
     availabilitySet: (!empty(availabilitySetName)) ? { id: availabilitySet.id } : null
     networkProfile: {

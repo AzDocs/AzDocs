@@ -123,7 +123,7 @@ function Update-MetadataMarkdown
         )
         process
         {
-            return $string | ForEach-Object { $_.Replace('|' , '&#124;') } 
+            return $string | ForEach-Object { $_.Replace('|' , '&#124;').Replace('$','&#36;') } 
         }
        
     }
@@ -187,13 +187,13 @@ function Update-MetadataMarkdown
             if (![string]::IsNullOrEmpty($description) -and $parameterInfo.Decorators.description -is [array] -and $parameterInfo.Decorators.description.Count -gt 1 )
             {
                 $spacedDescription = ConvertTo-SpaceWithHtmlSpaces -lines $parameterInfo.Decorators.description
-                $description = $spacedDescription | Join-String -Separator '<br>'
+                $description = $spacedDescription | Join-String -Separator '<br>' | ConvertTo-MarkDownSanitizedText
             }
    
             $defaultValue = $parameterInfo.DefaultValue | ConvertTo-MarkDownSanitizedText
             if (![string]::IsNullOrEmpty($description) -and $parameterInfo.DefaultValue -is [array] -and $parameterInfo.DefaultValue.Count -gt 1)
             {
-                $defaultValue = $parameterInfo.DefaultValue | Join-String -Separator '<br>'
+                $defaultValue = $parameterInfo.DefaultValue | Join-String -Separator '<br>' | ConvertTo-MarkDownSanitizedText
             }
             $required = "<input type=""checkbox""$($null -eq $parameterInfo.DefaultValue ? ' checked' : '')>"
             $StringBuilder.AppendLine("| $($parameterInfo.Name) | $($parameterInfo.Type) | $required | $validation | <pre>$defaultValue</pre> | $description |") | Out-Null   

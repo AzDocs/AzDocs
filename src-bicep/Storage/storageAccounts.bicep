@@ -22,6 +22,11 @@ For example:
 ''')
 param subnetIdsToWhitelist array = []
 
+@description('''
+Array of strings containing value of the Public IP you want to whitelist on this storage account. Specifies the IP or IP range in CIDR format. Only IPV4 address is allowed.
+''')
+param publicIpsToWhitelist array = []
+
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
 @minLength(0)
 param logAnalyticsWorkspaceResourceId string
@@ -84,6 +89,13 @@ param diagnosticSettingsMetricsCategories array = [
   }
 ]
 
+@description('Allow or disallow public network access to Storage Account. Value is optional but if passed in, must be `Enabled` or `Disabled`.')
+@allowed([
+  'Disabled'
+  'Enabled'
+])
+param publicNetworkAccess string = 'Enabled'
+
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
 Example:
@@ -100,16 +112,23 @@ var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
   action: 'Allow'
 }]
 
+@description('Build the needed object for the virtualNetworkRules based on the `publicIpsToWhitelist` parameter.')
+var ipRules = [for ip in publicIpsToWhitelist: {
+    action: 'Allow'
+    value: ip
+}]
+
 @description('Setting up the networkAcls and add rules if any are defined.')
-var networkAcls = empty(virtualNetworkRules) ? {
+var networkAcls = empty(virtualNetworkRules) && empty(ipRules) ? {
   defaultAction: 'Allow'
 } : {
   defaultAction: 'Deny'
   virtualNetworkRules: virtualNetworkRules
+  ipRules: ipRules
 }
 
 @description('Upsert the storage account based on the given parameters.')
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: toLower(storageAccountName)
   location: location
   kind: storageAccountKind
@@ -123,6 +142,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
     minimumTlsVersion: storageAccountMinimumTlsVersion
     supportsHttpsTrafficOnly: true
     networkAcls: networkAcls
+    publicNetworkAccess: publicNetworkAccess
   }
 }
 
