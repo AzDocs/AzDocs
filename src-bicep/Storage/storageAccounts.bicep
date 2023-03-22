@@ -114,8 +114,8 @@ var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
 
 @description('Build the needed object for the virtualNetworkRules based on the `publicIpsToWhitelist` parameter.')
 var ipRules = [for ip in publicIpsToWhitelist: {
-    action: 'Allow'
-    value: ip
+  action: 'Allow'
+  value: ip
 }]
 
 @description('Setting up the networkAcls and add rules if any are defined.')
@@ -164,3 +164,5 @@ output storageAccountResourceId string = storageAccount.id
 output storageAccountPrimaryEndpoint object = storageAccount.properties.primaryEndpoints
 @description('Output the API Version for this storage account.')
 output storageAccountApiVersion string = storageAccount.apiVersion
+@description('The Storage Account keys (outputing this so it can be used when creating function apps).')
+output storageAccountKey string = storageAccount.listKeys().keys[0].value

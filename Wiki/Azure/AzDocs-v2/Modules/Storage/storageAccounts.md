@@ -26,4 +26,5 @@ Target Scope: resourceGroup
 | storageAccountResourceId | string | Output the resource id of this storage account. |
 | storageAccountPrimaryEndpoint | object | Output the primary endpoint for this storage account. |
 | storageAccountApiVersion | string | Output the API Version for this storage account. |
+| storageAccountKey | string | The Storage Account keys (outputing this so it can be used when creating function apps). |
 

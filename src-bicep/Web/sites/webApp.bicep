@@ -110,7 +110,7 @@ param ipSecurityRestrictions array = [
     ipAddress: '0.0.0.0/0'
     action: 'Deny'
     tag: 'Default'
-    priority: 10
+    priority: 2147483646
     name: 'DefaultDeny'
     description: 'Default deny so that nothing is publicly exposed by accident'
   }
@@ -122,7 +122,7 @@ param scmIpSecurityRestrictions array = [
     ipAddress: '0.0.0.0/0'
     action: 'Deny'
     tag: 'Default'
-    priority: 10
+    priority: 2147483646
     name: 'DefaultDeny'
     description: 'Default deny so that nothing is publicly exposed by accident'
   }
