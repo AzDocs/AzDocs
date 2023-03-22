@@ -29,7 +29,7 @@ Creating a private endpoint for a resource.
 | -- |  -- | -- |
 ## Examples
 <pre>
-module privateendpoint 'br:acrazdocsprd.azurecr.io/network/privateendpoints:latest' = {
+module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:latest' = {
   name: '${deployment().name}-stgpetest'
   params: {
     privateDnsLinkName: 'stgprivdnslinkname'

@@ -5,7 +5,7 @@ Creating scheduled rules in Azure Monitor.
 Creating scheduled rules in Azure Monitor..
 .EXAMPLE
 <pre>
-module scheduledqueryalertrule 'br:acrazdocsprd.azurecr.io/insights/scheduledqueryrules:latest' = {
+module scheduledqueryalertrule 'br:contosoregistry.azurecr.io/insights/scheduledqueryrules:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 49), 'schedqryalrule')
   params: {
     location: location

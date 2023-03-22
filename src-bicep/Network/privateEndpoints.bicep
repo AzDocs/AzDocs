@@ -5,7 +5,7 @@ Creating a private endpoint
 Creating a private endpoint for a resource.
 .EXAMPLE
 <pre>
-module privateendpoint 'br:acrazdocsprd.azurecr.io/network/privateendpoints:latest' = {
+module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:latest' = {
   name: '${deployment().name}-stgpetest'
   params: {
     privateDnsLinkName: 'stgprivdnslinkname'

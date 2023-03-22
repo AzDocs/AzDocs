@@ -7,7 +7,7 @@ Currently kind: functionapp,workflowapp does not seem to be completely supported
 Therefore this separate bicep file.
 .EXAMPLE
 <pre>
-module logicApp 'br:acrazdocsprd.azurecr.io/web/sites/logicapp:latest' = {
+module logicApp 'br:contosoregistry.azurecr.io/web/sites/logicapp:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 55), 'lappname')
   params: {
     logicAppName: logicAppName

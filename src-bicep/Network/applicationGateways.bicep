@@ -5,7 +5,7 @@ Creating an application gateway
 Creating an application gateway
 .EXAMPLE
 <pre>
-module appgw '.br:acrazdocsprd.azurecr.io/network/applicationGateways:latest' = {
+module appgw 'br:contosoregistry.azurecr.io/network/applicationGateways:latest' = {
   name: 'Deploymentname'
   params: {
     applicationGatewayVirtualNetworkName:'myfirstvnet'
@@ -57,6 +57,11 @@ param applicationGatewaySubnetName string
 @minLength(1)
 @maxLength(80)
 param applicationGatewayName string
+
+@description('The name of the static webapp, by default the first 36 characters of the applicationGatewayName')
+@minLength(1)
+@maxLength(40)
+param redirectStaticWebAppName string = 'stapp-${take(applicationGatewayName, 34)}'
 
 @description('The minimum instance count for Application Gateway. The Application Gateway will scale out with a minimum of this minCapacity. For highly available Application Gateways, please use 2 or higher.')
 @minValue(0)
@@ -320,8 +325,20 @@ The default frontend Ip Configuration that is used to attach the httplisteners t
 ])
 param DefaultFrontendIpConfigurationName string = enablePrivateFrontendIp ? 'appGatewayPrivateFrontendIP' : 'appGatewayFrontendIP'
 
-// ===================================== Variables =====================================
+@description('''
+If this is true the default port 80 rule will be adjusted so that it will redirect http to https requests.
+If `FqdnToRedirect` is specified, that url will be used. Expected is that the website would redirect any requests to https.
+If `FqdnToRedirect` is not specified, an Static Web App will be created that would redirect http to https traffic.
 
+The default port 80 will be configured with a rewrite rule that would change the response from the `FqdnToRedirect` or the fqdn of the static web app address to the original requested host.
+''')
+param RedirectHttpToHttps bool = false
+
+@description('Supply a fqdn to use for redirection. It is expected that the website would redirect all traffic to https with the same fqdn. See also `RedirectHttpToHttps`for more information')
+param FqdnToRedirect string = ''
+
+// ===================================== Variables =====================================
+@description('Building up the Backend Address Pools based on ezApplicationGatewayEntrypoints')
 var ezApplicationGatewayBackendAddressPools = [for entryPoint in ezApplicationGatewayEntrypoints: {
   name: replace(ezApplicationGatewayEntrypointsBackendAddressPoolName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
   properties: union({}, empty(entryPoint.backendAddressFqdn) ? { backendAddresses: [] } : {
@@ -498,75 +515,102 @@ var legacyCustomProfile = {
 @description('Defines the default legacy profile, based on if the main profile is customv2 or something else.')
 var legacyProfile = sslPolicy.policyType == 'CustomV2' ? legacyCustomV2Profile : legacyCustomProfile
 
+var defaultBackendPoolName = 'appGatewayBackendPool'
+var defaultRuleName = 'defaultRule'
+var defaultRewriteRuleName = 'appGatewayRedirectRule'
+var defaultHttpListener = 'appGatewayHttpListener'
+var defaultBackendHttpSettingsName = 'appGatewayBackendHttpSettings'
+
 @description('This unifies the user-defined SSL profiles & the default legacy profile we offer from this module.')
 var unifiedSslProfiles = union(sslProfiles, [ legacyProfile ])
 
-@description('This unifies the user-defined backend pools & the ezApplicationGatewayBackendAddressPools with the default application gateway backendpool. We need at least 1 backendpool for the appgw to be created, so we just create a dummy default one.')
-var unifiedBackendAddressPools = union(union(backendAddressPools, [
-      {
-        name: 'appGatewayBackendPool'
-        properties: {
-          backendAddresses: []
+@description('Default backendpool that is used for all port 80 calls')
+var defaultBackendAddressPool = [
+  {
+    name: defaultBackendPoolName
+    properties: {
+      backendAddresses: !RedirectHttpToHttps ? [] : [
+        {
+          fqdn: empty(FqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : FqdnToRedirect
         }
-      }
-    ]), ezApplicationGatewayBackendAddressPools)
+      ]
+    }
+  }
+]
+
+@description('This unifies the user-defined backend pools & the ezApplicationGatewayBackendAddressPools with the default application gateway backendpool. We need at least 1 backendpool for the appgw to be created, so we just create a dummy default one.')
+var unifiedBackendAddressPools = union(backendAddressPools, ezApplicationGatewayBackendAddressPools, defaultBackendAddressPool)
 
 @description('The priority should be between 1 and 20000')
 var maxPriority = 20000
 
 @description('This unifies the user-defined request routing rules & the ezApplicationGatewayRequestRoutingRules with the default application gateway request routing rule. We need at least 1 request routing rule for the appgw to be created, so we just create a dummy default one.')
-var unifiedRequestRoutingRules = union(union(requestRoutingRules, [
-      {
-        name: 'defaultRule'
-        properties: {
+var unifiedRequestRoutingRules = union(requestRoutingRules, ezApplicationGatewayRequestRoutingRules,
+  [
+    {
+      name: defaultRuleName
+      properties: union(
+        {
           ruleType: 'Basic'
           priority: maxPriority
           httpListener: {
-            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'appGatewayHttpListener')
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, defaultHttpListener)
           }
           backendAddressPool: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, 'appGatewayBackendPool')
+            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, defaultBackendPoolName)
           }
           backendHttpSettings: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, 'appGatewayBackendHttpSettings')
+            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, defaultBackendHttpSettingsName)
           }
-        }
-      }
-    ]), ezApplicationGatewayRequestRoutingRules)
+
+        }, RedirectHttpToHttps ? {
+          rewriteRuleSet: {
+            id: resourceId('Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, defaultRewriteRuleName)
+          }
+        } : {})
+    }
+  ]
+)
 
 @description('This unifies the user-defined http listener & the ezApplicationGatewayHttpListeners with the default application gateway http listener. We need at least 1 http listener for the appgw to be created, so we just create a dummy default one.')
-var unifiedHttpListeners = union(union([
-      {
-        name: 'appGatewayHttpListener'
-        properties: {
-          firewallPolicy: {
-            id: applicationGatewayWafPolicies.id
-          }
-          frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, DefaultFrontendIpConfigurationName)
-          }
-          frontendPort: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_80')
-          }
-          protocol: 'Http'
-          requireServerNameIndication: false
+var unifiedHttpListeners = union(httpListeners, ezApplicationGatewayHttpListeners, [
+    {
+      name: defaultHttpListener
+      properties: {
+        firewallPolicy: {
+          id: applicationGatewayWafPolicies.id
         }
+        frontendIPConfiguration: {
+          id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, DefaultFrontendIpConfigurationName)
+        }
+        frontendPort: {
+          id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_80') //TODO hardcode refence to a param
+        }
+        protocol: 'Http'
+        requireServerNameIndication: false
       }
-    ], httpListeners), ezApplicationGatewayHttpListeners)
+    }
+  ]
+)
+
+var defaultBackendHttpSettings = [
+  {
+    name: defaultBackendHttpSettingsName
+    properties: union({
+        port: 80
+        protocol: 'Http'
+        cookieBasedAffinity: cookieBasedAffinity
+        pickHostNameFromBackendAddress: true
+        requestTimeout: 20
+      }, !RedirectHttpToHttps ? {} : {
+        pickHostNameFromBackendAddress: false
+        hostname: empty(FqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : FqdnToRedirect
+      })
+  }
+]
 
 @description('This unifies the user-defined backend http settings & the ezApplicationGatewayBackendHttpSettingsCollection with the default application gateway backend http settings. We need at least 1 backend http settings for the appgw to be created, so we just create a dummy default one.')
-var unifiedBackendHttpSettingsCollection = union(union(backendHttpSettingsCollection, [
-      {
-        name: 'appGatewayBackendHttpSettings'
-        properties: {
-          port: 80
-          protocol: 'Http'
-          cookieBasedAffinity: cookieBasedAffinity
-          pickHostNameFromBackendAddress: false
-          requestTimeout: 20
-        }
-      }
-    ]), ezApplicationGatewayBackendHttpSettingsCollection)
+var unifiedBackendHttpSettingsCollection = union(backendHttpSettingsCollection, ezApplicationGatewayBackendHttpSettingsCollection, defaultBackendHttpSettings)
 
 @description('This unifies the user-defined probes with the ez gateway probes.')
 var unifiedProbes = union(probes, ezApplicationGatewayProbes)
@@ -583,7 +627,48 @@ var unifiedGatewayIPConfigurations = union(gatewayIPConfigurations, [
     }
   ])
 
+var unifiedRewriteRuleSets = union(rewriteRuleSets,
+  [
+    RedirectHttpToHttps ? {
+      name: 'appGatewayRedirectRule'
+      properties: {
+        rewriteRules: [
+          {
+            ruleSequence: 100
+            conditions: [
+              {
+                variable: 'http_resp_Location'
+                pattern: '(https?):\\/\\/${replace(empty(FqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : FqdnToRedirect, '.', '\\.')}(.*)$'
+                ignoreCase: true
+                negate: false
+              }
+            ]
+            name: 'RedirectToOriginalUrl'
+            actionSet: {
+              requestHeaderConfigurations: []
+              responseHeaderConfigurations: [
+                {
+                  headerName: 'Location'
+                  headerValue: 'https://{var_host}{http_resp_Location_2}'
+                }
+              ]
+            }
+          }
+        ]
+      }
+    } : {}
+  ]
+)
+
 // ===================================== Resources =====================================
+@description('Static website if http needs to be redirected to https and no fqdn is supplied with `FqdnToRedirect`')
+module swaRedirect '../Web/staticSites.bicep' = if (RedirectHttpToHttps && empty(FqdnToRedirect)) {
+  name: '${take(deployment().name, 60)}-swa' //64 - 4 = 60
+  params: {
+    location: location
+    staticWebAppName: redirectStaticWebAppName
+  }
+}
 
 @description('Fetch the existing AppGW WAF policy for further use.')
 resource applicationGatewayWafPolicies 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2021-08-01' existing = {
@@ -623,7 +708,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' =
     sslPolicy: sslPolicy
     sslCertificates: sslCertificates
     probes: unifiedProbes
-    rewriteRuleSets: rewriteRuleSets
+    rewriteRuleSets: unifiedRewriteRuleSets
     redirectConfigurations: redirectConfigurations
     trustedRootCertificates: trustedRootCertificates
   }

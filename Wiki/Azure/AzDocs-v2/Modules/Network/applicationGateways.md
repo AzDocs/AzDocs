@@ -16,6 +16,7 @@ Creating an application gateway
 | virtualNetworkResourceGroupName | string | <input type="checkbox"> | None | <pre>az.resourceGroup().name</pre> | The name resourcegroup where the virtual network resource is allocated. |
 | applicationGatewaySubnetName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | Name of the subnet where the Application Gateway should reside in. |
 | applicationGatewayName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | The name of the Application Gateway. |
+| redirectStaticWebAppName | string | <input type="checkbox"> | Length between 1-40 | <pre>'stapp-&#36;{take(applicationGatewayName, 34)}'</pre> | The name of the static webapp, by default the first 36 characters of the applicationGatewayName |
 | minCapacity | int | <input type="checkbox"> | Value between 0-125 | <pre>2</pre> | The minimum instance count for Application Gateway. The Application Gateway will scale out with a minimum of this minCapacity. For highly available Application Gateways, please use 2 or higher. |
 | maxCapacity | int | <input type="checkbox"> | Value between 1-125 | <pre>10</pre> | The maximum instance count for Application Gateway. The Application Gateway will scale out to this number tops. |
 | sslProfiles | array | <input type="checkbox"> | None | <pre>[]</pre> | SSL profiles of the application gateway resource. <br>For object structure, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslprofile.<br>By default this module will add a `Legacy` SSL profile which is using TLS 1.2 with these ciphersuites:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TLS_RSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TLS_RSA_WITH_AES_128_GCM_SHA256'<br>You can append this profile with your own defined profiles. |
@@ -52,6 +53,8 @@ Creating an application gateway
 | ezApplicationGatewayEntrypointsProbeName | string | <input type="checkbox"> | None | <pre>'<entrypointHostName>-httpsprobe'</pre> | Optional override for the BackendHttpSettingsCollection names for the EZ Entrypoints feature.<br>You can use the following placeholders which will be replaced by their respective values:<br>&nbsp;&nbsp;&nbsp;- <entrypointHostName> will be replaced by the `entrypointHostName` parameter in each `ezApplicationGatewayEntrypoints` entry. It will also automatically replace -'s with -- and .'s with -'s to comply with naming requirements.<br>Defaults to: <entrypointHostName>-httpsprobe |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | DefaultFrontendIpConfigurationName | string | <input type="checkbox"> | `'appGatewayFrontendIP'` or  `'appGatewayPrivateFrontendIP'` | <pre>enablePrivateFrontendIp ? 'appGatewayPrivateFrontendIP' : 'appGatewayFrontendIP'</pre> | The default frontend Ip Configuration that is used to attach the httplisteners to. |
+| RedirectHttpToHttps | bool | <input type="checkbox"> | None | <pre>false</pre> | If this is true the default port 80 rule will be adjusted so that it will redirect http to https requests.<br>If `FqdnToRedirect` is specified, that url will be used. Expected is that the website would redirect any requests to https.<br>If `FqdnToRedirect` is not specified, an Static Web App will be created that would redirect http to https traffic.<br><br>The default port 80 will be configured with a rewrite rule that would change the response from the `FqdnToRedirect` or the fqdn of the static web app address to the original requested host. |
+| FqdnToRedirect | string | <input type="checkbox"> | None | <pre>''</pre> | Supply a fqdn to use for redirection. It is expected that the website would redirect all traffic to https with the same fqdn. See also `RedirectHttpToHttps`for more information |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -59,7 +62,7 @@ Creating an application gateway
 | applicationGatewayName | string | Output the application gateway name. |
 ## Examples
 <pre>
-module appgw '.br:acrazdocsprd.azurecr.io/network/applicationGateways:latest' = {
+module appgw 'br:contosoregistry.azurecr.io/network/applicationGateways:latest' = {
   name: 'Deploymentname'
   params: {
     applicationGatewayVirtualNetworkName:'myfirstvnet'

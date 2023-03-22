@@ -21,7 +21,7 @@ Creating a private DNS zone.
 | privateDnsZoneResourceId | string | The Resource ID of the upserted Private DNS Zone. |
 ## Examples
 <pre>
-module dnszone  'br:acrazdocsprd.azurecr.io/network/privatednszones:latest' ={
+module dnszone  'br:contosoregistry.azurecr.io/network/privatednszones:latest' ={
   name: '${deployment().name}-dnszone'
   params: {
     privateDnsLinkName: 'kvprivdnslinkname'

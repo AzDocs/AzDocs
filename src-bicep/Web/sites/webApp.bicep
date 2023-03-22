@@ -5,7 +5,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc.
 Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 .EXAMPLE
 <pre>
-module webApp 'br:acrazdocsprd.azurecr.io/web/sites/webapp:latest' = {
+module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 57), 'webapp')
   params: {
     appServiceName: webAppName

@@ -57,7 +57,7 @@ Therefore this separate bicep file.
 | logicAppPrincipalId | string | Output the logic app\'s identity principal object id. |
 ## Examples
 <pre>
-module logicApp 'br:acrazdocsprd.azurecr.io/web/sites/logicapp:latest' = {
+module logicApp 'br:contosoregistry.azurecr.io/web/sites/logicapp:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 55), 'lappname')
   params: {
     logicAppName: logicAppName

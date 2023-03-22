@@ -42,7 +42,7 @@ Creating a SQL server with the given specs.
 | sqlServerIdentityPrincipalId | string | Output the principal id for the identity of this SQL Server. |
 ## Examples
 <pre>
-module sql 'br:acrazdocsprd.azurecr.io/sql/servers.bicep:latest' = {
+module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 57), 'sqlserver')
   params: {
     tags: tags
