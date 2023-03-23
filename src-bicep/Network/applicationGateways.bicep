@@ -323,7 +323,7 @@ The default frontend Ip Configuration that is used to attach the httplisteners t
   'appGatewayFrontendIP'
   'appGatewayPrivateFrontendIP'
 ])
-param DefaultFrontendIpConfigurationName string = enablePrivateFrontendIp ? 'appGatewayPrivateFrontendIP' : 'appGatewayFrontendIP'
+param defaultFrontendIpConfigurationName string = enablePrivateFrontendIp ? 'appGatewayPrivateFrontendIP' : 'appGatewayFrontendIP'
 
 @description('''
 If this is true the default port 80 rule will be adjusted so that it will redirect http to https requests.
@@ -332,10 +332,10 @@ If `FqdnToRedirect` is not specified, an Static Web App will be created that wou
 
 The default port 80 will be configured with a rewrite rule that would change the response from the `FqdnToRedirect` or the fqdn of the static web app address to the original requested host.
 ''')
-param RedirectHttpToHttps bool = false
+param redirectHttpToHttps bool = false
 
 @description('Supply a fqdn to use for redirection. It is expected that the website would redirect all traffic to https with the same fqdn. See also `RedirectHttpToHttps`for more information')
-param FqdnToRedirect string = ''
+param fqdnToRedirect string = ''
 
 // ===================================== Variables =====================================
 @description('Building up the Backend Address Pools based on ezApplicationGatewayEntrypoints')
@@ -383,7 +383,7 @@ var ezApplicationGatewayHttpListeners = [for entryPoint in ezApplicationGatewayE
   name: replace(ezApplicationGatewayEntrypointsHttpsListenerName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
   properties: {
     frontendIPConfiguration: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, DefaultFrontendIpConfigurationName)
+      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, defaultFrontendIpConfigurationName)
     }
     frontendPort: {
       id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_443') // TODO: Hardcoded value
@@ -529,9 +529,9 @@ var defaultBackendAddressPool = [
   {
     name: defaultBackendPoolName
     properties: {
-      backendAddresses: !RedirectHttpToHttps ? [] : [
+      backendAddresses: (!redirectHttpToHttps) ? [] : [
         {
-          fqdn: empty(FqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : FqdnToRedirect
+          fqdn: empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect
         }
       ]
     }
@@ -563,7 +563,7 @@ var unifiedRequestRoutingRules = union(requestRoutingRules, ezApplicationGateway
             id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, defaultBackendHttpSettingsName)
           }
 
-        }, RedirectHttpToHttps ? {
+        }, redirectHttpToHttps ? {
           rewriteRuleSet: {
             id: resourceId('Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, defaultRewriteRuleName)
           }
@@ -581,7 +581,7 @@ var unifiedHttpListeners = union(httpListeners, ezApplicationGatewayHttpListener
           id: applicationGatewayWafPolicies.id
         }
         frontendIPConfiguration: {
-          id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, DefaultFrontendIpConfigurationName)
+          id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, defaultFrontendIpConfigurationName)
         }
         frontendPort: {
           id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_80') //TODO hardcode refence to a param
@@ -602,9 +602,9 @@ var defaultBackendHttpSettings = [
         cookieBasedAffinity: cookieBasedAffinity
         pickHostNameFromBackendAddress: true
         requestTimeout: 20
-      }, !RedirectHttpToHttps ? {} : {
+      }, (!redirectHttpToHttps) ? {} : {
         pickHostNameFromBackendAddress: false
-        hostname: empty(FqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : FqdnToRedirect
+        hostname: empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect
       })
   }
 ]
@@ -627,9 +627,8 @@ var unifiedGatewayIPConfigurations = union(gatewayIPConfigurations, [
     }
   ])
 
-var unifiedRewriteRuleSets = union(rewriteRuleSets,
-  [
-    RedirectHttpToHttps ? {
+var unifiedRewriteRuleSets = union(rewriteRuleSets, redirectHttpToHttps ? [
+    {
       name: 'appGatewayRedirectRule'
       properties: {
         rewriteRules: [
@@ -638,7 +637,7 @@ var unifiedRewriteRuleSets = union(rewriteRuleSets,
             conditions: [
               {
                 variable: 'http_resp_Location'
-                pattern: '(https?):\\/\\/${replace(empty(FqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : FqdnToRedirect, '.', '\\.')}(.*)$'
+                pattern: '(https?):\\/\\/${replace(empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect, '.', '\\.')}(.*)$'
                 ignoreCase: true
                 negate: false
               }
@@ -656,13 +655,13 @@ var unifiedRewriteRuleSets = union(rewriteRuleSets,
           }
         ]
       }
-    } : {}
-  ]
+    }
+  ] : []
 )
 
 // ===================================== Resources =====================================
 @description('Static website if http needs to be redirected to https and no fqdn is supplied with `FqdnToRedirect`')
-module swaRedirect '../Web/staticSites.bicep' = if (RedirectHttpToHttps && empty(FqdnToRedirect)) {
+module swaRedirect '../Web/staticSites.bicep' = if (redirectHttpToHttps && empty(fqdnToRedirect)) {
   name: '${take(deployment().name, 60)}-swa' //64 - 4 = 60
   params: {
     location: location
