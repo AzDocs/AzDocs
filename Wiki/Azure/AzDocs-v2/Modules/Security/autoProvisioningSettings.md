@@ -11,7 +11,7 @@ Configures Defender for Cloud auto provisioning settings for virtual machines on
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
-| autoProvisionStatus | string | <input type="checkbox"> | `'On'` or  `'Off'` | <pre>'On'</pre> | Describes what kind of security agent provisioning action to take. |
+| autoProvisionStatus | string | <input type="checkbox"> | `'On'` or `'Off'` | <pre>'On'</pre> | Describes what kind of security agent provisioning action to take. |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |

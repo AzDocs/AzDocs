@@ -126,9 +126,9 @@ function Get-BicepMetadata
                         {
                             'allowed'
                             { 
-                                if ($line -match '''(?<value>.*?)''')
+                                if ($line -match '^\s*(?<string>''?)(?<value>[^'']*?)''?\s*$')
                                 {
-                                    $valueToAdd = $matches.value
+                                    $valueToAdd = "$($matches.string)$($matches.value)$($matches.string)"
                                 }
                                 else
                                 {

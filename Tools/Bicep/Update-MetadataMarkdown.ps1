@@ -149,7 +149,7 @@ function Update-MetadataMarkdown
             $allowedDecorator = $parameterInfo.Decorators['allowed'] ?? $null
             if ($allowedDecorator)
             {
-                $validation = $allowedDecorator | Join-String -Separator '''` or  `''' -OutputPrefix '`''' -OutputSuffix '''`'
+                $validation = $allowedDecorator | Join-String -Separator '` or `' -OutputPrefix '`' -OutputSuffix '`' | Out-String -NoNewline
             }
 
             if ($parameterInfo.Decorators.ContainsKey('minLength') -or $parameterInfo.Decorators.ContainsKey('maxLength'))

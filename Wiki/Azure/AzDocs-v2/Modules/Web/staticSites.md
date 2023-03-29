@@ -12,7 +12,7 @@ Creating a Static Web App
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | staticWebAppName | string | <input type="checkbox" checked> | Length between 1-40 | <pre></pre> | The resourcename for the Static Web App to upsert. |
-| staticWebAppSku | string | <input type="checkbox"> | `'Free'` or  `'Standard'` | <pre>'Free'</pre> | Sku type to use for this static web app. See the [documentation](https://learn.microsoft.com/en-gb/azure/static-web-apps/plans) for more information. |
+| staticWebAppSku | string | <input type="checkbox"> | `'Free'` or `'Standard'` | <pre>'Free'</pre> | Sku type to use for this static web app. See the [documentation](https://learn.microsoft.com/en-gb/azure/static-web-apps/plans) for more information. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
 ## Outputs

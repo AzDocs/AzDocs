@@ -22,7 +22,7 @@ Creating a Bastion Host with the given specs.
 | bastionSubnetName | string | <input type="checkbox"> | Length between 1-80 | <pre>'AzureBastionSubnet'</pre> | Name of the Azure Bastion subnet. This is probably going to have to be `AzureBastionSubnet` due to Azure restrictions. |
 | bastionPublicIpAddressName | string | <input type="checkbox"> | Length between 1-80 | <pre>'pip-&#36;{bastionHostName}'</pre> | The resource name of the Public IP for this Azure Bastion host. |
 | vnetName | string | <input type="checkbox"> | Length between 2-64 | <pre>''</pre> | The VNet name to onboard this Azure Bastion Host into. |
-| bastionHostSku | string | <input type="checkbox"> | `'Basic'` or  `'Standard'` | <pre>'Standard'</pre> | The sku for the Bastion host. |
+| bastionHostSku | string | <input type="checkbox"> | `'Basic'` or `'Standard'` | <pre>'Standard'</pre> | The sku for the Bastion host. |
 | bastionVirtualNetworkResourceGroupName | string | <input type="checkbox" checked> | None | <pre></pre> | The resource group of the virtual network the bastion subnet is in. |
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox" checked> | Length between 0-* | <pre></pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
