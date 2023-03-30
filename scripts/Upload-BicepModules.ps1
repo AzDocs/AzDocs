@@ -73,7 +73,7 @@ try
       )
     
       Write-Host "Pushing file $BicepFilePath with tag $Tag to $RepositoryUrl"
-      if ($PSCmdlet.ShouldProcess("Pusing $BicepFilePath as tag $Tag to repository $RepositoryUrl", $RepositoryUrl, $Tag))
+      if ($PSCmdlet.ShouldProcess("Pushing $BicepFilePath as tag $Tag to repository $RepositoryUrl", $RepositoryUrl, $Tag))
       {
         $bicepParams = @{}
         # if($DocumentationURI){
