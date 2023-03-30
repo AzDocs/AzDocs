@@ -16,6 +16,7 @@
 
     . .\scripts\Upload-BicepModules.ps1 -registryName 'wooooooooooot'    
   #>
+[CmdletBinding(SupportsShouldProcess)]
 param(
 
   # Name of the Azure Container Registry
@@ -32,8 +33,11 @@ param(
   [bool]$DebugMode = $false,
 
   [Parameter()]
-  [int]$NrOfParallelProcesses = 4
+  [int]$NrOfParallelProcesses = 4,
 
+  [parameter()]
+  [string] $DocumentationURI = 'https://dev.azure.com/kpn/Azure%20Documentation/_git/Upstream.Azure.PlatformProvisioning?path=/Wiki/Azure/AzDocs-v2/Modules'
+  
 )
 
 Push-Location
@@ -43,6 +47,43 @@ try
   Write-Host "Branch $SourceBranchName"
   Set-Location .\src-bicep
   Get-ChildItem -Recurse -Path '*.bicep' | ForEach-Object -ThrottleLimit $NrOfParallelProcesses -Parallel { 
+
+    function Publish-BicepModule
+    {
+      [CmdletBinding(SupportsShouldProcess)]
+      param (
+        [Parameter(Mandatory)]
+        [string]
+        $BicepFilePath,
+    
+        # Parameter help description
+        [Parameter(Mandatory)]
+        [string]
+        $RepositoryUrl,
+    
+        # Parameter help description
+        [Parameter(Mandatory)]
+        [string]
+        $Tag,
+    
+        # Parameter help description
+        [Parameter()]
+        [string]
+        $DocumentationURI
+      )
+    
+      Write-Host "Pushing file $BicepFilePath with tag $Tag to $RepositoryUrl"
+      if ($PSCmdlet.ShouldProcess("Pusing $BicepFilePath as tag $Tag to repository $RepositoryUrl", $RepositoryUrl, $Tag))
+      {
+        $bicepParams = @{}
+        # if($DocumentationURI){
+        #   $bicepParams.Add('-documentationUri', $DocumentationURI)
+        # }
+        Write-Host "bicep publish $BicepFilePath --target ""br:$($RepositoryUrl):$Tag"" $bicepParams"
+        bicep publish $BicepFilePath --target ''br:$($repositoryUrl):$tag"" $bicepParams
+      }
+    }
+
     $bicepFile = $_
     $localTagName = $using:TagName
     $localRegistryName = $using:RegistryName
@@ -60,15 +101,13 @@ try
     {
       $optionalParams += '--debug'
     }
+    $fileDocumentationUri = "$using:DocumentationURI/$repositoryName.md&_a=preview"
 
-
+    Publish-BicepModule -BicepFilePath $bicepFile -RepositoryUrl $repositoryUrl -tag $localTagName -DocumentationURI $fileDocumentationUri -WhatIf:$using:WhatIfPreference
     if ($localSourceBranchName -eq 'main')
     {
-      Write-Host 'Pushing latest tag'
-      az bicep publish --file $bicepFile --target "br:$($repositoryUrl):latest" @optionalParams
+      Publish-BicepModule -BicepFilePath $bicepFile -RepositoryUrl $repositoryUrl -tag 'latest' -DocumentationURI $fileDocumentationUri -WhatIf:$using:WhatIfPreference
     }
-    Write-Host "Pushing tag $localTagName"
-    az bicep publish --file $bicepFile --target "br:$($repositoryUrl):$localTagName" @optionalParams
   }
 }
 finally
