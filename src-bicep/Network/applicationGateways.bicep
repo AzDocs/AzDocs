@@ -252,7 +252,8 @@ param gatewayIPConfigurations array = []
     "backendAddressFqdn": "",
     "certificateName": "test2.pfx",
     "backendSettingsOverrideHostName": "test2.org",
-    "backendSettingsOverrideTrustedRootCertificates": true
+    "backendSettingsOverrideTrustedRootCertificates": true,
+    "backendSettingsOverrideProbePath": "/healthprobe"
   }
 </details>
 ''')
@@ -305,12 +306,6 @@ You can use the following placeholders which will be replaced by their respectiv
 Defaults to: <entrypointHostName>-httpsprobe
 ''')
 param ezApplicationGatewayEntrypointsProbeName string = '<entrypointHostName>-httpsprobe'
-
-@description('''
-Optional override for the probe paths for the EZ Entrypoints feature.
-Defaults to: /
-''')
-param ezApplicationGatewayEntrypointsProbeName string = '/'
 
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
@@ -424,7 +419,7 @@ var ezApplicationGatewayProbes = [for entryPoint in ezApplicationGatewayEntrypoi
   name: replace(ezApplicationGatewayEntrypointsProbeName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
   properties: {
     protocol: 'Https'
-    path: ezApplicationGatewayEntrypointsProbeName
+    path: contains(entryPoint, 'backendSettingsOverrideProbePath') && !empty(entryPoint.backendSettingsOverrideProbePath) ? entryPoint.backendSettingsOverrideProbePath : '/'
     interval: 60
     timeout: 20
     unhealthyThreshold: 2
