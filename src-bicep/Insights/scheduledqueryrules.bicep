@@ -63,35 +63,25 @@ param scheduledQueryRuleDescription string = scheduledQueryRuleName
 @maxValue(4)
 param scheduledQueryRuleSeverity int = 3
 
-@description('how often the metric alert is evaluated represented in ISO 8601 duration format')
-@allowed([
-  'PT5M'
-  'PT15M'
-  'PT30M'
-  'PT1H'
-])
+@description('''
+How often the metric alert is evaluated represented in ISO 8601 duration format.
+Examples:
+PT5M is 5 minutes
+PT15M is 15 minutes
+PT30M is 30 minutes
+PT1H is 1 hour
+''')
 param evaluationFrequency string = 'PT5M'
 
 @description('''
 The period of time (in [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations)) on which the Alert query will be executed (bin size). Relevant and required only for rules of the kind LogAlert.
 The format for this string is P<days>DT<hours>H<minutes>M<seconds>S. You always need to mention de T if something the time is needed.
 for example:
-P5D is 5 days
-P5M is 5 months
-P5DT5M is 5 days  and 5 minutes
+P2D is 2 days
+P5DT5M is 5 days and 5 minutes
 PT5M is 5 minutes
 PT1H is 1 hour
 ''')
-@allowed([
-  'PT1M'
-  'PT5M'
-  'PT15M'
-  'PT30M'
-  'PT1H'
-  'PT6H'
-  'PT12H'
-  'PT24H'
-])
 param windowSize string = 'PT5M'
 
 @description('''
@@ -134,18 +124,12 @@ param autoMitigate bool = true
 @description('''
 Mute actions for the chosen period of time (in ISO 8601 duration format) after the alert is fired. Relevant only for rules of the kind LogAlert.
 Defaults to an empty string.
+Examples: 
+PT1M is 1 minute
+PT5M is 5 minutes
+PT30M is 30 minutes
+PT1H is 1 hour
 ''')
-@allowed([
-  'PT1M'
-  'PT5M'
-  'PT15M'
-  'PT30M'
-  'PT1H'
-  'PT6H'
-  'PT12H'
-  'PT24H'
-  ''
-])
 param muteActionsDuration string = ''
 
 @description('Specifies whether to check linked storage and fail creation if the storage was not found')
