@@ -21,7 +21,7 @@ Creating a container app with the given specs.
 | containerAppScale | object | <input type="checkbox"> | None | <pre>{<br>  minReplicas: 1<br>  maxReplicas: 1<br>}</pre> | The scaling for the containers in the container app.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;minReplicas: minReplica<br>&nbsp;&nbsp;&nbsp;maxReplicas: maxReplica<br>&nbsp;&nbsp;&nbsp;rules: [<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'http-requests'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http: {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;metadata: {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;concurrentRequests: '10'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;]<br>} |
 | activeRevisionsMode | string | <input type="checkbox"> | `'Single'` or `'Multiple'` | <pre>'Single'</pre> | ActiveRevisionsMode controls how active revisions are handled for the Container app:<br>{list}{item}Multiple: multiple revisions can be active.{/item}{item}Single: Only one revision can be active at a time.Revision weights can not be used in this mode. |
 | registries | array | <input type="checkbox"> | None | <pre>[]</pre> | Collection of private container registry credentials for containers used by the Container app.<br>If you want to use a public image you do not need to specify any registries, it will be pulled from DockerHub automatically.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;server: myacr.azurecr.io<br>&nbsp;&nbsp;&nbsp;username: azureContainerRegistryUsername<br>&nbsp;&nbsp;&nbsp;passwordSecretRef: 'containerregistrypasswordref'<br>&nbsp;&nbsp;&nbsp;}<br>] |
-| secrets | array | <input type="checkbox"> | None | <pre>[]</pre> | Examples:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'containerregistrypasswordref'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value: azureContainerRegistryPassword<br>&nbsp;&nbsp;&nbsp;}<br>],<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;server: 'index.docker.io'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username: dockerContainerRegistryUsername<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;passwordSecretRef: 'containerregistrypasswordref'<br>&nbsp;&nbsp;&nbsp;}<br>] |
+| secrets | array | <input type="checkbox"> | None | <pre>[]</pre> | Collection of secrets used by a Container app. Use with @secure() decorator in modules i.c.w variables, parameters or keyvault.<br>Examples:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'containerregistrypasswordref'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value: azureContainerRegistryPassword<br>&nbsp;&nbsp;&nbsp;}<br>],<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;server: 'index.docker.io'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username: dockerContainerRegistryUsername<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;passwordSecretRef: 'containerregistrypasswordref'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | revisionSuffix | string | <input type="checkbox"> | None | <pre>''</pre> | User friendly suffix that is appended to the revision name |
 | volumes | array | <input type="checkbox"> | None | <pre>[]</pre> | List of volume definitions for the Container App.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'azurefilemount'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/child-resource-name-type#within-parent-resource<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;storageName: environment::azurefilestorage.name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;storageType: 'AzureFile'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | ingressAllowInsecure | bool | <input type="checkbox"> | None | <pre>false</pre> | Bool indicating if HTTP connections to is allowed.<br>If set to false HTTP connections are automatically redirected to HTTPS connections |
@@ -30,16 +30,17 @@ Creating a container app with the given specs.
 | ingressTargetPort | int | <input type="checkbox"> | Value between 1-65535 | <pre>80</pre> | Target incoming Port in containers for incoming traffic (ingress). This will be the exposed port for the Docker Image.<br>The ingress section of the container app must have a targetPort specified. TargetPort must be in the range of [1,65535]. |
 | ingressTraffic | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    weight: 100<br>    latestRevision: true<br>  }<br>]</pre> | Traffic weights for app's revisions.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;label: 'mylabel'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;latestRevision: true<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;weight: 100<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | ingressTransport | string | <input type="checkbox"> | `'auto'` or `'http'` or `'http2'` | <pre>'auto'</pre> | Ingress transport protocol |
+| workloadProfileName | string | <input type="checkbox"> | None | <pre>''</pre> | The name of the existing container app workload profile. If used, it should be pre-existing in the managed environment. |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | containerAppFQDN | string | Output of the FQDN of the container App. |
 ## Examples
 <pre>
-module containerApp '../../AzDocs/src-bicep/App/containerApps.bicep' = {
-  name: format('{0}-{1}', take('${deployment().name}', 48), 'containerapp')
+module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 51), 'containerapp')
   params: {
-    containerAppName: 'nginxcontainerapp'
+    containerAppName: 'ca-nginxcontainerapp'
     dapr: {}
     managedEnvironmentName: managedEnvironment.outputs.managedEnvironmentName
     ingressTargetPort: 80
@@ -61,7 +62,7 @@ module containerApp '../../AzDocs/src-bicep/App/containerApps.bicep' = {
   }
 }
 </pre>
-<p>Creates a container app with the name nginxcontainerapp'</p>
+<p>Creates a container app with the name ca-nginxcontainerapp'</p>
 
 ## Links
 - [Bicep Microsoft.App containerApps](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps?pivots=deployment-language-bicep)

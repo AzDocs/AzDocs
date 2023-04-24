@@ -7,7 +7,7 @@ If you want to create public container apps the vnetconfiguration internal prope
 If you want to create private container apps the vnetconfiguration internal property should be set to true
 .EXAMPLE
 <pre>
-module managedEnvironment '../../AzDocs/src-bicep/App/managedEnvironments.bicep' = {
+module managedEnvironment 'br:contosoregistry.azurecr.io/app/managedenvironments:latest' = {
   name: managedEnvironmentName
   params: {
     managedEnvironmentName: managedEnvironmentName
@@ -40,7 +40,7 @@ param location string = resourceGroup().location
 @description('The name for the managed Environment for the Container App.')
 @minLength(2)
 @maxLength(260)
-param managedEnvironmentName string
+param managedEnvironmentName string = 'cae-${uniqueString(resourceGroup().id)}'
 
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
@@ -88,13 +88,10 @@ param vnetConfiguration object = {
 
 @description('''
 Cluster configuration which enables the log daemon to export app logs to a destination.
-Currently only "log-analytics" is supported.
 If 'log-analytics' is the value, you should provide valid values for the logAnalyticsConfiguration object for customerId and SharedKey.
+Example:
+ 'log-analytics'
 ''')
-@allowed([
-  'log-analytics'
-  ''
-])
 param appLogsConfigurationDestination string = ''
 
 @description('''
@@ -104,7 +101,15 @@ applicationInsights.properties.InstrumentationKey
 ''')
 param daprAIInstrumentationKey string = ''
 
-@description('''Configuration for logging in a Log Analytics workspace.
+@description('''
+The Instrumentation key for the AppInsights workspace.
+Example:
+applicationInsights.properties.InstrumentationKey
+''')
+param daprAIConnectionString string = ''
+
+@description('''
+Configuration for logging in a Log Analytics workspace.
 Example:
 {
   customerId: logAnalyticsWorkspace.properties.customerId
@@ -113,20 +118,55 @@ Example:
 ''')
 param logAnalyticsConfiguration object = {}
 
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-03-01' = {
+@description('''
+Workload profiles configured for the Managed Environment for workloads to run on.
+If you create an empty array, a Consumption plan will be used, else a Consumption + Dedicated plan will be used and the workflow profile is enabled.
+You can create more workload profile later on.
+Example:
+[
+  {
+    name: 'Consumption'
+    workloadProfileType: 'Consumption'
+  }
+  {
+    name: 'Dedicated-D4'
+    workloadProfileType: 'D4'
+    MinimumCount: 1
+    MaximumCount: 2
+  }
+]
+''')
+param workloadProfiles array = []
+
+@description('''
+Possibility to provide custom resourcegroup for the infrastructure resources of the managed environment.
+Should not pre-exist or deployment will fail.
+If not provided, the resourcegroup will be named: ME_<managedEnvironmentName>_<containerAppsName>_<locationName>, eg. ME_my-environment_my-container-apps_westeurope.
+''')
+param infrastructureResourceGroup string = 'MC_ME_${managedEnvironmentName}'
+
+#disable-next-line BCP081 //preview version used because of support byo vnet with /27 subnet with workload profiles
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-11-01-preview' = {
   name: managedEnvironmentName
   location: location
   tags: tags
   properties: {
     daprAIInstrumentationKey: daprAIInstrumentationKey
+    daprAIConnectionString: daprAIConnectionString
+    daprConfiguration: {}
     appLogsConfiguration: {
       destination: appLogsConfigurationDestination
       logAnalyticsConfiguration: logAnalyticsConfiguration
     }
     vnetConfiguration: vnetConfiguration
+    workloadProfiles: workloadProfiles
     zoneRedundant: managedEnvironmentZoneRedundant
+    kedaConfiguration: {}
+    customDomainConfiguration: {}
+    infrastructureResourceGroup: infrastructureResourceGroup
   }
 }
+
 
 @description('Output of the resource id of the management environment')
 output managedEnvironmentResourceId string = managedEnvironment.id

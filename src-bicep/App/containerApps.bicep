@@ -5,10 +5,10 @@ Creating a Azure ContainerApp
 Creating a container app with the given specs.
 .EXAMPLE
 <pre>
-module containerApp '../../AzDocs/src-bicep/App/containerApps.bicep' = {
-  name: format('{0}-{1}', take('${deployment().name}', 48), 'containerapp')
+module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 51), 'containerapp')
   params: {
-    containerAppName: 'nginxcontainerapp'
+    containerAppName: 'ca-nginxcontainerapp'
     dapr: {}
     managedEnvironmentName: managedEnvironment.outputs.managedEnvironmentName
     ingressTargetPort: 80
@@ -30,7 +30,7 @@ module containerApp '../../AzDocs/src-bicep/App/containerApps.bicep' = {
   }
 }
 </pre>
-<p>Creates a container app with the name nginxcontainerapp'</p>
+<p>Creates a container app with the name ca-nginxcontainerapp'</p>
 .LINKS
 - [Bicep Microsoft.App containerApps](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps?pivots=deployment-language-bicep)
 */
@@ -186,7 +186,8 @@ Example:
 ''')
 param registries array = []
 
-@description('''Collection of secrets used by a Container app. Use with @secure() decorator in modules i.c.w variables, parameters or keyvault.
+@description('''
+Collection of secrets used by a Container app. Use with @secure() decorator in modules i.c.w variables, parameters or keyvault.
 Examples:
 [
   {
@@ -281,12 +282,19 @@ param ingressTraffic array = [
 ])
 param ingressTransport string = 'auto'
 
+@description('The name of the existing container app workload profile. If used, it should be pre-existing in the managed environment.')
+param workloadProfileName string = ''
+
+
 @description('the managed environment of the container app. Should be pre-existing')
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
+#disable-next-line BCP081 //preview version used because of support byo vnet with /27 subnet with workload profiles
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-11-01-preview' existing = {
   name: managedEnvironmentName
 }
 
-resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
+@description('The container app resource')
+#disable-next-line BCP081 //preview version used because of support byo vnet with /27 subnet with workload profiles
+resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
   name: containerAppName
   location: location
   tags: tags
@@ -313,6 +321,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
       revisionSuffix: revisionSuffix
       volumes: volumes
     }
+    workloadProfileName: workloadProfileName
   }
 }
 
