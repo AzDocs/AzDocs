@@ -252,7 +252,8 @@ param gatewayIPConfigurations array = []
     "backendAddressFqdn": "",
     "certificateName": "test2.pfx",
     "backendSettingsOverrideHostName": "test2.org",
-    "backendSettingsOverrideTrustedRootCertificates": true
+    "backendSettingsOverrideTrustedRootCertificates": true,
+    "backendSettingsOverrideProbePath": "/healthprobe"
   }
 </details>
 ''')
@@ -418,7 +419,7 @@ var ezApplicationGatewayProbes = [for entryPoint in ezApplicationGatewayEntrypoi
   name: replace(ezApplicationGatewayEntrypointsProbeName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
   properties: {
     protocol: 'Https'
-    path: '/'
+    path: contains(entryPoint, 'backendSettingsOverrideProbePath') && !empty(entryPoint.backendSettingsOverrideProbePath) ? entryPoint.backendSettingsOverrideProbePath : '/'
     interval: 60
     timeout: 20
     unhealthyThreshold: 2
