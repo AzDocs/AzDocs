@@ -238,7 +238,8 @@ param gatewayIPConfigurations array = []
     backendAddressFqdn: The FQDN or IPAddress to use as the backend pool member. For example: 'www.google.nl' or 'myapp.azurewebsites.net'
     certificateName: The name of the certificate to use. For example: 'my.pfx'. This certificate should already be present in the AppGw.
     (optional)backendSettingsOverrideHostName: Hostname used that is used for the backend resouces
-    (optional)backendSettingsOverrideTrustedRootCertificates: if true. all the given trusted root CA's are added
+    (optional)backendSettingsOverrideTrustedRootCertificates: if true. all the given trusted root CA's are added.
+    (optional)backendSettingsOverrideProbePath: If set, the given probe path is used instead of the default one.
     (optional)rewriteRulesetName: if set, it would bind the rewrite set name that is given.
 
 <details>
@@ -254,6 +255,7 @@ param gatewayIPConfigurations array = []
     "certificateName": "test2.pfx",
     "backendSettingsOverrideHostName": "test2.org",
     "backendSettingsOverrideTrustedRootCertificates": true,
+    "backendSettingsOverrideProbePath": "/healthprobe",
     "rewriteRulesetName" : "fallback-rewriteset"
   }
 </details>
@@ -424,7 +426,7 @@ var ezApplicationGatewayProbes = [for entryPoint in ezApplicationGatewayEntrypoi
   name: replace(ezApplicationGatewayEntrypointsProbeName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
   properties: {
     protocol: 'Https'
-    path: '/'
+    path: contains(entryPoint, 'backendSettingsOverrideProbePath') && !empty(entryPoint.backendSettingsOverrideProbePath) ? entryPoint.backendSettingsOverrideProbePath : '/'
     interval: 60
     timeout: 20
     unhealthyThreshold: 2
