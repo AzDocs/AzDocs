@@ -239,6 +239,7 @@ param gatewayIPConfigurations array = []
     certificateName: The name of the certificate to use. For example: 'my.pfx'. This certificate should already be present in the AppGw.
     (optional)backendSettingsOverrideHostName: Hostname used that is used for the backend resouces
     (optional)backendSettingsOverrideTrustedRootCertificates: if true. all the given trusted root CA's are added
+    (optional)rewriteRulesetName: if set, it would bind the rewrite set name that is given.
 
 <details>
   <summary>Click to show examples</summary>
@@ -252,7 +253,8 @@ param gatewayIPConfigurations array = []
     "backendAddressFqdn": "",
     "certificateName": "test2.pfx",
     "backendSettingsOverrideHostName": "test2.org",
-    "backendSettingsOverrideTrustedRootCertificates": true
+    "backendSettingsOverrideTrustedRootCertificates": true,
+    "rewriteRulesetName" : "fallback-rewriteset"
   }
 </details>
 ''')
@@ -399,19 +401,23 @@ var ezApplicationGatewayHttpListeners = [for entryPoint in ezApplicationGatewayE
 
 var ezApplicationGatewayRequestRoutingRules = [for i in range(0, length(ezApplicationGatewayEntrypoints)): {
   name: replace(ezApplicationGatewayEntrypointsRequestRoutingRuleName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-'))
-  properties: {
-    ruleType: 'Basic'
-    priority: (i * 10) + 10000
-    httpListener: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, replace(ezApplicationGatewayEntrypointsHttpsListenerName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
-    }
-    backendAddressPool: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendAddressPoolName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
-    }
-    backendHttpSettings: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendHttpSettingsName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
-    }
-  }
+  properties: union({
+      ruleType: 'Basic'
+      priority: (i * 10) + 10000
+      httpListener: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, replace(ezApplicationGatewayEntrypointsHttpsListenerName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
+      }
+      backendAddressPool: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendAddressPoolName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
+      }
+      backendHttpSettings: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendHttpSettingsName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
+      }
+    }, contains(ezApplicationGatewayEntrypoints[i], 'rewriteRulesetName') && !empty(ezApplicationGatewayEntrypoints[i].rewriteRulesetName) ? {
+      rewriteRuleSet: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, ezApplicationGatewayEntrypoints[i].rewriteRulesetName)
+      }
+    } : {})
 }]
 
 var ezApplicationGatewayProbes = [for entryPoint in ezApplicationGatewayEntrypoints: {
