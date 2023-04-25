@@ -228,7 +228,7 @@ param httpListeners array = []
 @description('User defined Backend HTTP Settings. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaybackendhttpsettings).')
 param backendHttpSettingsCollection array = []
 
-@description('User defined subnets to onboard this application gateway into. The first (Default) inclusion will be made with the settings you provide in the `applicationGatewayVirtualNetworkName` & `applicationGatewaySubnetName` parameters. You can add additional configs here. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayipconfiguration.')
+@description('User defined subnets to onboard this application gateway into. The first (Default) inclusion will be made with the settings you provide in the `applicationGatewayVirtualNetworkName` & `applicationGatewaySubnetName` parameters. You can add additional configs here. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayipconfiguration).')
 param gatewayIPConfigurations array = []
 
 @description('''
