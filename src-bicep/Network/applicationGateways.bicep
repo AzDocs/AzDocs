@@ -75,7 +75,7 @@ param maxCapacity int = 10
 
 @description('''
 SSL profiles of the application gateway resource. 
-For object structure, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslprofile.
+For object structure, refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslprofile).
 By default this module will add a `Legacy` SSL profile which is using TLS 1.2 with these ciphersuites:
     'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
     'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
@@ -89,10 +89,10 @@ You can append this profile with your own defined profiles.
 ''')
 param sslProfiles array = []
 
-@description('SSL Certificates. For object structure, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslcertificate.')
+@description('SSL Certificates. For object structure, refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslcertificate).')
 param sslCertificates array = []
 
-@description('Trusted Root Certificates for this App GW. For object structure, refer to https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep#applicationgatewaytrustedrootcertificate')
+@description('Trusted Root Certificates for this App GW. For object structure, refer to the [Bicep resource definition](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep#applicationgatewaytrustedrootcertificate)')
 param trustedRootCertificates array = []
 
 @description('Cookie based affinity.')
@@ -112,13 +112,13 @@ param applicationGatewayPublicIpName string
 @maxLength(80)
 param applicationGatewayWebApplicationFirewallPolicyName string
 
-@description('SKU of the application gateway resource. For object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysku.')
+@description('SKU of the application gateway resource. For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysku).')
 param applicationGatewaySku object = {
   name: 'WAF_v2'
   tier: 'WAF_v2'
 }
 
-@description('Web application firewall configuration to be used with this application gateway. Defaults to OWASP 3.1 in Prevention mode. For more information refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaywebapplicationfirewallconfiguration.')
+@description('Web application firewall configuration to be used with this application gateway. Defaults to OWASP 3.1 in Prevention mode. For more information refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaywebapplicationfirewallconfiguration).')
 param webApplicationFirewallConfiguration object = {
   enabled: true
   firewallMode: 'Prevention'
@@ -133,7 +133,7 @@ param webApplicationFirewallConfiguration object = {
 @minLength(0)
 param logAnalyticsWorkspaceResourceId string
 
-@description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings.')
+@description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
 param diagnosticSettingsLogsCategories array = [
   {
     categoryGroup: 'allLogs'
@@ -141,7 +141,7 @@ param diagnosticSettingsLogsCategories array = [
   }
 ]
 
-@description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings')
+@description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings).')
 param diagnosticSettingsMetricsCategories array = [
   {
     categoryGroup: 'AllMetrics'
@@ -162,7 +162,7 @@ param enablePrivateFrontendIp bool = false
 @maxLength(15) // 255.255.255.255
 param privateFrontendStaticIp string = ''
 
-@description('Ports configuration for this application gateway. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayfrontendport.')
+@description('Ports configuration for this application gateway. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayfrontendport).')
 param frontendPorts array = [
   {
     name: 'Port_80'
@@ -180,7 +180,7 @@ param frontendPorts array = [
 
 @description('''
 The default SSL policy to use for entrypoints. This policy is used whenever no specific SSL Profile is being selected.
-For object structure, please refer to: https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslpolicy.
+For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslpolicy).
 This defaults to TLS 1.2 with these ciphersuites:
   'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
   'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
@@ -202,30 +202,30 @@ param sslPolicy object = {
   ]
 }
 
-@description('The identity to run this application gateway under. This defaults to a System Assigned Managed Identity. For object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#managedserviceidentity.')
+@description('The identity to run this application gateway under. This defaults to a System Assigned Managed Identity. For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#managedserviceidentity).')
 param identity object = {
   type: 'SystemAssigned'
 }
 
-@description('HTTP probes for automatically testing backend connections. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayprobe.')
+@description('HTTP probes for automatically testing backend connections. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayprobe).')
 param probes array = []
 
-@description('The rewrite rule sets for this AppGw. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayrewriteruleset.')
+@description('The rewrite rule sets for this AppGw. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayrewriteruleset).')
 param rewriteRuleSets array = []
 
-@description('Redirect configurations (for example for HTTP -> HTTPS redirects). For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayredirectconfiguration.')
+@description('Redirect configurations (for example for HTTP -> HTTPS redirects). For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayredirectconfiguration).')
 param redirectConfigurations array = []
 
-@description('User defined backend pools. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaybackendaddresspool.')
+@description('User defined backend pools. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaybackendaddresspool).')
 param backendAddressPools array = []
 
-@description('User defined request routing rules. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayrequestroutingrule.')
+@description('User defined request routing rules. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayrequestroutingrule).')
 param requestRoutingRules array = []
 
-@description('User defined HTTP listeners. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayhttplistener.')
+@description('User defined HTTP listeners. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayhttplistener).')
 param httpListeners array = []
 
-@description('User defined Backend HTTP Settings. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaybackendhttpsettings.')
+@description('User defined Backend HTTP Settings. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaybackendhttpsettings).')
 param backendHttpSettingsCollection array = []
 
 @description('User defined subnets to onboard this application gateway into. The first (Default) inclusion will be made with the settings you provide in the `applicationGatewayVirtualNetworkName` & `applicationGatewaySubnetName` parameters. You can add additional configs here. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayipconfiguration.')
@@ -238,7 +238,9 @@ param gatewayIPConfigurations array = []
     backendAddressFqdn: The FQDN or IPAddress to use as the backend pool member. For example: 'www.google.nl' or 'myapp.azurewebsites.net'
     certificateName: The name of the certificate to use. For example: 'my.pfx'. This certificate should already be present in the AppGw.
     (optional)backendSettingsOverrideHostName: Hostname used that is used for the backend resouces
-    (optional)backendSettingsOverrideTrustedRootCertificates: if true. all the given trusted root CA's are added
+    (optional)backendSettingsOverrideTrustedRootCertificates: if true. all the given trusted root CA's are added.
+    (optional)backendSettingsOverrideProbePath: If set, the given probe path is used instead of the default one.
+    (optional)rewriteRulesetName: if set, it would bind the rewrite set name that is given.
 
 <details>
   <summary>Click to show examples</summary>
@@ -253,7 +255,8 @@ param gatewayIPConfigurations array = []
     "certificateName": "test2.pfx",
     "backendSettingsOverrideHostName": "test2.org",
     "backendSettingsOverrideTrustedRootCertificates": true,
-    "backendSettingsOverrideProbePath": "/healthprobe"
+    "backendSettingsOverrideProbePath": "/healthprobe",
+    "rewriteRulesetName" : "fallback-rewriteset"
   }
 </details>
 ''')
@@ -400,19 +403,23 @@ var ezApplicationGatewayHttpListeners = [for entryPoint in ezApplicationGatewayE
 
 var ezApplicationGatewayRequestRoutingRules = [for i in range(0, length(ezApplicationGatewayEntrypoints)): {
   name: replace(ezApplicationGatewayEntrypointsRequestRoutingRuleName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-'))
-  properties: {
-    ruleType: 'Basic'
-    priority: (i * 10) + 10000
-    httpListener: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, replace(ezApplicationGatewayEntrypointsHttpsListenerName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
-    }
-    backendAddressPool: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendAddressPoolName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
-    }
-    backendHttpSettings: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendHttpSettingsName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
-    }
-  }
+  properties: union({
+      ruleType: 'Basic'
+      priority: (i * 10) + 10000
+      httpListener: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, replace(ezApplicationGatewayEntrypointsHttpsListenerName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
+      }
+      backendAddressPool: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendAddressPoolName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
+      }
+      backendHttpSettings: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendHttpSettingsName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
+      }
+    }, contains(ezApplicationGatewayEntrypoints[i], 'rewriteRulesetName') && !empty(ezApplicationGatewayEntrypoints[i].rewriteRulesetName) ? {
+      rewriteRuleSet: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, ezApplicationGatewayEntrypoints[i].rewriteRulesetName)
+      }
+    } : {})
 }]
 
 var ezApplicationGatewayProbes = [for entryPoint in ezApplicationGatewayEntrypoints: {
