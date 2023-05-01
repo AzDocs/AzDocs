@@ -303,6 +303,21 @@ function Add-KeyvaultCertificateToApplicationGateway
 
     # Get the keyvault-secret-id of the certificate in the Keyvault
     $keyvaultSecretId = Invoke-Executable az keyvault secret show --name $KeyvaultCertificateName --vault-name $KeyvaultName --query=id
+
+    # Strip specific certificate version so that updated certificates in KeyVault are automatically used by the Gateway: https://learn.microsoft.com/en-us/azure/application-gateway/renew-certificates#:~:text=Application%20Gateway%20uses,secrets/mysecret/
+    if ($keyvaultSecretId -match '^"?https:\/\/(?<keyvaultname>[\w-]+)\.vault\.azure\.net\/secrets\/(?<secretname>[\w-]+)\/?(?<version>[a-z0-9/]+)?"?$')
+    {
+        if ($Matches.version)
+        {
+            $keyvaultSecretId = $keyvaultSecretId.Replace($Matches.version, '')
+            Write-Host "Removed version from certificate: $keyvaultSecretId"
+        }
+    }
+    else 
+    {
+        Write-Warning "Did nog recognize certificate secretId: $keyvaultSecretId"
+    }
+    
     # Upload an SSL certificate using key-vault-secret-id of a KeyVault Secret
     Invoke-Executable az network application-gateway ssl-cert create --gateway-name $ApplicationGatewayName --name $KeyvaultCertificateName --key-vault-secret-id $keyvaultSecretId --resource-group $ApplicationGatewayResourceGroupName
 
@@ -366,22 +381,17 @@ function Test-ShouldReplaceCertificate(
 )
 {
     Write-Header -ScopedPSCmdlet $PSCmdlet
+    $shouldReplaceCertificate = $false
 
-    if (!$KeyvaultCertificate)
-    {
-        return $false
-    }
-
-    if ($CertificatePath -and (Test-Path $CertificatePath))
+    if ($KeyvaultCertificate -and $CertificatePath -and (Test-Path $CertificatePath))
     {
         Write-Host "Let's see if we need to upload the source certificate (because it is newer)."
         $sourceCertificate = Get-Certificate -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword
         $shouldReplaceCertificate = $sourceCertificate.Thumbprint -ne $KeyvaultCertificate.x509ThumbprintHex -and $sourceCertificate.NotAfter -gt $KeyvaultCertificate.attributes.expires -and (Get-Date) -gt $sourceCertificate.notBefore
-        Write-Output $shouldReplaceCertificate
-        Write-Footer -ScopedPSCmdlet $PSCmdlet
     }
 
-    return $false
+    Write-Output $shouldReplaceCertificate
+    Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
 # Check if the domain (backend) is healthy
@@ -980,8 +990,9 @@ function New-ApplicationGatewayEntrypoint
 {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)][string] $CertificatePath,
-        [Parameter(Mandatory)][string] $CertificatePassword,
+        [Parameter(Mandatory = $true, ParameterSetName = 'withUploadCertificate')][string] $CertificatePath,
+        [Parameter(Mandatory = $true, ParameterSetName = 'withUploadCertificate')][string] $CertificatePassword,
+        [Parameter(Mandatory = $true, ParameterSetName = 'withExistingCertificate')][string] $CertificateName,
         [Parameter(Mandatory)][string] $IngressDomainName,
         [Parameter(Mandatory)][string] $ApplicationGatewayName,
         [Parameter(Mandatory)][ValidateSet('Private', 'Public')][string] $ApplicationGatewayFacingType,
@@ -1009,6 +1020,8 @@ function New-ApplicationGatewayEntrypoint
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
+    $withUploadCertificate = $PsCmdlet.ParameterSetName -eq 'withUploadCertificate'
+
     # Check if the gateway rule type is PathBased, if the parameters are correct
     if ($ApplicationGatewayRuleType -eq 'PathBasedRouting')
     {
@@ -1023,15 +1036,19 @@ function New-ApplicationGatewayEntrypoint
         Confirm-ApplicationGatewayPathBasedRoutingRule -ApplicationGatewayRuleDefaultIngressDomainNameDashed $applicationGatewayRuleDefaultIngressDomainNameDashed -ApplicationGatewayRulePath $ApplicationGatewayRulePath
     }
 
-    # Fetch the commonname for the given certificate
-    Write-Host 'Fetching commonname'
-    $CommonName = Get-CommonnameFromCertificate -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword
-    Write-Host "Commonname: $CommonName"
+    $CommonName = "Unknown"
+    if ($withUploadCertificate)
+    {
+        # Fetch the commonname for the given certificate
+        Write-Host 'Fetching commonname'
+        $CommonName = Get-CommonnameFromCertificate -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword
+        Write-Host "Commonname: $CommonName"
 
-    # Get the dashed version of the common name to use as the certname
-    Write-Host 'Fetching certificatename'
-    $CertificateName = Get-DashedDomainname -DomainName $CommonName
-    Write-Host "Certificatename: $CertificateName"
+        # Get the dashed version of the common name to use as the certname
+        Write-Host 'Fetching certificatename'
+        $CertificateName = Get-DashedDomainname -DomainName $CommonName
+        Write-Host "Certificatename: $CertificateName"
+    }
 
     # Get the dashed version of the domainname to use as name for multiple app gateway components
     Write-Host 'Fetching dashed domainname'
@@ -1076,67 +1093,75 @@ function New-ApplicationGatewayEntrypoint
 
     # Fetch the certificate from Keyvault if it exists
     Write-Host 'Fetching Keyvault certificate'
-    $sourceCertificate = Get-Certificate -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword
-    $keyvaultCertificate = Get-CertificateFromKeyvault -KeyvaultName $CertificateKeyvaultName -DomainName $IngressDomainName -ExpectedCertificateThumbprint $sourceCertificate.Thumbprint
-    if ($keyvaultCertificate)
+
+    if ($withUploadCertificate)
+    {
+        $sourceCertificate = Get-Certificate -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword
+        $keyvaultCertificate = Get-CertificateFromKeyvault -KeyvaultName $CertificateKeyvaultName -DomainName $IngressDomainName -ExpectedCertificateThumbprint $sourceCertificate.Thumbprint
+        if (!$keyvaultCertificate)
+        {
+            Write-Host 'Keyvault certificate not found.'
+            Write-Host 'Checking if keyvault certificate exists in soft-deleted state.'
+
+            $softDeletedCertificate = Get-SoftDeletedCertificateFromKeyvault -KeyvaultName $CertificateKeyvaultName -DomainName $IngressDomainName -ExpectedCertificateThumbprint $sourceCertificate.Thumbprint
+            if ($softDeletedCertificate)
+            {
+                Write-Host 'Found soft-deleted certificate. Recovering..'
+                Invoke-Executable az keyvault certificate recover --id $softDeletedCertificate.recoveryId
+
+                # Find restored certificate in keyvault
+                $keyvaultCertificate = Get-CertificateFromKeyvault -KeyvaultName $CertificateKeyvaultName -DomainName $IngressDomainName -ExpectedCertificateThumbprint $sourceCertificate.Thumbprint
+            }
+        }
+    }
+    else
+    {
+        $keyvaultCertificate = Invoke-Executable az keyvault certificate show --name $CertificateName --vault-name $CertificateKeyvaultName  | ConvertFrom-Json
+    }
+
+    if (!$keyvaultCertificate)
+    {
+        Write-Host 'Did not find a certificate. Continuing..'
+    }
+    else
     {
         Write-Host "Keyvault Certificate: $($keyvaultCertificate.id)"
         Write-Host "Keyvault Certificate Notbefore: $($keyvaultCertificate.attributes.notBefore)"
         Write-Host "Keyvault Certificate Notafter: $($keyvaultCertificate.attributes.expires)"
     }
-    else
+
+    # Check if our source (Azure DevOps) certificate is newer than what we have in Keyvault
+    $shouldReplaceCertificateWithSourceCertificate = $false
+    if ($withUploadCertificate)
     {
-        Write-Host 'Keyvault certificate not found.'
-        Write-Host 'Checking if keyvault certificate exists in soft-deleted state.'
-
-        $softDeletedCertificate = Get-SoftDeletedCertificateFromKeyvault -KeyvaultName $CertificateKeyvaultName -DomainName $IngressDomainName -ExpectedCertificateThumbprint $sourceCertificate.Thumbprint
-        if ($softDeletedCertificate)
+        $shouldReplaceCertificateWithSourceCertificate = Test-ShouldReplaceCertificate -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -KeyvaultCertificate $keyvaultCertificate
+        if ($shouldReplaceCertificateWithSourceCertificate)
         {
-            Write-Host 'Found soft-deleted certificate. Recovering..'
-            Invoke-Executable az keyvault certificate recover --id $softDeletedCertificate.recoveryId
-
-            # Find restored certificate in keyvault
-            $keyvaultCertificate = Get-CertificateFromKeyvault -KeyvaultName $CertificateKeyvaultName -DomainName $IngressDomainName -ExpectedCertificateThumbprint $sourceCertificate.Thumbprint
+            Write-Host 'We should replace the certificate on the AppGw & Keyvault because the source certificate is renewed.'
         }
-        else
-        {
-            Write-Host 'Did not find a soft-deleted certificate. Continueing..'
-        }
-    }
-
-    # Check if our source (Azure DevOps) certificate is newer than what we have in Keyvault (and therefore AppGw)
-    $shouldReplaceCertificateWithSourceCertificate = Test-ShouldReplaceCertificate -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -KeyvaultCertificate $keyvaultCertificate
-    if ($shouldReplaceCertificateWithSourceCertificate)
-    {
-        Write-Host 'We should replace the certificate on the AppGw & Keyvault because the source certificate is renewed.'
     }
 
     Write-Host 'Checking if/where certificates exists and if we should replace it...'
-    # Check if the certificate exists in the gateway
-    if (!$appgatewayCertificate -or $shouldReplaceCertificateWithSourceCertificate)
+    # Check if the certificate exists in the keyvault
+    if (!$keyvaultCertificate -or !$keyvaultCertificate.id -or $shouldReplaceCertificateWithSourceCertificate)
     {
-        Write-Host 'AppGateway cert not found or should be replaced.'
-        # Check if the certificate exists in the keyvault
-        if (!$keyvaultCertificate -or !$keyvaultCertificate.id -or $shouldReplaceCertificateWithSourceCertificate)
+        Write-Host 'KeyVault cert not found or should be replaced.'
+        # Check if the certificate exists on disk (if not, stop the process)
+        if (!$CertificatePath -or !(Test-Path $CertificatePath))
         {
-            Write-Host 'KeyVault cert not found or should be replaced.'
-            # Check if the certificate exists on disk (if not, stop the process)
-            if (!$CertificatePath -or !(Test-Path $CertificatePath))
-            {
-                Write-Error 'There is no source certificate found (Azure DevOps).'
-            }
-            # Add the certificate to keyvault if its not there yet
-            $keyvaultCertificate = Add-CertificateToKeyvault -KeyvaultName $CertificateKeyvaultName -CertificateName $CertificateName -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -CommonName $CommonName
-            Write-Host 'Cert added/replaced to keyvault'
+            Write-Error 'There is no source certificate found (Azure DevOps).'
         }
-
-        Write-Host "AppGatewayCertificate before adding keyvault certificate to application gateway $appgatewayCertificate"
-        # Add the certificate to the AppGateway if its not there yet
-        Add-KeyvaultCertificateToApplicationGateway -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -KeyvaultName $CertificateKeyvaultName -ApplicationGatewayName $ApplicationGatewayName -KeyvaultCertificateName $CertificateName 
-       
-        $appgatewayCertificate = (Invoke-Executable az network application-gateway ssl-cert show --gateway-name $ApplicationGatewayName --name $CertificateName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
-        Write-Host 'Cert added/replaced to appgateway'
+        # Add the certificate to keyvault if its not there yet
+        $keyvaultCertificate = Add-CertificateToKeyvault -KeyvaultName $CertificateKeyvaultName -CertificateName $CertificateName -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -CommonName $CommonName
+        Write-Host 'Cert added/replaced to keyvault'
     }
+
+    Write-Host "AppGatewayCertificate before adding keyvault certificate to application gateway $appgatewayCertificate"
+    # Add the certificate to the AppGateway if its not there yet
+    Add-KeyvaultCertificateToApplicationGateway -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -KeyvaultName $CertificateKeyvaultName -ApplicationGatewayName $ApplicationGatewayName -KeyvaultCertificateName $CertificateName 
+    
+    $appgatewayCertificate = (Invoke-Executable az network application-gateway ssl-cert show --gateway-name $ApplicationGatewayName --name $CertificateName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json).id
+    Write-Host 'Cert added/replaced to appgateway'
 
     # Check if there were network rules present for the keyvault
     if ($keyvaultNetworkRules)
@@ -1180,10 +1205,10 @@ function New-ApplicationGatewayEntrypoint
     )
     if (Test-Path -Path ($HttpsSettingsCustomRootCertificateFilePath ?? '') )
     {
-        $certificateName = Split-Path $HttpsSettingsCustomRootCertificateFilePath -LeafBase
-        Invoke-Executable az network application-gateway root-cert create --cert-file $HttpsSettingsCustomRootCertificateFilePath --gateway-name $ApplicationGatewayName --name $certificateName --resource-group $ApplicationGatewayResourceGroupName
+        $customRootCertificateName = Split-Path $HttpsSettingsCustomRootCertificateFilePath -LeafBase
+        Invoke-Executable az network application-gateway root-cert create --cert-file $HttpsSettingsCustomRootCertificateFilePath --gateway-name $ApplicationGatewayName --name $customRootCertificateName --resource-group $ApplicationGatewayResourceGroupName
 
-        $optionalParameters += '--root-certs', $certificateName
+        $optionalParameters += '--root-certs', $customRootCertificateName
     }
     Invoke-Executable az network application-gateway http-settings create --gateway-name $ApplicationGatewayName --name "$dashedDomainName-httpssettings" --protocol $HttpsSettingsRequestToBackendProtocol --port $HttpsSettingsRequestToBackendPort --cookie-based-affinity $HttpsSettingsRequestToBackendCookieAffinity --affinity-cookie-name "$dashedDomainName-httpscookie" --connection-draining-timeout $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds --timeout $HttpsSettingsRequestToBackendTimeoutInSeconds --enable-probe $true --probe "$dashedDomainName-httpsprobe" --resource-group $ApplicationGatewayResourceGroupName @optionalParameters | Out-Null
     Write-Host 'Created HTTP settings'

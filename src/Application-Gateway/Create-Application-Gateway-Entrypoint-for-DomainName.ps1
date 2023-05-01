@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory)][string] $CertificatePath,
-    [Parameter(Mandatory)][string] $CertificatePassword,
+    [Parameter(Mandatory = $true, ParameterSetName = 'withUploadCertificate')][string] $CertificatePath,
+    [Parameter(Mandatory = $true, ParameterSetName = 'withUploadCertificate')][string] $CertificatePassword,
+    [Parameter(Mandatory = $true, ParameterSetName = 'withExistingCertificate')][string] $CertificateName,
     [Alias("DomainName")]
     [Parameter(Mandatory)][string] $IngressDomainName,
     [Alias("GatewayName")]
@@ -50,12 +51,44 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 
 try
 {
+    $params = @{
+        IngressDomainName = $IngressDomainName 
+        ApplicationGatewayName = $ApplicationGatewayName
+        ApplicationGatewayFacingType = $ApplicationGatewayFacingType
+        ApplicationGatewayResourceGroupName = $ApplicationGatewayResourceGroupName
+        CertificateKeyvaultResourceGroupName = $CertificateKeyvaultResourceGroupName
+        CertificateKeyvaultName = $CertificateKeyvaultName
+        BackendDomainName = $BackendDomainname
+        HealthProbeUrlPath = $HealthProbeUrlPath
+        HealthProbeIntervalInSeconds = $HealthProbeIntervalInSeconds
+        HealthProbeNumberOfTriesBeforeMarkedDown = $HealthProbeNumberOfTriesBeforeMarkedDown
+        HealthProbeTimeoutInSeconds = $HealthProbeTimeoutInSeconds
+        HealthProbeProtocol = $HealthProbeProtocol
+        HttpsSettingsRequestToBackendProtocol = $HttpsSettingsRequestToBackendProtocol
+        HttpsSettingsRequestToBackendPort = $HttpsSettingsRequestToBackendPort
+        HttpsSettingsRequestToBackendCookieAffinity = $HttpsSettingsRequestToBackendCookieAffinity
+        HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds = $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds
+        HttpsSettingsRequestToBackendTimeoutInSeconds = $HttpsSettingsRequestToBackendTimeoutInSeconds
+        HttpsSettingsCustomRootCertificateFilePath = $HttpsSettingsCustomRootCertificateFilePath
+        HealthProbeMatchStatusCodes = $HealthProbeMatchStatusCodes
+        ApplicationGatewayRuleType = $ApplicationGatewayRuleType
+        HealthProbeDomainName = $HealthProbeDomainName
+        ApplicationGatewayRuleDefaultIngressDomainName = $ApplicationGatewayRuleDefaultIngressDomainName
+        ApplicationGatewayRulePath = $ApplicationGatewayRulePath        
+    }
+
+    switch ($PsCmdlet.ParameterSetName) {
+        'withUploadCertificate' {
+           $params.CertificatePath = $CertificatePath
+           $params.CertificatePassword = $CertificatePassword
+        }
+       'withExistingCertificate' {
+           $params.CertificateName = $CertificateName
+        }
+    }
+    
     # Create the Entrypoint. In this script thats simply done with the backenddomain directly.
-    New-ApplicationGatewayEntrypoint -CertificatePath $CertificatePath -IngressDomainName $IngressDomainName -ApplicationGatewayName $ApplicationGatewayName -ApplicationGatewayFacingType $ApplicationGatewayFacingType -ApplicationGatewayResourceGroupName $ApplicationGatewayResourceGroupName -CertificateKeyvaultResourceGroupName $CertificateKeyvaultResourceGroupName `
-        -CertificateKeyvaultName $CertificateKeyvaultName -CertificatePassword $CertificatePassword -BackendDomainName $BackendDomainname -HealthProbeUrlPath $HealthProbeUrlPath -HealthProbeIntervalInSeconds $HealthProbeIntervalInSeconds `
-        -HealthProbeNumberOfTriesBeforeMarkedDown $HealthProbeNumberOfTriesBeforeMarkedDown -HealthProbeTimeoutInSeconds $HealthProbeTimeoutInSeconds -HealthProbeProtocol $HealthProbeProtocol -HttpsSettingsRequestToBackendProtocol $HttpsSettingsRequestToBackendProtocol -HttpsSettingsRequestToBackendPort $HttpsSettingsRequestToBackendPort `
-        -HttpsSettingsRequestToBackendCookieAffinity $HttpsSettingsRequestToBackendCookieAffinity -HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds -HttpsSettingsRequestToBackendTimeoutInSeconds $HttpsSettingsRequestToBackendTimeoutInSeconds -HttpsSettingsCustomRootCertificateFilePath $HttpsSettingsCustomRootCertificateFilePath `
-        -HealthProbeMatchStatusCodes $HealthProbeMatchStatusCodes -ApplicationGatewayRuleType $ApplicationGatewayRuleType -HealthProbeDomainName $HealthProbeDomainName -ApplicationGatewayRuleDefaultIngressDomainName $ApplicationGatewayRuleDefaultIngressDomainName -ApplicationGatewayRulePath $ApplicationGatewayRulePath
+    New-ApplicationGatewayEntrypoint @params
 }
 catch
 {
