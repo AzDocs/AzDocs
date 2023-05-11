@@ -48,6 +48,19 @@ param diagnosticSettingsLogsCategories array = [
   }
 ]
 
+@description('The interval in minutes which would decide how frequently TA service should do flow analytics.')
+param flowLogTrafficAnalyticsInterval int = 10
+
+@description('''
+Parameters that define the retention policy for flow log.
+days: Number of days to retain flow log records.
+enabled:	Flag to enable/disable retention.
+'''')
+param flowLogRetentionPolicy object = {
+  days: 0
+  enabled: true
+}
+
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
 Example:
@@ -91,6 +104,8 @@ module nsgFlowLog 'networkWatchers/flowLogs.bicep' = {
     networkSecurityGroupResourceId: nsg.id
     nsgFlowLogStorageAccountResourceId: nsgFlowLogStorageAccountResourceId
     nsgFlowLogResourceName: nsgFlowLogResourceName
+    trafficAnalyticsInterval: flowLogTrafficAnalyticsInterval
+    retentionPolicy: flowLogRetentionPolicy
   }
 }
 
