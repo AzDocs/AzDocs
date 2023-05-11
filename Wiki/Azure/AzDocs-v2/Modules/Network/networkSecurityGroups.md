@@ -15,6 +15,8 @@ Target Scope: resourceGroup
 | nsgFlowLogResourceName | string | <input type="checkbox"> | Length between 3-45 | <pre>'nfl-<networkSecurityGroupName>'</pre> | The name of the NSG flow log (dianostics).<br>You can use the following placeholders which will be replaced by their respective values:<br>&nbsp;&nbsp;&nbsp;- <networkSecurityGroupName> will be translated in the value you use for the `networkSecurityGroupName` parameter. |
 | nsgFlowLogStorageAccountResourceId | string | <input type="checkbox" checked> | None | <pre></pre> | The resourceid for the storage account to log the NSG flow logs to. This should be pre-existing. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings. |
+| flowLogTrafficAnalyticsInterval | int | <input type="checkbox"> | None | <pre>10</pre> | The interval in minutes which would decide how frequently TA service should do flow analytics. |
+| flowLogRetentionPolicy | object | <input type="checkbox"> | None | <pre>{<br>  days: 0<br>  enabled: true<br>}</pre> | Parameters that define the retention policy for flow log.<br>days: Number of days to retain flow log records.<br>enabled:	Flag to enable/disable retention. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 ## Outputs
 | Name | Type | Description |
