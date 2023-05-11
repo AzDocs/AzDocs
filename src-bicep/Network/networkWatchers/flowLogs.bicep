@@ -45,6 +45,19 @@ param logAnalyticsWorkspaceResourceId string
 @description('The resourceid for the storage account to log the NSG flow logs to. This should be pre-existing.')
 param nsgFlowLogStorageAccountResourceId string
 
+@description('The interval in minutes which would decide how frequently TA service should do flow analytics.')
+param trafficAnalyticsInterval int  = 10
+
+@description('''
+Parameters that define the retention policy for flow log. See the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2021-08-01/networkwatchers/flowlogs?pivots=deployment-language-bicep#retentionpolicyparameters).
+days: Number of days to retain flow log records.
+enabled:	Flag to enable/disable retention.
+'''')
+param retentionPolicy object = {
+  days: 0
+  enabled: true
+}
+
 @description('Upsert the NSG Flow logs with the given parameters.')
 resource nsgFlowLog 'Microsoft.Network/networkWatchers/flowLogs@2021-08-01' = if (!empty(logAnalyticsWorkspaceResourceId)) {
   parent: networkWatcher
@@ -59,12 +72,13 @@ resource nsgFlowLog 'Microsoft.Network/networkWatchers/flowLogs@2021-08-01' = if
       networkWatcherFlowAnalyticsConfiguration: {
         enabled: true
         workspaceResourceId: logAnalyticsWorkspaceResourceId
-        trafficAnalyticsInterval: 10
+        trafficAnalyticsInterval: trafficAnalyticsInterval
       }
     }
     format: {
       type: 'JSON'
       version: 2
     }
+    retentionPolicy: retentionPolicy
   }
 }
