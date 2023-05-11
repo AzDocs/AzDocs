@@ -55,7 +55,7 @@ param flowLogTrafficAnalyticsInterval int = 10
 Parameters that define the retention policy for flow log. See the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2021-08-01/networkwatchers/flowlogs?pivots=deployment-language-bicep#retentionpolicyparameters).
 days: Number of days to retain flow log records.
 enabled:	Flag to enable/disable retention.
-'''')
+''')
 param flowLogRetentionPolicy object = {
   days: 0
   enabled: true
