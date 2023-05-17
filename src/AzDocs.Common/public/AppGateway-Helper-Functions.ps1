@@ -718,6 +718,11 @@ function New-RewriteRuleAndCondition
     # Create new rewrite rules + conditions
     if ($needToRewrite)
     {
+        if(!$HeaderValue){
+            $HeaderValue = @'
+'""'
+'@
+        }
         Invoke-Executable az network application-gateway rewrite-rule create --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --rule-set-name $RewriteRuleSetName --name $RewriteRuleName --response-headers "$($HeaderName)=$($HeaderValue)"
         Invoke-Executable az network application-gateway rewrite-rule condition create --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --rule-set-name $RewriteRuleSetName --rule-name $RewriteRuleName --variable "$($ConditionVariable)" --negate $ConditionNegate --pattern `"$ConditionPattern`"
     }
