@@ -8,7 +8,8 @@ param (
     [Parameter()][bool] $RedisInstanceEnableNonSslPort = $false,
     [Parameter()][ValidateSet('1.0', '1.1', '1.2')][string] $RedisInstanceMinimalTlsVersion = '1.2',
     [Parameter()][System.Object[]] $ResourceTags,
-
+    [Parameter()][ValidateSet('4.0', '6.0', 'latest')] $RedisVersion,
+    
     # Private Endpoints
     [Parameter()][string] $RedisInstancePrivateEndpointVnetResourceGroupName,
     [Parameter()][string] $RedisInstancePrivateEndpointVnetName,
@@ -59,6 +60,11 @@ $updateParameters = @()
 if ($RedisInstanceEnableNonSslPort)
 {
     $additionalParameters += '--enable-non-ssl-port'
+}
+if ($RedisVersion)
+{
+    $additionalParameters += "--redis-version $RedisVersion"
+    $updateParameters += "redisVersion=$RedisVersion"
 }
 if ($RedisInstanceVNetIntegrationVnetName -and $RedisInstanceVNetIntegrationSubnetName -and $RedisInstanceVNetIntegrationVnetResourceGroupName)
 {
