@@ -1,4 +1,23 @@
-// Parameters
+/*
+.SYNOPSIS
+Creating a  a Log Analytics Workspace.
+.DESCRIPTION
+Creating a  a Log Analytics Workspace.
+<pre>
+module origin 'br:contosoregistry.azurecr.io/operationalinsights/workspaces.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 51), 'loganalytics')
+  params: {
+    logAnalyticsWorkspaceName: 'workspacename'
+    location: location
+    retentionInDays: 30
+  }
+}
+</pre>
+<p>Creates a Log Analytics Workspace with the name workspacename.</p>
+.LINKS
+- [Bicep Microsoft.OperationalInsights workspaces](https://learn.microsoft.com/en-us/azure/templates/microsoft.operationalinsights/workspaces?pivots=deployment-language-bicep)
+*/
+// ===================================== Parameters =====================================
 @description('Specifies the name of the Log Analytics workspace.')
 @minLength(4)
 @maxLength(63)
@@ -31,8 +50,18 @@ Example:
 ''')
 param tags object = {}
 
+@description('Flag that indicates which permission to use - resource or workspace or both. True means: Use resource or workspace permissions.')
+param enableLogAccessUsingOnlyResourcePermissions bool = true
+
+@description('Flag that indicate if data should be exported.')
+param enableDataExport bool = false
+
+@description('Workspace capping daily quota in GB. -1 means unlimited.')
+param workspaceCappingDailyQuotaGb int = -1
+
+// ===================================== Resources =====================================
 @description('Upsert the Log Analytics Workspace with the given parameters.')
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: logAnalyticsWorkspaceName
   tags: tags
   location: location
@@ -41,6 +70,13 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-12
       name: sku
     }
     retentionInDays: retentionInDays
+    features: {
+      enableDataExport: enableDataExport
+      enableLogAccessUsingOnlyResourcePermissions: enableLogAccessUsingOnlyResourcePermissions
+    }
+    workspaceCapping: {
+      dailyQuotaGb: workspaceCappingDailyQuotaGb
+    }
   }
 }
 

@@ -2,6 +2,23 @@
 
 Target Scope: resourceGroup
 
+## Synopsis
+Creating a  a Log Analytics Workspace.
+
+## Description
+Creating a  a Log Analytics Workspace.<br>
+<pre><br>
+module origin 'br:contosoregistry.azurecr.io/operationalinsights/workspaces.bicep' = {<br>
+  name: format('{0}-{1}', take('${deployment().name}', 51), 'loganalytics')<br>
+  params: {<br>
+    logAnalyticsWorkspaceName: 'workspacename'<br>
+    location: location<br>
+    retentionInDays: 30<br>
+  }<br>
+}<br>
+</pre><br>
+<p>Creates a Log Analytics Workspace with the name workspacename.</p>
+
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
@@ -10,6 +27,9 @@ Target Scope: resourceGroup
 | retentionInDays | int | <input type="checkbox"> | Value between -1-730 | <pre>60</pre> | Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus. |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+| enableLogAccessUsingOnlyResourcePermissions | bool | <input type="checkbox"> | None | <pre>true</pre> | Flag that indicates which permission to use - resource or workspace or both. True means: Use resource or workspace permissions. |
+| enableDataExport | bool | <input type="checkbox"> | None | <pre>false</pre> | Flag that indicate if data should be exported. |
+| workspaceCappingDailyQuotaGb | int | <input type="checkbox"> | None | <pre>-1</pre> | Workspace capping daily quota in GB. -1 means unlimited. |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -17,4 +37,7 @@ Target Scope: resourceGroup
 | logAnalyticsWorkspaceResourceName | string | Outputs the Log Analytics Workspace Resource Name. |
 | logAnalyticsWorkspaceCustomerId | string | Outputs the Log Analytics Workspace Customer ID. |
 | logAnalyticsWorkspacePrimaryKey | string |  |
+## Links
+- [Bicep Microsoft.OperationalInsights workspaces](https://learn.microsoft.com/en-us/azure/templates/microsoft.operationalinsights/workspaces?pivots=deployment-language-bicep)
+
 
