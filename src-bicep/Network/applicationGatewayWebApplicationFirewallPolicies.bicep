@@ -17,6 +17,23 @@ param managedRuleSets array = [
   }
 ]
 
+@description('''
+Sometimes WAF might block a request that you want to allow for your application. WAF exclusion lists allow you to omit certain request attributes from a WAF evaluation. The rest of the request is evaluated as normal, please refer to [the docs](https://learn.microsoft.com/en-us/azure/web-application-firewall/ag/application-gateway-waf-configuration?tabs=bicep).
+<details>
+  <summary>Click to show example</summary>
+  exclusions: [
+    {
+      // Exclude all cookies 
+      matchVariable: 'RequestCookieNames'
+      selectorMatchOperator: 'EqualsAny'
+      selector: '*'
+    }
+  ]
+</details>
+''')
+param exclusions array = [
+]
+
 @description('The PolicySettings for policy. This defaults to an enabled policy in prevention mode. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgatewaywebapplicationfirewallpolicies?tabs=bicep#policysettings.')
 param policySettings object = {
   requestBodyCheck: true
@@ -28,11 +45,13 @@ param policySettings object = {
 
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
-Example:
-{
-  FirstTag: myvalue
-  SecondTag: another value
-}
+<details>
+  <summary>Click to show example</summary>
+  tags: {
+    FirstTag: myvalue
+    SecondTag: another value
+  }
+</details>
 ''')
 param tags object = {}
 
@@ -47,6 +66,7 @@ resource applicationGatewayWebApplicationFirewallPolicy 'Microsoft.Network/appli
     policySettings: policySettings
     managedRules: {
       managedRuleSets: managedRuleSets
+      exclusions: exclusions
     }
   }
 }
