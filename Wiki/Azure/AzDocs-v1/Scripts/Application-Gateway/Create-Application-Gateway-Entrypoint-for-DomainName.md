@@ -21,7 +21,7 @@ And one for specifying an existing certificate that already exists in KeyVault (
 
 | Parameter | Required | Example Value | Description |
 |--|--|--|--|
-| CertificateName | <input type="checkbox" checked> | `website-dev-kpn-com` | The name of an existing certificate in KeyVault. Use either CertificateName or CertificatePath/CertificatePassword |
+| CertificateName | <input type="checkbox" checked> | `website-dev-company-com` | The name of an existing certificate in KeyVault. Use either CertificateName or CertificatePath/CertificatePassword |
 
 ## Common 
 

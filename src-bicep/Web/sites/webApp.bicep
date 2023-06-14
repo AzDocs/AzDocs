@@ -79,10 +79,18 @@ For example:
 param appSettings object = {}
 
 @description('''
-Connectionstrings. This object is a plain key/value pair.
+Connectionstrings. This is an object with "connectionstring" objects.
 For example:
- MyConnectionString: 'thisismyv;aluefor;myfirstconnectio;nstring'
- AnotherConnectionString: 'thisismyva;lueform;ysecond;connectionstring'
+  {
+    MyConnectionString: {
+      value: 'thisismyv;aluefor;myfirstconnectio;nstring'
+      type: 'SQLAzure'
+    }
+    AnotherConnectionString: {
+      value: 'thisismyva;lueform;ysecond;connectionstring'
+      type: 'Custom'
+    }
+  }
 ''')
 param connectionStrings object = {}
 
@@ -230,6 +238,9 @@ param publicNetworkAccess string = 'Enabled'
 @description('Determine whether to deploy a staging slot in the webApp (default: true).')
 param deploySlot bool = true
 
+@description('Use 32-bit worker process on 64-bit platform. Uses 64-bit worker process if false. Default is true (will use 32-bit).')
+param use32BitWorkerProcess bool = true
+
 // ================================================= Variables =================================================
 @description('Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).')
 var internalSettings = !empty(appInsightsName) ? {
@@ -272,6 +283,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
       ftpsState: ftpsState
       http20Enabled: http20Enabled
       linuxFxVersion: linuxFxVersion
+      use32BitWorkerProcess: use32BitWorkerProcess
     }
   }
 
@@ -313,6 +325,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySl
       ftpsState: ftpsState
       http20Enabled: http20Enabled
       linuxFxVersion: linuxFxVersion
+      use32BitWorkerProcess: use32BitWorkerProcess
     }
   }
 
