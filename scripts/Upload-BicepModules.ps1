@@ -80,7 +80,7 @@ try
         #   $bicepParams.Add('-documentationUri', $DocumentationURI)
         # }
         Write-Host "bicep publish $BicepFilePath --target ""br:$($RepositoryUrl):$Tag"" $bicepParams"
-        bicep publish $BicepFilePath --target "br:$($repositoryUrl):$tag" @bicepParams
+        bicep publish $BicepFilePath --target "br:$($repositoryUrl):$tag" @bicepParams --force
       }
     }
 
