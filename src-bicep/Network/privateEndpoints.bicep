@@ -21,7 +21,36 @@ module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:l
   }
 }
 </pre>
-<p>Creates a private endpoint with the name privateEndpointName. You can decide to host the DNS zones in a different resourcegroup than the VNET resourcegroup.</p>
+<p>Creates a private endpoint with the name privateEndpointName. You can decide to host the DNS zones in a different resourcegroup than the VNET resourcegroup. The IP address is dynamic</p>
+.EXAMPLE
+<pre>
+module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:latest' = {
+  name: '${deployment().name}-stgpetest'
+  params: {
+    privateDnsLinkName: 'stgprivdnslinkname'
+    privateDnsZoneName: 'privatelink.blob.${environment().suffixes.storage}'
+    privateEndpointGroupId: 'blob'
+    subnetName: privateEndpointSubnetName
+    targetResourceId: storageAccount.outputs.storageAccountResourceId
+    privateEndpointName: 'myStgPrivateEndpoint'
+    virtualNetworkName: virtualNetworkName
+    virtualNetworkResourceId: virtualNetworkResourceId
+    location: location
+    privateDnsZoneResourceGroupName: privateDnsZoneResourceGroupName
+    ipConfigurations: [
+      {
+        name: 'IPConfigName'
+        properties: {
+          groupId: 'blob'
+          memberName: 'blob'
+          privateIPAddress: '10.0.0.5'
+        }
+      }
+    ]
+  }
+}
+</pre>
+<p>Creates a private endpoint with the name privateEndpointName. You can decide to host the DNS zones in a different resourcegroup than the VNET resourcegroup.The Ip address is static</p>
 .LINKS
 - [BICEP Private Endpoint](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/privateendpoints?pivots=deployment-language-bicep)
 */
@@ -106,6 +135,26 @@ param privateLinkServiceConnectionName string = '${privateEndpointName}-${privat
 @description('Auto register your eligible private endpoints within this DNS zone. Note: This should be default false unless you have a good reason to make this true')
 param registrationEnabled bool = false
 
+@description('''
+Parameter used for defining static IP(s) for the private endpoint, see https://learn.microsoft.com/en-us/azure/templates/microsoft.network/privateendpoints?pivots=deployment-language-bicep#privateendpointipconfiguration. The array should contain at least one PrivateEndpointIPConfiguration object which has the following parameters:
+  name: A name for the IPConfiguration resource that is unique within a resource group.
+  groupId: The ID of a group obtained from the remote resource that this private endpoint should connect to (same as the privateEndpointGroupId parameter defined above).
+  memberName: The member name of a group obtained from the remote resource that this private endpoint should connect to. For most resources it's equal to the groupId. See https://learn.microsoft.com/en-us/azure/private-link/manage-private-endpoint?tabs=manage-private-link-cli for more info on how to obtain this property.
+  privateIPAddress: A private ip address obtained from the private endpoint's subnet.
+Example
+[
+  {
+    name: 'IPConfigName'
+    properties: {
+      groupId: 'blob'
+      memberName: 'blob'
+      privateIPAddress: '0.0.0.0'
+    }
+  }
+]
+''')
+param ipConfigurations array = []
+
 @description('The resourceId of the subnet you want to put the private endpoint in.')
 var subnetResourceId = '${virtualNetworkResourceId}/subnets/${subnetName}'
 
@@ -145,6 +194,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-07-01' = {
         }
       }
     ]
+    ipConfigurations: ipConfigurations
     manualPrivateLinkServiceConnections: []
     subnet: {
       id: subnetResourceId

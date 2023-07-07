@@ -24,6 +24,7 @@ Creating a private endpoint for a resource.
 | privateEndpointGroupId | string | <input type="checkbox" checked> | None | <pre></pre> | The ID(s) of the group(s) obtained from the remote resource that this private endpoint should connect to.<br>For example: blob, queue, table, file, registry, sites<br>Example<br>[<br>&nbsp;&nbsp;&nbsp;'sqlServer'<br>] |
 | privateLinkServiceConnectionName | string | <input type="checkbox"> | None | <pre>'&#36;{privateEndpointName}-&#36;{privateEndpointGroupId}-&#36;{virtualNetworkName}-&#36;{subnetName}'</pre> | Optional parameter to change the default connection name. |
 | registrationEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Auto register your eligible private endpoints within this DNS zone. Note: This should be default false unless you have a good reason to make this true |
+| ipConfigurations | array | <input type="checkbox"> | None | <pre>[]</pre> | Parameter used for defining static IP(s) for the private endpoint, see https://learn.microsoft.com/en-us/azure/templates/microsoft.network/privateendpoints?pivots=deployment-language-bicep#privateendpointipconfiguration. The array should contain at least one PrivateEndpointIPConfiguration object which has the following parameters:<br>&nbsp;&nbsp;&nbsp;name: A name for the IPConfiguration resource that is unique within a resource group.<br>&nbsp;&nbsp;&nbsp;groupId: The ID of a group obtained from the remote resource that this private endpoint should connect to (same as the privateEndpointGroupId parameter defined above).<br>&nbsp;&nbsp;&nbsp;memberName: The member name of a group obtained from the remote resource that this private endpoint should connect to. For most resources it's equal to the groupId. See https://learn.microsoft.com/en-us/azure/private-link/manage-private-endpoint?tabs=manage-private-link-cli for more info on how to obtain this property.<br>&nbsp;&nbsp;&nbsp;privateIPAddress: A private ip address obtained from the private endpoint's subnet.<br>Example<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'IPConfigName'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;properties: {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;groupId: 'blob'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memberName: 'blob'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;privateIPAddress: '0.0.0.0'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>] |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -45,7 +46,35 @@ module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:l
   }
 }
 </pre>
-<p>Creates a private endpoint with the name privateEndpointName. You can decide to host the DNS zones in a different resourcegroup than the VNET resourcegroup.</p>
+<p>Creates a private endpoint with the name privateEndpointName. You can decide to host the DNS zones in a different resourcegroup than the VNET resourcegroup. The IP address is dynamic</p>
+<pre>
+module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:latest' = {
+  name: '${deployment().name}-stgpetest'
+  params: {
+    privateDnsLinkName: 'stgprivdnslinkname'
+    privateDnsZoneName: 'privatelink.blob.${environment().suffixes.storage}'
+    privateEndpointGroupId: 'blob'
+    subnetName: privateEndpointSubnetName
+    targetResourceId: storageAccount.outputs.storageAccountResourceId
+    privateEndpointName: 'myStgPrivateEndpoint'
+    virtualNetworkName: virtualNetworkName
+    virtualNetworkResourceId: virtualNetworkResourceId
+    location: location
+    privateDnsZoneResourceGroupName: privateDnsZoneResourceGroupName
+    ipConfigurations: [
+      {
+        name: 'IPConfigName'
+        properties: {
+          groupId: 'blob'
+          memberName: 'blob'
+          privateIPAddress: '10.0.0.5'
+        }
+      }
+    ]
+  }
+}
+</pre>
+<p>Creates a private endpoint with the name privateEndpointName. You can decide to host the DNS zones in a different resourcegroup than the VNET resourcegroup.The Ip address is static</p>
 
 ## Links
 - [BICEP Private Endpoint](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/privateendpoints?pivots=deployment-language-bicep)
