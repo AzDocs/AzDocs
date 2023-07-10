@@ -47,6 +47,14 @@ param enabledForDiskEncryption bool = false
 @description('Specifies whether Azure Resource Manager is permitted to retrieve secrets from the key vault.')
 param enabledForTemplateDeployment bool = false
 
+@description('''
+Property that controls how data actions are authorized. When true, the key vault will use Role Based Access Control (RBAC) for authorization of data actions, 
+and the access policies specified in vault properties will be ignored. 
+When false, the key vault will use the access policies specified in vault properties, and any policy stored on Azure Resource Manager will be ignored. 
+If null or not specified, the vault is created with the default value of false.
+''')
+param enableRbacAuthorization bool = false
+
 @description('Specifies the Azure Active Directory tenant ID that should be used for authenticating requests to the key vault. Get it by using Get-AzSubscription cmdlet. Defaults to the current subscription\'s tenant.')
 param tenantId string = subscription().tenantId
 
@@ -138,6 +146,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enabledForDeployment: enabledForDeployment // VMs can retrieve certificates
     enabledForTemplateDeployment: enabledForTemplateDeployment // ARM can retrieve values
     enabledForDiskEncryption: enabledForDiskEncryption
+    enableRbacAuthorization: enableRbacAuthorization
     tenantId: tenantId
     sku: {
       name: skuName
