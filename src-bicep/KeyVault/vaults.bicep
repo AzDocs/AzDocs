@@ -1,3 +1,30 @@
+/*
+.SYNOPSIS
+Creating Azure Key Vault
+.DESCRIPTION
+This module is used for creating Azure Key Vault
+.EXAMPLE
+<pre>
+module keyVault 'br:contosoregistry.azurecr.io/keyvault/vaults:latest' = {
+  name: '${take(deployment().name, 57)}-kv'
+  params:{
+    keyVaultName: keyVaultName
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    softDeleteRetentionInDays: 30
+    location: location
+    skuName: 'standard'
+    enabledForTemplateDeployment: true
+    enabledForDiskEncryption: true
+    keyVaultnetworkAclsBypass: 'AzureServices'
+    publicNetworkAccess: 'enabled'
+  }
+}
+</pre>
+.LINKS
+- [Bicep Microsoft.KeyVault Vaults](https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults?pivots=deployment-language-bicep)
+*/
+
+// ================================================= Parameters =================================================
 @description('''
 The name of the KeyVault to upsert
 Keyvault name restrictions:
@@ -43,6 +70,13 @@ param subnetIdsToWhitelist array = []
 @minValue(7)
 @maxValue(90)
 param softDeleteRetentionInDays int
+
+@description('Property to specify whether the vault will accept traffic from public internet. If set to \'disabled\' all traffic except private endpoint traffic and that that originates from trusted services will be blocked.')
+@allowed([
+  'enabled'
+  'disabled'
+])
+param publicNetworkAccess string = 'enabled'
 
 @description('Defines if you want to default allow & deny traffic coming from non-whitelisted sources. Defaults to deny for security reasons.')
 param networkAclDefaultAction string = 'Deny'
@@ -96,7 +130,7 @@ var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
 }]
 
 @description('Upsert the Keyvault')
-resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: keyVaultName
   tags: tags
   location: location
@@ -119,6 +153,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
     enableSoftDelete: true
     softDeleteRetentionInDays: softDeleteRetentionInDays
     createMode: recoverKeyvault ? 'recover' : 'default'
+    publicNetworkAccess: publicNetworkAccess
   }
 }
 

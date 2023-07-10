@@ -2,6 +2,12 @@
 
 Target Scope: resourceGroup
 
+## Synopsis
+Creating Azure Key Vault
+
+## Description
+This module is used for creating Azure Key Vault
+
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
@@ -16,6 +22,7 @@ Target Scope: resourceGroup
 | recoverKeyvault | bool | <input type="checkbox"> | None | <pre>false</pre> | Specifies if you need to recover a Keyvault. This is mandatory whenever a deleted keyvault with the same name already existed in your subscription. |
 | subnetIdsToWhitelist | array | <input type="checkbox"> | None | <pre>[]</pre> | Specifies the Resource ID\'s of the subnet(s) you want to whitelist on the KeyVault |
 | softDeleteRetentionInDays | int | <input type="checkbox" checked> | Value between 7-90 | <pre></pre> | The soft-delete retention for keeping items after deleting them. |
+| publicNetworkAccess | string | <input type="checkbox"> | `'enabled'` or `'disabled'` | <pre>'enabled'</pre> | Property to specify whether the vault will accept traffic from public internet. If set to \'disabled\' all traffic except private endpoint traffic and that that originates from trusted services will be blocked. |
 | networkAclDefaultAction | string | <input type="checkbox"> | None | <pre>'Deny'</pre> | Defines if you want to default allow & deny traffic coming from non-whitelisted sources. Defaults to deny for security reasons. |
 | keyVaultnetworkAclsBypass | string | <input type="checkbox"> | `'AzureServices'` or `'None'` | <pre>'None'</pre> | Define a bypass for AzureServices. Defaults to \'None\' |
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |
@@ -29,4 +36,25 @@ Target Scope: resourceGroup
 | keyVaultName | string | The keyvault name. |
 | keyVaultId | string | The keyvault resource id. |
 | keyvaultSecrets | array | An array of secrets which were added to keyvault. Each object contains id & name parameters. |
+## Examples
+<pre>
+module keyVault 'br:contosoregistry.azurecr.io/keyvault/vaults:latest' = {
+  name: '${take(deployment().name, 57)}-kv'
+  params:{
+    keyVaultName: keyVaultName
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    softDeleteRetentionInDays: 30
+    location: location
+    skuName: 'standard'
+    enabledForTemplateDeployment: true
+    enabledForDiskEncryption: true
+    keyVaultnetworkAclsBypass: 'AzureServices'
+    publicNetworkAccess: 'enabled'
+  }
+}
+</pre>
+
+## Links
+- [Bicep Microsoft.KeyVault Vaults](https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults?pivots=deployment-language-bicep)
+
 
