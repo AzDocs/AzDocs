@@ -80,6 +80,13 @@ param identity object = {
 }
 
 @description('''
+The IPs to whitelist for this DocumentDB. Defaults to empty.
+Make sure to pass an array of objects with the following properties:
+- ipAddressOrRange: The CIDR notation for the IP to whitelist (you are allowed to omit the suffix if its a /32.). Examples: 123.123.123.123 or 123.123.123.123/24
+''')
+param ipsToWhitelist array = []
+
+@description('''
 The subnets to whitelist for this DocumentDB. Defaults to empty.
 Make sure to pass an array of objects with the following properties:
 - resourceGroupName: The name of the resourcegroup the vnet is in.
@@ -172,11 +179,12 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
     capacity: {
       totalThroughputLimit: totalThroughputLimit
     }
+    ipRules: ipsToWhitelist
   }
 }
 
 @description('Upsert the diagnostics for this keyvault.')
-resource keyvaultDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
+resource databaseAccountDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
   name: diagnosticsName
   scope: databaseAccount
   properties: {
