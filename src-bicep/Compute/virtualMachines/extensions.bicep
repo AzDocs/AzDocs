@@ -5,7 +5,7 @@ Creating an extension for a Virtual Machine
 Creating an extension for a Virtual machine with the given specs.
 .EXAMPLE
 <pre>
-module extensionAAD '../modules/Compute/virtualMachines/extensions.bicep' = [for i in range(0, vmCount): {
+module extensionAAD 'br:contosoregistry.azurecr.io/compute/virtualmachines/extensions:latest' = [for i in range(0, vmCount): {
   name: format('{0}-{1}', take('${deployment().name}', 41), 'aadextDeploy-${i}')
   params: {
     extensionName: '${virtualMachineName}-${i}-${environmentType}/AADSSHLoginForLinux'

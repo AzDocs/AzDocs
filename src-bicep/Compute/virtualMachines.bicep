@@ -5,7 +5,7 @@ Creating a Virtual Machine
 Creating a Virtual machine with the given specs.
 .EXAMPLE
 <pre>
-module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
+module vm 'br:contosoregistry.azurecr.io/compute/virtualmachines:latest' = {
   name: 'Creating_VM_MyFirstVM'
   scope: resourceGroup
   params: {
