@@ -5,7 +5,7 @@ Runs a command on a Virtual Machine
 Runs a command on a Virtual machine with the given specs.
 .EXAMPLE
 <pre>
-module winvmruncmd 'runCommands.bicep' = {
+module winvmruncmd 'br:contosoregistry.azurecr.io/compute/virtualmachines/runCommands:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 47), 'runWinCmd')
   params: {
     name: '${virtualMachineName}/scriptName'
