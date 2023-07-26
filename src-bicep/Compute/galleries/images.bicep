@@ -95,6 +95,38 @@ param identifierPublisher string
 @description('The name of the gallery image definition SKU.	')
 param identifierSku string
 
+@description('The minimum recommended number of VM vCPUs.')
+@minValue(1)
+@maxValue(80)
+param recommendedMinimumNumberOfCpus int = 2
+
+@description('The maximum recommended number of VM vCPUs.')
+@minValue(1)
+@maxValue(80)
+param recommendedMaximumNumberOfCpus int = 16
+
+@description('The recommended minimum memory, in GB.')
+@minValue(1)
+@maxValue(640)
+param recommendedMinimumMemoryInGb int = 2
+
+@description('The recommended maximum memory, in GB.')
+@minValue(1)
+@maxValue(640)
+param recommendedMaximumMemoryInGb int = 32
+
+@description('The properties describe the recommended machine configuration for this Image Definition. These properties are updatable.')
+var recommended = {
+  memory: {
+    min: recommendedMinimumMemoryInGb
+    max: recommendedMaximumMemoryInGb
+  }
+  vCPUs: {
+    min: recommendedMinimumNumberOfCpus
+    max: recommendedMaximumNumberOfCpus
+  }
+}
+
 @description('This is the gallery image definition identifier.')
 var identifier = {
   offer: identifierOffer
@@ -132,6 +164,7 @@ resource galleryImage 'Microsoft.Compute/galleries/images@2022-03-03' = {
     identifier: identifier
     osState: osState
     osType: osType
+    recommended: recommended
   }
 }
 
