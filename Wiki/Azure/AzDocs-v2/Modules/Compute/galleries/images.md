@@ -22,6 +22,10 @@ Create an azure compute gallery image definition.
 | identifierOffer | string | <input type="checkbox" checked> | Length between 0-64 | <pre></pre> | The name of the gallery image definition offer. |
 | identifierPublisher | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the gallery image definition publisher. |
 | identifierSku | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the gallery image definition SKU.	 |
+| recommendedMinimumNumberOfCpus | int | <input type="checkbox"> | Value between 1-80 | <pre>2</pre> | The minimum recommended number of VM vCPUs. |
+| recommendedMaximumNumberOfCpus | int | <input type="checkbox"> | Value between 1-80 | <pre>16</pre> | The maximum recommended number of VM vCPUs. |
+| recommendedMinimumMemoryInGb | int | <input type="checkbox"> | Value between 1-640 | <pre>2</pre> | The recommended minimum memory, in GB. |
+| recommendedMaximumMemoryInGb | int | <input type="checkbox"> | Value between 1-640 | <pre>32</pre> | The recommended maximum memory, in GB. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Resource location |
 ## Outputs
