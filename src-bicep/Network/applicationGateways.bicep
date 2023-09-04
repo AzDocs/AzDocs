@@ -219,6 +219,9 @@ param redirectConfigurations array = []
 @description('User defined backend pools. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaybackendaddresspool).')
 param backendAddressPools array = []
 
+@description('User defined Url Path Maps for path-based routing. For array/object structure, please refer to the [Bicep resource definition](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep#applicationgatewayurlpathmap).')
+param urlPathMaps array = []
+
 @description('User defined request routing rules. For array/object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayrequestroutingrule).')
 param requestRoutingRules array = []
 
@@ -705,6 +708,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' =
     backendAddressPools: unifiedBackendAddressPools
     backendHttpSettingsCollection: unifiedBackendHttpSettingsCollection
     httpListeners: unifiedHttpListeners
+    urlPathMaps: urlPathMaps
     requestRoutingRules: unifiedRequestRoutingRules
     enableHttp2: true
     webApplicationFirewallConfiguration: webApplicationFirewallConfiguration
