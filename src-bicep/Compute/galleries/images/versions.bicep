@@ -37,7 +37,7 @@ resource sourceImageVersion 'Microsoft.Compute/galleries/images/versions@2022-03
   parent: sourceImageDefinition
 }
 
-module destinationImageVersion 'Azure.PlatformProvisioning/src-bicep/Compute/galleries/images/versions.bicep' = {
+module destinationImageVersion 'br:contosoregistry.azurecr.io/compute/galleries/images/versions:latest' = {
   name: 'copy-image-${currentDateString}'
   params: {
     location: location
@@ -73,7 +73,7 @@ var imageDestination = {
 
 var storageAccountId = resourceId(imageSource.subscriptionId,imageSource.resourceGroupName,'Microsoft.Storage/storageAccounts',imageSource.storageAccountName )
 
-module imageVersion 'Azure.PlatformProvisioning/src-bicep/Compute/galleries/images/versions.bicep' = {
+module imageVersion 'br:contosoregistry.azurecr.io/compute/galleries/images/versions:latest' = {
   name: 'copy-image-${currentDateString}'
   params: {
     location: location
