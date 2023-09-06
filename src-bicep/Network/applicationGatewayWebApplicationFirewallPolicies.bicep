@@ -57,7 +57,7 @@ param tags object = {}
 
 @description('Upsert the Web Application Firewall with the given parameters.')
 #disable-next-line BCP081
-resource applicationGatewayWebApplicationFirewallPolicy 'Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies@2021-08-01' = {
+resource applicationGatewayWebApplicationFirewallPolicy 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2023-04-01' = {
   name: applicationGatewayWebApplicationFirewallPolicyName
   tags: tags
   location: location
