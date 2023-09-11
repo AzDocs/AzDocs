@@ -344,7 +344,7 @@ param redirectHttpToHttps bool = false
 @description('Supply a fqdn to use for redirection. It is expected that the website would redirect all traffic to https with the same fqdn. See also `RedirectHttpToHttps`for more information')
 param fqdnToRedirect string = ''
 
-@description('If this is true the default port 80 rule will be added to the application gateway.')
+@description('If this is true the default port 80 rule, listener, backendsettings and backendpool will be added to the application gateway.')
 param deployDefaults bool = true
 
 // ===================================== Variables =====================================
