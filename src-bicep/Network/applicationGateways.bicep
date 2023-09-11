@@ -344,6 +344,9 @@ param redirectHttpToHttps bool = false
 @description('Supply a fqdn to use for redirection. It is expected that the website would redirect all traffic to https with the same fqdn. See also `RedirectHttpToHttps`for more information')
 param fqdnToRedirect string = ''
 
+@description('If this is true the default port 80 rule, listener, backendsettings and backendpool will be added to the application gateway.')
+param deployDefaults bool = true
+
 // ===================================== Variables =====================================
 @description('Building up the Backend Address Pools based on ezApplicationGatewayEntrypoints')
 var ezApplicationGatewayBackendAddressPools = [for entryPoint in ezApplicationGatewayEntrypoints: {
@@ -536,7 +539,7 @@ var defaultBackendHttpSettingsName = 'appGatewayBackendHttpSettings'
 var unifiedSslProfiles = union(sslProfiles, [ legacyProfile ])
 
 @description('Default backendpool that is used for all port 80 calls')
-var defaultBackendAddressPool = [
+var defaultBackendAddressPool = deployDefaults ? [
   {
     name: defaultBackendPoolName
     properties: {
@@ -547,7 +550,7 @@ var defaultBackendAddressPool = [
       ]
     }
   }
-]
+] : []
 
 @description('This unifies the user-defined backend pools & the ezApplicationGatewayBackendAddressPools with the default application gateway backendpool. We need at least 1 backendpool for the appgw to be created, so we just create a dummy default one.')
 var unifiedBackendAddressPools = union(backendAddressPools, ezApplicationGatewayBackendAddressPools, defaultBackendAddressPool)
@@ -556,8 +559,7 @@ var unifiedBackendAddressPools = union(backendAddressPools, ezApplicationGateway
 var maxPriority = 20000
 
 @description('This unifies the user-defined request routing rules & the ezApplicationGatewayRequestRoutingRules with the default application gateway request routing rule. We need at least 1 request routing rule for the appgw to be created, so we just create a dummy default one.')
-var unifiedRequestRoutingRules = union(requestRoutingRules, ezApplicationGatewayRequestRoutingRules,
-  [
+var unifiedRequestRoutingRules = union(requestRoutingRules, ezApplicationGatewayRequestRoutingRules, deployDefaults ? [
     {
       name: defaultRuleName
       properties: union(
@@ -580,11 +582,11 @@ var unifiedRequestRoutingRules = union(requestRoutingRules, ezApplicationGateway
           }
         } : {})
     }
-  ]
+  ] : []
 )
 
 @description('This unifies the user-defined http listener & the ezApplicationGatewayHttpListeners with the default application gateway http listener. We need at least 1 http listener for the appgw to be created, so we just create a dummy default one.')
-var unifiedHttpListeners = union(httpListeners, ezApplicationGatewayHttpListeners, [
+var unifiedHttpListeners = union(httpListeners, ezApplicationGatewayHttpListeners, deployDefaults ? [
     {
       name: defaultHttpListener
       properties: {
@@ -601,10 +603,10 @@ var unifiedHttpListeners = union(httpListeners, ezApplicationGatewayHttpListener
         requireServerNameIndication: false
       }
     }
-  ]
+  ] : []
 )
 
-var defaultBackendHttpSettings = [
+var defaultBackendHttpSettings = deployDefaults ? [
   {
     name: defaultBackendHttpSettingsName
     properties: union({
@@ -618,7 +620,7 @@ var defaultBackendHttpSettings = [
         hostname: empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect
       })
   }
-]
+] : []
 
 @description('This unifies the user-defined backend http settings & the ezApplicationGatewayBackendHttpSettingsCollection with the default application gateway backend http settings. We need at least 1 backend http settings for the appgw to be created, so we just create a dummy default one.')
 var unifiedBackendHttpSettingsCollection = union(backendHttpSettingsCollection, ezApplicationGatewayBackendHttpSettingsCollection, defaultBackendHttpSettings)
