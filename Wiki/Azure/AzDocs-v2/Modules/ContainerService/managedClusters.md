@@ -87,7 +87,12 @@ Creating an AKS cluster with the given specs.
 | snapshotController | bool | <input type="checkbox"> | None | <pre>true</pre> | Enables the snapshot controller |
 | upgradeChannel | string | <input type="checkbox"> | `'none'` or `'patch'` or `'stable'` or `'rapid'` or `'node-image'` | <pre>'none'</pre> | AKS upgrade channel. The default is none. More [info](https://learn.microsoft.com/en-us/azure/aks/auto-upgrade-cluster). |
 | azureKeyvaultSecrProviderEnableSecrRotation | string | <input type="checkbox"> | None | <pre>'true'</pre> | Whether to enable secret rotation when using the keyvault secrets provider. |
-| loadBalancerProfileAllocatedOutboundPorts | int | <input type="checkbox"> | None | <pre>0</pre> | The desired number of allocated SNAT ports per VM. Allowed values are in the range of 0 to 64000 (inclusive).<br>The default value is 0 which results in Azure dynamically allocating ports. |
+| loadBalancerProfileAllocatedOutboundPorts | int | <input type="checkbox"> | Value between 0-64000 | <pre>0</pre> | The desired number of allocated SNAT ports per VM. Allowed values are in the range of 1 to 64000 (inclusive).<br>The default value is 0 which results in that Azure dynamically allocates the ports. |
+| diagnosticSettingsLogsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine if you want to enable logcategories in diagnostic settings. |
+| diagnosticSettingsMetricsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine if you want to enable metrics in diagnostic settings. |
+| omsagentUseAADAuth | bool | <input type="checkbox"> | None | <pre>false</pre> | Container insights for Azure Kubernetes Service (AKS) cluster using managed identity towards the log analytics workspace. |
+| workloadIdentity | bool | <input type="checkbox"> | None | <pre>false</pre> | Workload identity enables Kubernetes applications to access Azure cloud resources securely with Azure AD. See [link](https://aka.ms/aks/wi) for more details |
+| oidcIssuerProfile | bool | <input type="checkbox"> | None | <pre>false</pre> | The OpenID Connect provider issuer profile of the Managed Cluster, used with the workloadIdentity. See [link](https://learn.microsoft.com/en-us/azure/aks/use-oidc-issuer) |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -104,7 +109,43 @@ module aks 'br:contosoregistry.azurecr.io/containerservice/managedclusters:lates
   }
 }
 </pre>
-<p>Creates an aks cluster with the name myaks and all default provided values from the parameters.</p>
+<p>creates a public aks cluster with the name myaks and all default provided values from the parameters.</p>
+
+<pre>
+module aks 'br:acrazdocsprd.azurecr.io/containerservice/managedclusters: 2023.08.24.1-main' = {
+  name: format('{0}-{1}', take('${deployment().name}', 53), 'akscluster')
+  scope: resourceGroup(aksResourceGroupName)
+  params: {
+    aksName: aksName
+    workloadIdentity: false
+    omsagentUseAADAuth: false
+    aksKubernetesVersion: '1.26.6'
+    nodePoolOrchestratorVersion: '1.26.6'
+    azureKeyvaultSecrProviderEnableSecrRotation: 'false'
+    location: location
+    aksClusterSkuTier: 'Free'
+    apiServerAccessProfileEnablePrivateCluster: true
+    aksNodeCount: 1
+    userAssignedManagedIdentityName: userAssignedManagedIdentityName
+    aksVirtualNetworkName: 'shared-dev-001-vnet'
+    aksVirtualNetworkResourceGroupName: 'azure-aksdemo-dev'
+    aksSubnetName: 'frontend-subnet'
+    privateClusterDnsMethod: 'none'
+    aksNodePoolType: 'VirtualMachineScaleSets'
+    availabilityZones: [ '1' ]
+    nodePoolVmOsType: 'Linux'
+    enableEncryptionAtHost: true
+    omsagent: omsagent
+    enableSysLog: true
+    logAnalyticsWorkspaceResourceId: law.outputs.logAnalyticsWorkspaceResourceId
+    networkProfileIpFamilies: [
+      'IPv4'
+    ]
+  }
+  dependsOn: [userassmanidentityaks]
+}
+</pre>
+<p>Creates a private cluster without private dnszone.</p>
 
 ## Links
 - [Bicep Microsoft.ContainerService managed clusters](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/managedclusters?pivots=deployment-language-bicep)

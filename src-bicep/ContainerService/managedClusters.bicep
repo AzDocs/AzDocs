@@ -12,7 +12,44 @@ module aks 'br:contosoregistry.azurecr.io/containerservice/managedclusters:lates
   }
 }
 </pre>
-<p>Creates an aks cluster with the name myaks and all default provided values from the parameters.</p>
+<p>creates a public aks cluster with the name myaks and all default provided values from the parameters.</p>
+
+.EXAMPLE
+<pre>
+module aks 'br:acrazdocsprd.azurecr.io/containerservice/managedclusters: 2023.08.24.1-main' = {
+  name: format('{0}-{1}', take('${deployment().name}', 53), 'akscluster')
+  scope: resourceGroup(aksResourceGroupName)
+  params: {
+    aksName: aksName
+    workloadIdentity: false
+    omsagentUseAADAuth: false
+    aksKubernetesVersion: '1.26.6'
+    nodePoolOrchestratorVersion: '1.26.6'
+    azureKeyvaultSecrProviderEnableSecrRotation: 'false'
+    location: location
+    aksClusterSkuTier: 'Free'
+    apiServerAccessProfileEnablePrivateCluster: true
+    aksNodeCount: 1
+    userAssignedManagedIdentityName: userAssignedManagedIdentityName
+    aksVirtualNetworkName: 'shared-dev-001-vnet'
+    aksVirtualNetworkResourceGroupName: 'azure-aksdemo-dev'
+    aksSubnetName: 'frontend-subnet'
+    privateClusterDnsMethod: 'none'
+    aksNodePoolType: 'VirtualMachineScaleSets'
+    availabilityZones: [ '1' ]
+    nodePoolVmOsType: 'Linux'
+    enableEncryptionAtHost: true
+    omsagent: omsagent
+    enableSysLog: true
+    logAnalyticsWorkspaceResourceId: law.outputs.logAnalyticsWorkspaceResourceId
+    networkProfileIpFamilies: [
+      'IPv4'
+    ]
+  }
+  dependsOn: [userassmanidentityaks]
+}
+</pre>
+<p>Creates a private cluster without private dnszone.</p>
 .LINKS
 - [Bicep Microsoft.ContainerService managed clusters](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/managedclusters?pivots=deployment-language-bicep)
 */
@@ -414,17 +451,34 @@ param upgradeChannel string = 'none'
 @description('Whether to enable secret rotation when using the keyvault secrets provider.')
 param azureKeyvaultSecrProviderEnableSecrRotation string = 'true'
 
+@minValue(0)
+@maxValue(64000)
 @description('''
-The desired number of allocated SNAT ports per VM. Allowed values are in the range of 0 to 64000 (inclusive).
-The default value is 0 which results in Azure dynamically allocating ports.
+The desired number of allocated SNAT ports per VM. Allowed values are in the range of 1 to 64000 (inclusive).
+The default value is 0 which results in that Azure dynamically allocates the ports.
 ''')
 param loadBalancerProfileAllocatedOutboundPorts int = 0
+
+@description('Determine if you want to enable logcategories in diagnostic settings.')
+param diagnosticSettingsLogsEnabled bool = false
+
+@description('Determine if you want to enable metrics in diagnostic settings.')
+param diagnosticSettingsMetricsEnabled bool = false
+
+@description('Container insights for Azure Kubernetes Service (AKS) cluster using managed identity towards the log analytics workspace.')
+param omsagentUseAADAuth bool = false
+
+@description('Workload identity enables Kubernetes applications to access Azure cloud resources securely with Azure AD. See [link](https://aka.ms/aks/wi) for more details')
+param workloadIdentity bool = false
+
+@description('The OpenID Connect provider issuer profile of the Managed Cluster, used with the workloadIdentity. See [link](https://learn.microsoft.com/en-us/azure/aks/use-oidc-issuer)')
+param oidcIssuerProfile bool = false
 
 // ===================================== Variables =====================================
 var aks_addons = union({
     azurepolicy: {
       config: {
-        version: !empty(azurepolicy) ? 'v2' : json('null')
+        version: !empty(azurepolicy) ? 'v2' : null
       }
       enabled: !empty(azurepolicy)
     }
@@ -443,13 +497,16 @@ var aks_addons = union({
       enabled: sgxPlugin
       config: {}
     }
-  }, !omsagent ? {} : {
+  }, omsagent && !empty(logAnalyticsWorkspaceResourceId) ? {
     omsagent: {
-      enabled: !empty(logAnalyticsWorkspaceResourceId) && omsagent
-      config: {
-        logAnalyticsWorkspaceResourceID: !empty(logAnalyticsWorkspaceResourceId) ? logAnalyticsWorkspaceResourceId : json('null')
-      }
-    } })
+      enabled: true
+      config: union({
+        logAnalyticsWorkspaceResourceID: logAnalyticsWorkspaceResourceId
+      }, omsagentUseAADAuth? {useAADAuth: 'true'}: {}
+      )
+    }
+  } :{}
+  )
 
 @description('The private DNS Zone Name for the private AKS cluster.')
 var privateDnsZoneName = 'privatelink.westeurope.azmk8s.io'
@@ -546,6 +603,9 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-05-01' = {
     linuxProfile: !empty(vmssPublicKey) ? linuxProfile : null
     addonProfiles: !empty(aks_addons) ? aks_addons : {}
     nodeResourceGroup: nodeResourceGroup
+    oidcIssuerProfile: {
+      enabled: workloadIdentity? true: oidcIssuerProfile
+    }
     enableRBAC: enableRBAC
     networkProfile: {
       networkPlugin: networkProfileNetworkPlugin
@@ -579,20 +639,23 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-05-01' = {
     } : {
       enablePrivateCluster: apiServerAccessProfileEnablePrivateCluster
       privateDNSZone: apiServerAccessProfileEnablePrivateCluster ? aksPrivateDnsZone : ''
-      enablePrivateClusterPublicFQDN: aksPrivateDnsZone == 'none' ? true: enablePrivateClusterPublicFQDN
+      enablePrivateClusterPublicFQDN: aksPrivateDnsZone == 'none' ? true : enablePrivateClusterPublicFQDN
     }
     identityProfile: !empty(kubeletidentity) ? {
       kubeletidentity: kubeletidentity
     } : {}
     disableLocalAccounts: disableLocalAccounts
-    securityProfile: defenderForContainers && !empty(logAnalyticsWorkspaceResourceId) ? {
-      defender: {
+    securityProfile: {
+      defender: defenderForContainers ? {
         logAnalyticsWorkspaceResourceId: !empty(logAnalyticsWorkspaceResourceId) ? logAnalyticsWorkspaceResourceId : null
         securityMonitoring: {
           enabled: defenderForContainers
         }
-      }
-    } : {}
+      } : {}
+      workloadIdentity: !workloadIdentity ? null: {
+         enabled: workloadIdentity
+       } 
+    }
     storageProfile: {
       blobCSIDriver: blobCSIDriver ? {
         enabled: blobCSIDriver
@@ -617,12 +680,12 @@ resource aksDiags 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = i
     workspaceId: logAnalyticsWorkspaceResourceId
     logs: [for aksDiagCategory in aksDiagCategories: {
       category: aksDiagCategory
-      enabled: true
+      enabled: diagnosticSettingsLogsEnabled
     }]
     metrics: [
       {
         category: 'AllMetrics'
-        enabled: true
+        enabled: diagnosticSettingsMetricsEnabled
       }
     ]
   }
@@ -756,4 +819,4 @@ output aksClusterName string = aksCluster.name
 @description('The objectid of the identity of the AKS cluster created.')
 output kubeletObjectId string = any(aksCluster.properties.identityProfile.kubeletidentity).objectId
 @description('The resource id of the subnet the pool is deployed in.')
-output aksClusterSubnetId string = !empty(aksSubnetName)? first(filter(aksCluster.properties.agentPoolProfiles, x => x.name == 'system'))!.vnetSubnetID: ''
+output aksClusterSubnetId string = !empty(aksSubnetName) ? first(filter(aksCluster.properties.agentPoolProfiles, x => x.name == 'system'))!.vnetSubnetID : ''
