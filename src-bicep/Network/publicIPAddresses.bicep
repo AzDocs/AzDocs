@@ -30,6 +30,14 @@ param publicIPAddressVersion string = 'IPv4'
 @maxValue(30)
 param publicIPIdleTimeoutInMinutes int = 4
 
+@description('The zones to use for this public ipaddress.')
+@allowed([
+  '1'
+  '2'
+  '3'
+])
+param availabilityZones array = []
+
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
 Example:
@@ -41,8 +49,7 @@ Example:
 param tags object = {}
 
 @description('Upsert the public ip with the given parameters.')
-#disable-next-line BCP081
-resource publicIP 'Microsoft.Network/publicIPAddresses@2021-08-01' = {
+resource publicIP 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
   name: publicIPAddressName
   location: location
   sku: sku
@@ -52,6 +59,7 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2021-08-01' = {
     publicIPAllocationMethod: publicIPAllocationMethod
     idleTimeoutInMinutes: publicIPIdleTimeoutInMinutes
   }
+  zones: !empty(availabilityZones) ? availabilityZones : null
 }
 
 @description('Output the resource name of the public ip address.')

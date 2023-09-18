@@ -107,6 +107,9 @@ param cookieBasedAffinity string = 'Disabled'
 @maxLength(80)
 param applicationGatewayPublicIpName string
 
+@description('If true, associates a firewall policy with an application gateway regardless whether the policy differs from the WAF Config.')
+param forceFirewallPolicyAssociation bool = false
+
 @description('The resourcename of the Web Application Firewall policy name which will be used for this Application Gateway. This should be pre-existing.')
 @minLength(1)
 @maxLength(80)
@@ -717,6 +720,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' =
     firewallPolicy: {
       id: applicationGatewayWafPolicies.id
     }
+    forceFirewallPolicyAssociation: forceFirewallPolicyAssociation
     sslProfiles: unifiedSslProfiles
     sslPolicy: sslPolicy
     sslCertificates: sslCertificates
