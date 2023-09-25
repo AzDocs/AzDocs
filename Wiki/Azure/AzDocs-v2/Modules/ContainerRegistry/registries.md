@@ -27,7 +27,8 @@ Creating an Azure Container Registry with the given specs.
 | ipRules | array | <input type="checkbox"> | None | <pre>[]</pre> | An array of IP Rules to apply to this Azure Container Registry. For object structure, please refer to the [specification](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep#iprule). |
 | policies | object | <input type="checkbox"> | None | <pre>{}</pre> | The policies to apply on this ACR. For object structure, please refer to the [specifications](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep#policies). |
 | zoneRedundancy | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Enable zone redundancy for this ACR. |
-| networkRuleSet | object | <input type="checkbox"> | None | <pre>empty(ipRules) ? {} : {</pre> | Setting up the networkRuleSet and add ip rules if any are defined. |
+| dataEndpointEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable data endpoint for this ACR. |
+| networkRuleSet | object | <input type="checkbox"> | None | <pre>empty(ipRules) ? {</pre> | Setting up the networkRuleSet and add ip rules if any are defined. |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |

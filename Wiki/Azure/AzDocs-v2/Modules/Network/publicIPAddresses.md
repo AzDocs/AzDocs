@@ -17,5 +17,5 @@ Target Scope: resourceGroup
 | Name | Type | Description |
 | -- |  -- | -- |
 | publicIpName | string | Output the resource name of the public ip address. |
-| resourceId | string | Output the resource name of the public ip address. |
+| publicIpResourceId | string | Output the resource name of the public ip address. |
 

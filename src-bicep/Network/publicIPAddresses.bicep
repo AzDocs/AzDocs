@@ -66,4 +66,4 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
 output publicIpName string = publicIP.name
 
 @description('Output the resource name of the public ip address.')
-output resourceId string = publicIP.id
+output publicIpResourceId string = publicIP.id
