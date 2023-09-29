@@ -42,6 +42,18 @@ param firewallPolicyName string
 ])
 param threatIntelMode string = 'Alert'
 
+@description('Whether or not to enable Policy Analytics for the firewall policy.')
+param insightsEnabled bool = false
+
+@description('The default log analytics workspace id for the firewall policy to use for the Policy Analytics.')
+param logAnalyticsResourcesDefaultWorkspaceId string = ''
+
+@description('The region from where you can choose log analytics workspaces to use for the firewall policy to use for Policy Analytics.')
+param workspacesRegion string = 'westeurope'
+
+@description('The number of days the Policy Analytics data for the firewall policy is saved in the log analytics workspace.')
+param insightsRetentionDays int = 30
+
 
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' = {
   name: firewallPolicyName
@@ -49,6 +61,23 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' = {
   location: location
   properties: {
     threatIntelMode: threatIntelMode
+    insights: (!insightsEnabled || empty(logAnalyticsResourcesDefaultWorkspaceId)) ? null : {
+      isEnabled: insightsEnabled
+      logAnalyticsResources: {
+        defaultWorkspaceId: {
+          id: logAnalyticsResourcesDefaultWorkspaceId
+        }
+        workspaces: [
+          {
+            region: workspacesRegion
+            workspaceId: {
+              id: logAnalyticsResourcesDefaultWorkspaceId
+            }
+          }
+        ]
+      }
+      retentionDays: insightsRetentionDays
+    }
   }
 }
 
