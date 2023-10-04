@@ -79,6 +79,32 @@ param AzureFirewallSkuTier string = 'Standard'
 ])
 param threatIntelMode string = 'Alert'
 
+@description('The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`.')
+@minLength(1)
+@maxLength(260)
+param diagnosticsName string = 'AzurePlatformCentralizedLogging'
+
+@description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
+@minLength(0)
+param logAnalyticsWorkspaceResourceId string = ''
+
+@description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings.')
+param diagnosticSettingsLogsCategories array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings')
+param diagnosticSettingsMetricsCategories array = [
+  {
+    categoryGroup: 'AllMetrics'
+    enabled: true
+  }
+]
+
+
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' existing = {
   name: firewallPolicyName
 }
@@ -103,6 +129,17 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2023-05-01' = {
     natRuleCollections: natRuleCollections
   }
   zones: !empty(availabilityZones) ? availabilityZones : null
+}
+
+@description('Upsert the diagnostics for this keyvault.')
+resource keyvaultDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
+  name: diagnosticsName
+  scope: azureFirewall
+  properties: {
+    workspaceId: logAnalyticsWorkspaceResourceId
+    logs: diagnosticSettingsLogsCategories
+    metrics: diagnosticSettingsMetricsCategories
+  }
 }
 
 @description('The id of the Azure Firewall.')
