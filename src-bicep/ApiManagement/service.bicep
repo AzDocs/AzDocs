@@ -41,13 +41,16 @@ param tags object = {}
 @description('The name of the API Management service instance.')
 param apiManagementServiceName string
 
-@description('The email address of the owner of the API Management service instance. This should be a valid notation for an email address.')
+@description('The email address of the owner/administrator of the API Management service instance. This should be a valid notation for an email address.')
 @minLength(3)
 param publisherEmail string
 
 @description('The name of the owner of the API Management service instance. This can be the name of your organization for use in the developer portal and e-mail notifications.')
 @minLength(1)
 param publisherName string
+
+@description('The email address from which the notification will be sent. This should be a valid notation for an email address.')
+param notificationSenderEmail string = ''
 
 @description('The pricing tier of this API Management service instance.')
 @allowed([
@@ -65,7 +68,7 @@ param skuCount int = 1
 
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
 @minLength(0)
-param logAnalyticsWorkspaceResourceId string
+param logAnalyticsWorkspaceResourceId string = ''
 
 @description('The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`.')
 @minLength(1)
@@ -89,9 +92,8 @@ param diagnosticSettingsLogsCategories array = [
 ]
 
 @description('''
-Sets the identity property of the Api Management Service. This can be either a System Assigned or User Assigned identity.
-If type is `UserAssigned`, then userAssignedIdentities must be set with the id of the user assigned identity resource.
-If type is `SystemAssigned`, then userAssignedIdentities must not be set.
+Sets the identity property of the Api Management Service. This can be either both a System Assigned and User Assigned identity.
+If type is `UserAssigned`, then userAssignedIdentities must be set with the ResourceId of the user assigned identity resource.
 <details>
   <summary>Click to show example</summary>
 <pre>
@@ -101,6 +103,10 @@ If type is `SystemAssigned`, then userAssignedIdentities must not be set.
 },
 {
   type: 'SystemAssigned'
+},
+{
+  type: 'SystemAssigned, UserAssigned'
+  userAssignedIdentities: userAssignedIdentityId
 }
 </pre>
 </details>
@@ -138,7 +144,7 @@ you need to set virtualNetworkType either to External or Internal.
 You also need to open NSG ports [docs](https://learn.microsoft.com/en-gb/azure/api-management/virtual-network-reference?tabs=stv2)
 and other configuration [docs](https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?source=recommendations&tabs=stv2)
 ''')
-var virtualNetworkConfiguration = empty(virtualNetworkName)? {}: {
+var virtualNetworkConfiguration = empty(virtualNetworkName) ? {} : {
   subnetResourceId: '${subscription().id}/resourceGroups/${virtualNetworkResourceGroupName}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}/subnets/${virtualNetworkIntegrationSubnetName}'
 }
 
@@ -164,7 +170,7 @@ param virtualNetworkType string = 'None'
 param zones array = []
 
 @description('''
-A list of certificates that are to be installed on the API Management service instance.
+A list of CA certificates (root or intermediates) that are to be installed on the API Management service instance.
 <details>
   <summary>Click to show example</summary>
 [
@@ -178,7 +184,7 @@ A list of certificates that are to be installed on the API Management service in
 ''')
 param certificates array = []
 
-param publicIpAddressName string  = ''
+param publicIpAddressName string = ''
 
 @description('ResourceGroup Name that can be used if the Public IP is in a different resource group. Otherwise it defaults the current resource group.')
 param publicIpAddressResourceGroupName string = az.resourceGroup().name
@@ -218,23 +224,37 @@ See [docs](https://azure.github.io/PSRule.Rules.Azure/en/rules/Azure.APIM.Cipher
 ''')
 param customProperties object = {}
 
+@description('Property that can be used to enable NAT Gateway for this API Management service.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param natGatewayState string = 'Disabled'
+
+@description('''
+The custom domains configuration for this APIM instance. An array per custom domain consisting of type, hostname, certificate store amongst others.
+Default you will have the builtin Gateway endpoint with hostname <your apim instancename>.azure-api.net
+See [docs](https://learn.microsoft.com/en-us/azure/api-management/configure-custom-domain?tabs=custom).
+''')
+param hostnameConfigurations array = []
+
 @description('The name of the private DNS zone for the private endpoint. This needs to be pre-existing.')
 var privateDNSZoneName = 'privatelink.azure-api.net'
 
 // ================================================= Resources =================================================
 @description('Possibly fetch the Public IP used for the Apim instance if integration in a VNET is used.')
-resource apimVnetPublicIp 'Microsoft.Network/publicIPAddresses@2022-11-01' existing = if (!empty(publicIpAddressName)) {
+resource apimVnetPublicIp 'Microsoft.Network/publicIPAddresses@2023-05-01' existing = if (!empty(publicIpAddressName)) {
   name: publicIpAddressName
   scope: resourceGroup(publicIpAddressResourceGroupName)
 }
 
-resource privateEndpointVirtualNetwork 'Microsoft.Network/virtualNetworks@2022-11-01' existing = if (!empty(privateEndpointVirtualNetworkName)) {
+resource privateEndpointVirtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' existing = if (!empty(privateEndpointVirtualNetworkName)) {
   name: privateEndpointVirtualNetworkName
   scope: resourceGroup(virtualNetworkResourceGroupName)
 }
 
 @description('The API Management service instance. It can take between 30 and 40 minutes to create and activate an API Management service.')
-resource apiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
+resource apiManagementService 'Microsoft.ApiManagement/service@2023-03-01-preview' = {
   name: apiManagementServiceName
   location: location
   tags: tags
@@ -246,16 +266,19 @@ resource apiManagementService 'Microsoft.ApiManagement/service@2022-09-01-previe
   properties: {
     publisherEmail: publisherEmail
     publisherName: publisherName
+    notificationSenderEmail: notificationSenderEmail
+    hostnameConfigurations: hostnameConfigurations
     apiVersionConstraint: {
       minApiVersion: apiVersionConstraintMinApiVersion
     }
     publicNetworkAccess: publicNetworkAccess
-    virtualNetworkConfiguration: empty(virtualNetworkConfiguration)? null: virtualNetworkConfiguration
-    publicIpAddressId: empty(publicIpAddressName)? null: apimVnetPublicIp.id
+    virtualNetworkConfiguration: empty(virtualNetworkConfiguration) ? null : virtualNetworkConfiguration
+    publicIpAddressId: empty(publicIpAddressName) ? null : apimVnetPublicIp.id
     virtualNetworkType: virtualNetworkType
     certificates: certificates
-    customProperties: empty(customProperties)? null: customProperties
+    customProperties: empty(customProperties) ? null : customProperties
     restore: apiManagementServiceRestore
+    natGatewayState: natGatewayState
   }
   zones: zones
 }
@@ -296,4 +319,5 @@ resource apimDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previ
 output apiManagementServiceName string = apiManagementService.name
 @description('The Resource Id of the created API Management service instance.')
 output apiManagementServiceId string = apiManagementService.id
-
+@description('The id of the system assigned principal attached to the API Management service instance.')
+output apiManagementPrincipalId string = apiManagementService.identity.principalId

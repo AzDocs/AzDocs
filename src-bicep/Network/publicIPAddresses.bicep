@@ -48,6 +48,12 @@ Example:
 ''')
 param tags object = {}
 
+@description('''
+The domain name label. The concatenation of the domain name label and the regionalized DNS zone make up the fully qualified domain name associated with the public IP address. 
+If a domain name label is specified, an A DNS record is created for the public IP in the Microsoft Azure DNS system.
+''')
+param domainNameLabel string = ''
+
 @description('Upsert the public ip with the given parameters.')
 resource publicIP 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
   name: publicIPAddressName
@@ -58,6 +64,9 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
     publicIPAddressVersion: publicIPAddressVersion
     publicIPAllocationMethod: publicIPAllocationMethod
     idleTimeoutInMinutes: publicIPIdleTimeoutInMinutes
+    dnsSettings: empty(domainNameLabel) ? null : {
+      domainNameLabel: domainNameLabel
+    }
   }
   zones: !empty(availabilityZones) ? availabilityZones : null
 }
