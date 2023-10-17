@@ -201,7 +201,6 @@ param defaultTargetRegions array = [
 @description('Specifies the storage account type to be used to store the image')
 @allowed([
   'Premium_LRS'
-  'StandardSSD_LRS'
   'Standard_LRS'
   'Standard_ZRS'
 ])
