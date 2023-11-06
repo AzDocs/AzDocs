@@ -304,6 +304,20 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
     name: 'connectionstrings'
     properties: connectionStrings
   }
+
+  resource basicPublishingCredentialsPoliciesFtp 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'ftp'
+    properties: {
+      allow: false
+    }
+  }
+
+  resource basicPublishingCredentialsPoliciesScm 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'scm'
+    properties: {
+      allow: false
+    }
+  }
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
@@ -345,6 +359,20 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySl
   resource connectionString 'config@2022-03-01' = if (deploySlot) {
     name: 'connectionstrings'
     properties: connectionStrings
+  }
+
+  resource basicPublishingCredentialsPoliciesFtp 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'ftp'
+    properties: {
+      allow: false
+    }
+  }
+
+  resource basicPublishingCredentialsPoliciesScm 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'scm'
+    properties: {
+      allow: false
+    }
   }
 }
 
