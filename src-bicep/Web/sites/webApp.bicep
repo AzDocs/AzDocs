@@ -261,7 +261,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
 }
 
 @description('Upsert the webApp & potential VNet integration with the given parameters.')
-resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+resource webApp 'Microsoft.Web/sites@2022-09-01' = {
   name: appServiceName
   location: location
   kind: webAppKind
@@ -274,6 +274,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
     clientCertEnabled: clientCertEnabled
     clientCertMode: empty(clientCertMode) ? null : clientCertMode
     publicNetworkAccess: publicNetworkAccess
+    virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : ''
     siteConfig: {
       vnetRouteAllEnabled: vnetRouteAllEnabled
       alwaysOn: alwaysOn
@@ -287,20 +288,12 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 
-  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId)) {
-    name: 'virtualNetwork'
-    properties: {
-      subnetResourceId: vNetIntegrationSubnetResourceId
-      swiftSupported: true
-    }
-  }
-
-  resource config 'config@2022-03-01' = {
+  resource config 'config@2022-09-01' = {
     name: 'appsettings'
     properties: union(internalSettings, appSettings)
   }
 
-  resource connectionString 'config@2022-03-01' = {
+  resource connectionString 'config@2022-09-01' = {
     name: 'connectionstrings'
     properties: connectionStrings
   }
@@ -321,7 +314,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
-resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySlot) {
+resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySlot) {
   name: '${webApp.name}/staging'
   location: location
   kind: webAppKind
@@ -331,6 +324,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySl
     serverFarmId: appServicePlan.id
     httpsOnly: httpsOnly
     clientAffinityEnabled: clientAffinityEnabled
+    virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : ''
     siteConfig: {
       vnetRouteAllEnabled: vnetRouteAllEnabled
       alwaysOn: alwaysOn
@@ -343,20 +337,12 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySl
     }
   }
 
-  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId) && deploySlot) {
-    name: 'virtualNetwork'
-    properties: {
-      subnetResourceId: vNetIntegrationSubnetResourceId
-      swiftSupported: true
-    }
-  }
-
-  resource config 'config@2022-03-01' = if (deploySlot) {
+  resource config 'config@2022-09-01' = if (deploySlot) {
     name: 'appsettings'
     properties: union(internalSettings, appSettings)
   }
 
-  resource connectionString 'config@2022-03-01' = if (deploySlot) {
+  resource connectionString 'config@2022-09-01' = if (deploySlot) {
     name: 'connectionstrings'
     properties: connectionStrings
   }
