@@ -68,6 +68,9 @@ param defaultBlobAccessTier string = 'Hot'
 @description('Allow or disallow public access to all blobs or containers in the storage account. The default interpretation is true for this property.')
 param allowBlobPublicAccess bool = false
 
+@description('Allow or disallow shared key access to the storage account. The default interpretation is false for this property.')
+param allowSharedKeyAccess bool = false
+
 @description('Set the minimum TLS version to be permitted on requests to storage.')
 @allowed([
   'TLS1_0'
@@ -139,6 +142,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   properties: {
     accessTier: defaultBlobAccessTier
     allowBlobPublicAccess: allowBlobPublicAccess
+    allowSharedKeyAccess: allowSharedKeyAccess
     minimumTlsVersion: storageAccountMinimumTlsVersion
     supportsHttpsTrafficOnly: true
     networkAcls: networkAcls
