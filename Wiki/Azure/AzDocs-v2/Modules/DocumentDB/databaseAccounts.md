@@ -32,7 +32,7 @@ This module creates a document db account with the given specs.
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
-| cosmosDbEndpoint | string | Outputting the endpoint of the DocumentDB account. |
+| documentEndpoint | string | Outputting the documentendpoint of the DocumentDB account. |
 | primaryConnectionString | string | Outputting the primary connectionstring of the DocumentDB account. |
 ## Examples
 <pre>

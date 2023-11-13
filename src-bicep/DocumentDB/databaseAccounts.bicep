@@ -180,6 +180,7 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
       totalThroughputLimit: totalThroughputLimit
     }
     ipRules: ipsToWhitelist
+    disableLocalAuth: true
   }
 }
 
@@ -194,7 +195,7 @@ resource databaseAccountDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-
   }
 }
 
-@description('Outputting the endpoint of the DocumentDB account.')
-output cosmosDbEndpoint string = databaseAccount.properties.documentEndpoint
+@description('Outputting the documentendpoint of the DocumentDB account.')
+output documentEndpoint string = databaseAccount.properties.documentEndpoint
 @description('Outputting the primary connectionstring of the DocumentDB account.')
 output primaryConnectionString string = databaseAccount.listConnectionStrings().connectionStrings[0].connectionString
