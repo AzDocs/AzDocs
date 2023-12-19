@@ -134,7 +134,7 @@ param webApplicationFirewallConfiguration object = {
 
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
 @minLength(0)
-param logAnalyticsWorkspaceResourceId string
+param logAnalyticsWorkspaceResourceId string = ''
 
 @description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
 param diagnosticSettingsLogsCategories array = [
