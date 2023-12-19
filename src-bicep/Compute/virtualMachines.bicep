@@ -334,13 +334,13 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     hardwareProfile: {
       vmSize: virtualMachineSize
     }
-    licenseType: empty(OSLicenseType) ? json('null') : OSLicenseType
+    licenseType: empty(OSLicenseType) ? null : OSLicenseType
     osProfile: {
       computerName: virtualMachineName
       adminUsername: virtualMachineAdminUsername
       adminPassword: virtualMachineAdminPasswordOrPublicKey
-      linuxConfiguration: operatingSystem == 'Linux' ? linuxConfigurationUnion : json('null')
-      windowsConfiguration: operatingSystem == 'Windows' ? windowsConfigurationUnion : json('null')
+      linuxConfiguration: operatingSystem == 'Linux' ? linuxConfigurationUnion : null
+      windowsConfiguration: operatingSystem == 'Windows' ? windowsConfigurationUnion : null
     }
     storageProfile: {
       imageReference: virtualMachineImageReference
@@ -357,7 +357,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     diagnosticsProfile: {
       bootDiagnostics: {
         enabled: bootdiagnosticsEnabled
-        storageUri: !empty(bootDiagnosticsStorageAccountName) ? reference(bootDiagnosticsStorageAccount.id, bootDiagnosticsStorageAccount.apiVersion).primaryEndpoints.blob : null
+        storageUri: !empty(bootDiagnosticsStorageAccountName) ? bootDiagnosticsStorageAccount.properties.primaryEndpoints.blob : null
       }
     }
   }
