@@ -274,7 +274,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     clientCertEnabled: clientCertEnabled
     clientCertMode: empty(clientCertMode) ? null : clientCertMode
     publicNetworkAccess: publicNetworkAccess
-    virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : ''
+    virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
     siteConfig: {
       vnetRouteAllEnabled: vnetRouteAllEnabled
       alwaysOn: alwaysOn
@@ -324,7 +324,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     serverFarmId: appServicePlan.id
     httpsOnly: httpsOnly
     clientAffinityEnabled: clientAffinityEnabled
-    virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : ''
+    virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
     siteConfig: {
       vnetRouteAllEnabled: vnetRouteAllEnabled
       alwaysOn: alwaysOn
