@@ -28,7 +28,9 @@ resource userManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2
 output userManagedIdentityId string = userManagedIdentity.id
 @description('The User Assigned Managed Identities Principal ID.')
 output userManagedIdentityPrincipalId string = userManagedIdentity.properties.principalId
+@description('The User Assigned Managed Identities Client ID.')
+output userManagedIdentityClientId string = userManagedIdentity.properties.clientId
 @description('The User Assigned Managed Identities Resource name.')
 output userManagedIdentityName string = userManagedIdentity.name
-@description('The User Assigned Managed Identities Object ID.')
+@description('The User Assigned Managed Identities Object (principal) ID.')
 output userManagedIdentityObjectId string = userManagedIdentity.properties.principalId

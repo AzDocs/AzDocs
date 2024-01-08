@@ -204,7 +204,7 @@ param ftpsState string = 'Disabled'
 @description('Http20Enabled: configures a web site to allow clients to connect over http2.0')
 param http20Enabled bool = true
 
-@description('Linux App Framework and version')
+@description('Linux App Framework and version.')
 param linuxFxVersion string = 'DOTNETCORE|6.0'
 
 @description('''
@@ -283,7 +283,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
       scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
       ftpsState: ftpsState
       http20Enabled: http20Enabled
-      linuxFxVersion: linuxFxVersion
+      linuxFxVersion: empty(linuxFxVersion) ? null : linuxFxVersion
       use32BitWorkerProcess: use32BitWorkerProcess
     }
   }
@@ -389,9 +389,9 @@ output webAppHostName string = webApp.properties.defaultHostName
 @description('Output the default host name of the webapp\'s staging slot.')
 output webAppStagingSlotHostName string = deploySlot ? webAppStagingSlot.properties.defaultHostName : ''
 @description('The principal id of the identity running this webapp')
-output webAppPrincipalId string = webApp.identity.principalId
+output webAppPrincipalId string = identity.type == 'SystemAssigned' ? webApp.identity.principalId : identity.type == 'SystemAssigned, UserAssigned' ? webApp.identity.principalId  : ''
 @description('The principal id of the identity running this webapp\'s staging slot')
-output webAppStagingSlotPrincipalId string = deploySlot ? webAppStagingSlot.identity.principalId : ''
+output webAppStagingSlotPrincipalId string = deploySlot ? identity.type == 'SystemAssigned' ? webAppStagingSlot.identity.principalId : identity.type == 'SystemAssigned, UserAssigned' ? webAppStagingSlot.identity.principalId  : '' : ''
 @description('The resource name of the webapp.')
 output webAppResourceName string = webApp.name
 @description('The resource name of the webapp\'s staging slot.')
