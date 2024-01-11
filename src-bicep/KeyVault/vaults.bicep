@@ -81,10 +81,10 @@ param softDeleteRetentionInDays int
 
 @description('Property to specify whether the vault will accept traffic from public internet. If set to \'disabled\' all traffic except private endpoint traffic and that that originates from trusted services will be blocked.')
 @allowed([
-  'enabled'
-  'disabled'
+  'Enabled'
+  'Disabled'
 ])
-param publicNetworkAccess string = 'enabled'
+param publicNetworkAccess string = 'Enabled'
 
 @description('Defines if you want to default allow & deny traffic coming from non-whitelisted sources. Defaults to deny for security reasons.')
 param networkAclDefaultAction string = 'Deny'
