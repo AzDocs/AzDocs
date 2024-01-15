@@ -28,8 +28,7 @@ Array of strings containing value of the Public IP you want to whitelist on this
 param publicIpsToWhitelist array = []
 
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
-@minLength(0)
-param logAnalyticsWorkspaceResourceId string
+param logAnalyticsWorkspaceResourceId string = ''
 
 @description('The SKU name to use for this storage account.')
 @allowed([

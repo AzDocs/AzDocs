@@ -29,7 +29,7 @@ param storageAccountName string
 param roleDefinitionId string
 
 @description('Fetch the existing storage account for the role assignment scope in the next step.')
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
   name: storageAccountName
 }
 
@@ -40,7 +40,7 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' exi
 }
 
 @description('Upsert the role with the given parameters')
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' =  {
   name: guid(storageAccount.id, principalId, roleDefinitionId)
   scope: storageAccount
   properties: {

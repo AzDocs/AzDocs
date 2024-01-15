@@ -15,7 +15,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | appServiceName | string | <input type="checkbox" checked> | Length between 2-60 | <pre></pre> | The name of the App Service Instance. |
 | appServicePlanName | string | <input type="checkbox" checked> | Length between 1-40 | <pre></pre> | The resource name of the appserviceplan to use for this App Service Instance. |
 | appServicePlanResourceGroupName | string | <input type="checkbox"> | Length between 1-90 | <pre>az.resourceGroup().name</pre> | The name of the resourcegroup where the appserviceplan resides in to use for this App Service Instance. Defaults to the current resourcegroup. |
-| appInsightsName | string | <input type="checkbox"> | Length between 0-260 | <pre>''</pre> | The name of the application insights instance to attach to this app service. If you leave this empty, no AppInsights resource will be created. |
+| appInsightsName | string | <input type="checkbox"> | Length between 0-260 | <pre>''</pre> | The name of the application insights instance to attach to this app service. If you leave this empty, the appsetting will not contain a referral to an AppInsights resource. |
 | appInsightsResourceGroupName | string | <input type="checkbox"> | Length between 1-90 | <pre>az.resourceGroup().name</pre> | The name of the resourcegroup where the application insights instance resides in to attach to this app service. This application insights instance should be pre-existing. Defaults to the current resourcegroup. |
 | identity | object | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | Managed service identity to use for this App Service Instance. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity). |
 | appSettings | object | <input type="checkbox"> | None | <pre>{}</pre> | Application settings. This object is a plain key/value pair.<br>For example:<br>&nbsp;&nbsp;SomeSetting: 'myvalue'<br>&nbsp;&nbsp;AnotherSetting: 'Another value' |
@@ -42,6 +42,10 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | publicNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` or `''` | <pre>'Enabled'</pre> | Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled` or an empty string. |
 | deploySlot | bool | <input type="checkbox"> | None | <pre>true</pre> | Determine whether to deploy a staging slot in the webApp (default: true). |
 | use32BitWorkerProcess | bool | <input type="checkbox"> | None | <pre>true</pre> | Use 32-bit worker process on 64-bit platform. Uses 64-bit worker process if false. Default is true (will use 32-bit). |
+| cors | object | <input type="checkbox"> | None | <pre>{}</pre> | Gets or sets the list of origins that should be allowed to make cross-origin calls (for example: http://example.com:12345).<br>Use "*" to allow all in the allowedOrigins array. The wildcard (*) is ignored if there's another domain entry.<br>Info about supportCredentials: [link](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#Requests_with_credentials)<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;allowedOrigins: [<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://functions.azure.com'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://functions-staging.azure.com'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://functions-next.azure.com'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://portal.azure.com'<br>&nbsp;&nbsp;&nbsp;]<br>&nbsp;&nbsp;&nbsp;supportCredentials: false<br>} |
+| numberOfWorkers | int | <input type="checkbox"> | None | <pre>2</pre> | Number to indicate on how many instances the app will run. |
+| healthCheckPath | string | <input type="checkbox"> | None | <pre>''</pre> | Relative path of the health check probe. A valid path starts with "/".<br>Example:<br>'/api/HealthCheck' |
+| roleAssignments | array | <input type="checkbox"> | None | <pre>[]</pre> | Setting up roleassignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' //Website Contributor<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalType: 'ServicePrincipal'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -57,6 +61,12 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 57), 'webapp')
   params: {
     appServiceName: webAppName
+    roleAssignments: [
+      {
+        principalId: logicapp.outputs.principalId
+        principalType: 'ServicePrincipal'
+        roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' // website contributor
+      }
     appInsightsName: appInsights.outputs.appInsightsName
     appServicePlanResourceGroupName: appServicePlanResourceGroupName
     ipSecurityRestrictions: union(homeIps, [
