@@ -24,11 +24,9 @@ Creating an application gateway
 | trustedRootCertificates | array | <input type="checkbox"> | None | <pre>[]</pre> | Trusted Root Certificates for this App GW. For object structure, refer to the [Bicep resource definition](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep#applicationgatewaytrustedrootcertificate) |
 | cookieBasedAffinity | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Cookie based affinity. |
 | applicationGatewayPublicIpName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | The resourcename of the public ip which will be used for the frontend ip of this application gateway. This should be pre-existing. |
-| forceFirewallPolicyAssociation | bool | <input type="checkbox"> | None | <pre>false</pre> | If true, associates a firewall policy with an application gateway regardless whether the policy differs from the WAF Config. |
 | applicationGatewayWebApplicationFirewallPolicyName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | The resourcename of the Web Application Firewall policy name which will be used for this Application Gateway. This should be pre-existing. |
 | applicationGatewaySku | object | <input type="checkbox"> | None | <pre>{<br>  name: 'WAF_v2'<br>  tier: 'WAF_v2'<br>}</pre> | SKU of the application gateway resource. For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysku). |
-| webApplicationFirewallConfiguration | object | <input type="checkbox"> | None | <pre>{<br>  enabled: true<br>  firewallMode: 'Prevention'<br>  ruleSetType: 'OWASP'<br>  ruleSetVersion: '3.1'<br>  requestBodyCheck: true<br>  maxRequestBodySizeInKb: 128<br>  fileUploadLimitInMb: 100<br>}</pre> | Web application firewall configuration to be used with this application gateway. Defaults to OWASP 3.1 in Prevention mode. For more information refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaywebapplicationfirewallconfiguration). |
-| logAnalyticsWorkspaceResourceId | string | <input type="checkbox"> | Length between 0-* | <pre>''</pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
+| logAnalyticsWorkspaceResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings). |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings). |
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |
@@ -91,7 +89,7 @@ module appgw 'br:contosoregistry.azurecr.io/network/applicationGateways:latest' 
   }
 }
 </pre>
-<p>Creates a virtual machine with the name MyFirstVM</p>
+<p>Creates an application gateway with the name 'myfirstappgwpub'</p>
 
 ## Links
 - [Bicep Microsoft.Network applicationGateways](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep)

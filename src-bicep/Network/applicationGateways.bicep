@@ -31,7 +31,7 @@ module appgw 'br:contosoregistry.azurecr.io/network/applicationGateways:latest' 
   }
 }
 </pre>
-<p>Creates a virtual machine with the name MyFirstVM</p>
+<p>Creates an application gateway with the name 'myfirstappgwpub'</p>
 .LINKS
 - [Bicep Microsoft.Network applicationGateways](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep)
 */
@@ -107,9 +107,6 @@ param cookieBasedAffinity string = 'Disabled'
 @maxLength(80)
 param applicationGatewayPublicIpName string
 
-@description('If true, associates a firewall policy with an application gateway regardless whether the policy differs from the WAF Config.')
-param forceFirewallPolicyAssociation bool = false
-
 @description('The resourcename of the Web Application Firewall policy name which will be used for this Application Gateway. This should be pre-existing.')
 @minLength(1)
 @maxLength(80)
@@ -121,19 +118,7 @@ param applicationGatewaySku object = {
   tier: 'WAF_v2'
 }
 
-@description('Web application firewall configuration to be used with this application gateway. Defaults to OWASP 3.1 in Prevention mode. For more information refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaywebapplicationfirewallconfiguration).')
-param webApplicationFirewallConfiguration object = {
-  enabled: true
-  firewallMode: 'Prevention'
-  ruleSetType: 'OWASP'
-  ruleSetVersion: '3.1'
-  requestBodyCheck: true
-  maxRequestBodySizeInKb: 128
-  fileUploadLimitInMb: 100
-}
-
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
-@minLength(0)
 param logAnalyticsWorkspaceResourceId string = ''
 
 @description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
@@ -716,11 +701,9 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' =
     urlPathMaps: urlPathMaps
     requestRoutingRules: unifiedRequestRoutingRules
     enableHttp2: true
-    webApplicationFirewallConfiguration: webApplicationFirewallConfiguration
     firewallPolicy: {
       id: applicationGatewayWafPolicies.id
     }
-    forceFirewallPolicyAssociation: forceFirewallPolicyAssociation
     sslProfiles: unifiedSslProfiles
     sslPolicy: sslPolicy
     sslCertificates: sslCertificates
