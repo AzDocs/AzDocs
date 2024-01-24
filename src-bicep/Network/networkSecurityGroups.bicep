@@ -93,7 +93,7 @@ resource nsgDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
 
 @description('Upsert the NSG Flow logs with the given parameters.')
 module nsgFlowLog 'networkWatchers/flowLogs.bicep' = {
-  name: take(format('{0}-{1}', networkSecurityGroupName, deployment().name), 64)
+  name: take(format('{0}-{1}', take('${deployment().name}', 35), networkSecurityGroupName), 64)
   scope: az.resourceGroup(az.subscription().subscriptionId, networkWatcherResourceGroupName)
   params: {
     networkWatcherName: networkWatcherName
