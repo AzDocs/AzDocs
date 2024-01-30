@@ -8,6 +8,22 @@ Creating a private endpoint for a resource.
 module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:latest' = {
   name: '${deployment().name}-stgpetest'
   params: {
+    location: location
+    privateEndpointGroupId: 'sqlServer'
+    subnetName: 'privateendpointsubnet'
+    targetResourceId: sqlserver.outputs.sqlServerResourceId
+    privateEndpointName: 'mysqlpe'
+    virtualNetworkResourceGroupName: 'vnetresourcegroupname'
+    virtualNetworkName: 'vnetname'
+  }
+}
+</pre>
+<p>Creates a private endpoint with the name privateEndpointName without creating a private DNS zone./p>
+.EXAMPLE
+<pre>
+module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:latest' = {
+  name: '${deployment().name}-stgpetest'
+  params: {
     privateDnsLinkName: 'stgprivdnslinkname'
     privateDnsZoneName: 'privatelink.blob.${environment().suffixes.storage}'
     privateEndpointGroupId: 'blob'
@@ -86,26 +102,19 @@ The name of the virtual network you want to create the private endpoint in. Shou
 ''')
 param virtualNetworkName string
 
-@description('''
-The name of the subnet in the virtual network you want to create the private endpoint in. Should be pre-existing.
-''')
-param subnetName string
+@description('The name of the resource group where the virtual network resides in.')
+param virtualNetworkResourceGroupName string = resourceGroup().name
 
-@description('''
-String containing the resource id of the virtual network you want to create the private endpoint in.
-Example:
-'${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}'
-''')
-param virtualNetworkResourceId string = '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}'
+@description('The name of the subnet in the virtual network you want to create the private endpoint in. Should be pre-existing.')
+param subnetName string
 
 @description('''
 The name of the private DNS zone in which the private endpoint can be looked up.
 Example:
 'privatelink.blob.${environment().suffixes.storage}'
 ''')
-@minLength(1)
 @maxLength(63)
-param privateDnsZoneName string
+param privateDnsZoneName string = ''
 
 @description('''
 The name of the virtual network link in the DNS Zone.
@@ -114,7 +123,7 @@ A virtual network can be linked to private DNS zone as a registration (autoregis
 ''')
 @minLength(1)
 @maxLength(80)
-param privateDnsLinkName string
+param privateDnsLinkName string = privateEndpointName
 
 @description('''
 The name of the resourcegroup where the private DNS zone for the private endpoint resides or will reside in.
@@ -160,16 +169,28 @@ Example
 ''')
 param ipConfigurations array = []
 
-@description('The resourceId of the subnet you want to put the private endpoint in.')
-var subnetResourceId = '${virtualNetworkResourceId}/subnets/${subnetName}'
+@description('Whether or not to create a private DNS zone for the private endpoint. If this parameter false, no private DNS zone will be created.')
+param createPrivateDnsZone bool = false
 
-module privateDnsZone 'privateDnsZones.bicep' = {
+//################## Existing Resources ##################
+resource vnet 'Microsoft.Network/virtualNetworks@2023-06-01' existing = {
+  name: virtualNetworkName
+  scope: resourceGroup(virtualNetworkResourceGroupName)
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-06-01' existing = {
+  parent: vnet
+  name: subnetName
+}
+
+//################## Creating Resources ##################
+module privateDnsZone 'privateDnsZones.bicep' = if (createPrivateDnsZone) {
   name: format('{0}-{1}', take('${deployment().name}', 53), 'pvtDnsZone')
   scope: az.resourceGroup(az.subscription().subscriptionId, privateDnsZoneResourceGroupName)
   params: {
     privateDnsZoneName: privateDnsZoneName
     privateDnsLinkName: privateDnsLinkName
-    virtualNetworkResourceId: virtualNetworkResourceId
+    virtualNetworkResourceId: vnet.id
     registrationEnabled: registrationEnabled
   }
 }
@@ -179,7 +200,7 @@ Upsert the private endpoint & private dns zone group
 Private DNS Zone Groups are a kind of link back to one or multiple Private DNS Zones.
 With this connection, an A-Record will automatically be created, updated or removed on the referenced Private DNS Zone depending on the Private Endpoint configuration.
 ''')
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-07-01' = {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-06-01' = {
   name: privateEndpointName
   location: location
   tags: tags
@@ -203,21 +224,22 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-07-01' = {
     ipConfigurations: ipConfigurations
     manualPrivateLinkServiceConnections: []
     subnet: {
-      id: subnetResourceId
+      id: subnet.id
     }
   }
 
-  resource privateEndpointZoneGroup 'privateDnsZoneGroups@2022-07-01' = {
+  resource privateEndpointZoneGroup 'privateDnsZoneGroups@2023-06-01' = if (createPrivateDnsZone) {
     name: 'dnsgroupname'
     properties: {
       privateDnsZoneConfigs: [
         {
           name: replace(replace(replace(privateDnsZoneName, '-', '--'), '.', '-'), '*', 'wildcard')
           properties: {
-            privateDnsZoneId: privateDnsZone.outputs.privateDnsZoneResourceId
+            privateDnsZoneId: resourceId(subscription().subscriptionId, privateDnsZoneResourceGroupName, 'Microsoft.Network/privateDnsZones', privateDnsZoneName)
           }
         }
       ]
     }
   }
+
 }
