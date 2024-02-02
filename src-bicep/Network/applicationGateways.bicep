@@ -89,6 +89,9 @@ You can append this profile with your own defined profiles.
 ''')
 param sslProfiles array = []
 
+@description('Trusted client certificates of the application gateway resource.')
+param trustedClientCertificates array = []
+
 @description('SSL Certificates. For object structure, refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslcertificate).')
 param sslCertificates array = []
 
@@ -169,25 +172,10 @@ param frontendPorts array = [
 @description('''
 The default SSL policy to use for entrypoints. This policy is used whenever no specific SSL Profile is being selected.
 For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysslpolicy).
-This defaults to TLS 1.2 with these ciphersuites:
-  'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
-  'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
-  'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-  'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-  'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384'
-  'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
 ''')
 param sslPolicy object = {
-  policyType: 'Custom'
-  minProtocolVersion: 'TLSv1_2'
-  cipherSuites: [
-    'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
-    'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
-    'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-    'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-    'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384'
-    'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
-  ]
+  policyType: 'Predefined'
+  policyName: 'AppGwSslPolicy20220101S'
 }
 
 @description('The identity to run this application gateway under. This defaults to a System Assigned Managed Identity. For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#managedserviceidentity).')
@@ -471,18 +459,8 @@ var legacyCustomV2Profile = {
   name: 'Legacy'
   properties: {
     sslPolicy: {
-      policyType: 'CustomV2'
-      minProtocolVersion: 'TLSv1_2'
-      cipherSuites: [
-        'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
-        'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
-        'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-        'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-        'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384'
-        'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'
-        'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'
-        'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'
-      ]
+      policyType: 'Predefined'
+      policyName: 'AppGwSslPolicy20220101'
     }
     clientAuthConfiguration: {
       verifyClientCertIssuerDN: false
@@ -502,8 +480,6 @@ var legacyCustomProfile = {
         'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
         'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
         'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-        'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384'
-        'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
         'TLS_RSA_WITH_AES_256_GCM_SHA384'
         'TLS_RSA_WITH_AES_128_GCM_SHA256'
       ]
@@ -515,7 +491,7 @@ var legacyCustomProfile = {
 }
 
 @description('Defines the default legacy profile, based on if the main profile is customv2 or something else.')
-var legacyProfile = sslPolicy.policyType == 'CustomV2' ? legacyCustomV2Profile : legacyCustomProfile
+var legacyProfile = sslPolicy.policyType == 'Custom' || (sslPolicy.policyType == 'Predefined' && startsWith(sslPolicy.policyName, 'AppGwSslPolicy201')) ? legacyCustomProfile : legacyCustomV2Profile
 
 var defaultBackendPoolName = 'appGatewayBackendPool'
 var defaultRuleName = 'defaultRule'
@@ -711,6 +687,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' =
     rewriteRuleSets: unifiedRewriteRuleSets
     redirectConfigurations: redirectConfigurations
     trustedRootCertificates: trustedRootCertificates
+    trustedClientCertificates: trustedClientCertificates
   }
 }
 
