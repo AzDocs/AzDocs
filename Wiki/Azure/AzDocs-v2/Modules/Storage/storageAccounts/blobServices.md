@@ -2,6 +2,12 @@
 
 Target Scope: resourceGroup
 
+## Synopsis
+Creating a blob container in a storage account.
+
+## Description
+Creating a blob container in a storage account.
+
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
@@ -15,4 +21,19 @@ Target Scope: resourceGroup
 | Name | Type | Description |
 | -- |  -- | -- |
 | blobContainerName | string | Output the storage account container name. |
+## Examples
+<pre>
+module storageaccount 'br:contosoregistry.azurecr.io/storage/storageaccounts/blobservices:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 59), 'blob')
+  params: {
+    storageAccountName: storageAccountName
+    blobContainerName: 'blobcontainername'
+  }
+}
+</pre>
+<p>Creates a blob container with the name blobcontainername in an existing storage account.</p>
+
+## Links
+- [Bicep Storage Blob Container](https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts/blobservices/containers?pivots=deployment-language-bicep)
+
 

@@ -298,7 +298,7 @@ module privateEndpoint '../Network/privateEndpoints.bicep' = if (!empty(privateE
     targetResourceId: apiManagementService.id
     privateEndpointName: apiManagementServiceName
     virtualNetworkName: privateEndpointVirtualNetworkName
-    virtualNetworkResourceId: privateEndpointVirtualNetwork.id
+    virtualNetworkResourceGroupName: virtualNetworkResourceGroupName
     location: location
     privateDnsZoneResourceGroupName: privateDnsZoneResourceGroupName
   }

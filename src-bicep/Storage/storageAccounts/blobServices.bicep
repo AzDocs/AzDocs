@@ -1,3 +1,26 @@
+/*
+.SYNOPSIS
+Creating a blob container in a storage account.
+.DESCRIPTION
+Creating a blob container in a storage account.
+.EXAMPLE
+<pre>
+module storageaccount 'br:contosoregistry.azurecr.io/storage/storageaccounts/blobservices:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 59), 'blob')
+  params: {
+    storageAccountName: storageAccountName
+    blobContainerName: 'blobcontainername'
+  }
+}
+</pre>
+<p>Creates a blob container with the name blobcontainername in an existing storage account.</p>
+.LINKS
+- [Bicep Storage Blob Container](https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts/blobservices/containers?pivots=deployment-language-bicep)
+*/
+
+// ================================================= Parameters =================================================
+
+
 @description('The name of the blob container to create.')
 @minLength(3)
 @maxLength(63)
@@ -47,7 +70,8 @@ resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01
 
 @description('Upsert the blob container.')
 resource storageAccountContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  name: '${storageAccount.name}/default/${blobContainerName}'
+  parent: blobServices
+  name: blobContainerName
   properties: {}
 }
 

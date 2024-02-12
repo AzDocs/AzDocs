@@ -1,3 +1,27 @@
+/*
+.SYNOPSIS
+Creating a storage account.
+.DESCRIPTION
+Creating a storage account.
+.EXAMPLE
+<pre>
+module storageaccount 'br:contosoregistry.azurecr.io/storage/storageaccounts:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 60), 'stg')
+  params: {
+    storageAccountKind: 'StorageV2'
+    storageAccountName: storageAccountName
+    storageAccountSku: 'Standard_LRS'
+    location: location
+  }
+}
+</pre>
+<p>Creates a storage account with the name storageAccountName</p>
+.LINKS
+- [Bicep Storage Account](https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts?pivots=deployment-language-bicep)
+*/
+
+// ================================================= Parameters =================================================
+
 @description('''
 The name of the storage account to create.
 Storage account name restrictions:
@@ -108,6 +132,75 @@ Example:
 ''')
 param tags object = {}
 
+@description('''
+Optional. Provides the identity based authentication settings for Azure Files.
+<details>
+  <summary>Click to show example</summary>
+<pre>
+param azureFilesIdentityBasedAuthentication object = {
+  directoryServiceOptions: 'AD'
+  activeDirectoryProperties: {
+    domainName: 'Contoso.com' //Global.DomainName
+    netBiosDomainName: 'Contoso' //first(split(Global.DomainName, '.'))
+    forestName: 'Contoso.com' // Global.DomainName
+    domainGuid: '7bdbf663-36ad-43e2-9148-c142ace6ae24'
+    domainSid: 'S-1-5-21-4189862783-2073351504-2099725206'
+    azureStorageSid: 'S-1-5-21-4189862783-2073351504-2099725206-3101'
+  }
+}
+</pre>
+</details>
+''')
+param azureFilesIdentityBasedAuthentication object = {}
+
+@description('Allow or disallow OAuth authentication to the storage account. The default interpretation is false for this property.')
+param defaultToOAuthAuthentication bool = false
+
+@description('Optional. If true, enables NFS 3.0 support for the storage account. Requires enableHierarchicalNamespace to be true.')
+param enableNfsV3 bool = false
+
+@description('Optional. If true, enables Secure File Transfer Protocol for the storage account. Requires enableHierarchicalNamespace to be true.')
+param enableSftp bool = false
+
+@allowed([
+  'Disabled'
+  'Enabled'
+])
+@description('Optional. Allow large file shares if sets to \'Enabled\'. It cannot be disabled once it is enabled. Only supported on locally redundant and zone redundant file shares. It cannot be set on FileStorage storage accounts (storage accounts for premium file shares).')
+param largeFileSharesState string = 'Disabled'
+
+@description('''
+The name of the existing key vault to use for encryption and that stores the key. If this is set, the storage account will be encrypted with a key from the key vault.
+Make sure to either grant the system assigned managed identity of the storage account or the user assigned managed identity of the storage account the correct RBAC or access policies on the Keyvault.
+''')
+param keyVaultName string = ''
+
+@description('The resource group name for the user assigned managed identity.')
+param userAssignedIdentityResourceGroupName string = resourceGroup().name
+
+@description('The name of the user assigned managed identity to create for this storage account.')
+param userAssignedIdentityName string = ''
+
+@description('The resource group name for the user assigned managed identity.')
+param keyVaultResourceGroupName string = resourceGroup().name
+
+@description('The name of the key in the key vault to use for encryption. If this is set, the storage account will be encrypted with a key from the key vault.')
+param keyName string = ''
+
+@description('Determine that the storage account does not have an identity. If you want to use a cmk key,then you need to set this to false. Defaults to true for backwards compatibility.')
+param overrideNoIdentity bool = true
+
+// ================================================= Variables =================================================
+@description('''
+One or more managed identities on this storage account. Defaults to no assigned managed identity. 
+''')
+var identity = (!empty(userAssignedIdentityName)) ? {
+  type: 'UserAssigned'
+  userAssignedIdentities: {
+    '${storageAccountUserAssignedManagedIdentity.id}': {}
+  }
+} : overrideNoIdentity ? null : { type: 'SystemAssigned' }
+
 @description('Build the needed object for the virtualNetworkRules based on the `subnetIdsToWhitelist` parameter.')
 var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
   id: subnetId
@@ -129,9 +222,35 @@ var networkAcls = empty(virtualNetworkRules) && empty(ipRules) ? {
   ipRules: ipRules
 }
 
+var supportsBlobService = storageAccountKind == 'BlockBlobStorage' || storageAccountKind == 'BlobStorage' || storageAccountKind == 'StorageV2' || storageAccountKind == 'Storage'
+var supportsFileService = storageAccountKind == 'FileStorage' || storageAccountKind == 'StorageV2' || storageAccountKind == 'Storage'
+
+// ================================================= Existing Resources =================================================
+@description('''
+the user assigned managed identity bound to the storage account. 
+Add the required RBAC or access policy rights to this account on the Keyvault if it needs to be able to get, list, or decrypt the keys from the keyvault. 
+For example if a cmk key is used.
+''')
+resource storageAccountUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (!empty(userAssignedIdentityName)) {
+  name: userAssignedIdentityName
+  scope: resourceGroup(userAssignedIdentityResourceGroupName)
+}
+
+@description('The key vault to use for encryption. Needs to be pre-existing.')
+resource cMKKeyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = if (!empty(keyVaultName)) {
+  name: keyVaultName
+  scope: resourceGroup(keyVaultResourceGroupName)
+
+  resource cMKKey 'keys@2023-07-01' existing = if (!empty(keyName)) {
+    name: keyName
+  }
+}
+
+// ================================================= Resources =================================================
 @description('Upsert the storage account based on the given parameters.')
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: toLower(storageAccountName)
+  identity: identity
   location: location
   kind: storageAccountKind
   tags: tags
@@ -142,6 +261,35 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     accessTier: defaultBlobAccessTier
     allowBlobPublicAccess: allowBlobPublicAccess
     allowSharedKeyAccess: allowSharedKeyAccess
+    #disable-next-line BCP035
+    azureFilesIdentityBasedAuthentication: !empty(azureFilesIdentityBasedAuthentication) ? azureFilesIdentityBasedAuthentication : null
+    defaultToOAuthAuthentication: defaultToOAuthAuthentication
+    encryption: {
+      keySource: !empty(keyVaultName) ? 'Microsoft.Keyvault' : 'Microsoft.Storage'
+      services: {
+        blob: supportsBlobService ? {
+          enabled: true
+        } : null
+        file: supportsFileService ? {
+          enabled: true
+        } : null
+        table: {
+          enabled: true
+        }
+        queue: {
+          enabled: true
+        }
+      }
+      keyvaultproperties: !empty(keyVaultName) ? {
+        keyname: keyName
+        keyvaulturi: cMKKeyVault.properties.vaultUri
+      } : null
+      identity: !empty(userAssignedIdentityName) ? {
+        userAssignedIdentity: storageAccountUserAssignedManagedIdentity.id } : null
+    }
+    isNfsV3Enabled: enableNfsV3 ? enableNfsV3 : any('')
+    isSftpEnabled: enableSftp
+    largeFileSharesState: (storageAccountSku == 'Standard_LRS') || (storageAccountSku == 'Standard_ZRS') ? largeFileSharesState : null
     minimumTlsVersion: storageAccountMinimumTlsVersion
     supportsHttpsTrafficOnly: true
     networkAcls: networkAcls
@@ -167,5 +315,3 @@ output storageAccountResourceId string = storageAccount.id
 output storageAccountPrimaryEndpoint object = storageAccount.properties.primaryEndpoints
 @description('Output the API Version for this storage account.')
 output storageAccountApiVersion string = storageAccount.apiVersion
-@description('The Storage Account keys (outputing this so it can be used when creating function apps).')
-output storageAccountKey string = storageAccount.listKeys().keys[0].value

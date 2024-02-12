@@ -94,14 +94,14 @@ param userAssignedIdentityResourceGroupName string = az.resourceGroup().name
 param aksClusterSkuTier string = 'Free'
 
 @description('The kubernetes version of the AKS cluster.')
-param aksKubernetesVersion string = '1.25.6'
+param aksKubernetesVersion string = '1.28.3'
 
 @description('''
 Node pool version. Both patch version <major.minor.patch> and <major.minor> are supported. When <major.minor> is specified, the latest supported patch version is chosen automatically.
 As best practice, you should have all node pools in an AKS cluster to the same Kubernetes version. The node pool version must have the same major version as the control plane.
 The node pool minor version must be within two minor versions of the control plane version. The node pool version cannot be greater than the control plane version.
 ''')
-param nodePoolOrchestratorVersion string = '1.25.6'
+param nodePoolOrchestratorVersion string = '1.28.3'
 
 @description('''
 The number of nodes you want to host in the aks cluster. Number of agents (VMs) to host docker containers.
@@ -501,12 +501,12 @@ var aks_addons = union({
     omsagent: {
       enabled: true
       config: union({
-        logAnalyticsWorkspaceResourceID: logAnalyticsWorkspaceResourceId
-      }, omsagentUseAADAuth? {useAADAuth: 'true'}: {}
+          logAnalyticsWorkspaceResourceID: logAnalyticsWorkspaceResourceId
+        }, omsagentUseAADAuth ? { useAADAuth: 'true' } : {}
       )
     }
-  } :{}
-  )
+  } : {}
+)
 
 @description('The private DNS Zone Name for the private AKS cluster.')
 var privateDnsZoneName = 'privatelink.westeurope.azmk8s.io'
@@ -548,7 +548,7 @@ resource aksSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existi
 }
 
 // ===================================== Resources =====================================
-resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-05-01' = {
+resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-11-01' = {
   name: aksName
   location: location
   tags: tags
@@ -600,11 +600,12 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-05-01' = {
         enabled: kedaAddon
       }
     } : null
+    #disable-next-line BCP035
     linuxProfile: !empty(vmssPublicKey) ? linuxProfile : null
     addonProfiles: !empty(aks_addons) ? aks_addons : {}
     nodeResourceGroup: nodeResourceGroup
     oidcIssuerProfile: {
-      enabled: workloadIdentity? true: oidcIssuerProfile
+      enabled: workloadIdentity ? true : oidcIssuerProfile
     }
     enableRBAC: enableRBAC
     networkProfile: {
@@ -634,6 +635,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-05-01' = {
       adminGroupObjectIDs: !empty(aadProfileAdminGroupObjectIDs) ? aadProfileAdminGroupObjectIDs : null
     } : null
     autoUpgradeProfile: { upgradeChannel: upgradeChannel }
+    #disable-next-line BCP036
     apiServerAccessProfile: !empty(authorizedIPRanges) ? {
       authorizedIPRanges: authorizedIPRanges
     } : {
@@ -652,9 +654,9 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-05-01' = {
           enabled: defenderForContainers
         }
       } : {}
-      workloadIdentity: !workloadIdentity ? null: {
-         enabled: workloadIdentity
-       } 
+      workloadIdentity: !workloadIdentity ? null : {
+        enabled: workloadIdentity
+      }
     }
     storageProfile: {
       blobCSIDriver: blobCSIDriver ? {

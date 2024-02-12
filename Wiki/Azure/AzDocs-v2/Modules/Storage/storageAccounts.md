@@ -2,6 +2,12 @@
 
 Target Scope: resourceGroup
 
+## Synopsis
+Creating a storage account.
+
+## Description
+Creating a storage account.
+
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
@@ -20,6 +26,17 @@ Target Scope: resourceGroup
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
 | publicNetworkAccess | string | <input type="checkbox"> | `'Disabled'` or `'Enabled'` | <pre>'Enabled'</pre> | Allow or disallow public network access to Storage Account. Value is optional but if passed in, must be `Enabled` or `Disabled`. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+| azureFilesIdentityBasedAuthentication | object | <input type="checkbox"> | None | <pre>{}</pre> | Optional. Provides the identity based authentication settings for Azure Files.<br><details><br>&nbsp;&nbsp;&nbsp;<summary>Click to show example</summary><br><pre><br>param azureFilesIdentityBasedAuthentication object = {<br>&nbsp;&nbsp;&nbsp;directoryServiceOptions: 'AD'<br>&nbsp;&nbsp;&nbsp;activeDirectoryProperties: {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;domainName: 'Contoso.com' //Global.DomainName<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;netBiosDomainName: 'Contoso' //first(split(Global.DomainName, '.'))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;forestName: 'Contoso.com' // Global.DomainName<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;domainGuid: '7bdbf663-36ad-43e2-9148-c142ace6ae24'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;domainSid: 'S-1-5-21-4189862783-2073351504-2099725206'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;azureStorageSid: 'S-1-5-21-4189862783-2073351504-2099725206-3101'<br>&nbsp;&nbsp;&nbsp;}<br>}<br></pre><br></details> |
+| defaultToOAuthAuthentication | bool | <input type="checkbox"> | None | <pre>false</pre> | Allow or disallow OAuth authentication to the storage account. The default interpretation is false for this property. |
+| enableNfsV3 | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. If true, enables NFS 3.0 support for the storage account. Requires enableHierarchicalNamespace to be true. |
+| enableSftp | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. If true, enables Secure File Transfer Protocol for the storage account. Requires enableHierarchicalNamespace to be true. |
+| largeFileSharesState | string | <input type="checkbox"> | `'Disabled'` or `'Enabled'` | <pre>'Disabled'</pre> | Optional. Allow large file shares if sets to \'Enabled\'. It cannot be disabled once it is enabled. Only supported on locally redundant and zone redundant file shares. It cannot be set on FileStorage storage accounts (storage accounts for premium file shares). |
+| keyVaultName | string | <input type="checkbox"> | None | <pre>''</pre> | The name of the existing key vault to use for encryption and that stores the key. If this is set, the storage account will be encrypted with a key from the key vault.<br>Make sure to either grant the system assigned managed identity of the storage account or the user assigned managed identity of the storage account the correct RBAC or access policies on the Keyvault. |
+| userAssignedIdentityResourceGroupName | string | <input type="checkbox"> | None | <pre>resourceGroup().name</pre> | The resource group name for the user assigned managed identity. |
+| userAssignedIdentityName | string | <input type="checkbox"> | None | <pre>''</pre> | The name of the user assigned managed identity to create for this storage account. |
+| keyVaultResourceGroupName | string | <input type="checkbox"> | None | <pre>resourceGroup().name</pre> | The resource group name for the user assigned managed identity. |
+| keyName | string | <input type="checkbox"> | None | <pre>''</pre> | The name of the key in the key vault to use for encryption. If this is set, the storage account will be encrypted with a key from the key vault. |
+| overrideNoIdentity | bool | <input type="checkbox"> | None | <pre>true</pre> | Determine that the storage account does not have an identity. If you want to use a cmk key,then you need to set this to false. Defaults to true for backwards compatibility. |
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -27,5 +44,21 @@ Target Scope: resourceGroup
 | storageAccountResourceId | string | Output the resource id of this storage account. |
 | storageAccountPrimaryEndpoint | object | Output the primary endpoint for this storage account. |
 | storageAccountApiVersion | string | Output the API Version for this storage account. |
-| storageAccountKey | string | The Storage Account keys (outputing this so it can be used when creating function apps). |
+## Examples
+<pre>
+module storageaccount 'br:contosoregistry.azurecr.io/storage/storageaccounts:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 60), 'stg')
+  params: {
+    storageAccountKind: 'StorageV2'
+    storageAccountName: storageAccountName
+    storageAccountSku: 'Standard_LRS'
+    location: location
+  }
+}
+</pre>
+<p>Creates a storage account with the name storageAccountName</p>
+
+## Links
+- [Bicep Storage Account](https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts?pivots=deployment-language-bicep)
+
 

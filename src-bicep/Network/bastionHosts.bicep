@@ -65,12 +65,12 @@ param bastionSubnetName string = 'AzureBastionSubnet'
 @description('The resource name of the Public IP for this Azure Bastion host.')
 @minLength(1)
 @maxLength(80)
-param bastionPublicIpAddressName string = 'pip-${bastionHostName}'
+param bastionPublicIpAddressName string = bastionHostName
 
 @description('The VNet name to onboard this Azure Bastion Host into.')
 @minLength(2)
 @maxLength(64)
-param vnetName string = ''
+param vnetName string
 
 @description('The sku for the Bastion host.')
 @allowed([
@@ -152,7 +152,7 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2021-08-01' = {
             id: '${vnetExisting.id}/subnets/${bastionSubnetName}'
           }
           publicIPAddress: {
-            id: bastionPublicIpAddress.outputs.resourceId
+            id: bastionPublicIpAddress.outputs.publicIpResourceId
           }
         }
       }
