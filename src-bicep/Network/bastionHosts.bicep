@@ -5,7 +5,7 @@ Creating a Bastion Host.
 Creating a Bastion Host with the given specs.
 .EXAMPLE
 <pre>
-module bastion '../../AzDocs/src-bicep/Network/bastionHosts.bicep' = {
+module bastion 'br:contosoregistry.azurecr.io/network/bastionHosts:latest' = {
   name: '${deployment().name}-bastion'
   params: {
     bastionHostName: bastionHostName
@@ -170,7 +170,6 @@ resource bastionDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
     metrics: diagnosticSettingsMetricsCategories
   }
 }
-
 
 @description('Outputs the name of the created Bastion Host.')
 output bastionHostName string = bastionHost.name

@@ -124,7 +124,10 @@ If you specify 0, it will apply the default osDisk size according to the vmSize 
 param aksNodeOsDiskSizeGB int = 0
 
 @description('Determines the placement of emptyDir volumes, container runtime data root, and Kubelet ephemeral storage.')
-@allowed([ 'OS', 'Temporary' ])
+@allowed([
+  'OS'
+  'Temporary'
+])
 param aksNodeKubeletDiskType string = 'OS'
 
 @description('The name of the virtual network that holds the byo subnet for AKS. When used, it should already be existing.')
@@ -144,7 +147,10 @@ param aksSubnetName string = ''
 param aksNodeMaxPods int = 110
 
 @description('The type of Agent Pool.')
-@allowed([ 'VirtualMachineScaleSets', 'AvailabilitySet' ])
+@allowed([
+  'VirtualMachineScaleSets'
+  'AvailabilitySet'
+])
 param aksNodePoolType string = 'VirtualMachineScaleSets'
 
 @description('''
@@ -163,7 +169,10 @@ param availabilityZones array = []
 param aksNodeAutoScaler bool = false
 
 @description('This also effects the cluster autoscaler behavior. If not specified, it defaults to Delete.')
-@allowed([ 'Delete', 'DeAllocate' ])
+@allowed([
+  'Delete'
+  'DeAllocate'
+])
 param aksNodeScaleDownMode string = 'Delete'
 
 @description('''
@@ -191,7 +200,10 @@ param enableEncryptionAtHost bool = true
 param enableUltraSSD bool = false
 
 @description('The operating system type. The system node pool must be Linux. The default is Linux.')
-@allowed([ 'Linux', 'Windows' ])
+@allowed([
+  'Linux'
+  'Windows'
+])
 param nodePoolVmOsType string = 'Linux'
 
 @description('''
@@ -248,7 +260,11 @@ param aksDiagCategories array = [
 param enableSysLog bool = false
 
 @description('Network plugin used for building the Kubernetes network.')
-@allowed([ 'kubenet', 'azure', 'none' ])
+@allowed([
+  'kubenet'
+  'azure'
+  'none'
+])
 param networkProfileNetworkPlugin string = 'kubenet'
 
 @allowed([
@@ -280,7 +296,12 @@ param networkProfileServiceCidr string = '100.65.0.0/16'
 param networkProfileDnsServiceIP string = '100.65.0.10'
 
 @description('Egress outbound type. Can only be set at creation time.')
-@allowed([ 'loadBalancer', 'managedNATGateway', 'userAssignedNATGateway', 'userDefinedRouting' ])
+@allowed([
+  'loadBalancer'
+  'managedNATGateway'
+  'userAssignedNATGateway'
+  'userDefinedRouting'
+])
 param networkProfileOutboundType string = 'loadBalancer'
 
 @description('''
@@ -317,7 +338,10 @@ For dual-stack, the expected values are IPv4 and IPv6. If you configure this wit
 And serviceCidrs and podsCidrs will also be configured automatically with both.
 Otherwise with byo network, this is expected to be present.
 ''')
-@allowed([ 'IPv4', 'IPv6' ])
+@allowed([
+  'IPv4'
+  'IPv6'
+])
 param networkProfileIpFamilies array = [
   'IPv4'
 ]

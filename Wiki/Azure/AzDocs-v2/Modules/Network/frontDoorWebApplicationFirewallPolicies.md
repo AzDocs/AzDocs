@@ -1,4 +1,4 @@
-# frontDoorWebApplicationFirewallPolicies
+﻿# frontDoorWebApplicationFirewallPolicies
 
 Target Scope: resourceGroup
 
@@ -22,11 +22,13 @@ This creates an Azure FrontDoor WAF policy.
 | wafPolicyCustomBlockResponseBody | string | <input type="checkbox"> | None | <pre>''</pre> | Specifies the custom response body to return when a request is blocked by the WAF policy. The body must be specified in base64 encoding. |
 | wafPolicyCustomBlockResponseStatusCode | int | <input type="checkbox"> | None | <pre>403</pre> | Specifies the custom response status code to return when a request is blocked by the WAF policy. |
 | wafPolicyRedirectUrl | string | <input type="checkbox"> | None | <pre>''</pre> | Specifies the URL to redirect the request to when a request is blocked by the WAF policy. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | wafPolicyId | string | The resource id of the Front Door WAF policy. |
 | wafPolicyName | string | The name of the Front Door WAF policy. |
+
 ## Examples
 <pre>
 module frontDoorWaf 'br:contosoregistry.azurecr.io/network/frontdoorwebapplicationfirewallpolicies:latest' = {
@@ -78,5 +80,3 @@ module frontDoorWaf 'br:contosoregistry.azurecr.io/network/frontdoorwebapplicati
 
 ## Links
 - [Bicep Microsoft.Cdn profiles](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/frontdoorwebapplicationfirewallpolicies?pivots=deployment-language-bicep)
-
-

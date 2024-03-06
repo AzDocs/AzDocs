@@ -1,4 +1,4 @@
-# profiles
+﻿# profiles
 
 Target Scope: resourceGroup
 
@@ -20,12 +20,14 @@ Creating a FrontDoor Cdn profile. This creates an Azure FrontDoor Standard or Pr
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox"> | Length between 0-* | <pre>''</pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [the docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings.) |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | frontDoorName | string | Output the frontdoor profile\'s name. |
 | frontDoorProfileResourceId | string | Output the frontdoor profile\'s resource id. |
 | frontDoorPrincipalId | string | Output the logic app\'s identity principal object id. |
+
 ## Examples
 <pre>
 module frontDoorProfile 'br:contosoregistry.azurecr.io/cdn/profiles:latest' = {
@@ -40,5 +42,3 @@ module frontDoorProfile 'br:contosoregistry.azurecr.io/cdn/profiles:latest' = {
 
 ## Links
 - [Bicep Microsoft.Cdn profiles](https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles?pivots=deployment-language-bicep)
-
-

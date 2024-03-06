@@ -1,4 +1,4 @@
-# namedValues
+﻿# namedValues
 
 Target Scope: resourceGroup
 
@@ -31,12 +31,12 @@ module namedvalue 'br:contosoregistry.azurecr.io/service/namedvalues.bicep' = {<
 | secretIdentifier | string | <input type="checkbox"> | None | <pre>''</pre> | Key vault secret identifier of the secret. <br>Providing a versioned secret will prevent auto-refresh. If you enter a key vault secret identifier yourself, ensure that it doesn't have version information. <br>Otherwise, the secret won't rotate automatically in API Management after an update in the key vault.<br>This also requires API Management service to be configured with aka.ms/apimmsi |
 | IsNamedValueSecret | bool | <input type="checkbox"> | None | <pre>false</pre> | Determines whether the value is a secret and should be encrypted or not. Default value is false. |
 | namedValuesValue | string | <input type="checkbox"> | None | <pre>''</pre> | Value of the NamedValue. Can contain policy expressions. When used it may not be empty or consist only of whitespace. This property will not be filled on GET operations! Use listSecrets POST request to get the value. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | namedValueResourceId | string | The resource id of the named value. |
 | namedValueResourceName | string | The name of the named value. |
+
 ## Links
 - [Bicep Microsoft.ApiManagement named values](https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/namedvalues?pivots=deployment-language-bicep)
-
-

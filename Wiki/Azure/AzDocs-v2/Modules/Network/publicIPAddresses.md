@@ -1,4 +1,4 @@
-# publicIPAddresses
+﻿# publicIPAddresses
 
 Target Scope: resourceGroup
 
@@ -14,9 +14,9 @@ Target Scope: resourceGroup
 | availabilityZones | array | <input type="checkbox"> | `'1'` or `'2'` or `'3'` | <pre>[]</pre> | The zones to use for this public ipaddress. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | domainNameLabel | string | <input type="checkbox"> | None | <pre>''</pre> | The domain name label. The concatenation of the domain name label and the regionalized DNS zone make up the fully qualified domain name associated with the public IP address. <br>If a domain name label is specified, an A DNS record is created for the public IP in the Microsoft Azure DNS system. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | publicIpName | string | Output the resource name of the public ip address. |
 | publicIpResourceId | string | Output the resource name of the public ip address. |
-

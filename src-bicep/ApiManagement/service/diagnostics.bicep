@@ -38,10 +38,10 @@ param alwaysLog string = 'allErrors'
 
 @description('The verbosity level applied to traces emitted by trace policies')
 @allowed([
-    'error'
-    'information'
-    'verbose' ]
-)
+  'error'
+  'information'
+  'verbose'
+])
 param verbosity string = 'information'
 
 @description('Rate of sampling for fixed-rate sampling.')
@@ -57,7 +57,6 @@ param samplingType string = 'fixed'
   'W3C'
 ])
 param httpCorrelationProtocol string = 'Legacy'
-
 
 resource apimService 'Microsoft.ApiManagement/service@2023-03-01-preview' existing = {
   name: apiManagementServiceName

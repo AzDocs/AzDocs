@@ -1,4 +1,4 @@
-# diagnostics
+﻿# diagnostics
 
 Target Scope: resourceGroup
 
@@ -28,11 +28,10 @@ module diagnostics 'br:contosoregistry.azurecr.io/service/diagnostics.bicep' = {
 | loggerId | string | <input type="checkbox" checked> | None | <pre></pre> | Resource Id of a target logger. For example the resourceId of an Application Insights resource. |
 | logClientIp | bool | <input type="checkbox"> | None | <pre>true</pre> | Specifies whether to log the client IP address. Default is true. |
 | alwaysLog | string | <input type="checkbox"> | None | <pre>'allErrors'</pre> | Specifies for what type of messages sampling settings should not apply. |
-| httpCorrelationProtocol | string | <input type="checkbox"> | `'error'` or `'information'` or `)` or `` or `param samplingPercentage int = 100` or `` or `` or `@allowed([` or `'Legacy'` or `'None'` or `'W3C'` | <pre>'Legacy'</pre> | The verbosity level applied to traces emitted by trace policies |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+| verbosity | string | <input type="checkbox"> | `'error'` or `'information'` or `'verbose'` | <pre>'information'</pre> | The verbosity level applied to traces emitted by trace policies |
+| samplingPercentage | int | <input type="checkbox"> | None | <pre>100</pre> | Rate of sampling for fixed-rate sampling. |
+| samplingType | string | <input type="checkbox"> | None | <pre>'fixed'</pre> | Type of sampling. |
+| httpCorrelationProtocol | string | <input type="checkbox"> | `'Legacy'` or `'None'` or `'W3C'` | <pre>'Legacy'</pre> | Sets correlation protocol to use for Application Insights diagnostics. |
+
 ## Links
 - [Bicep Microsoft.ApiManagement diagnostics](https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/diagnostics?pivots=deployment-language-bicep)
-
-

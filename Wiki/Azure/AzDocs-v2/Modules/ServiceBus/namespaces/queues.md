@@ -1,4 +1,4 @@
-# queues
+﻿# queues
 
 Target Scope: resourceGroup
 
@@ -13,9 +13,7 @@ Creating a Queue resource with the given specs inside of a servicebus namespace.
 | -- |  -- | -- | -- | -- | -- |
 | serviceBusNamespaceName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the servicebus namespace. |
 | serviceBusQueueName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the servicebus queue. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 module queue 'br:contosoregistry.azurecr.io/servicebus/namespaces/queue:latest' = {
@@ -31,5 +29,3 @@ module queue 'br:contosoregistry.azurecr.io/servicebus/namespaces/queue:latest' 
 
 ## Links
 - [Bicep Microsoft.ServiceBus/Namespaces/Queue](https://learn.microsoft.com/en-us/azure/templates/microsoft.servicebus/namespaces/queues?pivots=deployment-language-bicep)
-
-

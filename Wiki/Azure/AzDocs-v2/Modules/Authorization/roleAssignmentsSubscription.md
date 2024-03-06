@@ -1,4 +1,4 @@
-# roleAssignmentsSubscription
+﻿# roleAssignmentsSubscription
 
 Target Scope: subscription
 
@@ -18,9 +18,7 @@ Assigns a RBAC role on subscription level to a principal.
 | delegatedManagedIdentityResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Id of the delegated managed identity resource. These kind of identities can be useful in a cross tenant scenario.<br>This property allows you to include a managed identity that resides in the customer tenant (in a subscription or resource group that has been onboarded to Azure Lighthouse). |
 | roleAssignmentDescription | string | <input type="checkbox"> | None | <pre>''</pre> | Description of role assignment. |
 | roleDefinitionId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The roledefinition ID you want to assign. See the [documentation](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles) for the build-in roles |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 module azureKubernetesServiceContributorRoleToDfcPolicyAssignmentUserAssignedManagedIdentity '../AzDocs/src-bicep/Authorization/roleAssignmentsSubscription.bicep' = {
@@ -37,5 +35,3 @@ module azureKubernetesServiceContributorRoleToDfcPolicyAssignmentUserAssignedMan
 
 ## Links
 - [Bicep Microsoft.Authorization roleAssignments](https://learn.microsoft.com/en-us/azure/templates/microsoft.authorization/roleassignments?pivots=deployment-language-bicep)
-
-

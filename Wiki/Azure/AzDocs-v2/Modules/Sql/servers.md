@@ -1,4 +1,4 @@
-# servers
+﻿# servers
 
 Target Scope: resourceGroup
 
@@ -36,6 +36,7 @@ Creating a SQL server with the given specs.
 | sqlServerFirewallRules | array | <input type="checkbox"> | None | <pre>[]</pre> | An array of IpAddress with start and end. If you would use 0.0.0.0 as start and end ipaddress you would virtually allow every Azure resource on your sql.<br>Example<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'myrulename'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start: '12.34.56.78'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end: '12.34.56.78'<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'AllowEveryAzureResource'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start: '0.0.0.0'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end: '0.0.0.0'<br>&nbsp;&nbsp;&nbsp;} |
 | sqlServerEncryptionKeyKeyvaultUri | string | <input type="checkbox"> | None | <pre>''</pre> | A CMK URI of the key to use for encryption. |
 | auditingSettingsIsAzureMonitorTargetEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | Specifies whether audit events are sent to Azure Monitor. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -43,6 +44,7 @@ Creating a SQL server with the given specs.
 | sqlServerName | string | Output the name of the SQL Server. |
 | sqlServerResourceId | string | Output the resource ID of the SQL Server. |
 | sqlServerIdentityPrincipalId | string | Output the principal id for the identity of this SQL Server. |
+
 ## Examples
 <pre>
 module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
@@ -65,5 +67,3 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
 ## Links
 - [Bicep Microsoft.SQL servers](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-bicep)<br>
 - [Bicep Microsoft SQL Azure Active Directory Authentication](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-bicep#serverexternaladministrator)
-
-

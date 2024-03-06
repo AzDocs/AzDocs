@@ -1,4 +1,4 @@
-# backupPolicies
+﻿# backupPolicies
 
 Target Scope: resourceGroup
 
@@ -15,8 +15,8 @@ Target Scope: resourceGroup
 | backupRetentionInDays | int | <input type="checkbox"> | None | <pre>14</pre> | Number of days you want to retain the backup |
 | protectedItemsCount | int | <input type="checkbox"> | None | <pre>2</pre> | Number of items associated with this policy. If the backupManagementType is 'AzureIAASVM', it is the number of VMs associated with this policy. |
 | backupProtectionPolicy | object | <input type="checkbox"> | None | <pre>{<br>  protectedItemsCount: protectedItemsCount<br>  backupManagementType: 'AzureIaasVM'<br>  instantRpRetentionRangeInDays: instantRpRetentionRangeInDays<br>  schedulePolicy: {<br>    scheduleRunFrequency: 'Daily'<br>    scheduleRunTimes: scheduleRunTimes<br>    schedulePolicyType: 'SimpleSchedulePolicy'<br>  }<br>  retentionPolicy: {<br>    dailySchedule: {<br>      retentionTimes: scheduleRunTimes<br>      retentionDuration: {<br>        count: backupRetentionInDays<br>        durationType: 'Days'<br>      }<br>    }<br>    weeklySchedule: {<br>      daysOfTheWeek: [<br>        'Sunday'<br>        'Tuesday'<br>        'Thursday'<br>      ]<br>      retentionTimes: scheduleRunTimes<br>      retentionDuration: {<br>        count: 104<br>        durationType: 'Weeks'<br>      }<br>    }<br>    monthlySchedule: {<br>      retentionScheduleFormatType: 'Daily'<br>      retentionScheduleDaily: {<br>        daysOfTheMonth: [<br>          {<br>            date: 1<br>            isLast: false<br>          }<br>        ]<br>      }<br>      retentionTimes: scheduleRunTimes<br>      retentionDuration: {<br>        count: 60<br>        durationType: 'Months'<br>      }<br>    }<br>    yearlySchedule: {<br>      retentionScheduleFormatType: 'Daily'<br>      monthsOfYear: [<br>        'January'<br>        'March'<br>        'August'<br>      ]<br>      retentionScheduleDaily: {<br>        daysOfTheMonth: [<br>          {<br>            date: 1<br>            isLast: false<br>          }<br>        ]<br>      }<br>      retentionTimes: scheduleRunTimes<br>      retentionDuration: {<br>        count: 10<br>        durationType: 'Years'<br>      }<br>    }<br>    retentionPolicyType: 'LongTermRetentionPolicy'<br>  }<br>  timeZone: timeZone<br>}</pre> | Numerous options you can choose in the properites of the backupPolicies, depending on the backupManagementType.<br>See https://docs.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults/backuppolicies?pivots=deployment-language-bicep |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | policyId | string | the resource id for the backup policy. |
-

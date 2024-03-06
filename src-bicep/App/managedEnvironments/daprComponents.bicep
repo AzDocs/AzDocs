@@ -6,7 +6,7 @@ A Dapr (Distributed Application Runtime) component can be used for a container a
 It is a runtime that helps build resilient, stateless, and stateful microservices.
 .EXAMPLE
 <pre>
-module dapr '../../AzDocs/src-bicep/App/managedEnvironments/daprComponents.bicep' = {
+module dapr 'br:contosoregistry.azurecr.io/app/managedenvironments/daprcomponents:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 48), 'dapr')
   params: {
     managedEnvironmentName: managedEnvironment.outputs.managedEnvironmentName

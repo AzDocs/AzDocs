@@ -1,4 +1,4 @@
-# workspaces
+﻿# workspaces
 
 Target Scope: resourceGroup
 
@@ -34,6 +34,7 @@ module origin 'br:contosoregistry.azurecr.io/operationalinsights/workspaces.bice
 | enableLogAccessUsingOnlyResourcePermissions | bool | <input type="checkbox"> | None | <pre>true</pre> | Flag that indicates which permission to use - resource or workspace or both. True means: Use resource or workspace permissions. |
 | enableDataExport | bool | <input type="checkbox"> | None | <pre>false</pre> | Flag that indicate if data should be exported. |
 | workspaceCappingDailyQuotaGb | int | <input type="checkbox"> | None | <pre>-1</pre> | Workspace capping daily quota in GB. -1 means unlimited. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -41,7 +42,6 @@ module origin 'br:contosoregistry.azurecr.io/operationalinsights/workspaces.bice
 | logAnalyticsWorkspaceResourceName | string | Outputs the Log Analytics Workspace Resource Name. |
 | logAnalyticsWorkspaceCustomerId | string | Outputs the Log Analytics Workspace Customer ID. |
 | logAnalyticsWorkspacePrimaryKey | string |  |
+
 ## Links
 - [Bicep Microsoft.OperationalInsights workspaces](https://learn.microsoft.com/en-us/azure/templates/microsoft.operationalinsights/workspaces?pivots=deployment-language-bicep)
-
-

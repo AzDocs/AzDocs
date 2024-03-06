@@ -1,4 +1,4 @@
-# registries
+﻿# registries
 
 Target Scope: resourceGroup
 
@@ -29,12 +29,14 @@ Creating an Azure Container Registry with the given specs.
 | zoneRedundancy | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Enable zone redundancy for this ACR. |
 | dataEndpointEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable data endpoint for this ACR. |
 | networkRuleSet | object | <input type="checkbox"> | None | <pre>empty(ipRules) ? {</pre> | Setting up the networkRuleSet and add ip rules if any are defined. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | acrRegistryLoginServer | string | Output the login server property for later use. |
 | acrRegistryId | string | Output the resourceId of the azure container registry |
 | acrRegistryName | string | Output the name of the azure container registry. |
+
 ## Examples
 <pre>
 module acr '../../AzDocs/src-bicep/ContainerRegistry/registries.bicep' = {
@@ -76,5 +78,3 @@ module acr '../../AzDocs/src-bicep/ContainerRegistry/registries.bicep' = {
 - [quarantinePolicy](https://samcogan.com/image-quarantine-in-azure-container-registry/)<br>
 - [retentionPolicy](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-retention-policy)<br>
 - [trustPolicy](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-content-trust)
-
-

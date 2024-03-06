@@ -1,4 +1,4 @@
-# certificates
+﻿# certificates
 
 Target Scope: resourceGroup
 
@@ -38,13 +38,13 @@ module certs2 'br:contosoregistry.azurecr.io/service/certificates.bicep' = {<br>
 | identityClientId | string | <input type="checkbox"> | None | <pre>''</pre> | The client id of the identity to use to access the keyvault. If left empty the system assigned identity will be used. |
 | secretIdentifier | string | <input type="checkbox"> | None | <pre>''</pre> | The secret identifier of the certificate in the keyvault. |
 | apimCertificateData | string | <input type="checkbox"> | None | <pre>''</pre> | Base 64 encoded certificate using the application/x-pkcs12 representation.<br>Example:<br>loadFileAsBase64('./somecert_so_company_org.pfx') |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | certificateId | string | The id of the created certificate. |
 | certificateName | string | The name of the created certificate. |
+
 ## Links
 - [Bicep Microsoft.ApiManagement certificates](https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/certificates?pivots=deployment-language-bicep)<br>
 - [APIM and Identities](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-use-managed-service-identity)
-
-

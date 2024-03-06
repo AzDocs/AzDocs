@@ -1,4 +1,4 @@
-# budgets
+﻿# budgets
 
 Target Scope: resourceGroup
 
@@ -13,7 +13,3 @@ Target Scope: resourceGroup
 | firstThreshold | int | <input type="checkbox"> | Value between 0-1000 | <pre>90</pre> | Threshold value associated with a notification. Notification is sent when the cost exceeded the threshold. It is always percent and has to be between 0.01 and 1000. |
 | secondThreshold | int | <input type="checkbox"> | Value between 0-1000 | <pre>110</pre> | Threshold value associated with a notification. Notification is sent when the cost exceeded the threshold. It is always percent and has to be between 0.01 and 1000. |
 | contactEmails | array | <input type="checkbox" checked> | None | <pre></pre> | The list of email addresses to send the budget notification to when the threshold is exceeded (eg [ "email@email.nl","anotheremail@email.nl" ]). |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
-

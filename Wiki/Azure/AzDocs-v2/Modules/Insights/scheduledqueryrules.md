@@ -1,6 +1,11 @@
-# scheduledqueryrules
+﻿# scheduledqueryrules
 
 Target Scope: resourceGroup
+
+## User Defined Types
+| Name | Type | Discriminator | Description
+| -- |  -- | -- | -- |
+| <a id="identityType">identityType</a>  | <pre>{ type: 'None' } &#124; { type: 'SystemAssigned' } &#124; { type: 'UserAssigned', userAssignedIdentities: object }</pre> | type | The identity type. This can be either `None`, a `System Assigned` or a `UserAssigned` identity. In the case of UserAssigned, the userAssignedIdentities must be set with the ResourceId of the user assigned identity resource and the identity must have at least read logs rbac rights on the resource in scope. | 
 
 ## Synopsis
 Creating scheduled rules on a log source to create an alert from.
@@ -27,16 +32,18 @@ This resource allow defining a scheduled query rule in Azure Monitoring.
 | checkWorkspaceAlertsStorageConfigured | bool | <input type="checkbox"> | None | <pre>false</pre> | Specifies whether to check linked storage and fail creation if the storage was not found |
 | isEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | Specifies whether the alert is enabled |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
-| scheduledQueryRuleKind | string | <input type="checkbox"> | None | <pre>'LogAlert'</pre> | Indicates the type of scheduled query rule. The default is LogAlert. |
-| identity | identityType | <input type="checkbox"> | None | <pre>{<br>  type: 'None'<br>}</pre> | Sets the identity. This can be either `None`, a `System Assigned` or a `UserAssigned` identity.<br>Defaults no identity.<br>If type is `UserAssigned`, then userAssignedIdentities must be set with the ResourceId of the user assigned identity resource<br>and the identity must have at least read logs rbac rights on the resource in scope.<br><details><br>&nbsp;&nbsp;&nbsp;<summary>Click to show example</summary><br><pre><br>{<br>&nbsp;&nbsp;&nbsp;type: 'UserAssigned'<br>&nbsp;&nbsp;&nbsp;userAssignedIdentities: userAssignedIdentityId :{}<br>},<br>{<br>&nbsp;&nbsp;&nbsp;type: 'SystemAssigned'<br>},<br>{<br>&nbsp;&nbsp;&nbsp;type: 'None'<br>}<br></pre><br></details> |
+| scheduledQueryRuleKind | string | <input type="checkbox"> | `'LogAlert'` or `'LogToMetric'` | <pre>'LogAlert'</pre> | Indicates the type of scheduled query rule. The default is LogAlert. |
+| identity | [identityType](#identityType) | <input type="checkbox"> | None | <pre>{<br>  type: 'None'<br>}</pre> | Sets the identity. This can be either `None`, a `System Assigned` or a `UserAssigned` identity.<br>Defaults no identity.<br>If type is `UserAssigned`, then userAssignedIdentities must be set with the ResourceId of the user assigned identity resource<br>and the identity must have at least read logs rbac rights on the resource in scope.<br><details><br>&nbsp;&nbsp;&nbsp;<summary>Click to show example</summary><br><pre><br>{<br>&nbsp;&nbsp;&nbsp;type: 'UserAssigned'<br>&nbsp;&nbsp;&nbsp;userAssignedIdentities: userAssignedIdentityId :{}<br>},<br>{<br>&nbsp;&nbsp;&nbsp;type: 'SystemAssigned'<br>},<br>{<br>&nbsp;&nbsp;&nbsp;type: 'None'<br>}<br></pre><br></details> |
 | ruleResolveConfiguration | object | <input type="checkbox"> | None | <pre>{}</pre> | Defines the configuration for resolving fired alerts. Relevant only for rules of the kind LogAlert.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;autoResolved: true //The flag that indicates whether or not to auto resolve a fired alert.<br>&nbsp;&nbsp;&nbsp;timeToResolve: 'PT1H' //The duration a rule must evaluate as healthy before the fired alert is automatically resolved represented in ISO 8601 duration format.<br>} |
 | skipQueryValidation | bool | <input type="checkbox"> | None | <pre>false</pre> | The flag which indicates whether the provided query should be validated or not. The default is false. Relevant only for rules of the kind LogAlert. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | scheduledQueryRuleName | string | Output the resource name of the upserted scheduledQueryRule. |
 | scheduledQueryRuleResourceId | string | Output the resource ID of the upserted scheduledQueryRule. |
 | scheduledQueryRuleIdentity | string | Output the identity object ID of the upserted scheduledQueryRule. |
+
 ## Examples
 <pre>
 module scheduledqueryrules_50x_log_alert 'br:acrazdocsprd.azurecr.io/insights/scheduledqueryrules:latest' = {
@@ -82,5 +89,3 @@ module scheduledqueryrules_50x_log_alert 'br:acrazdocsprd.azurecr.io/insights/sc
 
 ## Links
 - [Bicep Scheduled Rules](https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/scheduledqueryrules?pivots=deployment-language-bicep)
-
-

@@ -1,4 +1,4 @@
-# ipGroups
+﻿# ipGroups
 
 Target Scope: resourceGroup
 
@@ -15,14 +15,16 @@ Bicep module to deploy an IP Group.
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | ipGroupName | string | <input type="checkbox" checked> | None | <pre></pre> | Specifies the name of the IP group. |
 | ipGroupIpAddresses | array | <input type="checkbox"> | None | <pre>[]</pre> | Specifies the IP addresses to include in the IP group. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | ipGroupName | string | The name of the IP group. |
 | ipGroupResourceId | string | The resource ID of the IP group. |
+
 ## Examples
 <pre>
-module ipGroupGripDev 'br:contosoregistry.azurecr.io/network/ipgroups:latest' = {
+module ipGroupDev 'br:contosoregistry.azurecr.io/network/ipgroups:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 56), 'ipgroup')
   params: {
     location: location
@@ -35,5 +37,3 @@ module ipGroupGripDev 'br:contosoregistry.azurecr.io/network/ipgroups:latest' = 
 
 ## Links
 - [Bicep Microsoft.Network ipgroups](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/ipgroups?pivots=deployment-language-bicep)
-
-

@@ -1,4 +1,4 @@
-# securityContacts
+﻿# securityContacts
 
 Target Scope: subscription
 
@@ -17,9 +17,7 @@ Configuring Security Contact settings for Defender for Cloud on a Subscription. 
 | notificationsByRoleRoles | array | <input type="checkbox"> | `'AccountAdmin'` or `'Contributor'` or `'Owner'` or `'ServiceAdmin'` | <pre>['Owner']</pre> | Defines whether to send email notifications from Microsoft Defender for Cloud to persons with specific RBAC roles on the subscription. |
 | notificationsByRoleState | string | <input type="checkbox"> | `'Off'` or `'On'` | <pre>'On'</pre> | Defines if email notifications will be sent about new security alerts |
 | securityContactPhoneNumber | string | <input type="checkbox"> | None | <pre>''</pre> | The security contact\'s phone number |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 module defenderSecurityContacts 'Security/securityContacts.bicep' = {
@@ -33,5 +31,3 @@ module defenderSecurityContacts 'Security/securityContacts.bicep' = {
 
 ## Links
 - [Bicep Security Contacts Defender for Cloud ](https://learn.microsoft.com/en-us/azure/templates/microsoft.security/securitycontacts?pivots=deployment-language-bicep)
-
-

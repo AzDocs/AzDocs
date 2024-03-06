@@ -1,4 +1,4 @@
-# origins
+﻿# origins
 
 Target Scope: resourceGroup
 
@@ -40,13 +40,13 @@ module origin 'br:contosoregistry.azurecr.io/cdn/profiles/origingroups/origins.b
 | priority | int | <input type="checkbox"> | Value between 1-5 | <pre>1</pre> | Specifies the priority of origin in given origin group for load balancing. Higher priorities will not be used for load balancing if any lower priority origin is healthy.Must be between 1 and 5. |
 | weight | int | <input type="checkbox"> | Value between 1-1000 | <pre>1000</pre> | Specifies the weight of the origin in a given origin group for load balancing. Must be between 1 and 1000. |
 | enforceCertificateNameCheck | bool | <input type="checkbox"> | None | <pre>true</pre> | Whether to enable certificate name check at origin level.<br>If enabled, this will validate the certificate name at origin against the request hostname.<br>If disabled, this will not validate the certificate name at origin against the request hostname.<br>If not specified, this will default to true. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | originHostNameFqdn | string | The fqdn of the origin name created. |
 | originName | string | The name of the origin created. |
 | originNameId | string | The id of the origin created. |
+
 ## Links
 - [Bicep Microsoft.Cdn profiles endpoint groupname origin](https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/origingroups/origins?pivots=deployment-language-bicep)
-
-

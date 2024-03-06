@@ -1,4 +1,4 @@
-# metricAlerts
+﻿# metricAlerts
 
 Target Scope: resourceGroup
 
@@ -25,9 +25,7 @@ Creating metric alerts in Azure Monitor.
 | metricAlertsDescription | string | <input type="checkbox"> | None | <pre>metricAlertsName</pre> | The description of the metric alert. |
 | targetResourceType | string | <input type="checkbox"> | None | <pre>''</pre> | The resourcetype to have metric alerts on<br>Example:<br>'microsoft.containerservice/managedclusters' |
 | targetResourceRegion | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | The region of the target resource(s) on which the alert is created/updated. Mandatory if the scope contains a subscription, resource group, or more than one resource. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 module metricAlertCpu '../AzDocs/src-bicep/Insights/metricAlerts.bicep' = {
@@ -76,5 +74,3 @@ module metricAlertCpu '../AzDocs/src-bicep/Insights/metricAlerts.bicep' = {
 
 ## Links
 - [Bicep Metric Alerts](https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/metricalerts?pivots=deployment-language-bicep)
-
-

@@ -139,7 +139,7 @@ resource databaseUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIde
 @description('The max size of the database expressed in bytes')
 param maxSizeBytes int = 32 * 1024 * 1024 * 1024 // 32GB
 
-@description('For the serverless database model, ignored for the provisioned model.Time in minutes after which database is automatically paused. A value of -1 means that automatic pause is disabled' )
+@description('For the serverless database model, ignored for the provisioned model.Time in minutes after which database is automatically paused. A value of -1 means that automatic pause is disabled')
 param autoPauseDelay int = -1
 
 @description('Minimal capacity that database will always have allocated, if not paused. To specify a decimal (0.5 0.75 ß1) value, use the json() function.')
@@ -162,10 +162,9 @@ The differential backup interval in hours. This is how many interval hours betwe
 See [docs](https://learn.microsoft.com/en-us/azure/azure-sql/database/automated-backups-overview?view=azuresql)
 ''')
 @allowed([
-    12
-    24
-  ]
-)
+  12
+  24
+])
 param diffBackupIntervalInHours int = 12
 
 @description('The backup retention period in days. This is how many days Point-in-Time Restore will be supported.')
@@ -229,7 +228,6 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
       retentionDays: retentionDays
     }
   }
-
 
 }
 

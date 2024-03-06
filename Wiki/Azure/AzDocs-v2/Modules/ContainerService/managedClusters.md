@@ -1,4 +1,4 @@
-# managedClusters
+﻿# managedClusters
 
 Target Scope: resourceGroup
 
@@ -23,21 +23,21 @@ Creating an AKS cluster with the given specs.
 | aksNodeCount | int | <input type="checkbox"> | Value between 1-1000 | <pre>1</pre> | The number of nodes you want to host in the aks cluster. Number of agents (VMs) to host docker containers.<br>Allowed values must be in the range of 0 to 1000 (inclusive) for user pools and in the range of 1 to 1000 (inclusive) for system pools. The default value is 1 |
 | aksNodeVmSize | string | <input type="checkbox"> | None | <pre>'Standard_D4ds_v5'</pre> | The sku for the system Vm Nodes used in the cluster. VM size availability varies by region.<br>If a node contains insufficient compute resources (memory, cpu, etc) pods might fail to run correctly. For more details on restricted VM sizes, see: [link](https://docs.microsoft.com/azure/aks/quotas-skus-regions) |
 | aksNodeOsDiskSizeGB | int | <input type="checkbox"> | None | <pre>0</pre> | The size of the OS Disk of the Vms used for the system nodes. OS Disk Size in GB to be used to specify the disk size for every machine in the master/agent pool.<br>If you specify 0, it will apply the default osDisk size according to the vmSize specified. |
-| aksNodeKubeletDiskType | string | <input type="checkbox"> | None | <pre>'OS'</pre> | Determines the placement of emptyDir volumes, container runtime data root, and Kubelet ephemeral storage. |
+| aksNodeKubeletDiskType | string | <input type="checkbox"> | `'OS'` or `'Temporary'` | <pre>'OS'</pre> | Determines the placement of emptyDir volumes, container runtime data root, and Kubelet ephemeral storage. |
 | aksVirtualNetworkName | string | <input type="checkbox"> | None | <pre>''</pre> | The name of the virtual network that holds the byo subnet for AKS. When used, it should already be existing. |
 | aksVirtualNetworkResourceGroupName | string | <input type="checkbox"> | None | <pre>az.resourceGroup().name</pre> | The resourcegroup that holds the existing byo virtual network and byo subnet for AKS when used. |
 | aksSubnetName | string | <input type="checkbox"> | None | <pre>''</pre> | The name of a subnet in an existing VNet into which to deploy the aks cluster. If this is not specified, a VNET and subnet will be generated and used. If no podSubnetID is specified, this applies to nodes and pods, otherwise it applies to just nodes. |
 | aksNodeMaxPods | int | <input type="checkbox"> | Value between 10-250 | <pre>110</pre> | The maximum number of pods that can run on a node. The Kubenet default is 110, Azure CNI default is 30. |
-| aksNodePoolType | string | <input type="checkbox"> | None | <pre>'VirtualMachineScaleSets'</pre> | The type of Agent Pool. |
+| aksNodePoolType | string | <input type="checkbox"> | `'VirtualMachineScaleSets'` or `'AvailabilitySet'` | <pre>'VirtualMachineScaleSets'</pre> | The type of Agent Pool. |
 | availabilityZones | array | <input type="checkbox"> | Length between 0-3 | <pre>[]</pre> | The list of Availability zones to use for nodes. This can only be specified if the AgentPoolType property is VirtualMachineScaleSets<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;'1'<br>&nbsp;&nbsp;&nbsp;'2'<br>&nbsp;&nbsp;&nbsp;'3'<br>] |
 | aksNodeAutoScaler | bool | <input type="checkbox"> | None | <pre>false</pre> | Whether to enable auto-scaler. |
-| aksNodeScaleDownMode | string | <input type="checkbox"> | None | <pre>'Delete'</pre> | This also effects the cluster autoscaler behavior. If not specified, it defaults to Delete. |
+| aksNodeScaleDownMode | string | <input type="checkbox"> | `'Delete'` or `'DeAllocate'` | <pre>'Delete'</pre> | This also effects the cluster autoscaler behavior. If not specified, it defaults to Delete. |
 | enableNodePublicIP | bool | <input type="checkbox"> | None | <pre>false</pre> | Assign a public IP per node for user node pools. Some scenarios may require nodes in a node pool to receive their own dedicated public IP addresses.<br>A common scenario is for gaming workloads, where a console needs to make a direct connection to a cloud virtual machine to minimize hops. |
 | nodeTaints | array | <input type="checkbox"> | None | <pre>[<br>  'CriticalAddonsOnly=true:NoSchedule'<br>]</pre> | The taints added to new nodes during node pool create and scale. For example, key=value:NoSchedule. |
 | nodeLabels | object | <input type="checkbox"> | None | <pre>{<br>  'node.kubernetes.io/component': 'System'<br>}</pre> | Any labels that should be applied to the node pool |
 | enableEncryptionAtHost | bool | <input type="checkbox"> | None | <pre>true</pre> | Whether the Disks of the VMs should have encryption at host. This is only supported on certain VM sizes and in certain Azure regions. For more [information](https://docs.microsoft.com/azure/aks/enable-host-encryption). |
 | enableUltraSSD | bool | <input type="checkbox"> | None | <pre>false</pre> | Whether to enable UltraSSD. |
-| nodePoolVmOsType | string | <input type="checkbox"> | None | <pre>'Linux'</pre> | The operating system type. The system node pool must be Linux. The default is Linux. |
+| nodePoolVmOsType | string | <input type="checkbox"> | `'Linux'` or `'Windows'` | <pre>'Linux'</pre> | The operating system type. The system node pool must be Linux. The default is Linux. |
 | nodePoolVmOsSKU | string | <input type="checkbox"> | None | <pre>nodePoolVmOsType == 'Linux' ? 'Ubuntu' : 'Windows'</pre> | Specifies the OS SKU used by the agent pool. If not specified, the default is Ubuntu if OSType=Linux or Windows2019 if OSType=Windows.<br>And the default Windows OSSKU will be changed to Windows2022 after Windows2019 is deprecated. |
 | azurepolicy | string | <input type="checkbox"> | `''` or `'audit'` or `'deny'` | <pre>''</pre> | Enable the Azure Policy addon |
 | azurePolicyInitiative | string | <input type="checkbox"> | `'Baseline'` or `'Restricted'` | <pre>'Baseline'</pre> |  |
@@ -50,17 +50,17 @@ Creating an AKS cluster with the given specs.
 | logAnalyticsWorkspaceName | string | <input type="checkbox"> | None | <pre>!empty(logAnalyticsWorkspaceResourceId) ? last(split(logAnalyticsWorkspaceResourceId, '/')) : ''</pre> | The name of the log analytics workspace when used. |
 | aksDiagCategories | array | <input type="checkbox"> | None | <pre>[<br>  'cluster-autoscaler'<br>  'kube-controller-manager'<br>  'kube-audit-admin'<br>  'guard'<br>]</pre> | Diagnostic categories to log |
 | enableSysLog | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable SysLogs and send to log analytics |
-| networkProfileNetworkPlugin | string | <input type="checkbox"> | None | <pre>'kubenet'</pre> | Network plugin used for building the Kubernetes network. |
+| networkProfileNetworkPlugin | string | <input type="checkbox"> | `'kubenet'` or `'azure'` or `'none'` | <pre>'kubenet'</pre> | Network plugin used for building the Kubernetes network. |
 | networkPluginMode | string | <input type="checkbox"> | `''` or `'Overlay'` | <pre>''</pre> | The network plugin type |
 | networkPolicy | string | <input type="checkbox"> | `''` or `'azure'` or `'calico'` or `'cilium'` | <pre>''</pre> | The network policy to use. |
 | networkProfileloadBalancerProfileIdleTimeoutInMinutes | int | <input type="checkbox"> | None | <pre>4</pre> | Desired outbound flow idle timeout in minutes. Allowed values are in the range of 4 to 120 (inclusive). The default value is 30 minutes. |
 | networkProfilePodCidr | string | <input type="checkbox"> | None | <pre>'100.64.0.0/16'</pre> | A CIDR notation IP range from which to assign pod IPs when kubenet is used. |
 | networkProfileServiceCidr | string | <input type="checkbox"> | None | <pre>'100.65.0.0/16'</pre> | A CIDR notation IP range from which to assign service cluster IPs. It must not overlap with any Subnet IP ranges. |
 | networkProfileDnsServiceIP | string | <input type="checkbox"> | None | <pre>'100.65.0.10'</pre> | An IP address assigned to the Kubernetes DNS service. It must be within the Kubernetes service address range specified in serviceCidr |
-| networkProfileOutboundType | string | <input type="checkbox"> | None | <pre>'loadBalancer'</pre> | Egress outbound type. Can only be set at creation time. |
+| networkProfileOutboundType | string | <input type="checkbox"> | `'loadBalancer'` or `'managedNATGateway'` or `'userAssignedNATGateway'` or `'userDefinedRouting'` | <pre>'loadBalancer'</pre> | Egress outbound type. Can only be set at creation time. |
 | ipv6PodCidr | string | <input type="checkbox"> | None | <pre>''</pre> | The ipv6 podcidr for a dual-stack aks cluster.<br>Example:<br>'fdfd:fdfd:0:2::/64' |
 | networkProfilePodCidrs | array | <input type="checkbox"> | None | <pre>!empty(ipv6PodCidr) ? [ networkProfilePodCidr, ipv6PodCidr ] : [ networkProfilePodCidr ]</pre> | One IPv4 CIDR is expected for single-stack networking. Two CIDRs, one for each IP family (IPv4/IPv6), is expected for dual-stack networking.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;'100.64.0.0/16'<br>&nbsp;&nbsp;&nbsp;'fdfd:fdfd:0:2::/64'<br>] |
-| networkProfileIpFamilies | array | <input type="checkbox"> | None | <pre>[<br>  'IPv4'<br>]</pre> | The ipv6 servicecidr for a dual-stack aks cluster.<br>Example:<br>'fdfd:fdfd:0:3::/108'<br>'''<br>)<br>param ipv6ServiceCidr string = ''<br><br>@description('One IPv4 CIDR is expected for single-stack networking. Two CIDRs, one for each IP family (IPv4/IPv6), is expected for dual-stack networking. They must not overlap with any Subnet IP ranges')<br>param serviceCidrs array = !empty(ipv6ServiceCidr) ? [ networkProfileServiceCidr, ipv6ServiceCidr ] : [ networkProfileServiceCidr ]<br><br>@description('''<br>IP families are used to determine single-stack or dual-stack clusters. For single-stack, the expected value is IPv4.<br>For dual-stack, the expected values are IPv4 and IPv6. If you configure this with both IPv4 and IPv6 and you do not set a byo network, the network will be created with ipv4 and ipv6.<br>And serviceCidrs and podsCidrs will also be configured automatically with both.<br>Otherwise with byo network, this is expected to be present. |
+| networkProfileIpFamilies | array | <input type="checkbox"> | `'IPv4'` or `'IPv6'` | <pre>[<br>  'IPv4'<br>]</pre> | The ipv6 servicecidr for a dual-stack aks cluster.<br>Example:<br>'fdfd:fdfd:0:3::/108'<br>'''<br>)<br>param ipv6ServiceCidr string = ''<br><br>@description('One IPv4 CIDR is expected for single-stack networking. Two CIDRs, one for each IP family (IPv4/IPv6), is expected for dual-stack networking. They must not overlap with any Subnet IP ranges')<br>param serviceCidrs array = !empty(ipv6ServiceCidr) ? [ networkProfileServiceCidr, ipv6ServiceCidr ] : [ networkProfileServiceCidr ]<br><br>@description('''<br>IP families are used to determine single-stack or dual-stack clusters. For single-stack, the expected value is IPv4.<br>For dual-stack, the expected values are IPv4 and IPv6. If you configure this with both IPv4 and IPv6 and you do not set a byo network, the network will be created with ipv4 and ipv6.<br>And serviceCidrs and podsCidrs will also be configured automatically with both.<br>Otherwise with byo network, this is expected to be present. |
 | enableRBAC | bool | <input type="checkbox"> | None | <pre>true</pre> | Whether to enable Kubernetes Role-Based Access Control. |
 | aadProfileManaged | bool | <input type="checkbox"> | None | <pre>true</pre> | Whether to enable managed AAD. |
 | aadProfileEnableAzureRBAC | bool | <input type="checkbox"> | None | <pre>true</pre> | Whether to enable Azure RBAC for Kubernetes authorization. |
@@ -93,6 +93,7 @@ Creating an AKS cluster with the given specs.
 | omsagentUseAADAuth | bool | <input type="checkbox"> | None | <pre>false</pre> | Container insights for Azure Kubernetes Service (AKS) cluster using managed identity towards the log analytics workspace. |
 | workloadIdentity | bool | <input type="checkbox"> | None | <pre>false</pre> | Workload identity enables Kubernetes applications to access Azure cloud resources securely with Azure AD. See [link](https://aka.ms/aks/wi) for more details |
 | oidcIssuerProfile | bool | <input type="checkbox"> | None | <pre>false</pre> | The OpenID Connect provider issuer profile of the Managed Cluster, used with the workloadIdentity. See [link](https://learn.microsoft.com/en-us/azure/aks/use-oidc-issuer) |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -100,6 +101,7 @@ Creating an AKS cluster with the given specs.
 | aksClusterName | string | The name of the Aks cluster created. |
 | kubeletObjectId | string | The objectid of the identity of the AKS cluster created. |
 | aksClusterSubnetId | string | The resource id of the subnet the pool is deployed in. |
+
 ## Examples
 <pre>
 module aks 'br:contosoregistry.azurecr.io/containerservice/managedclusters:latest' = {
@@ -149,5 +151,3 @@ module aks 'br:acrazdocsprd.azurecr.io/containerservice/managedclusters: 2023.08
 
 ## Links
 - [Bicep Microsoft.ContainerService managed clusters](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/managedclusters?pivots=deployment-language-bicep)
-
-

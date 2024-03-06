@@ -1,4 +1,4 @@
-# databaseAccounts
+﻿# databaseAccounts
 
 Target Scope: resourceGroup
 
@@ -29,11 +29,13 @@ This module creates a document db account with the given specs.
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [the docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings). |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to [the docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings). |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | documentEndpoint | string | Outputting the documentendpoint of the DocumentDB account. |
 | primaryConnectionString | string | Outputting the primary connectionstring of the DocumentDB account. |
+
 ## Examples
 <pre>
 module documentDb 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts:latest' = {
@@ -65,5 +67,3 @@ module documentDb 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts:lat
 
 ## Links
 - [Bicep Microsoft.DocumentDB databaseAccounts](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts)
-
-

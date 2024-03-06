@@ -1,4 +1,4 @@
-# originGroups
+﻿# originGroups
 
 Target Scope: resourceGroup
 
@@ -31,12 +31,12 @@ module origingroup 'br:contosoregistry.azurecr.io/cdn/profiles/origingroups.bice
 | probeProtocol | string | <input type="checkbox"> | `'Http'` or `'Https'` or `'NotSet'` | <pre>'Http'</pre> | Specifies the health probe protocol. |
 | probeIntervalInSeconds | int | <input type="checkbox"> | None | <pre>60</pre> | Specifies the number of seconds between health probes.Default is 240 seconds. |
 | sessionAffinityState | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Specifies whether to allow session affinity on this host. Valid options are Enabled or Disabled. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | originGroupName | string | The origin groupname created. |
 | originGroupResourceId | string | The origin groupname resource id created. |
+
 ## Links
 - [Bicep Microsoft.Cdn profiles endpoint groupname](https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/origingroups?pivots=deployment-language-bicep)
-
-

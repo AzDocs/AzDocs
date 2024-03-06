@@ -1,4 +1,4 @@
-# maintenanceConfigurations
+﻿# maintenanceConfigurations
 
 Target Scope: resourceGroup
 
@@ -23,11 +23,13 @@ Creates a Maintenance Configuration. With Maintenance Configurations, you can ta
 | tasks | object | <input type="checkbox"> | None | <pre>{<br>  postTasks: [<br>    {}<br>  ]<br>  preTasks: [<br>    {}<br>  ]<br>}</pre> | Tasks information for the Software update configuration. See https://docs.microsoft.com/en-us/azure/templates/microsoft.maintenance/maintenanceconfigurations?pivots=deployment-language-bicep#softwareupdateconfigurationtasks |
 | namespaceMaintenanceConfiguration | string | <input type="checkbox"> | None | <pre>'Microsoft.Maintenance'</pre> | The namespace for the maintenance configuration. Default this is "Microsoft.Maintenance". |
 | visibilityMaintenanceConfiguration | string | <input type="checkbox"> | `'Public'` or `'Custom'` | <pre>'Custom'</pre> | The visibility for the maintenance configuration. Default is Custom, which means only visible to users with permissions.<br>Public means visible to all users. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | maintenanceConfigurationResourceId | string |  |
 | maintenanceConfigurationName | string |  |
+
 ## Examples
 <pre>
 module maintenanceConfiguration '../modules/Maintenance/maintenanceConfigurations.bicep' = {
@@ -60,5 +62,3 @@ module maintenanceConfiguration '../modules/Maintenance/maintenanceConfiguration
 - [Maintenance Configuration](https://learn.microsoft.com/en-us/azure/templates/microsoft.maintenance/maintenanceconfigurations?pivots=deployment-language-bicep)<br>
 - [Maintenance Configuration using the Portal](https://learn.microsoft.com/en-ca/azure/virtual-machines/maintenance-configurations-portal)<br>
 - [Rest Api](https://learn.microsoft.com/en-us/rest/api/maintenance/maintenance-configurations/list?tabs=HTTP)
-
-

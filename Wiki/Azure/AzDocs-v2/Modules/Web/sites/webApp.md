@@ -1,4 +1,4 @@
-# webApp
+﻿# webApp
 
 Target Scope: resourceGroup
 
@@ -46,6 +46,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | numberOfWorkers | int | <input type="checkbox"> | None | <pre>2</pre> | Number to indicate on how many instances the app will run. |
 | healthCheckPath | string | <input type="checkbox"> | None | <pre>''</pre> | Relative path of the health check probe. A valid path starts with "/".<br>Example:<br>'/api/HealthCheck' |
 | roleAssignments | array | <input type="checkbox"> | None | <pre>[]</pre> | Setting up roleassignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' //Website Contributor<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalType: 'ServicePrincipal'<br>&nbsp;&nbsp;&nbsp;}<br>] |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -55,6 +56,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | webAppStagingSlotPrincipalId | string | The principal id of the identity running this webapp\'s staging slot |
 | webAppResourceName | string | The resource name of the webapp. |
 | webAppStagingSlotResourceName | string | The resource name of the webapp\'s staging slot. |
+
 ## Examples
 <pre>
 module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
@@ -94,5 +96,3 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
 ## Links
 - [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)<br>
 - [Azure App Service Kind](https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
-
-

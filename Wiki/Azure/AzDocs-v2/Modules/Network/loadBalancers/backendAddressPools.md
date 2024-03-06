@@ -1,4 +1,4 @@
-# backendAddressPools
+﻿# backendAddressPools
 
 Target Scope: resourceGroup
 
@@ -17,9 +17,7 @@ All other references/properties should be set throught the main Load Balancer mo
 | vNetID | string | <input type="checkbox" checked> | None | <pre></pre> | A reference to a virtual network. |
 | nicIpAddresses | array | <input type="checkbox" checked> | None | <pre></pre> | An array of the private IPs that need to be added to the backend pool.<br>Example:<br>&nbsp;&nbsp;&nbsp;'192.168.10.10'<br>&nbsp;&nbsp;&nbsp;'192.168.10.11' |
 | loadBalancerName | string | <input type="checkbox" checked> | None | <pre></pre> | A reference to a load balancer where the backend pool will be configured. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 module lbBackendAddressPool 'br:contosoregistry.azurecr.io/network/loadbalancers/backendaddresspools:latest' = {
@@ -43,5 +41,3 @@ module lbBackendAddressPool 'br:contosoregistry.azurecr.io/network/loadbalancers
 
 ## Links
 - [Bicep Microsoft.Network backendAddressPools](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/loadbalancers/backendaddresspools?pivots=deployment-language-bicep)
-
-

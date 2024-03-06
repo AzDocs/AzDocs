@@ -1,4 +1,4 @@
-# serverfarms
+﻿# serverfarms
 
 Target Scope: resourceGroup
 
@@ -11,10 +11,10 @@ Target Scope: resourceGroup
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | appServicePlanPerSiteScaling | bool | <input type="checkbox"> | None | <pre>true</pre> | If true, apps assigned to this App Service plan can be scaled independently.<br>If false, apps assigned to this App Service plan will scale to all instances of the plan. |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | appServicePlanResourceId | string | Output the App Service Plan\'s resource id. |
 | appServicePlanSkuName | string | Output the App Service Plan\'s SKU name. |
 | appServicePlanResourceName | string | Output the App Service Plan\'s resource name. |
-

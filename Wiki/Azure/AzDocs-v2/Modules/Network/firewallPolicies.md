@@ -1,4 +1,4 @@
-# firewallPolicies
+﻿# firewallPolicies
 
 Target Scope: resourceGroup
 
@@ -19,11 +19,13 @@ Add an Azure Firewall Policy to the resource group. This can be linked to an Azu
 | logAnalyticsResourcesDefaultWorkspaceId | string | <input type="checkbox"> | None | <pre>''</pre> | The default log analytics workspace id for the firewall policy to use for the Policy Analytics. |
 | workspacesRegion | string | <input type="checkbox"> | None | <pre>'westeurope'</pre> | The region from where you can choose log analytics workspaces to use for the firewall policy to use for Policy Analytics. |
 | insightsRetentionDays | int | <input type="checkbox"> | None | <pre>30</pre> | The number of days the Policy Analytics data for the firewall policy is saved in the log analytics workspace. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | firewallPolicyResourceId | string | The resource id of the firewall policy. |
 | firewallPolicyName | string | The name of the firewall policy. |
+
 ## Examples
 <pre>
 module firewallPolicy 'br:contosoregistry.azurecr.io/network/firewallpolicies:latest' = if( !empty(firewallPolicyName)) {
@@ -35,5 +37,3 @@ module firewallPolicy 'br:contosoregistry.azurecr.io/network/firewallpolicies:la
 }
 </pre>
 <p>Creates a Firewall Policy with the name of the parameter firewallPolicyName if that is filled with a name value.</p>
-
-

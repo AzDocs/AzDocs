@@ -1,4 +1,4 @@
-# daprComponents
+﻿# daprComponents
 
 Target Scope: resourceGroup
 
@@ -21,12 +21,10 @@ It is a runtime that helps build resilient, stateless, and stateful microservice
 | daprComponentInitTimeout | string | <input type="checkbox"> | None | <pre>'5s'</pre> | Initialization timeout |
 | daprComponentScope | array | <input type="checkbox"> | None | <pre>[]</pre> | Name(s) of container app(s) that can use this Dapr component.<br>In the Container App resource, the daprId should match the scopes property within the dapr component being defined. |
 | managedEnvironmentName | string | <input type="checkbox" checked> | Length between 2-260 | <pre></pre> | The name for the managed Environment for the Container App. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
-module dapr '../../AzDocs/src-bicep/App/managedEnvironments/daprComponents.bicep' = {
+module dapr 'br:contosoregistry.azurecr.io/app/managedenvironments/daprcomponents:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 48), 'dapr')
   params: {
     managedEnvironmentName: managedEnvironment.outputs.managedEnvironmentName
@@ -66,5 +64,3 @@ module dapr '../../AzDocs/src-bicep/App/managedEnvironments/daprComponents.bicep
 
 ## Links
 - [Bicep Microsoft.App/managedEnvironments daprComponent](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments/daprcomponents?pivots=deployment-language-bicep)
-
-

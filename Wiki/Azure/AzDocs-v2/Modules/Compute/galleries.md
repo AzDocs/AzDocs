@@ -1,4 +1,4 @@
-# galleries
+﻿# galleries
 
 Target Scope: resourceGroup
 
@@ -18,11 +18,13 @@ Create an azure compute gallery.
 | communityGalleryInfo | object | <input type="checkbox"> | None | <pre>{<br>  eula: ''<br>  publicNamePrefix: ''<br>  publisherContact: ''<br>  publisherUri: ''<br>}</pre> | Information of community gallery if current gallery is shared to community. [See docs](https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/galleries?pivots=deployment-language-bicep#communitygalleryinfo). |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Resource location |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | galleryId | string | Identifier of the gallery |
 | galleryName | string | Name of the gallery |
+
 ## Examples
 <pre>
 module gallery 'br:contosoregistry.azurecr.io/compute/galleries:latest' = {
@@ -41,5 +43,3 @@ module gallery 'br:contosoregistry.azurecr.io/compute/galleries:latest' = {
 
 ## Links
 - [Bicep Microsoft.Compute galleries](https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/galleries?pivots=deployment-language-bicep)
-
-

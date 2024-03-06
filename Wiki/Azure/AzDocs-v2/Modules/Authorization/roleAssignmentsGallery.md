@@ -1,4 +1,4 @@
-# roleAssignmentsGallery
+﻿# roleAssignmentsGallery
 
 Target Scope: resourceGroup
 
@@ -19,9 +19,7 @@ This module is used for creating role assignments for an existing gallery.
 | condition | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. The conditions on the role assignment. This limits the resources it can be assigned to. e.g.: @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:ContainerName] StringEqualsIgnoreCase "foo_storage_container". |
 | conditionVersion | string | <input type="checkbox"> | `'2.0'` | <pre>'2.0'</pre> | Optional. Version of the condition. |
 | delegatedManagedIdentityResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. Id of the delegated managed identity resource. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 module roleAcr 'br:contosoregistry.azurecr.io/authorization/roleassignmentsGallery:latest' = {
@@ -37,5 +35,3 @@ module roleAcr 'br:contosoregistry.azurecr.io/authorization/roleassignmentsGalle
 
 ## Links
 - [Bicep Microsoft.authorization roleassignments](https://learn.microsoft.com/en-us/azure/templates/microsoft.authorization/roleassignments?pivots=deployment-language-bicep)
-
-

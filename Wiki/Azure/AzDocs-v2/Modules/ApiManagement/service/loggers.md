@@ -1,4 +1,4 @@
-# loggers
+﻿# loggers
 
 Target Scope: resourceGroup
 
@@ -34,12 +34,12 @@ module logger 'br:contosoregistry.azurecr.io/service/loggers.bicep' = {<br>
 | loggerIsBuffered | bool | <input type="checkbox"> | None | <pre>true</pre> | Whether records are buffered in the logger before publishing. Default is assumed to be true. |
 | loggerType | string | <input type="checkbox"> | `'applicationInsights'` or `'azureEventHub'` or `'azureMonitor'` | <pre>'applicationInsights'</pre> | Logger type. You need to define one type. |
 | resourceId | string | <input type="checkbox" checked> | None | <pre></pre> | The Azure Resource Id of a log target (either Azure Event Hub resource or Azure Application Insights resource). |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | loggerName | string | The name of the existing API Management service instance. |
 | loggerId | string | The resource id of the logger. |
+
 ## Links
 - [Bicep Microsoft.ApiManagement named values](https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/loggers?pivots=deployment-language-bicep)
-
-

@@ -1,4 +1,4 @@
-# securityPolicies
+﻿# securityPolicies
 
 Target Scope: resourceGroup
 
@@ -28,12 +28,12 @@ module secpolicy 'br:contosoregistry.azurecr.io/cdn/profiles/securitypolicies.bi
 | securityPolicyPatternsToMatch | array | <input type="checkbox"> | None | <pre>[ '/*' ]</pre> | Specifies the list of patterns to match by the security policy. |
 | wafPolicyName | string | <input type="checkbox" checked> | None | <pre></pre> | Specifies the name of the existing Azure Front Door WAF policy. |
 | afdEndpointsName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the existing AFD endpoint. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | securityPolicyName | string | The name of the security policy created. |
 | securityPolicyId | string | The ID of the security policy created. |
+
 ## Links
 - [Bicep Microsoft.Cdn profiles endpoint groupname](https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/securitypolicies?pivots=deployment-language-bicep)
-
-

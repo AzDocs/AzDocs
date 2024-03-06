@@ -1,4 +1,4 @@
-# logicApp
+﻿# logicApp
 
 Target Scope: resourceGroup
 
@@ -50,11 +50,13 @@ Therefore this separate bicep file.
 | publicNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` or `''` | <pre>'Enabled'</pre> | Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled` or an empty string. |
 | appInsightsName | string | <input type="checkbox"> | Length between 0-260 | <pre>''</pre> | The name of the application insights instance to attach to this app service. If you leave this empty, no AppInsights resource will be created. |
 | appInsightsResourceGroupName | string | <input type="checkbox"> | Length between 1-90 | <pre>az.resourceGroup().name</pre> | The name of the resourcegroup where the application insights instance resides in to attach to this app service. This application insights instance should be pre-existing. Defaults to the current resourcegroup. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | logicAppName | string | Output the logic app\'s resource name. |
 | logicAppPrincipalId | string | Output the logic app\'s identity principal object id. |
+
 ## Examples
 <pre>
 module logicApp 'br:contosoregistry.azurecr.io/web/sites/logicapp:latest' = {
@@ -113,5 +115,3 @@ module logicApp 'br:contosoregistry.azurecr.io/web/sites/logicapp:latest' = {
 ## Links
 - [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)<br>
 - [Azure App Service Kind](https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
-
-

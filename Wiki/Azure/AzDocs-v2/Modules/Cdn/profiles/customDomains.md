@@ -1,4 +1,4 @@
-# customDomains
+﻿# customDomains
 
 Target Scope: resourceGroup
 
@@ -31,6 +31,7 @@ module customdomain 'br:contosoregistry.azurecr.io/cdn/profiles/customDomains.bi
 | azureDNSZoneId | string | <input type="checkbox"> | None | <pre>''</pre> | Resource reference to the Azure DNS zone |
 | preValidatedCustomDomainResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Resource reference to the Azure pre-validated domain |
 | customDomainTLSVersion | string | <input type="checkbox"> | None | <pre>'TLS12'</pre> | The minimum TLS version required for this domain. TLS protocol version that will be used for Https.<br>Example:<br>'TLS10'<br>'TLS12' |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
@@ -38,7 +39,6 @@ module customdomain 'br:contosoregistry.azurecr.io/cdn/profiles/customDomains.bi
 | customDomainValidationDnsTxtRecordValue | string | The value of the DNS TXT record to create to validate the domain. This is only required if you are using Azure DNS. |
 | customDomainValidationExpiry | string | The expiration date of the DNS TXT record. This is only required if you are using Azure DNS. |
 | customDomainId | string | The ID of the custom domain. |
+
 ## Links
 - [Bicep Microsoft.Cdn profiles custom domain](https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/customdomains?pivots=deployment-language-bicep)
-
-

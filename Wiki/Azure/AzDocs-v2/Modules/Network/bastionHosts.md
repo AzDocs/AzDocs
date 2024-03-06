@@ -1,4 +1,4 @@
-# bastionHosts
+﻿# bastionHosts
 
 Target Scope: resourceGroup
 
@@ -28,13 +28,15 @@ Creating a Bastion Host with the given specs.
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox" checked> | Length between 0-* | <pre></pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings. |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | bastionHostName | string | Outputs the name of the created Bastion Host. |
+
 ## Examples
 <pre>
-module bastion '../../AzDocs/src-bicep/Network/bastionHosts.bicep' = {
+module bastion 'br:contosoregistry.azurecr.io/network/bastionHosts:latest' = {
   name: '${deployment().name}-bastion'
   params: {
     bastionHostName: bastionHostName
@@ -50,5 +52,3 @@ module bastion '../../AzDocs/src-bicep/Network/bastionHosts.bicep' = {
 ## Links
 - [Bicep Microsoft.Network bastionHosts](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/bastionhosts?pivots=deployment-language-bicep)<br>
 - [Bastion and NSGs](https://learn.microsoft.com/en-gb/azure/bastion/bastion-nsg)
-
-

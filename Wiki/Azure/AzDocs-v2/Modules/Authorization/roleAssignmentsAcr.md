@@ -1,4 +1,4 @@
-# roleAssignmentsAcr
+﻿# roleAssignmentsAcr
 
 Target Scope: resourceGroup
 
@@ -15,9 +15,7 @@ This module is used for creating role assignments for existing Acr.
 | containerRegistryName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the existing azure container registry. |
 | principalId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The AAD Object ID of the principal you want to assign the role to. |
 | principalType | string | <input type="checkbox" checked> | `'Device'` or `'ForeignGroup'` or `'Group'` or `'ServicePrincipal'` or `'User'` | <pre></pre> |  |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 module roleAcr 'br:contosoregistry.azurecr.io/authorization/roleassignments:latest' = {
@@ -34,5 +32,3 @@ module roleAcr 'br:contosoregistry.azurecr.io/authorization/roleassignments:late
 ## Links
 - [Bicep Microsoft.authorization roleassignments](https://learn.microsoft.com/en-us/azure/templates/microsoft.authorization/roleassignments?pivots=deployment-language-bicep)<br>
 - [Bicep community example](https://github.com/your-azure-coach/ftw-ventures/blob/main/infra/modules/role-assignment-container-registry.bicep)
-
-

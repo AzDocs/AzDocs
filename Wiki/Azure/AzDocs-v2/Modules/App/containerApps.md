@@ -1,4 +1,4 @@
-# containerApps
+﻿# containerApps
 
 Target Scope: resourceGroup
 
@@ -31,10 +31,12 @@ Creating a container app with the given specs.
 | ingressTraffic | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    weight: 100<br>    latestRevision: true<br>  }<br>]</pre> | Traffic weights for app's revisions.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;label: 'mylabel'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;latestRevision: true<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;weight: 100<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | ingressTransport | string | <input type="checkbox"> | `'auto'` or `'http'` or `'http2'` | <pre>'auto'</pre> | Ingress transport protocol |
 | workloadProfileName | string | <input type="checkbox"> | None | <pre>''</pre> | The name of the existing container app workload profile. If used, it should be pre-existing in the managed environment. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | containerAppFQDN | string | Output of the FQDN of the container App. |
+
 ## Examples
 <pre>
 module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
@@ -66,5 +68,3 @@ module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
 
 ## Links
 - [Bicep Microsoft.App containerApps](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps?pivots=deployment-language-bicep)
-
-

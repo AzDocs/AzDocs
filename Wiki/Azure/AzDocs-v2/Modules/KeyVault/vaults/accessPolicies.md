@@ -1,4 +1,4 @@
-# accessPolicies
+﻿# accessPolicies
 
 Target Scope: resourceGroup
 
@@ -9,7 +9,3 @@ Target Scope: resourceGroup
 | principalId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The AAD Object ID of the pricipal you want to assign the role to. |
 | keyVaultPermissions | object | <input type="checkbox" checked> | None | <pre></pre> | Assigned permissions for Principal ID. Please refer to this documentation for the object structure: https://docs.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults/accesspolicies?tabs=bicep#permissions |
 | policyAction | string | <input type="checkbox"> | `'add'` or `'remove'` or `'replace'` | <pre>'add'</pre> | The action we choose for keyvault accessPolicies. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
-

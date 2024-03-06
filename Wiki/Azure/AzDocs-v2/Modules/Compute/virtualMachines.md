@@ -1,4 +1,4 @@
-# virtualMachines
+﻿# virtualMachines
 
 Target Scope: resourceGroup
 
@@ -39,12 +39,14 @@ Creating a Virtual machine with the given specs.
 | windowsConfiguration | object | <input type="checkbox"> | None | <pre>{<br>  enableAutomaticUpdates: true<br>  patchSettings: {<br>    patchMode: 'AutomaticByOS'<br>    assessmentMode: 'ImageDefault'<br>  }<br>  enableVMAgentPlatformUpdates: false<br>}</pre> | The bicep object to configure the Windows vm configuration when creating the vm. |
 | encryptionAtHost | bool | <input type="checkbox"> | None | <pre>false</pre> | This property can be used by user in the request to enable or disable the Host Encryption for the virtual machine or virtual machine scale set. <br>This will enable the encryption for all the disks including Resource/Temp disk at host itself.<br><br>For Linux operating systems this is a mandatory to be set to True.<br>Azure Policy controling this is described here [Virtual machines and virtual machine scale sets should have encryption at host enabled](https://www.azadvertizer.com/azpolicyadvertizer/fc4d8e41-e223-45ea-9bf5-eada37891d87.html)  |
 | OSLicenseType | string | <input type="checkbox"> | `'RHEL_BYOS'` or `'SLES_STANDARD'` or `'SLES_SAP'` or `'SLES_HPC'` or `'SLES'` or `'RHEL_SAPHA'` or `'RHEL_SAPAPPS'` or `'RHEL_ELS_6'` or `'RHEL_EUS'` or `'RHEL_BASE'` or `'SLES_BYOS'` or `'RHEL_BASESAPAPPS'` or `'RHEL_BASESAPHA'` or `'Windows_Server'` or `'Windows_Client'` or `'None'` or `''` | <pre>''</pre> | Type of OS licensing.<br>For customers with Software Assurance, Azure Hybrid Benefit for Windows Server allows you to use your on-premises Windows Server licenses and run Windows virtual machines on Azure at a reduced cost.<br>You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machines with Windows OS.<br>Azure Hybrid Benefit provides software updates and integrated support directly from Azure infrastructure for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | availabilitysetResourceId | string | Output the availability set\'s Resource ID. |
 | virtualMachineName | string | Outputs the name of the virtual machine created or upserted |
 | virtualMachineResourceId | string | Output the resourceId of the virtual machine created or upserted |
+
 ## Examples
 <pre>
 module vm 'br:contosoregistry.azurecr.io/compute/virtualmachines:latest' = {
@@ -65,5 +67,3 @@ module vm 'br:contosoregistry.azurecr.io/compute/virtualmachines:latest' = {
 - [Bicep Microsoft.Compute virtualMachines](https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep)<br>
 - [Virtual Machines sizes](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')<br>
 - [BYOL, Hybrid Benefit](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing)
-
-

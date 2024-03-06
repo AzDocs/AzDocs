@@ -1,4 +1,4 @@
-# protectedItems
+﻿# protectedItems
 
 Target Scope: resourceGroup
 
@@ -16,8 +16,8 @@ Target Scope: resourceGroup
 | protectionContainer | string | <input type="checkbox"> | None | <pre>'iaasvmcontainer;iaasvmcontainerv2;&#36;{targetResourceResourceGroupName};&#36;{resourceName}'</pre> | the type of protection container for the type of resources you want to create a protected item for in the recovery services vault. |
 | protectedItem | string | <input type="checkbox"> | None | <pre>'vm;iaasvmcontainerv2;&#36;{resourceGroup().name};&#36;{resourceName}'</pre> | the type of resource you want to create a protected item for in the protection container type. |
 | protectedItemsProperties | object | <input type="checkbox"> | None | <pre>{<br>  protectedItemType: containerType<br>  policyId: backupPolicyId<br>  sourceResourceId: targetResourceId<br>}</pre> | The properties for the resource protectedItems in the protectioncontainer you want to create |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | protectedItemsResourceId | string | the resource id for the protected items resource |
-

@@ -1,4 +1,4 @@
-# images
+﻿# images
 
 Target Scope: resourceGroup
 
@@ -28,11 +28,13 @@ Create an azure compute gallery image definition.
 | recommendedMaximumMemoryInGb | int | <input type="checkbox"> | Value between 1-640 | <pre>32</pre> | The recommended maximum memory, in GB. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Resource location |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | galleryImageId | string | Id of the gallery image definition |
 | galleryImageName | string | Name of the gallery image definition |
+
 ## Examples
 <pre>
 module gallery 'br:contosoregistry.azurecr.io/compute/galleries:latest' = {
@@ -68,5 +70,3 @@ module myImageDefinition 'br:contosoregistry.azurecr.io/compute/galleries/images
 ## Links
 - [Bicep Microsoft.Compute galleries](https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/galleries?pivots=deployment-language-bicep)<br>
 - [Bicep Microsoft.Compute galleries/images](https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/galleries/images?pivots=deployment-language-bicep)
-
-

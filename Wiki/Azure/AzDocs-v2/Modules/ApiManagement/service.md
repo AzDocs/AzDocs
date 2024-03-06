@@ -1,4 +1,4 @@
-# service
+﻿# service
 
 Target Scope: resourceGroup
 
@@ -60,13 +60,13 @@ module apim 'br:contosoregistry.azurecr.io/apimanagement/service.bicep' = {<br>
 | customProperties | object | <input type="checkbox"> | None | <pre>{}</pre> | Custom properties of the API Management service for setting enhanced security settings.<br>See [docs](https://azure.github.io/PSRule.Rules.Azure/en/rules/Azure.APIM.Ciphers/)<br><details><br>&nbsp;&nbsp;&nbsp;<summary>Click to show example</summary><br><pre><br>{<br>&nbsp;&nbsp;&nbsp;'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls10': 'False'<br>&nbsp;&nbsp;&nbsp;'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls11': 'False'<br>&nbsp;&nbsp;&nbsp;'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls10': 'False'<br>&nbsp;&nbsp;&nbsp;'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls11': 'False'<br>&nbsp;&nbsp;&nbsp;'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Ssl30': 'False'<br>&nbsp;&nbsp;&nbsp;'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Ciphers.TripleDes168': 'False'<br>&nbsp;&nbsp;&nbsp;'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Ciphers.TLS_RSA_WITH_AES_128_CBC_SHA': 'False'<br>&nbsp;&nbsp;&nbsp;'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Ciphers.TLS_RSA_WITH_AES_256_CBC_SHA': 'False'<br>}<br></pre><br></details> |
 | natGatewayState | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Property that can be used to enable NAT Gateway for this API Management service. |
 | hostnameConfigurations | array | <input type="checkbox"> | None | <pre>[]</pre> | The custom domains configuration for this APIM instance. An array per custom domain consisting of type, hostname, certificate store amongst others.<br>Default you will have the builtin Gateway endpoint with hostname <your apim instancename>.azure-api.net<br>See [docs](https://learn.microsoft.com/en-us/azure/api-management/configure-custom-domain?tabs=custom). |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | apiManagementServiceName | string | The name of the created API Management service instance. |
 | apiManagementServiceId | string | The Resource Id of the created API Management service instance. |
 | apiManagementPrincipalId | string | The id of the system assigned principal attached to the API Management service instance. |
+
 ## Links
 - [Bicep Microsoft.ApiManagement service](https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service?pivots=deployment-language-bicep)
-
-

@@ -1,4 +1,4 @@
-# secrets
+﻿# secrets
 
 Target Scope: resourceGroup
 
@@ -39,12 +39,12 @@ module secret 'br:contosoregistry.azurecr.io/cdn/profiles/secrets.bicep' = {<br>
 | frontDoorSecretName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the secret to create |
 | frontDoorName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the existing Front Door Cdn profile |
 | secretParameters | object | <input type="checkbox"> | None | <pre>{}</pre> | The type of secret to create. Depending on the type, different parameters are required.<br>see [docs](https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/secrets?pivots=deployment-language-bicep). |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | secretId | string | The resource id of the secret created in the FrontDoor Cdn profile. |
 | secretName | string | The name of the secret created in the FrontDoor Cdn profile. |
+
 ## Links
 - [Bicep Microsoft.Cdn profiles endpoint groupname](https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/secrets?pivots=deployment-language-bicep)
-
-

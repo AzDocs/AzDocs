@@ -64,7 +64,10 @@ param agentCountMax int = 3
 var autoScale = agentCountMax > agentCount
 
 @description('This also effects the cluster autoscaler behavior. If not specified, it defaults to Delete.')
-@allowed([ 'Delete', 'DeAllocate' ])
+@allowed([
+  'Delete'
+  'DeAllocate'
+])
 param aksNodeScaleDownMode string = 'Delete'
 
 @description('The maximum number of pods that can run on a node. The Kubenet default is 110, Azure CNI default is 30.')
@@ -86,7 +89,10 @@ Example:
 param nodeLabels object = {}
 
 @description('OS Type for the node pool')
-@allowed([ 'Linux', 'Windows' ])
+@allowed([
+  'Linux'
+  'Windows'
+])
 param nodePoolVmOsType string = 'Linux'
 
 @description('''
@@ -111,7 +117,10 @@ param autoTaintWindows bool = false
 param aksNodePoolMode string = 'User'
 
 @description('The type of AKS nodepool.')
-@allowed([ 'VirtualMachineScaleSets', 'AvailabilitySet' ])
+@allowed([
+  'VirtualMachineScaleSets'
+  'AvailabilitySet'
+])
 param aksNodePoolType string = 'VirtualMachineScaleSets'
 
 @description('''
@@ -127,7 +136,10 @@ Whether the Disks of the VMs should have encryption at host. This is only suppor
 param enableEncryptionAtHost bool = true
 
 @description('Determines the placement of emptyDir volumes, container runtime data root, and Kubelet ephemeral storage.')
-@allowed([ 'OS', 'Temporary' ])
+@allowed([
+  'OS'
+  'Temporary'
+])
 param aksNodeKubeletDiskType string = 'OS'
 
 @description('Whether to enable UltraSSD.')
@@ -144,7 +156,6 @@ param vnetSubnetID string = ''
 
 @description('The OS configuration of Linux agent nodes.')
 param linuxOSConfig object = {}
-
 
 @description('The already existing AKS cluster.')
 resource aks 'Microsoft.ContainerService/managedClusters@2023-05-01' existing = {

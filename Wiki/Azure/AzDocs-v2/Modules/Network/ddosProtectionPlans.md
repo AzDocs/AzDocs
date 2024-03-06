@@ -1,4 +1,4 @@
-# ddosProtectionPlans
+﻿# ddosProtectionPlans
 
 Target Scope: resourceGroup
 
@@ -16,10 +16,12 @@ It's automatically tuned to help protect your specific Azure resources in a virt
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | ddosProtectionPlanName | string | <input type="checkbox" checked> | Length between 2-64 | <pre></pre> | Specifies the name of the ddos protection plan. This can be suffixed with the environmentType parameter. Format: <ddosProtectionPlanName>-<environmentType>. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | ddosProtectionPlanId | string | Outputs the Resource ID of the upserted DDOS Protection plan. |
+
 ## Examples
 <pre>
 module ddos '../../AzDocs/src-bicep/Network/ddosProtectionPlans.bicep' = {
@@ -37,5 +39,3 @@ var ddosProtectionPlanId =  ddos.ddosProtectionPlanId
 ## Links
 - [Azure DDoS Protection Standard documentation](https://docs.microsoft.com/en-us/azure/ddos-protection/)<br>
 - [Bicep DDoS Protection documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/ddosprotectionplans?pivots=deployment-language-bicep)
-
-

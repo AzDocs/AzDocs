@@ -1,4 +1,4 @@
-# eventSubscriptions
+﻿# eventSubscriptions
 
 Target Scope: resourceGroup
 
@@ -18,9 +18,7 @@ Creating a event subscription inside of a Event Grid System Topic resource with 
 | eventDeliverySchema | string | <input type="checkbox"> | `'CloudEventSchemaV1_0'` or `'CustomInputSchema'` or `'EventGridSchema'` | <pre>'EventGridSchema'</pre> | The event delivery schema for the event subscription. |
 | retryPolicyMaxDeliveryAttempts | int | <input type="checkbox"> | None | <pre>30</pre> | Maximum number of delivery retry attempts for events. |
 | retryPolicyEventTimeToLiveInMinutes | int | <input type="checkbox"> | None | <pre>1440</pre> | Time To Live (in minutes) for events. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' existing = {
@@ -72,5 +70,3 @@ module eventSubscription 'br:contosoregistry.azurecr.io/eventgrid/systemTopics/e
 
 ## Links
 - [Bicep Microsoft.EventGrid/systemTopics/eventSubscriptions](https://learn.microsoft.com/en-us/azure/templates/microsoft.eventgrid/systemtopics/eventsubscriptions)
-
-

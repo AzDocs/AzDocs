@@ -1,4 +1,4 @@
-# networkInterfaces
+﻿# networkInterfaces
 
 Target Scope: resourceGroup
 
@@ -14,9 +14,9 @@ Target Scope: resourceGroup
 | enableAcceleratedNetworking | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable Accelerated Networking for this interface. Defaults to `false`. |
 | loadBalancerBackendAddressPoolResourceIds | array | <input type="checkbox"> | None | <pre>[]</pre> | A list of resource id\'s referencing to the backend address pools of the loadbalancer.<br>NOTE: If you use the `ipConfigurations` parameter, this value will be omited and you need to define this using the `ipConfigurations` object structure.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id: '/resource/id/to/my/backEndAddressPool'<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id: '/resource/id/to/my/backEndAddressPool'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | loadBalancerInboundNatRuleResourceIds | array | <input type="checkbox"> | None | <pre>[]</pre> | A list of resource id\'s referencing to the inbound nat rules of the loadbalancer.<br>NOTE: If you use the `ipConfigurations` parameter, this value will be omited and you need to define this using the `ipConfigurations` object structure.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id: '/resource/id/to/my/natRule'<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id: '/resource/id/to/my/natRule2'<br>&nbsp;&nbsp;&nbsp;}<br>] |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | networkInterfaceName | string | Outputs the network interface resource name. |
 | networkInterfaceResourceId | string | Outputs the network interface resource id. |
-

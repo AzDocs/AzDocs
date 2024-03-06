@@ -1,4 +1,4 @@
-# namespaces
+﻿# namespaces
 
 Target Scope: resourceGroup
 
@@ -19,11 +19,13 @@ Creating a Service Bus Namespace resource with the given specs.
 | publicNetworkAccess | bool | <input type="checkbox"> | None | <pre>false</pre> | The default network action for this Azure Service Bus. |
 | disableLocalAuth | bool | <input type="checkbox"> | None | <pre>true</pre> | This property disables SAS authentication for the Service Bus namespace. |
 | zoneRedundant | bool | <input type="checkbox"> | None | <pre>false</pre> | Enabling this property creates a Premium Service Bus Namespace in regions supported availability zones. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | serviceBusNamespaceId | string |  |
 | serviceBusNamespaceName | string |  |
+
 ## Examples
 <pre>
 module serviceBusNamespace 'br:contosoregistry.azurecr.io/servicebus/namespaces:latest' = {
@@ -44,5 +46,3 @@ module serviceBusNamespace 'br:contosoregistry.azurecr.io/servicebus/namespaces:
 
 ## Links
 - [Bicep Microsoft.ServiceBus Namespaces](https://learn.microsoft.com/en-us/azure/templates/microsoft.servicebus/namespaces?pivots=deployment-language-bicep)
-
-

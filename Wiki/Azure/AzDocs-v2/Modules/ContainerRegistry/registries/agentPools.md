@@ -1,4 +1,4 @@
-# agentPools
+﻿# agentPools
 
 Target Scope: resourceGroup
 
@@ -20,9 +20,7 @@ Task Agent Pools provide a.o VNet Support: Agent Pools may be assigned to Azure 
 | agentPoolMachineCount | int | <input type="checkbox"> | None | <pre>1</pre> | The number of virtual machines of the agent pool. |
 | agentPoolOsType | string | <input type="checkbox"> | `'Linux'` or `'Windows'` | <pre>'Linux'</pre> | The type of OS for the agent machine |
 | agentPoolTier | string | <input type="checkbox"> | None | <pre>'S1'</pre> | The tier of the agent machines of the agent pool. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 module agentpool 'br:contosoregistry.azurecr.io/containerregistry/registries/agentpools:latest' = {
@@ -38,5 +36,3 @@ module agentpool 'br:contosoregistry.azurecr.io/containerregistry/registries/age
 
 ## Links
 - [Bicep Microsoft.ContainerRegistry registries agentpools](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries/agentpools?pivots=deployment-language-bicep)
-
-

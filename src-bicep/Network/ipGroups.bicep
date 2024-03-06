@@ -5,7 +5,7 @@ Bicep module to deploy an IP Group.
 Bicep module to deploy an IP Group.
 .EXAMPLE
 <pre>
-module ipGroupGripDev 'br:contosoregistry.azurecr.io/network/ipgroups:latest' = {
+module ipGroupDev 'br:contosoregistry.azurecr.io/network/ipgroups:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 56), 'ipgroup')
   params: {
     location: location

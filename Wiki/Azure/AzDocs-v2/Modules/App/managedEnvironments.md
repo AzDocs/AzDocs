@@ -1,4 +1,4 @@
-# managedEnvironments
+﻿# managedEnvironments
 
 Target Scope: resourceGroup
 
@@ -26,11 +26,13 @@ If you want to create private container apps the vnetconfiguration internal prop
 | logAnalyticsConfiguration | object | <input type="checkbox"> | None | <pre>{}</pre> | Configuration for logging in a Log Analytics workspace.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;customerId: logAnalyticsWorkspace.properties.customerId<br>&nbsp;&nbsp;&nbsp;sharedKey: logAnalyticsWorkspace.listKeys().primarySharedKey<br>} |
 | workloadProfiles | array | <input type="checkbox"> | None | <pre>[]</pre> | Workload profiles configured for the Managed Environment for workloads to run on.<br>If you create an empty array, a Consumption plan will be used, else a Consumption + Dedicated plan will be used and the workflow profile is enabled.<br>You can create more workload profile later on.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'Consumption'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;workloadProfileType: 'Consumption'<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'Dedicated-D4'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;workloadProfileType: 'D4'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MinimumCount: 1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MaximumCount: 2<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | infrastructureResourceGroup | string | <input type="checkbox"> | None | <pre>'MC_ME_&#36;{managedEnvironmentName}'</pre> | Possibility to provide custom resourcegroup for the infrastructure resources of the managed environment.<br>Should not pre-exist or deployment will fail.<br>If not provided, the resourcegroup will be named: ME_<managedEnvironmentName>_<containerAppsName>_<locationName>, eg. ME_my-environment_my-container-apps_westeurope. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | managedEnvironmentResourceId | string | Output of the resource id of the management environment |
 | managedEnvironmentName | string | Output of the name of the management environment |
+
 ## Examples
 <pre>
 module managedEnvironment 'br:contosoregistry.azurecr.io/app/managedenvironments:latest' = {
@@ -58,5 +60,3 @@ module managedEnvironment 'br:contosoregistry.azurecr.io/app/managedenvironments
 
 ## Links
 - [Bicep Microsoft.App managedEnvironments](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments?pivots=deployment-language-bicep)
-
-

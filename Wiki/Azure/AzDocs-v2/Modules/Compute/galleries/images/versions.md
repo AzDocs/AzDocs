@@ -1,4 +1,4 @@
-# versions
+﻿# versions
 
 Target Scope: resourceGroup
 
@@ -26,9 +26,7 @@ Create an  azure VM Image Version.
 | replicationMode | string | <input type="checkbox"> | `'Full'` or `'Shallow'` | <pre>'Full'</pre> | Specifies the mode to be used for replication. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Resource location |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 
@@ -119,5 +117,3 @@ module imageVersion 'br:contosoregistry.azurecr.io/compute/galleries/images/vers
 - [Bicep Microsoft.Compute galleries](https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/galleries?pivots=deployment-language-bicep)<br>
 - [Bicep Microsoft.Compute galleries/images](https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/galleries/images?pivots=deployment-language-bicep)<br>
 - [Bicep Microsoft.Compute galleries/images/versions](https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/galleries/images/versions?pivots=deployment-language-bicep)
-
-

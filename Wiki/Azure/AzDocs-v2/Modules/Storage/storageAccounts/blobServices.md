@@ -1,4 +1,4 @@
-# blobServices
+﻿# blobServices
 
 Target Scope: resourceGroup
 
@@ -17,10 +17,12 @@ Creating a blob container in a storage account.
 | changeFeed | object | <input type="checkbox"> | None | <pre>{<br>  enabled: true<br>  retentionInDays: 30<br>}</pre> | The change feed policy for the blobservices. |
 | isVersioningEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | Whether or not to enable versioning on the blobservices. |
 | deleteRetentionPolicy | object | <input type="checkbox"> | None | <pre>{   allowPermanentDelete: false   days: 31   enabled: true }</pre> |  |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | blobContainerName | string | Output the storage account container name. |
+
 ## Examples
 <pre>
 module storageaccount 'br:contosoregistry.azurecr.io/storage/storageaccounts/blobservices:latest' = {
@@ -35,5 +37,3 @@ module storageaccount 'br:contosoregistry.azurecr.io/storage/storageaccounts/blo
 
 ## Links
 - [Bicep Storage Blob Container](https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts/blobservices/containers?pivots=deployment-language-bicep)
-
-

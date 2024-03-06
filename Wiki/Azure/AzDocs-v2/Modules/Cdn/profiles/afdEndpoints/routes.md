@@ -1,4 +1,4 @@
-# routes
+﻿# routes
 
 Target Scope: resourceGroup
 
@@ -57,12 +57,12 @@ module route 'br:contosoregistry.azurecr.io/profiles/afdEndpoints/routes.bicep' 
 | httpsRedirect | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Enabled'</pre> | Specifies whether to automatically redirect HTTP traffic to HTTPS traffic. Note that this is an easy way to set up this rule and it will be the first rule that gets executed. |
 | originName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of an existing origin in the existing Origin Group. |
 | cacheConfiguration | object | <input type="checkbox"> | None | <pre>{}</pre> | Specifies the cache configuration for this route. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | routeId | string | The ID of the route. |
 | routeName | string | The name of the route. |
+
 ## Links
 - [Bicep Microsoft.Cdn endpoints routes](https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/afdendpoints/routes?pivots=deployment-language-bicep)
-
-

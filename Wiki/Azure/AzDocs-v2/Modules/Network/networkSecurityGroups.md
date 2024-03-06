@@ -1,4 +1,4 @@
-# networkSecurityGroups
+﻿# networkSecurityGroups
 
 Target Scope: resourceGroup
 
@@ -18,9 +18,9 @@ Target Scope: resourceGroup
 | flowLogTrafficAnalyticsInterval | int | <input type="checkbox"> | None | <pre>10</pre> | The interval in minutes which would decide how frequently TA service should do flow analytics. |
 | flowLogRetentionPolicy | object | <input type="checkbox"> | None | <pre>{<br>  days: 0<br>  enabled: true<br>}</pre> | Parameters that define the retention policy for flow log. See the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2021-08-01/networkwatchers/flowlogs?pivots=deployment-language-bicep#retentionpolicyparameters).<br>days: Number of days to retain flow log records.<br>enabled:	Flag to enable/disable retention. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | nsgName | string | Output the Network Security Group\'s resource name |
 | nsgResourceId | string | Output the Network Security Group\'s resource id |
-

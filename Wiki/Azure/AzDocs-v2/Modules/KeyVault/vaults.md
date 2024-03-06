@@ -1,4 +1,4 @@
-# vaults
+﻿# vaults
 
 Target Scope: resourceGroup
 
@@ -31,12 +31,14 @@ This module is used for creating Azure Key Vault
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings. |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | keyVaultName | string | The keyvault name. |
 | keyVaultId | string | The keyvault resource id. |
 | keyvaultSecrets | array | An array of secrets which were added to keyvault. Each object contains id & name parameters. |
+
 ## Examples
 <pre>
 module keyVault 'br:contosoregistry.azurecr.io/keyvault/vaults:latest' = {
@@ -57,5 +59,3 @@ module keyVault 'br:contosoregistry.azurecr.io/keyvault/vaults:latest' = {
 
 ## Links
 - [Bicep Microsoft.KeyVault Vaults](https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults?pivots=deployment-language-bicep)
-
-

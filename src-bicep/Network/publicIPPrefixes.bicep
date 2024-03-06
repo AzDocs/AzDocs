@@ -56,7 +56,10 @@ The following public IP prefix sizes are currently available:
 param publicIPPrefixesPrefixLength int = 31
 
 @description('The public IP address version.')
-@allowed([ 'IPv4', 'IPv6' ])
+@allowed([
+  'IPv4'
+  'IPv6'
+])
 param publicIPAddressVersion string = 'IPv4'
 
 @description('''
@@ -92,7 +95,7 @@ resource publicIPPrefixes 'Microsoft.Network/publicIPPrefixes@2023-02-01' = {
     ipTags: publicIPPrefixesIpTags
 
   }
-  zones: !empty(publicIPPrefixesZones)? publicIPPrefixesZones: null
+  zones: !empty(publicIPPrefixesZones) ? publicIPPrefixesZones : null
 }
 
 @description('The resource id of the upserted publicIPPrefix')

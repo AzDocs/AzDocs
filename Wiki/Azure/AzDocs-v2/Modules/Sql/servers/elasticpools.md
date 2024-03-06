@@ -1,4 +1,4 @@
-# elasticpools
+﻿# elasticpools
 
 Target Scope: resourceGroup
 
@@ -17,11 +17,13 @@ Creating an elastic pool with the given specs.
 | databaseCapacityMin | int | <input type="checkbox"> | None | <pre>0</pre> | The Elastic Pool database capacity min. |
 | databaseCapacityMax | int | <input type="checkbox"> | None | <pre>2</pre> | The Elastic Pool database capacity max. |
 | sku | object | <input type="checkbox"> | None | <pre>{<br>  name: 'StandardPool'<br>  tier: 'Standard'<br>  capacity: 50<br>}</pre> | The SKU object to use for this Elastic Pool. Defaults to a standard pool. <br>Example<br>param sku object = {<br>&nbsp;&nbsp;&nbsp;name: 'PremiumPool'<br>&nbsp;&nbsp;&nbsp;tier: 'Premium'<br>} |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | elasticPoolId | string | The resource id of the Elastic Pool. |
 | elasticPoolName | string | The resource name of the Elastic Pool. |
+
 ## Examples
 <pre>
 module sql 'br:contosoregistry.azurecr.io/sql/servers/elasticpools.bicep:latest' = {
@@ -44,5 +46,3 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers/elasticpools.bicep:latest'
 
 ## Links
 - [Bicep Microsoft.SQL servers](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers/elasticpools?pivots=deployment-language-bicep)
-
-
