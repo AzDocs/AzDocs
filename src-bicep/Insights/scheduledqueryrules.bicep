@@ -163,8 +163,11 @@ Example:
 param tags object = {}
 
 @description('Indicates the type of scheduled query rule. The default is LogAlert.')
-@allowed(['LogAlert','LogToMetric'])
+@allowed([ 'LogAlert', 'LogToMetric' ])
 param scheduledQueryRuleKind string = 'LogAlert'
+
+@discriminator('type')
+type identityType = { type: 'None' } | { type: 'SystemAssigned' } | { type: 'UserAssigned', userAssignedIdentities: object }
 
 @description('''
 Sets the identity. This can be either `None`, a `System Assigned` or a `UserAssigned` identity.
@@ -187,7 +190,7 @@ and the identity must have at least read logs rbac rights on the resource in sco
 </pre>
 </details>
 ''')
-param identity object = {
+param identity identityType = {
   type: 'None'
 }
 
@@ -204,13 +207,15 @@ param ruleResolveConfiguration object = {}
 @description('The flag which indicates whether the provided query should be validated or not. The default is false. Relevant only for rules of the kind LogAlert.')
 param skipQueryValidation bool = false
 
+@description('If the identity is set to none, set the paratemer to null.')
+var identityProperty = identity.type == 'None' ? null : identity
 
 @description('Upsert the scheduledQueryRules resource with the given parameters.')
 resource scheduledQueryRule 'Microsoft.Insights/scheduledQueryRules@2023-03-15-preview' = {
   name: scheduledQueryRuleName
   location: location
   kind: scheduledQueryRuleKind
-  identity: identity
+  identity: identityProperty
   tags: tags
   properties: {
     actions: {
@@ -225,7 +230,7 @@ resource scheduledQueryRule 'Microsoft.Insights/scheduledQueryRules@2023-03-15-p
     description: scheduledQueryRuleDescription
     displayName: scheduledQueryRuleName
     enabled: isEnabled
-    evaluationFrequency:evaluationFrequency
+    evaluationFrequency: evaluationFrequency
     ruleResolveConfiguration: ruleResolveConfiguration
     scopes: scopes
     severity: scheduledQueryRuleSeverity
@@ -234,7 +239,6 @@ resource scheduledQueryRule 'Microsoft.Insights/scheduledQueryRules@2023-03-15-p
     windowSize: windowSize
   }
 }
-
 
 @description('Output the resource name of the upserted scheduledQueryRule.')
 output scheduledQueryRuleName string = scheduledQueryRule.name
