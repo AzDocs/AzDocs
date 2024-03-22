@@ -20,7 +20,6 @@ module storageaccount 'br:contosoregistry.azurecr.io/storage/storageaccounts/blo
 
 // ================================================= Parameters =================================================
 
-
 @description('The name of the blob container to create.')
 @minLength(3)
 @maxLength(63)
@@ -40,13 +39,20 @@ param restorePolicy object = {
 @description('The change feed policy for the blobservices.')
 param changeFeed object = {
   enabled: true
-  retentionInDays: 30
+  retentionInDays: 31
 }
 
 @description('Whether or not to enable versioning on the blobservices.')
 param isVersioningEnabled bool = true
 
 param deleteRetentionPolicy object = {
+  allowPermanentDelete: false
+  days: 31
+  enabled: true
+}
+
+@description('The blob service properties for container soft delete.')
+param containerDeleteRetentionPolicy object = {
   allowPermanentDelete: false
   days: 31
   enabled: true
@@ -65,6 +71,7 @@ resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01
     isVersioningEnabled: isVersioningEnabled
     changeFeed: changeFeed
     deleteRetentionPolicy: deleteRetentionPolicy
+    containerDeleteRetentionPolicy: containerDeleteRetentionPolicy
   }
 }
 
