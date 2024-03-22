@@ -21,6 +21,23 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
 }
 </pre>
 <p>Creates a Sql server with the name sqlServerName</p>
+<pre>
+module sqlserver 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 60), 'sql')
+  params: {
+    sqlAuthenticationAdminPassword: ''
+    location: location
+    sqlAuthenticationAdminUsername: ''
+    sqlServerName: sqlServerName
+    useAzureActiveDirectoryAuthentication: true
+    vulnerabilityScanStorageAccountName: vulnerabilityScanStorageAccountName
+    azureActiveDirectoryAdminObjectId: 'a348f815-0d14-4a85-b2fe-d3b36519e4fg'
+    azureActiveDirectoryOnlyAuthentication: true
+    createSqlUserAssignedManagedIdentity: true
+  }
+}
+</pre>
+<p>Creates a Sql server with EntraID authentication only.</p>
 .LINKS
 - [Bicep Microsoft.SQL servers](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-bicep)
 - [Bicep Microsoft SQL Azure Active Directory Authentication](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-bicep#serverexternaladministrator)
@@ -255,7 +272,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
       ]
       state: 'Enabled'
       isAzureMonitorTargetEnabled: auditingSettingsIsAzureMonitorTargetEnabled
-      storageEndpoint: vulnerabilityScanStorageAccount.properties.primaryEndpoints.blob
+      storageEndpoint: vulnerabilityScanStorageAccount.outputs.storageAccountPrimaryEndpoint.blob
     }
   }
 
@@ -265,7 +282,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
       state: 'Enabled'
       isAzureMonitorTargetEnabled: auditingSettingsIsAzureMonitorTargetEnabled
       isManagedIdentityInUse: true
-      storageEndpoint: vulnerabilityScanStorageAccount.properties.primaryEndpoints.blob
+      storageEndpoint: vulnerabilityScanStorageAccount.outputs.storageAccountPrimaryEndpoint.blob
     }
   }
 
@@ -276,7 +293,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
         emails: vulnerabilityScanEmails
         isEnabled: true
       }
-      storageContainerPath: '${vulnerabilityScanStorageAccount.properties.primaryEndpoints.blob}${vulnerabilityScanStorageAccount::vulnerabilityScanStorageAccountBlobService::vulnerabilityScanStorageAccountBlobContainer.name}'
+      storageContainerPath: '${vulnerabilityScanStorageAccount.outputs.storageAccountPrimaryEndpoint.blob}${vulnblob.outputs.blobContainerName}'
     }
 
     dependsOn: [
@@ -285,36 +302,35 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   }
 }
 
-@description('Upsert the storageaccount & blob container with the given parameters.')
-resource vulnerabilityScanStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: vulnerabilityScanStorageAccountName
-  kind: 'StorageV2'
-  location: location
-  tags: tags
-  sku: {
-    name: 'Standard_LRS'
+module vulnerabilityScanStorageAccount '../Storage/storageAccounts.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 60), 'stg')
+  params: {
+    storageAccountKind: 'StorageV2'
+    storageAccountName: vulnerabilityScanStorageAccountName
+    storageAccountSku: 'Standard_LRS'
+    location: location
   }
+}
 
-  resource vulnerabilityScanStorageAccountBlobService 'blobServices@2023-01-01' = {
-    name: 'default'
-
-    resource vulnerabilityScanStorageAccountBlobContainer 'containers@2023-01-01' = {
-      name: 'vulnerabilityscans'
-    }
+module vulnblob '../Storage/storageAccounts/blobServices.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 59), 'blob')
+  params: {
+    storageAccountName: vulnerabilityScanStorageAccount.outputs.storageAccountName
+    blobContainerName: 'vulnerabilityscans'
   }
 }
 
 module storageBlobDataContributorRoleAssignment '../Authorization/roleAssignmentsStorage.bicep' = {
   name: format('{0}-{1}', take('${deployment().name}', 51), 'roleassidstg')
   params: {
-    storageAccountName: vulnerabilityScanStorageAccount.name
+    storageAccountName: vulnerabilityScanStorageAccount.outputs.storageAccountName
     roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' //Storage Blob Data Contributor
     principalId: createSqlUserAssignedManagedIdentity ? sqlServer.identity.userAssignedIdentities[sqlServerUserAssignedManagedIdentity.id].principalId : sqlServer.identity.principalId
   }
 }
 
 @description('Output the storage account resource name where the vulnerability scan reports are stored for this SQL Server.')
-output vulnerabilityScanStorageAccountName string = !empty(vulnerabilityScanStorageAccountName) ? vulnerabilityScanStorageAccount.name : ''
+output vulnerabilityScanStorageAccountName string = !empty(vulnerabilityScanStorageAccountName) ? vulnerabilityScanStorageAccount.outputs.storageAccountName : ''
 @description('Output the name of the SQL Server.')
 output sqlServerName string = sqlServer.name
 @description('Output the resource ID of the SQL Server.')

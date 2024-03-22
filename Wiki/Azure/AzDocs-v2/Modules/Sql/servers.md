@@ -63,6 +63,23 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
 }
 </pre>
 <p>Creates a Sql server with the name sqlServerName</p>
+<pre>
+module sqlserver 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 60), 'sql')
+  params: {
+    sqlAuthenticationAdminPassword: ''
+    location: location
+    sqlAuthenticationAdminUsername: ''
+    sqlServerName: sqlServerName
+    useAzureActiveDirectoryAuthentication: true
+    vulnerabilityScanStorageAccountName: vulnerabilityScanStorageAccountName
+    azureActiveDirectoryAdminObjectId: 'a348f815-0d14-4a85-b2fe-d3b36519e4fg'
+    azureActiveDirectoryOnlyAuthentication: true
+    createSqlUserAssignedManagedIdentity: true
+  }
+}
+</pre>
+<p>Creates a Sql server with EntraID authentication only.</p>
 
 ## Links
 - [Bicep Microsoft.SQL servers](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-bicep)<br>
