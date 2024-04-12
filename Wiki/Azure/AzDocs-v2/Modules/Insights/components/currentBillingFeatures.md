@@ -14,5 +14,5 @@ Target Scope: resourceGroup
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
-| id | string |  |
-| name | string |  |
+| currentBillingFeaturesId | string | The Resource ID of the upserted billing feature. |
+| currentBillingFeaturesName | string | The name of the upserted billing feature. |

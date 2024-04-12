@@ -21,5 +21,5 @@ Target Scope: resourceGroup
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
-| id | string |  |
-| ame | string |  |
+| proActiveDetectionConfigId | string | The Resource ID of the upserted proactive detection config. |
+| proActiveDetectionConfigName | string | The name of the upserted proactive detection config. |
