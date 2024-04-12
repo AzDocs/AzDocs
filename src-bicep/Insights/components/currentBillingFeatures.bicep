@@ -49,5 +49,7 @@ resource billingPlan 'microsoft.insights/components/CurrentBillingFeatures@2015-
   }
 }
 
-output id string = billingPlan.id
-output name string = billingPlan.name
+@description('The Resource ID of the upserted billing feature.')
+output currentBillingFeaturesId string = billingPlan.id
+@description('The name of the upserted billing feature.')
+output currentBillingFeaturesName string = billingPlan.name

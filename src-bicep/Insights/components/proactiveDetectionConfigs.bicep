@@ -65,5 +65,7 @@ resource config 'Microsoft.Insights/components/ProactiveDetectionConfigs@2018-05
   }
 }
 
-output id string = config.id
-output ame string = config.name
+@description('The Resource ID of the upserted proactive detection config.')
+output proActiveDetectionConfigId string = config.id
+@description('The name of the upserted proactive detection config.')
+output proActiveDetectionConfigName string = config.name
