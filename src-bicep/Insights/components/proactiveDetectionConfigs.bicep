@@ -1,3 +1,29 @@
+/*
+.SYNOPSIS
+Creating a Proactive Detection Config.
+.DESCRIPTION
+Creating a Proactive Detection Config.
+<pre>
+module apim 'br:contosoregistry.azurecr.io/insights/components/proactiveDetectionConfigs.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 32), 'degradationindependencyduration')
+  dependsOn: [
+    applicationInsights
+  ]
+  params: {
+    name: 'degradationindependencyduration'
+    displayName: 'Degradation in dependency duration'
+    ruleDescription: 'Smart Detection rules notify you of performance anomaly issues.'
+    helpUrl: 'https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics'
+    applicationInsightsName: applicationInsights.outputs.appInsightsName
+    customEmails: customEmails
+  }
+}
+</pre>
+<p>Creates a smart detection rule with the name displayName that is integrated in applicationInsights.</p>
+.LINKS
+- [Bicep Proactive Detection Configs](https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/2018-05-01-preview/components/proactivedetectionconfigs?pivots=deployment-language-bicep)
+*/
+// ===================================== Parameters =====================================
 @description('The resource name')
 @minLength(1)
 param name string
@@ -31,13 +57,14 @@ param SupportsEmailNotifications bool = true
 
 @description('Parent Application Insights resource')
 @minLength(1)
+@maxLength(260)
 param applicationInsightsName string
 
-@description('Additional email recipients for smart detection notification, separated by semicolons.')
-param smartDetectionEmailRecipients string
+@description('Additional email recipients for smart detection notification')
+param customEmails array = [ ]
 
 @description('A flag that indicated whether notifications on this rule should be sent to subscription owners')
-param SendEmailsToSubscriptionOwners bool = true
+param SendEmailsToSubscriptionOwners bool = false
 
 resource applicationInsights 'microsoft.insights/components@2020-02-02' existing = {
   name: applicationInsightsName
@@ -47,9 +74,7 @@ resource config 'Microsoft.Insights/components/ProactiveDetectionConfigs@2018-05
   parent: applicationInsights
   name: name
   properties: {
-    CustomEmails: [
-      smartDetectionEmailRecipients
-    ]
+    CustomEmails: customEmails
     Enabled: isRuleEnabled
     RuleDefinitions: {
       DisplayName: displayName
