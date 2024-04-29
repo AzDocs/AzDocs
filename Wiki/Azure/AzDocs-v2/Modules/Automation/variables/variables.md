@@ -1,4 +1,4 @@
-# variables
+﻿# variables
 
 Target Scope: resourceGroup
 
@@ -10,7 +10,3 @@ Target Scope: resourceGroup
 | encryptValue | bool | <input type="checkbox"> | None | <pre>false</pre> | If the variable value needs to be encrypted. |
 | variableDescription | string | <input type="checkbox"> | None | <pre>''</pre> | The description for the variable. |
 | variableValue | string | <input type="checkbox" checked> | None | <pre></pre> | The value for the variable you want to create in json format.<br>Example:<br>'"testvalue1"' |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
-

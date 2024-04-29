@@ -1,4 +1,4 @@
-# vaults
+﻿# vaults
 
 Target Scope: resourceGroup
 
@@ -14,10 +14,10 @@ Target Scope: resourceGroup
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | The azure resource id of the log analytics workspace to log the diagnostics to. |
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | vaultResourceName | string | Output the resource name for this Recovery Services Vault. |
 | vaultResourceId | string | Output the resource id for this Recovery Services Vault. |
 | vaultIdentityPrincipalId | string | Output the system assigned managed identity for this Recovery Services Vault. |
-

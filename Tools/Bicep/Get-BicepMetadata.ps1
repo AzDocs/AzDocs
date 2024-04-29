@@ -83,6 +83,7 @@ function Get-BicepMetadata
                 Path          = $relativePath       
                 TargetScope   = 'resourceGroup'
                 Metadata      = @()
+                TypeInfo      = @()
                 ParameterInfo = @()
                 outputInfo    = @()        
             }
@@ -126,9 +127,9 @@ function Get-BicepMetadata
                         {
                             'allowed'
                             { 
-                                if ($line -match '''(?<value>.*?)''')
+                                if ($line -match '^\s*(?<string>''?)(?<value>[^'']*?)''?\s*$')
                                 {
-                                    $valueToAdd = $matches.value
+                                    $valueToAdd = "$($matches.string)$($matches.value)$($matches.string)"
                                 }
                                 else
                                 {
@@ -136,6 +137,7 @@ function Get-BicepMetadata
                                 }
                             }
                             'description' { $valueToAdd = $line }
+                            'discriminator' { $valueToAdd = $line }
                             'parameter' { $valueToAdd = $line }
                             'MultiLineComment'
                             {
@@ -151,7 +153,10 @@ function Get-BicepMetadata
                                     $valueToAdd = $line
                                 }
                             }
-                            Default { Write-Warning 'Cannot parse the value for the unknown  decorator' }
+                            Default
+                            { 
+                                Write-Warning 'Cannot parse the value for the unknown  decorator'
+                            }
                         }
                         Write-Debug "Add for decorator '$multiLineDecorator' value '$valueToAdd'"
                         $multilineValues += $valueToAdd
@@ -169,6 +174,23 @@ function Get-BicepMetadata
                         else
                         {
                             Write-Warning "Could not match target scope '$line'"
+                        }
+                    }
+                    elseif ($line -like 'type *')
+                    {
+                        if ($line -match '^type\s+(?<typeName>\w+)\s*=\s*(?<value>.*)\s*$')
+                        {
+                            $type = [PSCustomObject]@{
+                                Name       = $matches.typeName
+                                Type       = $matches.value
+                                Decorators = $currentDecorator
+                            }
+                            $bicepMetaData.TypeInfo += $type
+                            $currentDecorator = @{}
+                        }
+                        else
+                        {
+                            Write-Warning "Could not match type line '$line'"
                         }
                     }
                     elseif ($line -like 'param *')
@@ -280,6 +302,17 @@ function Get-BicepMetadata
                                         }
                                     }
                                 }
+                                'discriminator'
+                                {
+                                    if ($line -match '^@discriminator\(''(?<type>.*)''\)\s*(?:\/\/.*)?$')
+                                    {
+                                        $currentDecorator.Add($decoratorName , $matches.type )
+                                    }
+                                    else
+                                    {
+                                        Write-Warning "Could not parse discriminator '$line'"
+                                    }
+                                } 
                                 'maxLength' { $currentDecorator.Add($decoratorName , (Get-DecoratorNumber -line $line)) }
                                 'minLength' { $currentDecorator.Add($decoratorName , (Get-DecoratorNumber -line $line)) }
                                 'maxValue' { $currentDecorator.Add($decoratorName , (Get-DecoratorNumber -line $line)) }

@@ -1,4 +1,4 @@
-# workspaceSettings
+﻿# workspaceSettings
 
 Target Scope: subscription
 
@@ -13,9 +13,7 @@ Scope: All the VMs in this scope will send their security data to the mentioned 
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox" checked> | None | <pre></pre> | the resource id of the log analytics workspace. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 module autoProvisioningWorkspaceSettings 'Security/workspaceSettings.bicep' = {
@@ -32,5 +30,3 @@ module autoProvisioningWorkspaceSettings 'Security/workspaceSettings.bicep' = {
 
 ## Links
 - [Bicep Pricings Defender for Cloud](https://learn.microsoft.com/en-us/azure/templates/microsoft.security/workspacesettings?pivots=deployment-language-bicep)
-
-

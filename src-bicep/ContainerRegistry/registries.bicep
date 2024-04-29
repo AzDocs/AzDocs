@@ -140,14 +140,20 @@ param policies object = {}
 ])
 param zoneRedundancy string = 'Disabled'
 
+@description('Enable data endpoint for this ACR.')
+param dataEndpointEnabled bool = false
+
 @description('Setting up the networkRuleSet and add ip rules if any are defined.')
-param networkRuleSet object = empty(ipRules) ? {} : {
+param networkRuleSet object = empty(ipRules) ? {
+  defaultAction: 'Allow'
+  ipRules: []
+} : {
   defaultAction: 'Deny'
   ipRules: ipRules
 }
 
 @description('Upsert the azure container registry instance.')
-resource registry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = {
+resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
   name: containerRegistryName
   location: location
   tags: tags
@@ -158,10 +164,11 @@ resource registry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = 
   properties: {
     adminUserEnabled: adminUserEnabled
     anonymousPullEnabled: anonymousPullEnabled
-    networkRuleBypassOptions: allowAzureServicesNetworkBypass ? 'AzureServices' : 'None'
-    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
-    policies: policies
     networkRuleSet: networkRuleSet
+    policies: policies
+    dataEndpointEnabled: dataEndpointEnabled
+    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
+    networkRuleBypassOptions: allowAzureServicesNetworkBypass ? 'AzureServices' : 'None'
     zoneRedundancy: zoneRedundancy
   }
 }

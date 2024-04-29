@@ -7,7 +7,7 @@ Currently kind: functionapp,workflowapp does not seem to be completely supported
 Therefore this separate bicep file.
 .EXAMPLE
 <pre>
-module logicApp 'br:acrazdocsprd.azurecr.io/web/sites/logicapp:latest' = {
+module logicApp 'br:contosoregistry.azurecr.io/web/sites/logicapp:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 55), 'lappname')
   params: {
     logicAppName: logicAppName
@@ -331,10 +331,10 @@ param appInsightsResourceGroupName string = az.resourceGroup().name
 // ================================================= Variables ==================================================
 
 @description('Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).')
-var internalSettings = !empty(appInsightsName) ? [{
-  name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-  value: appInsights.properties.InstrumentationKey
-} ]: []
+var internalSettings = !empty(appInsightsName) ? [ {
+    name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+    value: appInsights.properties.InstrumentationKey
+  } ] : []
 
 @description('Unify the user-defined appsettings with the needed default settings for this logic app.')
 var appSettingsFinal = union(appSettings, [
@@ -381,7 +381,7 @@ resource workflowLogicApp 'Microsoft.Web/sites@2022-03-01' = {
     enabled: logicAppEnabledState
     serverFarmId: appServicePlan.id
     siteConfig: {
-      connectionStrings: empty(connectionStrings)? null: [
+      connectionStrings: empty(connectionStrings) ? null : [
         connectionStrings
       ]
       linuxFxVersion: linuxFxVersion
@@ -415,8 +415,20 @@ resource workflowLogicApp 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 
-}
+  resource basicPublishingCredentialsPoliciesFtp 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'ftp'
+    properties: {
+      allow: false
+    }
+  }
 
+  resource basicPublishingCredentialsPoliciesScm 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'scm'
+    properties: {
+      allow: false
+    }
+  }
+}
 
 @description('Upsert the diagnostic settings for the webapp with the given parameters.')
 resource webAppDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
@@ -428,7 +440,6 @@ resource webAppDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05
     metrics: diagnosticSettingsMetricsCategories
   }
 }
-
 
 @description('Output the logic app\'s resource name.')
 output logicAppName string = workflowLogicApp.name

@@ -1,4 +1,4 @@
-# storages
+﻿# storages
 
 Target Scope: resourceGroup
 
@@ -17,12 +17,10 @@ A storages resources can be used for volumes for a container app.
 | storageAccountName | string | <input type="checkbox" checked> | None | <pre></pre> | the storage account name. This should be pre-existing. |
 | storageAccountFileShareName | string | <input type="checkbox" checked> | None | <pre></pre> | the fileshare name in the storage account. |
 | storagesAccessMode | string | <input type="checkbox"> | None | <pre>'ReadWrite'</pre> | Since you need to use a shareName (Azure File Share Storage), accessMode should be set to either ReadWrite or ReadOnly. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
-module storages '../../AzDocs/src-bicep/App/managedEnvironments/storages.bicep' = {
+module storages 'br:contosoregistry.azurecr.io/app/managedenvironments/storages:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 48), 'storages')
   params: {
     managedEnvironmentName: managedEnvironmentName
@@ -37,5 +35,3 @@ module storages '../../AzDocs/src-bicep/App/managedEnvironments/storages.bicep' 
 
 ## Links
 - [Bicep Microsoft.App/managedEnvironments storages](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments/storages?pivots=deployment-language-bicep)
-
-

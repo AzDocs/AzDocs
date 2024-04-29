@@ -1,3 +1,30 @@
+/*
+.SYNOPSIS
+Creating Azure Key Vault
+.DESCRIPTION
+This module is used for creating Azure Key Vault
+.EXAMPLE
+<pre>
+module keyVault 'br:contosoregistry.azurecr.io/keyvault/vaults:latest' = {
+  name: '${take(deployment().name, 57)}-kv'
+  params:{
+    keyVaultName: keyVaultName
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    softDeleteRetentionInDays: 30
+    location: location
+    skuName: 'standard'
+    enabledForTemplateDeployment: true
+    enabledForDiskEncryption: true
+    keyVaultnetworkAclsBypass: 'AzureServices'
+    publicNetworkAccess: 'enabled'
+  }
+}
+</pre>
+.LINKS
+- [Bicep Microsoft.KeyVault Vaults](https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults?pivots=deployment-language-bicep)
+*/
+
+// ================================================= Parameters =================================================
 @description('''
 The name of the KeyVault to upsert
 Keyvault name restrictions:
@@ -19,6 +46,14 @@ param enabledForDiskEncryption bool = false
 
 @description('Specifies whether Azure Resource Manager is permitted to retrieve secrets from the key vault.')
 param enabledForTemplateDeployment bool = false
+
+@description('''
+Property that controls how data actions are authorized. When true, the key vault will use Role Based Access Control (RBAC) for authorization of data actions, 
+and the access policies specified in vault properties will be ignored. 
+When false, the key vault will use the access policies specified in vault properties, and any policy stored on Azure Resource Manager will be ignored. 
+If null or not specified, the vault is created with the default value of false.
+''')
+param enableRbacAuthorization bool = false
 
 @description('Specifies the Azure Active Directory tenant ID that should be used for authenticating requests to the key vault. Get it by using Get-AzSubscription cmdlet. Defaults to the current subscription\'s tenant.')
 param tenantId string = subscription().tenantId
@@ -44,6 +79,13 @@ param subnetIdsToWhitelist array = []
 @maxValue(90)
 param softDeleteRetentionInDays int
 
+@description('Property to specify whether the vault will accept traffic from public internet. If set to \'disabled\' all traffic except private endpoint traffic and that that originates from trusted services will be blocked.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param publicNetworkAccess string = 'Enabled'
+
 @description('Defines if you want to default allow & deny traffic coming from non-whitelisted sources. Defaults to deny for security reasons.')
 param networkAclDefaultAction string = 'Deny'
 
@@ -61,7 +103,7 @@ param diagnosticsName string = 'AzurePlatformCentralizedLogging'
 
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
 @minLength(0)
-param logAnalyticsWorkspaceResourceId string
+param logAnalyticsWorkspaceResourceId string = ''
 
 @description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings.')
 param diagnosticSettingsLogsCategories array = [
@@ -96,7 +138,7 @@ var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
 }]
 
 @description('Upsert the Keyvault')
-resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: keyVaultName
   tags: tags
   location: location
@@ -104,6 +146,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
     enabledForDeployment: enabledForDeployment // VMs can retrieve certificates
     enabledForTemplateDeployment: enabledForTemplateDeployment // ARM can retrieve values
     enabledForDiskEncryption: enabledForDiskEncryption
+    enableRbacAuthorization: enableRbacAuthorization
     tenantId: tenantId
     sku: {
       name: skuName
@@ -119,6 +162,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
     enableSoftDelete: true
     softDeleteRetentionInDays: softDeleteRetentionInDays
     createMode: recoverKeyvault ? 'recover' : 'default'
+    publicNetworkAccess: publicNetworkAccess
   }
 }
 

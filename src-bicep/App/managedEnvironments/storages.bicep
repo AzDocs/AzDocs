@@ -5,7 +5,7 @@ Creating a storages resources
 A storages resources can be used for volumes for a container app.
 .EXAMPLE
 <pre>
-module storages '../../AzDocs/src-bicep/App/managedEnvironments/storages.bicep' = {
+module storages 'br:contosoregistry.azurecr.io/app/managedenvironments/storages:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 48), 'storages')
   params: {
     managedEnvironmentName: managedEnvironmentName

@@ -51,14 +51,15 @@ jobs:
         steps:
           # Checkout the repository to make sure we have the needed files in the default directory.
           - checkout: self
-          - task: AzureCLI@2
-            displayName: "Install Az Bicep module"
-            condition: eq(${{ parameters.runupload }}, true)
-            inputs:
-              azureSubscription: "${{ variables.AzureDevOpsServiceConnectionName }}"
-              scriptType: 'pscore'
-              scriptLocation: inlineScript
-              inlineScript: az bicep install
+          # no need to install bicep anymore
+          # - task: AzureCLI@2
+          #   displayName: "Install Az Bicep module"
+          #   condition: eq(${{ parameters.runupload }}, true)
+          #   inputs:
+          #     azureSubscription: "${{ variables.AzureDevOpsServiceConnectionName }}"
+          #     scriptType: 'pscore'
+          #     scriptLocation: inlineScript
+          #     inlineScript: az bicep install
           - task: AzureCLI@2
             displayName: "Upload modules to ACR"
             condition: eq(${{ parameters.runupload }}, true)

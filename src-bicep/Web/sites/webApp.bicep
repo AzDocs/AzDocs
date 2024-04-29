@@ -5,10 +5,16 @@ Creating an AppService Instance: WebApp, FunctionApp etc.
 Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 .EXAMPLE
 <pre>
-module webApp 'br:acrazdocsprd.azurecr.io/web/sites/webapp:latest' = {
+module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 57), 'webapp')
   params: {
     appServiceName: webAppName
+    roleAssignments: [
+      {
+        principalId: logicapp.outputs.principalId
+        principalType: 'ServicePrincipal'
+        roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' // website contributor
+      }
     appInsightsName: appInsights.outputs.appInsightsName
     appServicePlanResourceGroupName: appServicePlanResourceGroupName
     ipSecurityRestrictions: union(homeIps, [
@@ -56,7 +62,7 @@ param appServicePlanName string
 @maxLength(90)
 param appServicePlanResourceGroupName string = az.resourceGroup().name
 
-@description('The name of the application insights instance to attach to this app service. If you leave this empty, no AppInsights resource will be created.')
+@description('The name of the application insights instance to attach to this app service. If you leave this empty, the appsetting will not contain a referral to an AppInsights resource.')
 @maxLength(260)
 param appInsightsName string = ''
 
@@ -79,10 +85,18 @@ For example:
 param appSettings object = {}
 
 @description('''
-Connectionstrings. This object is a plain key/value pair.
+Connectionstrings. This is an object with "connectionstring" objects.
 For example:
- MyConnectionString: 'thisismyv;aluefor;myfirstconnectio;nstring'
- AnotherConnectionString: 'thisismyva;lueform;ysecond;connectionstring'
+  {
+    MyConnectionString: {
+      value: 'thisismyv;aluefor;myfirstconnectio;nstring'
+      type: 'SQLAzure'
+    }
+    AnotherConnectionString: {
+      value: 'thisismyva;lueform;ysecond;connectionstring'
+      type: 'Custom'
+    }
+  }
 ''')
 param connectionStrings object = {}
 
@@ -110,7 +124,7 @@ param ipSecurityRestrictions array = [
     ipAddress: '0.0.0.0/0'
     action: 'Deny'
     tag: 'Default'
-    priority: 10
+    priority: 2147483646
     name: 'DefaultDeny'
     description: 'Default deny so that nothing is publicly exposed by accident'
   }
@@ -122,11 +136,17 @@ param scmIpSecurityRestrictions array = [
     ipAddress: '0.0.0.0/0'
     action: 'Deny'
     tag: 'Default'
-    priority: 10
+    priority: 2147483646
     name: 'DefaultDeny'
     description: 'Default deny so that nothing is publicly exposed by accident'
   }
 ]
+
+@description('''
+Identity to use for Key Vault Reference authentication. If you want to use a user assigned managed identity to access a keyvault using a keyvault reference, 
+you need to set this to the resource id of the user assigned managed identity.
+''')
+param keyVaultReferenceIdentity string = 'SystemAssigned'
 
 @description('The resource id of the subnet where to integrate the appservice/webapp/logicapp/functionapp into.')
 param vNetIntegrationSubnetResourceId string = ''
@@ -196,7 +216,7 @@ param ftpsState string = 'Disabled'
 @description('Http20Enabled: configures a web site to allow clients to connect over http2.0')
 param http20Enabled bool = true
 
-@description('Linux App Framework and version')
+@description('Linux App Framework and version.')
 param linuxFxVersion string = 'DOTNETCORE|6.0'
 
 @description('''
@@ -230,10 +250,56 @@ param publicNetworkAccess string = 'Enabled'
 @description('Determine whether to deploy a staging slot in the webApp (default: true).')
 param deploySlot bool = true
 
+@description('Use 32-bit worker process on 64-bit platform. Uses 64-bit worker process if false. Default is true (will use 32-bit).')
+param use32BitWorkerProcess bool = true
+
+@description('''
+Gets or sets the list of origins that should be allowed to make cross-origin calls (for example: http://example.com:12345).
+Use "*" to allow all in the allowedOrigins array. The wildcard (*) is ignored if there's another domain entry.
+Info about supportCredentials: [link](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#Requests_with_credentials)
+Example:
+{
+  allowedOrigins: [
+    'https://functions.azure.com'
+    'https://functions-staging.azure.com'
+    'https://functions-next.azure.com'
+    'https://portal.azure.com'
+  ]
+  supportCredentials: false
+}
+''')
+param cors object = {}
+
+@description('Number to indicate on how many instances the app will run.')
+param numberOfWorkers int = 2
+
+@description('''
+Relative path of the health check probe. A valid path starts with "/".
+Example:
+'/api/HealthCheck'
+''')
+param healthCheckPath string = ''
+
+@description('''
+Setting up roleassignments for the resource.
+Example:
+ [
+  {
+    roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' //Website Contributor
+    principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'
+    principalType: 'ServicePrincipal'
+  }
+]
+''')
+param roleAssignments array = []
+
 // ================================================= Variables =================================================
-@description('Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).')
+@description('''
+Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).
+[link](https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=dotnet5)
+''')
 var internalSettings = !empty(appInsightsName) ? {
-  APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+  APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
 } : {}
 
 // ================================================= Resources =================================================
@@ -249,8 +315,8 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: appInsightsName
 }
 
-@description('Upsert the webApp & potential VNet integration with the given parameters.')
-resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+@description('Upsert the webApp and potential VNet integration with the given parameters.')
+resource webApp 'Microsoft.Web/sites@2022-09-01' = {
   name: appServiceName
   location: location
   kind: webAppKind
@@ -263,7 +329,11 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
     clientCertEnabled: clientCertEnabled
     clientCertMode: empty(clientCertMode) ? null : clientCertMode
     publicNetworkAccess: publicNetworkAccess
+    keyVaultReferenceIdentity: keyVaultReferenceIdentity
+    virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
     siteConfig: {
+      cors: empty(cors) ? null : cors
+      healthCheckPath: empty(healthCheckPath) ? null : healthCheckPath
       vnetRouteAllEnabled: vnetRouteAllEnabled
       alwaysOn: alwaysOn
       ipSecurityRestrictions: ipSecurityRestrictions
@@ -271,32 +341,41 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
       scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
       ftpsState: ftpsState
       http20Enabled: http20Enabled
-      linuxFxVersion: linuxFxVersion
+      linuxFxVersion: empty(linuxFxVersion) ? null : linuxFxVersion
+      use32BitWorkerProcess: use32BitWorkerProcess
+      numberOfWorkers: numberOfWorkers
     }
   }
 
-  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId)) {
-    name: 'virtualNetwork'
-    properties: {
-      subnetResourceId: vNetIntegrationSubnetResourceId
-      swiftSupported: true
-    }
-  }
-
-  resource config 'config@2022-03-01' = {
+  resource config 'config@2022-09-01' = {
     name: 'appsettings'
     properties: union(internalSettings, appSettings)
   }
 
-  resource connectionString 'config@2022-03-01' = {
+  resource connectionString 'config@2022-09-01' = {
     name: 'connectionstrings'
     properties: connectionStrings
+  }
+
+  resource basicPublishingCredentialsPoliciesFtp 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'ftp'
+    properties: {
+      allow: false
+    }
+  }
+
+  resource basicPublishingCredentialsPoliciesScm 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'scm'
+    properties: {
+      allow: false
+    }
   }
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
-resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySlot) {
-  name: '${webApp.name}/staging'
+resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySlot) {
+  parent: webApp
+  name: 'staging'
   location: location
   kind: webAppKind
   identity: identity
@@ -304,8 +383,11 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySl
   properties: {
     serverFarmId: appServicePlan.id
     httpsOnly: httpsOnly
+    publicNetworkAccess: publicNetworkAccess
     clientAffinityEnabled: clientAffinityEnabled
+    virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
     siteConfig: {
+      cors: empty(cors) ? null : cors
       vnetRouteAllEnabled: vnetRouteAllEnabled
       alwaysOn: alwaysOn
       ipSecurityRestrictions: ipSecurityRestrictions
@@ -313,27 +395,45 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (deploySl
       ftpsState: ftpsState
       http20Enabled: http20Enabled
       linuxFxVersion: linuxFxVersion
+      use32BitWorkerProcess: use32BitWorkerProcess
+      numberOfWorkers: numberOfWorkers
     }
   }
 
-  resource vnetIntegration 'networkConfig@2022-03-01' = if (!empty(vNetIntegrationSubnetResourceId) && deploySlot) {
-    name: 'virtualNetwork'
-    properties: {
-      subnetResourceId: vNetIntegrationSubnetResourceId
-      swiftSupported: true
-    }
-  }
-
-  resource config 'config@2022-03-01' = if (deploySlot) {
+  resource config 'config@2022-09-01' = if (deploySlot) {
     name: 'appsettings'
     properties: union(internalSettings, appSettings)
   }
 
-  resource connectionString 'config@2022-03-01' = if (deploySlot) {
+  resource connectionString 'config@2022-09-01' = if (deploySlot) {
     name: 'connectionstrings'
     properties: connectionStrings
   }
+
+  resource basicPublishingCredentialsPoliciesFtp 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'ftp'
+    properties: {
+      allow: false
+    }
+  }
+
+  resource basicPublishingCredentialsPoliciesScm 'basicPublishingCredentialsPolicies@2022-09-01' = {
+    name: 'scm'
+    properties: {
+      allow: false
+    }
+  }
 }
+
+resource RoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [for assignment in roleAssignments:{
+  name: guid(webApp.name, assignment.RoleDefinitionId, assignment.principalId)
+  scope: webApp
+  properties: {
+    roleDefinitionId:resourceId('Microsoft.Authorization/roleDefinitions','${assignment.roleDefinitionId}')
+    principalId: assignment.principalId
+    principalType: assignment.principalType
+  }
+}]
 
 @description('Upsert the diagnostic settings for the webapp with the given parameters.')
 resource webAppDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
@@ -362,9 +462,9 @@ output webAppHostName string = webApp.properties.defaultHostName
 @description('Output the default host name of the webapp\'s staging slot.')
 output webAppStagingSlotHostName string = deploySlot ? webAppStagingSlot.properties.defaultHostName : ''
 @description('The principal id of the identity running this webapp')
-output webAppPrincipalId string = webApp.identity.principalId
+output webAppPrincipalId string = identity.type == 'SystemAssigned' ? webApp.identity.principalId : identity.type == 'SystemAssigned, UserAssigned' ? webApp.identity.principalId  : ''
 @description('The principal id of the identity running this webapp\'s staging slot')
-output webAppStagingSlotPrincipalId string = deploySlot ? webAppStagingSlot.identity.principalId : ''
+output webAppStagingSlotPrincipalId string = deploySlot ? identity.type == 'SystemAssigned' ? webAppStagingSlot.identity.principalId : identity.type == 'SystemAssigned, UserAssigned' ? webAppStagingSlot.identity.principalId  : '' : ''
 @description('The resource name of the webapp.')
 output webAppResourceName string = webApp.name
 @description('The resource name of the webapp\'s staging slot.')

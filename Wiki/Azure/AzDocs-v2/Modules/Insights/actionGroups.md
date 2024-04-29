@@ -1,4 +1,4 @@
-# actionGroups
+﻿# actionGroups
 
 Target Scope: resourceGroup
 
@@ -19,9 +19,9 @@ Target Scope: resourceGroup
 | armRoleReceivers | array | <input type="checkbox"> | None | <pre>[]</pre> | Array of armRoleReceivers to receive alerts for this alertGroup. See https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/actiongroups?tabs=bicep#armrolereceiver for documentation. |
 | eventHubReceivers | array | <input type="checkbox"> | None | <pre>[]</pre> | Array of eventHubReceivers to receive alerts for this alertGroup. See https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/actiongroups?tabs=bicep#eventhubreceiver for documentation. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | actionGroupResourceId | string | The Resource ID of the upserted action group |
 | actionGroupName | string | The name of the upserted action group |
-

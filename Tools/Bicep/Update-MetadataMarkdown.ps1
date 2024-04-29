@@ -83,8 +83,8 @@ function Update-MetadataMarkdown
         [CmdletBinding()]
         param ( 
             [Parameter()]
-            [System.Text.StringBuilder]
-            $StringBuilder,
+            [System.IO.StreamWriter]
+            $StreamWriter,
         
             [Parameter()]
             [string]
@@ -101,15 +101,15 @@ function Update-MetadataMarkdown
         )
         if ($lines)
         {
-            $StringBuilder.AppendLine("## $Header") | Out-Null
+            $StreamWriter.WriteLine() | Out-Null
+            $StreamWriter.WriteLine("## $Header") | Out-Null
             $br = '<br>'
             if ($NoBreak)
             {
                 $br = ''
             }
             $newLines = $lines | Join-String -Separator "$br`r`n" 
-            $StringBuilder.AppendLine($newLines) | Out-Null
-            $StringBuilder.AppendLine() | Out-Null
+            $StreamWriter.WriteLine($newLines) | Out-Null 
         }
     }
 
@@ -123,7 +123,7 @@ function Update-MetadataMarkdown
         )
         process
         {
-            return $string | ForEach-Object { $_.Replace('|' , '&#124;').Replace('$','&#36;') } 
+            return $string | ForEach-Object { $_.Replace('|' , '&#124;').Replace('$', '&#36;') } 
         }
        
     }
@@ -133,23 +133,28 @@ function Update-MetadataMarkdown
         [CmdletBinding()]
         param ( 
             [Parameter(Mandatory)]
-            [System.Text.StringBuilder]
-            $StringBuilder,
+            [System.IO.StreamWriter]
+            $StreamWriter,
 
             [Parameter(Mandatory)]
             [PSCustomObject[]]
-            $ParameterInfos
+            $ParameterInfos,
+
+            # Parameter help description
+            [Parameter()]
+            [string[]]
+            $UserDefinedTypes
         )
-        $StringBuilder.AppendLine('## Parameters') | Out-Null
-        $StringBuilder.AppendLine('| Name | Type | Required | Validation | Default value | Description |') | Out-Null
-        $StringBuilder.AppendLine('| -- |  -- | -- | -- | -- | -- |') | Out-Null
+        $StreamWriter.WriteLine('## Parameters') | Out-Null
+        $StreamWriter.WriteLine('| Name | Type | Required | Validation | Default value | Description |') | Out-Null
+        $StreamWriter.WriteLine('| -- |  -- | -- | -- | -- | -- |') | Out-Null
         $ParameterInfos | ForEach-Object { 
             $parameterInfo = $_ #  $parameterInfo  =  $singleFileMetadata.ParameterInfo[0]
             $validation = 'None'
             $allowedDecorator = $parameterInfo.Decorators['allowed'] ?? $null
             if ($allowedDecorator)
             {
-                $validation = $allowedDecorator | Join-String -Separator '''` or  `''' -OutputPrefix '`''' -OutputSuffix '''`'
+                $validation = $allowedDecorator | Join-String -Separator '` or `' -OutputPrefix '`' -OutputSuffix '`' | Out-String -NoNewline
             }
 
             if ($parameterInfo.Decorators.ContainsKey('minLength') -or $parameterInfo.Decorators.ContainsKey('maxLength'))
@@ -196,31 +201,66 @@ function Update-MetadataMarkdown
                 $defaultValue = $parameterInfo.DefaultValue | Join-String -Separator '<br>' | ConvertTo-MarkDownSanitizedText
             }
             $required = "<input type=""checkbox""$($null -eq $parameterInfo.DefaultValue ? ' checked' : '')>"
-            $StringBuilder.AppendLine("| $($parameterInfo.Name) | $($parameterInfo.Type) | $required | $validation | <pre>$defaultValue</pre> | $description |") | Out-Null   
+
+            $parameterTypeText = $parameterInfo.Type -contains $UserDefinedTypes ? "[$($parameterInfo.Type)](#$($parameterInfo.Type))" : $parameterInfo.Type
+
+            $StreamWriter.WriteLine("| $($parameterInfo.Name) | $parameterTypeText | $required | $validation | <pre>$defaultValue</pre> | $description |") | Out-Null   
         }
     }
+
+
+    function Add-TypeSection
+    {
+        [CmdletBinding()]
+        param (
+            [Parameter()]
+            [System.IO.StreamWriter]
+            $StreamWriter,
+
+            [Parameter()]
+            [PSCustomObject[]]
+            $UserDefinedTypes 
+        )
+        
+        if ($UserDefinedTypes)
+        {
+            $StreamWriter.WriteLine() | Out-Null
+            $StreamWriter.WriteLine('## User Defined Types') | Out-Null
+            $StreamWriter.WriteLine('| Name | Type | Discriminator | Description') | Out-Null
+            $StreamWriter.WriteLine('| -- |  -- | -- | -- |') | Out-Null
+            $UserDefinedTypes | ForEach-Object { 
+                $outputInfo = $_ #  $parameterInfo  =  $singleFileMetadata.ParameterInfo[0]
+                $StreamWriter.WriteLine("| <a id=""$($outputInfo.Name)"">$($outputInfo.Name)</a>  | <pre>$($outputInfo.Type | ConvertTo-MarkDownSanitizedText )</pre> | $($outputInfo.Decorators['discriminator'] ?? $null ) | $($outputInfo.Decorators['description'] ?? $null ) | ") | Out-Null
+
+            }
+        }
+    }
+
 
     function Add-OutputsSection
     {
         [CmdletBinding()]
         param (
             [Parameter()]
-            [System.Text.StringBuilder]
-            $StringBuilder,
+            [System.IO.StreamWriter]
+            $StreamWriter,
 
             [Parameter()]
             [PSCustomObject[]]
             $Outputs
         )
         
+        if ($Outputs)
+        {
+            $StreamWriter.WriteLine() | Out-Null
+            $StreamWriter.WriteLine('## Outputs') | Out-Null
+            $StreamWriter.WriteLine('| Name | Type | Description |') | Out-Null
+            $StreamWriter.WriteLine('| -- |  -- | -- |') | Out-Null
+            $Outputs | ForEach-Object { 
+                $outputInfo = $_ #  $parameterInfo  =  $singleFileMetadata.ParameterInfo[0]
+                $StreamWriter.WriteLine("| $($outputInfo.Name) | $($outputInfo.Type) | $($outputInfo.Decorators['description'] ?? $null ) |") | Out-Null
 
-        $StringBuilder.AppendLine('## Outputs') | Out-Null
-        $StringBuilder.AppendLine('| Name | Type | Description |') | Out-Null
-        $StringBuilder.AppendLine('| -- |  -- | -- |') | Out-Null
-        $Outputs | ForEach-Object { 
-            $outputInfo = $_ #  $parameterInfo  =  $singleFileMetadata.ParameterInfo[0]
-            $StringBuilder.AppendLine("| $($outputInfo.Name) | $($outputInfo.Type) | $($outputInfo.Decorators['description'] ?? $null ) |") | Out-Null
-
+            }
         }
     }
 
@@ -229,14 +269,14 @@ function Update-MetadataMarkdown
         [CmdletBinding()]
         param (
             [Parameter()]
-            [System.Text.StringBuilder]
-            $StringBuilder,
+            [System.IO.StreamWriter]
+            $StreamWriter,
 
             [Parameter()]
             [string]
             $TargetScope
         )
-        $StringBuilder.AppendLine("Target Scope: $($singleFileMetadata.TargetScope)") | Out-Null
+        $StreamWriter.WriteLine("Target Scope: $($singleFileMetadata.TargetScope)") | Out-Null
 
     }
 
@@ -263,31 +303,50 @@ function Update-MetadataMarkdown
 
     $Metadata | ForEach-Object {
         $singleFileMetadata = $_ #  $singleFileMetadata  = $Metadata[0]
-        $sb = [System.Text.StringBuilder]::new()
-
-        $sb.AppendLine("# $($singleFileMetadata.Name)") | Out-Null
-        $sb.AppendLine() | Out-Null
-        Add-TargetScopeSection -StringBuilder $sb -TargetScope $singleFileMetadata.TargetScope
-
-        $sb.AppendLine() | Out-Null
-
-        New-MarkdownSection -StringBuilder $sb -Header 'Synopsis' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Synopsis' | Select-Object -ExpandProperty Value)
-        New-MarkdownSection -StringBuilder $sb -Header 'Description' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Description' | Select-Object -ExpandProperty Value)
-        New-MarkdownSection -StringBuilder $sb -Header 'Security Default' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'SECURITY_DEFAULTS' | Select-Object -ExpandProperty Value)
-
-        Add-ParametersSection -StringBuilder $sb -ParameterInfos $singleFileMetadata.ParameterInfo
-        Add-OutputsSection -StringBuilder $sb -Outputs $singleFileMetadata.outputInfo
-
-        New-MarkdownSection -StringBuilder $sb -Header 'Examples' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Example' | Select-Object -ExpandProperty Value) -NoBreak
-        New-MarkdownSection -StringBuilder $sb -Header 'Links' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Links' | Select-Object -ExpandProperty Value)
-
-        $destinationFolder = Join-Path -Path $DestinationPath -ChildPath $singleFileMetadata.Path
-        if (!(Test-Path $destinationFolder))
+        try
         {
-            New-Item -Path $destinationFolder -ItemType Directory | Out-Null
+            
+            $destinationFolder = Join-Path -Path $DestinationPath -ChildPath $singleFileMetadata.Path
+            if (!(Test-Path $destinationFolder))
+            {
+                New-Item -Path $destinationFolder -ItemType Directory | Out-Null
+            }
+            $destinationFile = Join-Path -Path $destinationFolder -ChildPath "$($singleFileMetadata.Name).md"
+      
+            $streamWriter = [System.IO.StreamWriter]::new($destinationFile, $false, [System.Text.Encoding]::UTF8);
+            $streamWriter.NewLine = "`r`n";
+
+            $streamWriter.WriteLine("# $($singleFileMetadata.Name)") | Out-Null
+
+            $streamWriter.WriteLine() | Out-Null
+            Add-TargetScopeSection -StreamWriter $streamWriter -TargetScope $singleFileMetadata.TargetScope
+
+            Add-TypeSection -StreamWriter $streamWriter -UserDefinedTypes $singleFileMetadata.TypeInfo
+
+            New-MarkdownSection -StreamWriter $streamWriter -Header 'Synopsis' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Synopsis' | Select-Object -ExpandProperty Value)
+            New-MarkdownSection -StreamWriter $streamWriter -Header 'Description' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Description' | Select-Object -ExpandProperty Value)
+            New-MarkdownSection -StreamWriter $streamWriter -Header 'Security Default' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'SECURITY_DEFAULTS' | Select-Object -ExpandProperty Value)
+
+            if ($singleFileMetadata.ParameterInfo)
+            {
+                $streamWriter.WriteLine() | Out-Null
+                $userDefinedTypes = $singleFileMetadata.TypeInfo ? $singleFileMetadata.TypeInfo.Name : @()
+                Add-ParametersSection -StreamWriter $streamWriter -ParameterInfos $singleFileMetadata.ParameterInfo -UserDefinedTypes $userDefinedTypes
+
+            }
+           
+            Add-OutputsSection -StreamWriter $streamWriter -Outputs $singleFileMetadata.outputInfo
+            New-MarkdownSection -StreamWriter $streamWriter -Header 'Examples' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Example' | Select-Object -ExpandProperty Value) -NoBreak
+            New-MarkdownSection -StreamWriter $streamWriter -Header 'Links' -lines ($singleFileMetadata.Metadata | Where-Object Name -EQ 'Links' | Select-Object -ExpandProperty Value)
+            $streamWriter.Flush()
         }
-       
-        $destinationFile = Join-Path -Path $destinationFolder -ChildPath "$($singleFileMetadata.Name).md"
-        $sb.ToString() | Out-File $destinationFile
+        finally
+        {
+            if ($null -ne $streamWriter -and $streamWriter -is [System.IDisposable])
+            {
+                $streamWriter.Dispose()
+                $streamWriter = $null
+            }
+        }
     }
 }

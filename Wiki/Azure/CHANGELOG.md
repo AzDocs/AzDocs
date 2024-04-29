@@ -3,6 +3,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2023.03.31]
+Some changes to `Create-Application-Gateway-Entrypoint-for-DomainName.ps1` and more importantly to `AppGateway-Helper-Functions.ps1`:
+- It is now able to support existing certificates in KeyVault (example usecase is when certificates are added to KeyVault by some automated certificate process).
+- Made the certificate in AppGateway independend on the certificate version in KeyVault. This enables support for updating the certificate in KeyVault without deployment (https://learn.microsoft.com/en-us/azure/application-gateway/renew-certificates#:~:text=Application%20Gateway%20uses,secrets/mysecret/)
+- Fixed an issue in `Test-ShouldReplaceCertificate` which caused the certificates to always be updated. 
+
 ## [2022.12.08]
 - Updated `List-All-Functions-Inside-Function-App.ps1`. It is now able to handle functions with multiple bindings, for example `serviceBusTrigger serviceBus`.
 

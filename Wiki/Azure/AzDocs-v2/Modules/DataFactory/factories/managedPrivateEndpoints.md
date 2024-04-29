@@ -1,4 +1,4 @@
-# managedPrivateEndpoints
+﻿# managedPrivateEndpoints
 
 Target Scope: resourceGroup
 
@@ -11,9 +11,9 @@ Target Scope: resourceGroup
 | managedPrivateEndpointName | string | <input type="checkbox" checked> | Length between 2-64 | <pre></pre> | The resource name of the managed private endpoint to create. |
 | managedVirtualNetworkName | string | <input type="checkbox" checked> | Length between 2-64 | <pre></pre> | The resource name of the managed virtual network to use while creating the managed private endpoint. |
 | managedPrivateEndpointFqdnsToAttach | array | <input type="checkbox"> | None | <pre>[]</pre> | Fully qualified domain names to attach to this private endpoint. You should fix the DNS yourself. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | managedPrivateEndpointResourceName | string | Output the resource name for the upserted managed private endpoint. |
 | managedPrivateEndpointResourceId | string | Output the resource id for the upserted managed private endpoint. |
-

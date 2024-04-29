@@ -5,7 +5,7 @@ Creating a Bastion Host.
 Creating a Bastion Host with the given specs.
 .EXAMPLE
 <pre>
-module bastion '../../AzDocs/src-bicep/Network/bastionHosts.bicep' = {
+module bastion 'br:contosoregistry.azurecr.io/network/bastionHosts:latest' = {
   name: '${deployment().name}-bastion'
   params: {
     bastionHostName: bastionHostName
@@ -65,12 +65,12 @@ param bastionSubnetName string = 'AzureBastionSubnet'
 @description('The resource name of the Public IP for this Azure Bastion host.')
 @minLength(1)
 @maxLength(80)
-param bastionPublicIpAddressName string = 'pip-${bastionHostName}'
+param bastionPublicIpAddressName string = bastionHostName
 
 @description('The VNet name to onboard this Azure Bastion Host into.')
 @minLength(2)
 @maxLength(64)
-param vnetName string = ''
+param vnetName string
 
 @description('The sku for the Bastion host.')
 @allowed([
@@ -152,7 +152,7 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2021-08-01' = {
             id: '${vnetExisting.id}/subnets/${bastionSubnetName}'
           }
           publicIPAddress: {
-            id: bastionPublicIpAddress.outputs.resourceId
+            id: bastionPublicIpAddress.outputs.publicIpResourceId
           }
         }
       }
@@ -170,7 +170,6 @@ resource bastionDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
     metrics: diagnosticSettingsMetricsCategories
   }
 }
-
 
 @description('Outputs the name of the created Bastion Host.')
 output bastionHostName string = bastionHost.name

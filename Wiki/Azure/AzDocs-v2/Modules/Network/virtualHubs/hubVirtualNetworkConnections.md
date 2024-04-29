@@ -1,4 +1,4 @@
-# hubVirtualNetworkConnections
+﻿# hubVirtualNetworkConnections
 
 Target Scope: resourceGroup
 
@@ -10,7 +10,3 @@ Target Scope: resourceGroup
 | targetResourceGroupName | string | <input type="checkbox" checked> | Length between 1-90 | <pre></pre> | The name of the resourcegroup where the target (to be attached) VNet is located |
 | targetVNetName | string | <input type="checkbox" checked> | Length between 2-64 | <pre></pre> | The name of the target (to be attached) VNet |
 | virtualHubRouteResourceId | string | <input type="checkbox"> | None | <pre>'/subscriptions/&#36;{az.subscription().subscriptionId}/resourceGroups/&#36;{az.resourceGroup().name}/providers/Microsoft.Network/virtualHubs/&#36;{virtualHubName}/hubRouteTables/defaultRouteTable'</pre> | The VirtualHub routetable resourceId. Defaults to the `defaultRouteTable` table. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
-

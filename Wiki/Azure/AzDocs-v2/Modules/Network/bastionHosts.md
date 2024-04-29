@@ -1,4 +1,4 @@
-# bastionHosts
+﻿# bastionHosts
 
 Target Scope: resourceGroup
 
@@ -20,21 +20,23 @@ Creating a Bastion Host with the given specs.
 | bastionHostEnableTunneling | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable/Disable Tunneling feature of the Bastion Host resource.<br>SSH tunneling is a method of transporting arbitrary networking data over an encrypted SSH connection. It can be used to add encryption to legacy applications. It can also be used to implement VPNs (Virtual Private Networks) and access intranet services across firewalls. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | bastionSubnetName | string | <input type="checkbox"> | Length between 1-80 | <pre>'AzureBastionSubnet'</pre> | Name of the Azure Bastion subnet. This is probably going to have to be `AzureBastionSubnet` due to Azure restrictions. |
-| bastionPublicIpAddressName | string | <input type="checkbox"> | Length between 1-80 | <pre>'pip-&#36;{bastionHostName}'</pre> | The resource name of the Public IP for this Azure Bastion host. |
-| vnetName | string | <input type="checkbox"> | Length between 2-64 | <pre>''</pre> | The VNet name to onboard this Azure Bastion Host into. |
-| bastionHostSku | string | <input type="checkbox"> | `'Basic'` or  `'Standard'` | <pre>'Standard'</pre> | The sku for the Bastion host. |
+| bastionPublicIpAddressName | string | <input type="checkbox"> | Length between 1-80 | <pre>bastionHostName</pre> | The resource name of the Public IP for this Azure Bastion host. |
+| vnetName | string | <input type="checkbox" checked> | Length between 2-64 | <pre></pre> | The VNet name to onboard this Azure Bastion Host into. |
+| bastionHostSku | string | <input type="checkbox"> | `'Basic'` or `'Standard'` | <pre>'Standard'</pre> | The sku for the Bastion host. |
 | bastionVirtualNetworkResourceGroupName | string | <input type="checkbox" checked> | None | <pre></pre> | The resource group of the virtual network the bastion subnet is in. |
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox" checked> | Length between 0-* | <pre></pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings. |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | bastionHostName | string | Outputs the name of the created Bastion Host. |
+
 ## Examples
 <pre>
-module bastion '../../AzDocs/src-bicep/Network/bastionHosts.bicep' = {
+module bastion 'br:contosoregistry.azurecr.io/network/bastionHosts:latest' = {
   name: '${deployment().name}-bastion'
   params: {
     bastionHostName: bastionHostName
@@ -50,5 +52,3 @@ module bastion '../../AzDocs/src-bicep/Network/bastionHosts.bicep' = {
 ## Links
 - [Bicep Microsoft.Network bastionHosts](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/bastionhosts?pivots=deployment-language-bicep)<br>
 - [Bastion and NSGs](https://learn.microsoft.com/en-gb/azure/bastion/bastion-nsg)
-
-

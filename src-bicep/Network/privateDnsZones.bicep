@@ -5,7 +5,7 @@ Creating a private DNS zone
 Creating a private DNS zone.
 .EXAMPLE
 <pre>
-module dnszone  'br:acrazdocsprd.azurecr.io/network/privatednszones:latest' ={
+module dnszone  'br:contosoregistry.azurecr.io/network/privatednszones:latest' ={
   name: '${deployment().name}-dnszone'
   params: {
     privateDnsLinkName: 'kvprivdnslinkname'

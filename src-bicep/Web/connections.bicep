@@ -5,7 +5,7 @@ Creating a Api connection resource for a web resource, e.g a Logic App.
 Creating a Api connection resource for a web resource, e.g a Logic App.
 .EXAMPLE
 <pre>
-module connections_azureautomation '.br:acrazdocsprd.azurecr.io/web/connections:latest' = {
+module connections_azureautomation 'br:contosoregistry.azurecr.io/web/connections:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 47), 'connazautomation')
   params: {
     connectionName: connectionName

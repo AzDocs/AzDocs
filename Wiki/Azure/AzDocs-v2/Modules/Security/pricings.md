@@ -1,4 +1,4 @@
-# pricings
+﻿# pricings
 
 Target Scope: subscription
 
@@ -13,9 +13,7 @@ Enables and Configures Defender for Cloud on a Subscription. You need to do the 
 | -- |  -- | -- | -- | -- | -- |
 | defenderPlanName | string | <input type="checkbox" checked> | Length between 1-260 | <pre></pre> | The name of the pricing plan |
 | defenderPricingTier | string | <input type="checkbox" checked> | None | <pre></pre> | The pricing tier for the specific Defender for Cloud Plan<br>Example:<br>'Free'<br>'Standard' |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+
 ## Examples
 <pre>
 var enableSecurityCenterFor = [
@@ -44,5 +42,3 @@ module defenderPlan 'Security/pricings.bicep' = [for i in range(0, length(enable
 ## Links
 - [Bicep Pricings Defender for Cloud](https://learn.microsoft.com/en-us/azure/templates/microsoft.security/pricings?pivots=deployment-language-bicep)<br>
 - [Bicep enable Defender for Cloud via Bicep](https://cloudadministrator.net/2022/10/20/enable-defender-for-cloud-auto-provisioning-agents-via-bicep/#more-4899)
-
-

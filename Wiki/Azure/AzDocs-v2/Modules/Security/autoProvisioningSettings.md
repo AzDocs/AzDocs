@@ -1,4 +1,4 @@
-# autoProvisioningSettings
+﻿# autoProvisioningSettings
 
 Target Scope: subscription
 
@@ -11,10 +11,8 @@ Configures Defender for Cloud auto provisioning settings for virtual machines on
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
-| autoProvisionStatus | string | <input type="checkbox"> | `'On'` or  `'Off'` | <pre>'On'</pre> | Describes what kind of security agent provisioning action to take. |
-## Outputs
-| Name | Type | Description |
-| -- |  -- | -- |
+| autoProvisionStatus | string | <input type="checkbox"> | `'On'` or `'Off'` | <pre>'On'</pre> | Describes what kind of security agent provisioning action to take. |
+
 ## Examples
 <pre>
 module autoProvisioning 'Security/autoProvisioningSettings.bicep' = {
@@ -31,5 +29,3 @@ module autoProvisioning 'Security/autoProvisioningSettings.bicep' = {
 
 ## Links
 - [Bicep autoprovisioning settings Defender for Cloud](https://learn.microsoft.com/en-us/azure/templates/microsoft.security/autoprovisioningsettings?pivots=deployment-language-bicep)
-
-

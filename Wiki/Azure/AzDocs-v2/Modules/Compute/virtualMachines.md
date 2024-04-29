@@ -1,4 +1,4 @@
-# virtualMachines
+﻿# virtualMachines
 
 Target Scope: resourceGroup
 
@@ -12,11 +12,11 @@ Creating a Virtual machine with the given specs.
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
-| operatingSystem | string | <input type="checkbox" checked> | `'Windows'` or  `'Linux'` | <pre></pre> | Select the OS type to deploy: |
+| operatingSystem | string | <input type="checkbox" checked> | `'Windows'` or `'Linux'` | <pre></pre> | Select the OS type to deploy: |
 | virtualMachineName | string | <input type="checkbox" checked> | Length between 1-64 | <pre></pre> | The name of the virtual machine to be upserted.<br>Min length: 1<br>Max length: 15 for windows & 64 for linux. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | virtualMachineSubnetResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Specifies the resource id of the subnet where the default NIC should be onboarded into. If you don\'t fill the `networkInterfaces` parameter, this parameter is required. |
-| virtualMachineAuthenticationMethod | string | <input type="checkbox"> | `'sshPublicKey'` or  `'password'` | <pre>'password'</pre> | Specifies the type of authentication when accessing the Virtual Machine. SSH key is recommended for Linux. |
+| virtualMachineAuthenticationMethod | string | <input type="checkbox"> | `'sshPublicKey'` or `'password'` | <pre>'password'</pre> | Specifies the type of authentication when accessing the Virtual Machine. SSH key is recommended for Linux. |
 | virtualMachineAdminUsername | string | <input type="checkbox" checked> | Length between 1-32 | <pre></pre> | Specifies the name of the administrator account of the virtual machine. |
 | virtualMachineAdminPasswordOrPublicKey | string | <input type="checkbox" checked> | Length between 12-* | <pre></pre> | Specifies the SSH Key or password for the virtual machine. SSH key is recommended for Linux.<br>For password: Please enter the password as a string.<br>For SSH keys: Please pass the SSH key as a string. This can be done for example using loadTextContent('publickey.pub') to load the text from the publickey.pub file which holds the public part of the SSH key.<br><br>To import a string (either password or SSH-key) you also have the option to do this securely using a keyvault. You can, for example, reference an existing keyvault and call the getSecret() method on it to fetch the secret to input into this module. |
 | virtualMachineSize | string | <input type="checkbox"> | None | <pre>'Standard_D1_v2'</pre> | Specifies the size of the virtual machine. For more options, please refer to https://docs.microsoft.com/en-us/azure/virtual-machines/sizes |
@@ -38,16 +38,18 @@ Creating a Virtual machine with the given specs.
 | linuxConfiguration | object | <input type="checkbox"> | None | <pre>{}</pre> | The bicep object to configure the linux vm configuration when creating the vm. |
 | windowsConfiguration | object | <input type="checkbox"> | None | <pre>{<br>  enableAutomaticUpdates: true<br>  patchSettings: {<br>    patchMode: 'AutomaticByOS'<br>    assessmentMode: 'ImageDefault'<br>  }<br>  enableVMAgentPlatformUpdates: false<br>}</pre> | The bicep object to configure the Windows vm configuration when creating the vm. |
 | encryptionAtHost | bool | <input type="checkbox"> | None | <pre>false</pre> | This property can be used by user in the request to enable or disable the Host Encryption for the virtual machine or virtual machine scale set. <br>This will enable the encryption for all the disks including Resource/Temp disk at host itself.<br><br>For Linux operating systems this is a mandatory to be set to True.<br>Azure Policy controling this is described here [Virtual machines and virtual machine scale sets should have encryption at host enabled](https://www.azadvertizer.com/azpolicyadvertizer/fc4d8e41-e223-45ea-9bf5-eada37891d87.html)  |
-| OSLicenseType | string | <input type="checkbox"> | `'RHEL_BYOS'` or  `'SLES_STANDARD'` or  `'SLES_SAP'` or  `'SLES_HPC'` or  `'SLES'` or  `'RHEL_SAPHA'` or  `'RHEL_SAPAPPS'` or  `'RHEL_ELS_6'` or  `'RHEL_EUS'` or  `'RHEL_BASE'` or  `'SLES_BYOS'` or  `'RHEL_BASESAPAPPS'` or  `'RHEL_BASESAPHA'` or  `'Windows_Server'` or  `'Windows_Client'` or  `'None'` or  `''` | <pre>''</pre> | Type of OS licensing.<br>For customers with Software Assurance, Azure Hybrid Benefit for Windows Server allows you to use your on-premises Windows Server licenses and run Windows virtual machines on Azure at a reduced cost.<br>You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machines with Windows OS.<br>Azure Hybrid Benefit provides software updates and integrated support directly from Azure infrastructure for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines. |
+| OSLicenseType | string | <input type="checkbox"> | `'RHEL_BYOS'` or `'SLES_STANDARD'` or `'SLES_SAP'` or `'SLES_HPC'` or `'SLES'` or `'RHEL_SAPHA'` or `'RHEL_SAPAPPS'` or `'RHEL_ELS_6'` or `'RHEL_EUS'` or `'RHEL_BASE'` or `'SLES_BYOS'` or `'RHEL_BASESAPAPPS'` or `'RHEL_BASESAPHA'` or `'Windows_Server'` or `'Windows_Client'` or `'None'` or `''` | <pre>''</pre> | Type of OS licensing.<br>For customers with Software Assurance, Azure Hybrid Benefit for Windows Server allows you to use your on-premises Windows Server licenses and run Windows virtual machines on Azure at a reduced cost.<br>You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machines with Windows OS.<br>Azure Hybrid Benefit provides software updates and integrated support directly from Azure infrastructure for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | availabilitysetResourceId | string | Output the availability set\'s Resource ID. |
 | virtualMachineName | string | Outputs the name of the virtual machine created or upserted |
 | virtualMachineResourceId | string | Output the resourceId of the virtual machine created or upserted |
+
 ## Examples
 <pre>
-module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
+module vm 'br:contosoregistry.azurecr.io/compute/virtualmachines:latest' = {
   name: 'Creating_VM_MyFirstVM'
   scope: resourceGroup
   params: {
@@ -65,5 +67,3 @@ module vm '../../AzDocs/src-bicep/Compute/virtualMachines.bicep' = {
 - [Bicep Microsoft.Compute virtualMachines](https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep)<br>
 - [Virtual Machines sizes](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')<br>
 - [BYOL, Hybrid Benefit](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing)
-
-
