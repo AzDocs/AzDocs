@@ -31,7 +31,6 @@ module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:l
     targetResourceId: storageAccount.outputs.storageAccountResourceId
     privateEndpointName: 'myStgPrivateEndpoint'
     virtualNetworkName: virtualNetworkName
-    virtualNetworkResourceId: virtualNetworkResourceId
     location: location
     privateDnsZoneResourceGroupName: privateDnsZoneResourceGroupName
     customNetworkInterfaceName: 'myCustomNetworkInterfaceName'
@@ -51,7 +50,6 @@ module privateendpoint 'br:contosoregistry.azurecr.io/network/privateendpoints:l
     targetResourceId: storageAccount.outputs.storageAccountResourceId
     privateEndpointName: 'myStgPrivateEndpoint'
     virtualNetworkName: virtualNetworkName
-    virtualNetworkResourceId: virtualNetworkResourceId
     location: location
     privateDnsZoneResourceGroupName: privateDnsZoneResourceGroupName
     customNetworkInterfaceName: 'myCustomNetworkInterfaceName'

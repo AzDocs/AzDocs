@@ -142,6 +142,12 @@ param scmIpSecurityRestrictions array = [
   }
 ]
 
+@description('''
+Identity to use for Key Vault Reference authentication. If you want to use a user assigned managed identity to access a keyvault using a keyvault reference, 
+you need to set this to the resource id of the user assigned managed identity.
+''')
+param keyVaultReferenceIdentity string = 'SystemAssigned'
+
 @description('The resource id of the subnet where to integrate the appservice/webapp/logicapp/functionapp into.')
 param vNetIntegrationSubnetResourceId string = ''
 
@@ -323,6 +329,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     clientCertEnabled: clientCertEnabled
     clientCertMode: empty(clientCertMode) ? null : clientCertMode
     publicNetworkAccess: publicNetworkAccess
+    keyVaultReferenceIdentity: keyVaultReferenceIdentity
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
     siteConfig: {
       cors: empty(cors) ? null : cors
