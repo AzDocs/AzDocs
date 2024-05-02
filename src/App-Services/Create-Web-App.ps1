@@ -109,7 +109,7 @@ elseif ($AppServiceRunTime)
 }
 
 # Create/Update AppService & Fetch the ID from the AppService
-$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlan.id --resource-group $AppServiceResourceGroupName --tags @ResourceTags @optionalParameters | ConvertFrom-Json).id
+$webAppId = (Invoke-Executable az webapp create --name $AppServiceName --plan $appServicePlan.id --resource-group $AppServiceResourceGroupName --tags @ResourceTags --https-only true @optionalParameters | ConvertFrom-Json).id
 
 # Update Tags
 if ($ResourceTags)
@@ -122,9 +122,6 @@ if ($StopAppServiceImmediatelyAfterCreation)
 {
     Invoke-Executable az webapp stop --name $AppServiceName --resource-group $AppServiceResourceGroupName
 }
-
-# Enforce HTTPS
-Invoke-Executable az webapp update --ids $webAppId --https-only true
 
 # Disable/enable Client Affinity (ARR)
 Invoke-Executable az webapp update --ids $webAppId --client-affinity-enabled $(!$DisableClientAffinity)
