@@ -104,9 +104,11 @@ param diagnosticSettingsMetricsCategories array = [
   }
 ]
 
+param firewallPolicyResourceGroupName string = resourceGroup().name
 
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' existing = {
   name: firewallPolicyName
+  scope: resourceGroup(firewallPolicyResourceGroupName)
 }
 
 resource azureFirewall 'Microsoft.Network/azureFirewalls@2023-05-01' = {
