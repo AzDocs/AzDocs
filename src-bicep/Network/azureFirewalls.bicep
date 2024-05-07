@@ -104,7 +104,9 @@ param diagnosticSettingsMetricsCategories array = [
   }
 ]
 
+@description('The resourcegroup name where the Azure Firewall Policy resource can be found. By default it can be found in the same resource group as the Azure Firewall.')
 param firewallPolicyResourceGroupName string = resourceGroup().name
+
 
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' existing = {
   name: firewallPolicyName
