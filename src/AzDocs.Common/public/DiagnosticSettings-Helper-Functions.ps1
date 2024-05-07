@@ -3,7 +3,7 @@ function Set-DiagnosticSettings
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)][string] $ResourceId,
-        [Parameter(Mandatory)][string] $ResourceName, 
+        [Parameter(Mandatory)][string] $ResourceName,
         [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
         [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
         [Parameter()][System.Object[]] $DiagnosticSettingsMetrics
@@ -27,10 +27,10 @@ function Set-DiagnosticSettings
     $RootPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
     & "$RootPath\Resource-Provider\Register-Provider.ps1" -ResourceProviderNamespace 'Microsoft.Insights'
 
-    # Set the name for the diagnostic setting 
+    # Set the name for the diagnostic setting
     $diagnosticSettingName = "$ResourceName-diagnostic-setting"
 
-    # For backwards compatibility, remove the old diagnostic settings 
+    # For backwards compatibility, remove the old diagnostic settings
     $oldDiagnosticSettings = Invoke-Executable az monitor diagnostic-settings list --resource $ResourceId | ConvertFrom-Json
     foreach ($oldDiagnosticSetting in $oldDiagnosticSettings.value)
     {
@@ -62,7 +62,7 @@ function Set-DiagnosticSettings
         $logs = New-DiagnosticSetting -DiagnosticSettings $DiagnosticSettingsLogs
         $optionalParameters += "--logs", "$logs"
     }
-       
+
     if($ResourceId -match '^\/subscriptions\/[a-z0-9]{8}(?:-[a-z0-9]{4}){3}-[a-z0-9]{12}\/resourceGroups\/(?<ResourceGroupName>[\w-_]+)\/.*$'){
         $resourceGroupName =  $Matches['ResourceGroupName']
         Write-Host "Found resource group name:'$resourceGroupName'"
@@ -116,7 +116,7 @@ function Get-DefaultDiagnosticSettings
 
     $availableDiagnosticSettings = (Invoke-Executable az monitor diagnostic-settings categories list --resource $ResourceId | ConvertFrom-Json).value
     $settings = ($availableDiagnosticSettings | Where-Object { $_.categoryType -eq $DiagnosticSettingType }).name
-    
+
     Write-Output $settings
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
@@ -139,7 +139,7 @@ function New-DiagnosticSetting
         }
     }
     $PSNativeCommandArgumentPassing = "Legacy"
-    Write-Output ($diagnosticSettingsToCreate | ConvertTo-Json -Compress -AsArray).Replace('"', '\"')
+    Write-Output ($diagnosticSettingsToCreate | ConvertTo-Json -Compress -AsArray)
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 
@@ -158,7 +158,7 @@ function Confirm-DiagnosticSettings
     Write-Host "Available diagnostic settings $($availableDiagnosticSettings.name)"
     if ($DiagnosticSettings)
     {
-        foreach ($diagnosticSetting in $DiagnosticSettings) 
+        foreach ($diagnosticSetting in $DiagnosticSettings)
         {
             $foundDiagnosticSettings = $availableDiagnosticSettings | Where-Object { $_.categoryType -eq $DiagnosticSettingType }
             if (!($foundDiagnosticSettings.name -contains $diagnosticSetting))
