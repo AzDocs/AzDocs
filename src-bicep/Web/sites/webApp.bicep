@@ -293,6 +293,13 @@ Example:
 ''')
 param roleAssignments array = []
 
+@description('''
+The .NET Framework version to set for the app. Default it is null. Get the list of supported versions by running: `az functionapp list-runtimes`.
+Example:
+'8'
+''')
+param netFrameworkVersion string = ''
+
 // ================================================= Variables =================================================
 @description('''
 Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).
@@ -347,6 +354,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
       linuxFxVersion: empty(linuxFxVersion) ? null : linuxFxVersion
       use32BitWorkerProcess: use32BitWorkerProcess
       numberOfWorkers: numberOfWorkers
+      netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
     }
   }
 
@@ -400,6 +408,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
       linuxFxVersion: linuxFxVersion
       use32BitWorkerProcess: use32BitWorkerProcess
       numberOfWorkers: numberOfWorkers
+      netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
     }
   }
 
