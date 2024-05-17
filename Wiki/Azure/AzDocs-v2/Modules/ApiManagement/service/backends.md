@@ -26,7 +26,7 @@ module backend 'br:contosoregistry.azurecr.io/service/backends.bicep' = {<br>
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | apiManagementServiceName | string | <input type="checkbox" checked> | Length between 1-50 | <pre></pre> | The name of the existing API Management service instance. |
-| name | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The name of the backend. |
+| name | string | <input type="checkbox" checked> | Length between 1-50 | <pre></pre> | The name of the backend. |
 | title | string | <input type="checkbox"> | None | <pre>''</pre> | Backend Title |
 | doValidateCertificateChain | bool | <input type="checkbox"> | None | <pre>true</pre> | Flag indicating whether SSL certificate chain validation should be done when using self-signed certificates for this backend host. Default is true. |
 | doValidateCertificateName | bool | <input type="checkbox"> | None | <pre>true</pre> | Flag indicating whether SSL certificate name validation should be done when using self-signed certificates for this backend host. Default is true. |

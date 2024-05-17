@@ -23,7 +23,7 @@ module policies 'br:contosoregistry.azurecr.io/service/policies.bicep' = {<br>
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
-| apiManagementServiceName | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The name of the existing API Management service instance. |
+| apiManagementServiceName | string | <input type="checkbox" checked> | Length between 1-50 | <pre></pre> | The name of the existing API Management service instance. |
 | name | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The resource name |
 | format | string | <input type="checkbox"> | `'rawxml'` or `'rawxml-link'` or `'xml'` or `'xml-link'` | <pre>'rawxml'</pre> | Format of the policyContent. |
 | value | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | Contents of the Policy as defined by the format. |
