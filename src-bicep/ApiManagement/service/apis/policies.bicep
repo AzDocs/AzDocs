@@ -4,7 +4,7 @@ Creating an api policy in an existing Api Management Service.
 .DESCRIPTION
 Creating an api policy in an existing Api Management Service.
 <pre>
-module apipolicies 'br:contosoregistry.azurecr.io/service/apis/policies.bicep' = {
+module apipolicies 'br:contosoregistry.azurecr.io/service/apis/policies.bicep:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 46), 'apipolicies')
   dependsOn: [
     apimServices

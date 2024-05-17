@@ -21,6 +21,7 @@ module policies 'br:contosoregistry.azurecr.io/service/policies.bicep' = {
 // ===================================== Parameters =====================================
 @description('The name of the existing API Management service instance.')
 @minLength(1)
+@maxLength(50)
 param apiManagementServiceName string
 
 @description('The resource name')

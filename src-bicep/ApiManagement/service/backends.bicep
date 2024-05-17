@@ -28,6 +28,7 @@ param apiManagementServiceName string
 
 @description('The name of the backend.')
 @minLength(1)
+@maxLength(50)
 param name string
 
 @description('Backend Title')
