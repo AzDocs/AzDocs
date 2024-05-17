@@ -33,12 +33,13 @@ dependsOn: [
 // ===================================== Parameters =====================================
 @description('The name of the existing API Management service instance.')
 @minLength(1)
+@maxLength(50)
 param apiManagementServiceName string
 
 @description('The resource name of the api.')
 @maxLength(80)
 @minLength(1)
-param apiName string
+param name string
 
 @description('Description of the API. May include HTML formatting tags.')
 param apiDescription string = ''
@@ -61,8 +62,8 @@ param apiType string = 'http'
 @description('Indicates if API revision is current api revision. Default is true.')
 param isCurrent bool = true
 
-@description('Specifies whether an API or Product subscription is required for accessing the API. Default is false.')
-param isSubscriptionRequired bool = false
+@description('Specifies whether an API or Product subscription is required for accessing the API. Default is true.')
+param isSubscriptionRequired bool = true
 
 @description('Relative URL uniquely identifying this API and all of its resource paths within the API Management service instance. It is appended to the API endpoint base URL specified during the service instance creation to form a public URL for this API.')
 @minLength(1)
@@ -94,7 +95,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' existi
 }
 
 resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
-  name: apiName
+  name: name
   parent: apimService
   properties: {
     description: apiDescription

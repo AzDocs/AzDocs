@@ -23,6 +23,7 @@ module backend 'br:contosoregistry.azurecr.io/service/backends.bicep' = {
 // ===================================== Parameters =====================================
 @description('The name of the existing API Management service instance.')
 @minLength(1)
+@maxLength(50)
 param apiManagementServiceName string
 
 @description('The name of the backend.')
