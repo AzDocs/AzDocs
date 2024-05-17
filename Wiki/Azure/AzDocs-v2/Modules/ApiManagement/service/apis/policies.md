@@ -26,9 +26,8 @@ module apipolicies 'br:contosoregistry.azurecr.io/service/apis/policies.bicep' =
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | serviceApiName | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The name of the existing service API instance. |
-| name | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The resource name |
 | contentFormat | string | <input type="checkbox"> | `'rawxml'` or `'rawxml-link'` or `'xml'` or `'xml-link'` | <pre>'rawxml'</pre> | Format of the Content in which the API is getting imported. |
-| contentValue | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | Contents of the Policy as defined by the format. |
+| contentValue | string | <input type="checkbox" checked> | None | <pre></pre> | Contents of the Policy as defined by the format.<br>Example:<br>loadTextContent('./policysample.xml') |
 
 ## Outputs
 | Name | Type | Description |

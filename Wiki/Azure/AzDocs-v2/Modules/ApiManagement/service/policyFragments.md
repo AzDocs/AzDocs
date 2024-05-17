@@ -23,7 +23,7 @@ module policyFragment 'br:contosoregistry.azurecr.io/service/policyFragments.bic
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
-| apiManagementServiceName | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The name of the existing API Management service instance. |
+| apiManagementServiceName | string | <input type="checkbox" checked> | Length between 1-50 | <pre></pre> | The name of the existing API Management service instance. |
 | name | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The resource name |
 | format | string | <input type="checkbox"> | `'rawxml'` or `'xml'` | <pre>'rawxml'</pre> | Format of the policy fragment content. |
 | fragmentDescription | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The policy fragment description |
