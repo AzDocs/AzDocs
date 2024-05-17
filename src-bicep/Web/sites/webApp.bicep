@@ -298,9 +298,12 @@ param roleAssignments array = []
 Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).
 [link](https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=dotnet5)
 ''')
-var internalSettings = !empty(appInsightsName) ? {
-  APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
-} : {}
+var internalSettings = !empty(appInsightsName)
+  ? {
+      APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString // Recommended MS way
+      APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey // Some features don't work without this (for example Log Stream)
+    }
+  : {}
 
 // ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this appservice instance. This app service plan should be pre-existing.')
@@ -425,15 +428,17 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
   }
 }
 
-resource RoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [for assignment in roleAssignments:{
-  name: guid(webApp.name, assignment.RoleDefinitionId, assignment.principalId)
-  scope: webApp
-  properties: {
-    roleDefinitionId:resourceId('Microsoft.Authorization/roleDefinitions','${assignment.roleDefinitionId}')
-    principalId: assignment.principalId
-    principalType: assignment.principalType
+resource RoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [
+  for assignment in roleAssignments: {
+    name: guid(webApp.name, assignment.RoleDefinitionId, assignment.principalId)
+    scope: webApp
+    properties: {
+      roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '${assignment.roleDefinitionId}')
+      principalId: assignment.principalId
+      principalType: assignment.principalType
+    }
   }
-}]
+]
 
 @description('Upsert the diagnostic settings for the webapp with the given parameters.')
 resource webAppDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
@@ -462,9 +467,15 @@ output webAppHostName string = webApp.properties.defaultHostName
 @description('Output the default host name of the webapp\'s staging slot.')
 output webAppStagingSlotHostName string = deploySlot ? webAppStagingSlot.properties.defaultHostName : ''
 @description('The principal id of the identity running this webapp')
-output webAppPrincipalId string = identity.type == 'SystemAssigned' ? webApp.identity.principalId : identity.type == 'SystemAssigned, UserAssigned' ? webApp.identity.principalId  : ''
+output webAppPrincipalId string = identity.type == 'SystemAssigned'
+  ? webApp.identity.principalId
+  : identity.type == 'SystemAssigned, UserAssigned' ? webApp.identity.principalId : ''
 @description('The principal id of the identity running this webapp\'s staging slot')
-output webAppStagingSlotPrincipalId string = deploySlot ? identity.type == 'SystemAssigned' ? webAppStagingSlot.identity.principalId : identity.type == 'SystemAssigned, UserAssigned' ? webAppStagingSlot.identity.principalId  : '' : ''
+output webAppStagingSlotPrincipalId string = deploySlot
+  ? identity.type == 'SystemAssigned'
+      ? webAppStagingSlot.identity.principalId
+      : identity.type == 'SystemAssigned, UserAssigned' ? webAppStagingSlot.identity.principalId : ''
+  : ''
 @description('The resource name of the webapp.')
 output webAppResourceName string = webApp.name
 @description('The resource name of the webapp\'s staging slot.')
