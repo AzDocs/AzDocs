@@ -296,7 +296,7 @@ param roleAssignments array = []
 @description('''
 The .NET Framework version to set for the app. Default it is null. Get the list of supported versions by running: `az functionapp list-runtimes`.
 Example:
-'8'
+'v8.0'
 ''')
 param netFrameworkVersion string = ''
 
