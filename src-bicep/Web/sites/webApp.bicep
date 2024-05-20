@@ -216,7 +216,11 @@ param ftpsState string = 'Disabled'
 @description('Http20Enabled: configures a web site to allow clients to connect over http2.0')
 param http20Enabled bool = true
 
-@description('Linux App Framework and version.')
+@description('''
+Linux App Framework and version.
+Example:
+'DOTNET-ISOLATED|8.0'
+''')
 param linuxFxVersion string = 'DOTNETCORE|6.0'
 
 @description('''
