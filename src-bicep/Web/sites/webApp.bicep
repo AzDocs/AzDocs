@@ -216,7 +216,11 @@ param ftpsState string = 'Disabled'
 @description('Http20Enabled: configures a web site to allow clients to connect over http2.0')
 param http20Enabled bool = true
 
-@description('Linux App Framework and version.')
+@description('''
+Linux App Framework and version.
+Example:
+'DOTNET-ISOLATED|8.0'
+''')
 param linuxFxVersion string = 'DOTNETCORE|6.0'
 
 @description('''
@@ -293,6 +297,13 @@ Example:
 ''')
 param roleAssignments array = []
 
+@description('''
+The .NET Framework version to set for the app. Default it is null. Get the list of supported versions by running: `az functionapp list-runtimes`.
+Example:
+'v8.0'
+''')
+param netFrameworkVersion string = ''
+
 // ================================================= Variables =================================================
 @description('''
 Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).
@@ -347,6 +358,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
       linuxFxVersion: empty(linuxFxVersion) ? null : linuxFxVersion
       use32BitWorkerProcess: use32BitWorkerProcess
       numberOfWorkers: numberOfWorkers
+      netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
     }
   }
 
@@ -400,6 +412,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
       linuxFxVersion: linuxFxVersion
       use32BitWorkerProcess: use32BitWorkerProcess
       numberOfWorkers: numberOfWorkers
+      netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
     }
   }
 
