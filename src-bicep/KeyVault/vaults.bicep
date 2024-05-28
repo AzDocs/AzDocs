@@ -96,6 +96,9 @@ param networkAclDefaultAction string = 'Deny'
 ])
 param keyVaultnetworkAclsBypass string = 'None'
 
+@description('Define a whitelist of public IP addresses which are granted from the service firewall')
+param allowedIpAddresses array = []
+
 @description('The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`.')
 @minLength(1)
 @maxLength(260)
@@ -137,6 +140,11 @@ var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
   ignoreMissingVnetServiceEndpoint: false
 }]
 
+@description('Translate the ip rules to the correct format, so it can be used within the resource')
+var ipRules = [for ipRule in allowedIpAddresses: {
+    value: ipRule
+}]
+
 @description('Upsert the Keyvault')
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: keyVaultName
@@ -156,6 +164,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     networkAcls: {
       defaultAction: networkAclDefaultAction
       bypass: keyVaultnetworkAclsBypass
+      ipRules: ipRules
       virtualNetworkRules: virtualNetworkRules
     }
     enablePurgeProtection: true // Not allowing to purge key vault or its objects after deletion
