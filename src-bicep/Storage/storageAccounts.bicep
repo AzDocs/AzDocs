@@ -190,37 +190,60 @@ param keyName string = ''
 @description('Determine that the storage account does not have an identity. If you want to use a cmk key,then you need to set this to false. Defaults to true for backwards compatibility.')
 param overrideNoIdentity bool = true
 
+@description('''
+Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. 
+Possible values are any combination of Logging,Metrics,AzureServices (For example, "Logging, Metrics"), or None to bypass none of those traffics.
+''')
+@allowed([
+  'AzureServices'
+  'None'
+  'Logging'
+  'Metrics'
+  'Logging, Metrics'
+  'Logging, Metrics, AzureServices'
+])
+param allowBypassAcl string = 'None'
+
 // ================================================= Variables =================================================
 @description('''
 One or more managed identities on this storage account. Defaults to no assigned managed identity. 
 ''')
-var identity = (!empty(userAssignedIdentityName)) ? {
-  type: 'UserAssigned'
-  userAssignedIdentities: {
-    '${storageAccountUserAssignedManagedIdentity.id}': {}
-  }
-} : overrideNoIdentity ? null : { type: 'SystemAssigned' }
+var identity = (!empty(userAssignedIdentityName))
+  ? {
+      type: 'UserAssigned'
+      userAssignedIdentities: {
+        '${storageAccountUserAssignedManagedIdentity.id}': {}
+      }
+    }
+  : overrideNoIdentity ? null : { type: 'SystemAssigned' }
 
 @description('Build the needed object for the virtualNetworkRules based on the `subnetIdsToWhitelist` parameter.')
-var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
-  id: subnetId
-  action: 'Allow'
-}]
+var virtualNetworkRules = [
+  for subnetId in subnetIdsToWhitelist: {
+    id: subnetId
+    action: 'Allow'
+  }
+]
 
 @description('Build the needed object for the virtualNetworkRules based on the `publicIpsToWhitelist` parameter.')
-var ipRules = [for ip in publicIpsToWhitelist: {
-  action: 'Allow'
-  value: ip
-}]
+var ipRules = [
+  for ip in publicIpsToWhitelist: {
+    action: 'Allow'
+    value: ip
+  }
+]
 
 @description('Setting up the networkAcls and add rules if any are defined.')
-var networkAcls = empty(virtualNetworkRules) && empty(ipRules) ? {
-  defaultAction: 'Allow'
-} : {
-  defaultAction: 'Deny'
-  virtualNetworkRules: virtualNetworkRules
-  ipRules: ipRules
-}
+var networkAcls = empty(virtualNetworkRules) && empty(ipRules)
+  ? {
+      defaultAction: 'Allow'
+    }
+  : {
+      defaultAction: 'Deny'
+      bypass: allowBypassAcl
+      virtualNetworkRules: virtualNetworkRules
+      ipRules: ipRules
+    }
 
 var supportsBlobService = storageAccountKind == 'BlockBlobStorage' || storageAccountKind == 'BlobStorage' || storageAccountKind == 'StorageV2' || storageAccountKind == 'Storage'
 var supportsFileService = storageAccountKind == 'FileStorage' || storageAccountKind == 'StorageV2' || storageAccountKind == 'Storage'
@@ -262,17 +285,23 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     allowBlobPublicAccess: allowBlobPublicAccess
     allowSharedKeyAccess: allowSharedKeyAccess
     #disable-next-line BCP035
-    azureFilesIdentityBasedAuthentication: !empty(azureFilesIdentityBasedAuthentication) ? azureFilesIdentityBasedAuthentication : null
+    azureFilesIdentityBasedAuthentication: !empty(azureFilesIdentityBasedAuthentication)
+      ? azureFilesIdentityBasedAuthentication
+      : null
     defaultToOAuthAuthentication: defaultToOAuthAuthentication
     encryption: {
       keySource: !empty(keyVaultName) ? 'Microsoft.Keyvault' : 'Microsoft.Storage'
       services: {
-        blob: supportsBlobService ? {
-          enabled: true
-        } : null
-        file: supportsFileService ? {
-          enabled: true
-        } : null
+        blob: supportsBlobService
+          ? {
+              enabled: true
+            }
+          : null
+        file: supportsFileService
+          ? {
+              enabled: true
+            }
+          : null
         table: {
           enabled: true
         }
@@ -280,16 +309,23 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
           enabled: true
         }
       }
-      keyvaultproperties: !empty(keyVaultName) ? {
-        keyname: keyName
-        keyvaulturi: cMKKeyVault.properties.vaultUri
-      } : null
-      identity: !empty(userAssignedIdentityName) ? {
-        userAssignedIdentity: storageAccountUserAssignedManagedIdentity.id } : null
+      keyvaultproperties: !empty(keyVaultName)
+        ? {
+            keyname: keyName
+            keyvaulturi: cMKKeyVault.properties.vaultUri
+          }
+        : null
+      identity: !empty(userAssignedIdentityName)
+        ? {
+            userAssignedIdentity: storageAccountUserAssignedManagedIdentity.id
+          }
+        : null
     }
     isNfsV3Enabled: enableNfsV3 ? enableNfsV3 : any('')
     isSftpEnabled: enableSftp
-    largeFileSharesState: (storageAccountSku == 'Standard_LRS') || (storageAccountSku == 'Standard_ZRS') ? largeFileSharesState : null
+    largeFileSharesState: (storageAccountSku == 'Standard_LRS') || (storageAccountSku == 'Standard_ZRS')
+      ? largeFileSharesState
+      : null
     minimumTlsVersion: storageAccountMinimumTlsVersion
     supportsHttpsTrafficOnly: true
     networkAcls: networkAcls
