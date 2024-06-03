@@ -50,7 +50,11 @@ param configurationStoreName string
 param location string = resourceGroup().location
 
 @description('Specifies whether the SKU for the configuration store.')
-param skuName 'Free' | 'Standard' = 'Standard'
+@allowed([
+  'Free'
+  'Standard'
+])
+param skuName string = 'Standard'
 
 @description('Managed service identity to use for this configuration store. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).')
 @discriminator('type')
@@ -76,7 +80,11 @@ Example:
 param tags object = {}
 
 @description('Property to specify whether the store will accept traffic from public internet. If set to \'Disabled\' all traffic except private endpoint traffic will be blocked.')
-param publicNetworkAccess 'Enabled' | 'Disabled' = 'Disabled'
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param publicNetworkAccess string = 'Disabled'
 
 @description('''
 Indicates whether requests using non-AAD authentication are blocked.
