@@ -105,13 +105,15 @@ param enablePurgeProtection bool = true
 @maxValue(7)
 param softDeleteRetentionInDays int = 7
 
-@description('The configuration values to add to the App Configuration store. Provide an empty string for the \'label\' property if a label is not required.')
-param configurationValues {
+type ConfigurationValue = {
   key: string
   value: string
   label: string?
   contentType: string?
-}[] = []
+}
+
+@description('The configuration values to add to the App Configuration store. Provide an empty string for the \'label\' property if a label is not required.')
+param configurationValues ConfigurationValue[] = []
 
 resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023-09-01-preview' = {
   name: configurationStoreName
