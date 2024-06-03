@@ -15,7 +15,19 @@ module configurationStore 'br:contosoregistry.azurecr.io/appconfiguration/config
     publicNetworkAccess: 'Disabled'
     disableLocalAuth: true
     enablePurgeProtection: true
-    softDeleteRetentionInDays: 7    
+    softDeleteRetentionInDays: 7
+    configurationValues: [
+      {
+        key: 'EmailAddress'
+        value: 'dev@example.com'
+        label: 'Development'
+      }
+      {
+        key: 'EmailAddress'
+        value: 'prd@example.com'
+        label: 'Production'
+      }
+    ]
   }
 }
 </pre>
@@ -85,7 +97,7 @@ param configurationValues {
   value: string
   label: string
   contentType: string
-}[]
+}[] = []
 
 resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023-09-01-preview' = {
   name: configurationStoreName
