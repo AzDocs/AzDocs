@@ -11,7 +11,9 @@ module configurationStore 'br:contosoregistry.azurecr.io/appconfiguration/config
     configurationStoreName: configurationStoreName
     location: location
     skuName: 'Standard'
-    identity 'SystemAssigned'
+    identity: {
+      type: 'SystemAssigned'
+    }
     publicNetworkAccess: 'Disabled'
     disableLocalAuth: true
     enablePurgeProtection: true
@@ -56,16 +58,18 @@ param location string = resourceGroup().location
 ])
 param skuName string = 'Standard'
 
-@description('Managed service identity to use for this configuration store. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).')
 @discriminator('type')
-param identity {
+type IdentityType = {
   type: 'SystemAssigned'
 } | {
   type: 'UserAssigned'
   userAssignedIdentities: {}
 } | {
   type: 'None'
-} = {
+}
+
+@description('Managed service identity to use for this configuration store. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).')
+param identity IdentityType = {
   type: 'SystemAssigned'
 }
 
