@@ -63,7 +63,9 @@ type IdentityType = {
   type: 'SystemAssigned'
 } | {
   type: 'UserAssigned'
-  userAssignedIdentities: {}
+  userAssignedIdentities: {
+    *: {}
+  }
 } | {
   type: 'None'
 }
