@@ -330,10 +330,10 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
 }
 
 @description('Only set linux site config if the app service plan is of kind linux, otherwise deployment fails.')
-var linuxSiteConfig = appServicePlan.kind == 'linux' 
+var linuxSiteConfig = appServicePlan.kind == 'linux'
   ? {
       linuxFxVersion: empty(linuxFxVersion) ? null : linuxFxVersion
-    } 
+    }
   : {}
 
 @description('Upsert the webApp and potential VNet integration with the given parameters.')
@@ -352,20 +352,23 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     publicNetworkAccess: publicNetworkAccess
     keyVaultReferenceIdentity: keyVaultReferenceIdentity
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
-    siteConfig: union({
-      cors: empty(cors) ? null : cors
-      healthCheckPath: empty(healthCheckPath) ? null : healthCheckPath
-      vnetRouteAllEnabled: vnetRouteAllEnabled
-      alwaysOn: alwaysOn
-      ipSecurityRestrictions: ipSecurityRestrictions
-      scmIpSecurityRestrictions: scmIpSecurityRestrictions
-      scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
-      ftpsState: ftpsState
-      http20Enabled: http20Enabled
-      use32BitWorkerProcess: use32BitWorkerProcess
-      numberOfWorkers: numberOfWorkers
-      netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
-    }, linuxSiteConfig)
+    siteConfig: union(
+      {
+        cors: empty(cors) ? null : cors
+        healthCheckPath: empty(healthCheckPath) ? null : healthCheckPath
+        vnetRouteAllEnabled: vnetRouteAllEnabled
+        alwaysOn: alwaysOn
+        ipSecurityRestrictions: ipSecurityRestrictions
+        scmIpSecurityRestrictions: scmIpSecurityRestrictions
+        scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
+        ftpsState: ftpsState
+        http20Enabled: http20Enabled
+        use32BitWorkerProcess: use32BitWorkerProcess
+        numberOfWorkers: numberOfWorkers
+        netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
+      },
+      linuxSiteConfig
+    )
   }
 
   resource config 'config@2022-09-01' = {
@@ -407,18 +410,21 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     publicNetworkAccess: publicNetworkAccess
     clientAffinityEnabled: clientAffinityEnabled
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
-    siteConfig: union({
-      cors: empty(cors) ? null : cors
-      vnetRouteAllEnabled: vnetRouteAllEnabled
-      alwaysOn: alwaysOn
-      ipSecurityRestrictions: ipSecurityRestrictions
-      scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
-      ftpsState: ftpsState
-      http20Enabled: http20Enabled
-      use32BitWorkerProcess: use32BitWorkerProcess
-      numberOfWorkers: numberOfWorkers
-      netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
-    }, linuxSiteConfig)
+    siteConfig: union(
+      {
+        cors: empty(cors) ? null : cors
+        vnetRouteAllEnabled: vnetRouteAllEnabled
+        alwaysOn: alwaysOn
+        ipSecurityRestrictions: ipSecurityRestrictions
+        scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
+        ftpsState: ftpsState
+        http20Enabled: http20Enabled
+        use32BitWorkerProcess: use32BitWorkerProcess
+        numberOfWorkers: numberOfWorkers
+        netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
+      },
+      linuxSiteConfig
+    )
   }
 
   resource config 'config@2022-09-01' = if (deploySlot) {
