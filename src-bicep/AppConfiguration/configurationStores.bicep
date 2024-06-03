@@ -40,7 +40,7 @@ module configurationStore 'br:contosoregistry.azurecr.io/appconfiguration/config
 The name of the App Configuration store to upsert
 Restrictions:
 - Name must be between 5 and 50 characters and may only contain alphanumeric characters and -
-- Name may not contain the sequence ---
+- Name may not contain the sequence: ---
 ''')
 @minLength(5)
 @maxLength(50)
@@ -95,8 +95,8 @@ param softDeleteRetentionInDays int = 7
 param configurationValues {
   key: string
   value: string
-  label: string
-  contentType: string
+  label: string?
+  contentType: string?
 }[] = []
 
 resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023-09-01-preview' = {
@@ -113,16 +113,21 @@ resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023
     enablePurgeProtection: enablePurgeProtection
     softDeleteRetentionInDays: softDeleteRetentionInDays
   }
+
+  resource configurationStoreValue 'keyValues' = [for cv in configurationValues: {
+    name: '${replace(uriComponent(cv.key), '%', '~')}${!empty(cv.?label) ? '$${cv.label}' : ''}'
+    properties: {
+      contentType: cv.?contentType
+      value: cv.value
+    }
+  }]
 }
 
-resource configurationStoreValue 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = [for cv in configurationValues: {
-  parent: configurationStore
-  name: '${replace(uriComponent(cv.key), '%', '~')}${!empty(cv.label) ? '$${cv.label}' : ''}'
-  properties: {
-    contentType: cv.contentType
-    value: cv.value
-  }
-}]
-
+@description('The configuration store name.')
 output configurationStoreName string = configurationStore.name
+@description('The configuration store resource ID.')
 output configurationStoreId string = configurationStore.id
+@description('The system assigned identity principal ID.')
+output configurationStorePrincipalId string = identity.type == 'SystemAssigned'
+  ? configurationStore.identity.principalId
+  : ''
