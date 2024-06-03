@@ -79,6 +79,14 @@ param enablePurgeProtection bool = true
 @maxValue(7)
 param softDeleteRetentionInDays int = 7
 
+@description('The configuration values to add to the App Configuration store. Provide an empty string for the \'label\' property if a label is not required.')
+param configurationValues {
+  key: string
+  value: string
+  label: string
+  contentType: string
+}[]
+
 resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023-09-01-preview' = {
   name: configurationStoreName
   location: location
@@ -94,6 +102,15 @@ resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023
     softDeleteRetentionInDays: softDeleteRetentionInDays
   }
 }
+
+resource configurationStoreValue 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = [for cv in configurationValues: {
+  parent: configurationStore
+  name: '${replace(uriComponent(cv.key), '%', '~')}${!empty(cv.label) ? '$${cv.label}' : ''}'
+  properties: {
+    contentType: cv.contentType
+    value: cv.value
+  }
+}]
 
 output configurationStoreName string = configurationStore.name
 output configurationStoreId string = configurationStore.id
