@@ -1,3 +1,25 @@
+/*
+.SYNOPSIS
+Configuring role assignment for the App Configuration
+.DESCRIPTION
+This module is used for creating role assignments for existing Azure App Configuration stores.
+.EXAMPLE
+<pre>
+module roleAppConfiguration 'br:contosoregistry.azurecr.io/authorization/roleAssignmentsAppConfiguration:latest' = {
+  name: guid(configurationStore.id, principalId, roleDefinitionId)
+  scope: configurationStore
+  properties: {
+    principalId: principalId
+    roleDefinitionId: roleDefinition.id
+    principalType: principalType
+  }
+}
+</pre>
+.LINKS
+- [Bicep Microsoft.authorization roleassignments](https://learn.microsoft.com/en-us/azure/templates/microsoft.authorization/roleassignments?pivots=deployment-language-bicep)
+*/
+
+// ================================================= Parameters =================================================
 @description('The AAD Object ID of the pricipal you want to assign the role to.')
 @minLength(36)
 @maxLength(36)
