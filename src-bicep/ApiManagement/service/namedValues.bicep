@@ -34,7 +34,7 @@ param namedValuesDisplayName string = namedValuesName
 The resource id of a user assigned managed identity when used. This identity can be used to access a secret in a keyvault.
 If it is not provided, the system assigned identity will be used. This also requires API Management service to be configured with aka.ms/apimmsi.
 ''')
-param UserAssignedIdentityId string = ''
+param userAssignedIdentityId string = ''
 
 @description('''
 The tags to apply to this resource. Consists of one or more strings.
@@ -51,7 +51,7 @@ This also requires API Management service to be configured with aka.ms/apimmsi
 param secretIdentifier string = ''
 
 @description('Determines whether the value is a secret and should be encrypted or not. Default value is false.')
-param IsNamedValueSecret bool = false
+param isNamedValueSecret bool = false
 
 @description('Value of the NamedValue. Can contain policy expressions. When used it may not be empty or consist only of whitespace. This property will not be filled on GET operations! Use listSecrets POST request to get the value.')
 param namedValuesValue string = ''
@@ -66,10 +66,10 @@ resource namedValue 'Microsoft.ApiManagement/service/namedValues@2023-03-01-prev
   properties: {
     displayName: replace((namedValuesDisplayName),' ', '')
     tags: tags
-    secret: !empty(secretIdentifier)? true: IsNamedValueSecret
+    secret: !empty(secretIdentifier)? true: isNamedValueSecret
     value: (empty(namedValuesValue) && empty(secretIdentifier)) ? namedValuesName : empty(namedValuesValue) ? null : namedValuesValue
     keyVault: empty(secretIdentifier) ? null :{
-      identityClientId: empty(UserAssignedIdentityId) ? null : UserAssignedIdentityId
+      identityClientId: empty(userAssignedIdentityId) ? null : userAssignedIdentityId
       secretIdentifier: secretIdentifier
     }
   }
