@@ -27,6 +27,7 @@ dependsOn: [<br>
     contentValue: contentValue<br>
     contentFormat: contentFormat<br>
     apiPolicy: apiPolicy<br>
+    serviceUrl: serviceUrl<br>
   }<br>
 }<br>
 </pre><br>
