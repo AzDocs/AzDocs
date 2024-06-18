@@ -41,7 +41,15 @@ loadTextContent('./policysample.xml')
 ''')
 param contentValue string
 
+@description('The name of the existing API Management service.')
+param apiManagementServiceName string
+
+resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' existing = {
+  name: apiManagementServiceName
+}
+
 resource serviceApi 'Microsoft.ApiManagement/service/apis@2023-03-01-preview' existing = {
+  parent: apimService
   name: serviceApiName
 }
 
