@@ -86,13 +86,10 @@ param apiPath string
   'wadl-xml'
   'wsdl'
   'wsdl-link'])
-param contentFormat string
+param contentFormat string?
 
 @description('Content value when Importing an API.')
-param contentValue string
-
-@description('The URL of the service that the API exposes. This URL is used by the gateway to route the incoming requests to the API.')
-param serviceUrl string
+param contentValue string?
 
 resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' existing = {
   name: apiManagementServiceName
@@ -114,7 +111,6 @@ resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
     ]
     format: contentFormat
     value: contentValue
-    serviceUrl: serviceUrl
   }
 }
 
