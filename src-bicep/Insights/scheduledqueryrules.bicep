@@ -65,6 +65,15 @@ param scheduledQueryRuleName string
 @description('List of Action group resource id\'s to notify users about the alert. An action group is a collection of notification preferences.')
 param actionGroups array = []
 
+@description('''
+You can add your own properties to the alert rule. These will be sent with the alert payload.
+Example:
+{
+  SubscriptionName: '\${data.alertContext.condition.allOf[0].dimensions[0].value}'
+}
+''')
+param customProperties object = {}
+
 @description('The description of the scheduled query rule.')
 param scheduledQueryRuleDescription string = scheduledQueryRuleName
 
@@ -224,7 +233,7 @@ resource scheduledQueryRule 'Microsoft.Insights/scheduledQueryRules@2023-03-15-p
   properties: {
     actions: {
       actionGroups: actionGroups
-      customProperties: {}
+      customProperties: customProperties
       actionProperties: {}
     }
     autoMitigate: autoMitigate

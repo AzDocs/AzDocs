@@ -20,6 +20,7 @@ This resource allow defining a scheduled query rule in Azure Monitoring.
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | The location for this resource to be upserted in. |
 | scheduledQueryRuleName | string | <input type="checkbox" checked> | Length between 1-260 | <pre></pre> | The name of the scheduled query rules resource. |
 | actionGroups | array | <input type="checkbox"> | None | <pre>[]</pre> | List of Action group resource id\'s to notify users about the alert. An action group is a collection of notification preferences. |
+| customProperties | object | <input type="checkbox"> | None | <pre>{}</pre> | You can add your own properties to the alert rule. These will be sent with the alert payload.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;SubscriptionName: '\&#36;{data.alertContext.condition.allOf[0].dimensions[0].value}'<br>} |
 | scheduledQueryRuleDescription | string | <input type="checkbox"> | None | <pre>scheduledQueryRuleName</pre> | The description of the scheduled query rule. |
 | scheduledQueryRuleSeverity | int | <input type="checkbox"> | Value between 0-4 | <pre>3</pre> | Severity of the alert. Should be an integer between [0-4]. Value of 0 is severest. Relevant and required only for rules of the kind LogAlert. |
 | evaluationFrequency | string | <input type="checkbox"> | None | <pre>'PT5M'</pre> | How often the metric alert is evaluated represented in ISO 8601 duration format.<br>Examples:<br>PT5M is 5 minutes<br>PT15M is 15 minutes<br>PT30M is 30 minutes<br>PT1H is 1 hour |
