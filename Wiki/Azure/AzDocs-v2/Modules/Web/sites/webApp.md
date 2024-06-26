@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+## User Defined Types
+| Name | Type | Discriminator | Description
+| -- |  -- | -- | -- |
+| <a id="publicCertifcate">publicCertifcate</a>  | <pre>{</pre> |  | Public certificates for Azure App Service for example intermediate and root certificates. See https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.web/web-app-public-certificate/azuredeploy.json [   {     name: 'TrustedRootCertificate'     blob: 'base64 encoded public certificate file'     publicCertificateLocation: 'LocalMachineMy'   } ] | 
+
 ## Synopsis
 Creating an AppService Instance: WebApp, FunctionApp etc.
 
@@ -90,6 +95,13 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
     appSettings: {}
     connectionStrings: {}
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    publicCertificates: [
+      {
+        name: 'TrustedRootCertificate'
+        blob: 'base64 encoded public certificate file'
+        publicCertificateLocation: 'LocalMachineMy'
+      }
+    ]
   }
 }
 </pre>

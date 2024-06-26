@@ -34,6 +34,13 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
     appSettings: {}
     connectionStrings: {}
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    publicCertificates: [
+      {
+        name: 'TrustedRootCertificate'
+        blob: 'base64 encoded public certificate file'
+        publicCertificateLocation: 'LocalMachineMy'
+      }
+    ]
   }
 }
 </pre>
@@ -304,6 +311,25 @@ Example:
 ''')
 param netFrameworkVersion string = ''
 
+
+@description('''
+Public certificates for Azure App Service for example intermediate and root certificates. See https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.web/web-app-public-certificate/azuredeploy.json
+[
+  {
+    name: 'TrustedRootCertificate'
+    blob: 'base64 encoded public certificate file'
+    publicCertificateLocation: 'LocalMachineMy'
+  }
+]
+''')
+type publicCertifcate = {
+  name: string
+  blob: string
+  publicCertificateLocation: 'CurrentUserMy' | 'LocalMachineMy' | 'Unknown'
+}
+
+param publicCertificates publicCertifcate[] = []
+
 // ================================================= Variables =================================================
 @description('''
 Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).
@@ -394,6 +420,14 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
       allow: false
     }
   }
+
+  resource publicCertificatesWebApp 'publicCertificates@2022-09-01' = [for publicCertificate in publicCertificates : {
+    name: publicCertificate.name
+    properties: {
+      blob: any(publicCertificate.blob)
+      publicCertificateLocation: publicCertificate.publicCertificateLocation
+    }
+  }]
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
@@ -450,6 +484,14 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
       allow: false
     }
   }
+
+  resource publicCertificatesWebApp 'publicCertificates@2022-09-01' = [for publicCertificate in publicCertificates : {
+    name: publicCertificate.name
+    properties: {
+      blob: any(publicCertificate.blob)
+      publicCertificateLocation: publicCertificate.publicCertificateLocation
+    }
+  }]
 }
 
 resource RoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [
