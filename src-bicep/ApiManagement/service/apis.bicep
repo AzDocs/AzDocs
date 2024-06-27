@@ -45,10 +45,9 @@ param name string
 @description('Description of the API. May include HTML formatting tags.')
 param apiDescription string = ''
 
-@description('API name.')
+@description('API name. Only mandatory when creating a new API.')
 @maxLength(300)
-@minLength(1)
-param displayName string
+param displayName string?
 
 @description('Type of API to create. You need to define one type.')
 @allowed([
@@ -67,8 +66,7 @@ param isCurrent bool = true
 param isSubscriptionRequired bool = true
 
 @description('Relative URL uniquely identifying this API and all of its resource paths within the API Management service instance. It is appended to the API endpoint base URL specified during the service instance creation to form a public URL for this API.')
-@minLength(1)
-param apiPath string
+param apiPath string = ''
 
 // Format 'swagger-link-json' (OpenAPI 2.0 JSON Document) , 'openapi+json-link' (OpenAPI 3.0 JSON document) & 'openapi-link' (OpenAPI 3.0 YAML document) works only for documents hosted on public internet
 @description('Format of the Content in which the API is getting imported.')
