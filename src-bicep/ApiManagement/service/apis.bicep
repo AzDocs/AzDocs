@@ -47,7 +47,7 @@ param apiDescription string = ''
 
 @description('API name.')
 @maxLength(300)
-param displayName string?
+param displayName string = ''
 
 @description('Type of API to create. You need to define one type.')
 @allowed([
