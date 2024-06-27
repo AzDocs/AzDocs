@@ -45,7 +45,7 @@ param name string
 @description('Description of the API. May include HTML formatting tags.')
 param apiDescription string = ''
 
-@description('API name. Only mandatory when creating a new API.')
+@description('API name.')
 @maxLength(300)
 param displayName string?
 
