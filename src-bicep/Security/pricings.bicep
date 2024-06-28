@@ -55,15 +55,29 @@ When subplan is not specified at all, the full plan is applied.
 Example:
 'P1',
 'P2'
-'''
-)
+''')
 param defenderSubPlan string = 'P2'
 
+@description('See also https://learn.microsoft.com/en-us/azure/templates/microsoft.security/pricings?pivots=deployment-language-bicep#extension')
+type Extension = { name: string, isEnabled: string, additionalExtensionProperties: object? }
 
-resource defenderPricingPlan 'Microsoft.Security/pricings@2022-03-01' = {
+@description('''
+List of extensions offered under a plan.
+for example:
+[
+  {
+    name: 'AgentlessVmScanning'
+    isEnabled: 'false'
+  }
+]
+''')
+param extensions Extension[] = []
+
+resource defenderPricingPlan 'Microsoft.Security/pricings@2024-01-01' = {
   name: defenderPlanName
   properties: {
     pricingTier: defenderPricingTier
     subPlan: defenderSubPlan
+    extensions: extensions
   }
 }

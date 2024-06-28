@@ -2,6 +2,11 @@
 
 Target Scope: subscription
 
+## User Defined Types
+| Name | Type | Discriminator | Description
+| -- |  -- | -- | -- |
+| <a id="Extension">Extension</a>  | <pre>{ name: string, isEnabled: string, additionalExtensionProperties: object? }</pre> |  | See also https://learn.microsoft.com/en-us/azure/templates/microsoft.security/pricings?pivots=deployment-language-bicep#extension | 
+
 ## Synopsis
 Enabling and configuring Defender for Cloud on a Subscription
 
@@ -13,6 +18,8 @@ Enables and Configures Defender for Cloud on a Subscription. You need to do the 
 | -- |  -- | -- | -- | -- | -- |
 | defenderPlanName | string | <input type="checkbox" checked> | Length between 1-260 | <pre></pre> | The name of the pricing plan |
 | defenderPricingTier | string | <input type="checkbox" checked> | None | <pre></pre> | The pricing tier for the specific Defender for Cloud Plan<br>Example:<br>'Free'<br>'Standard' |
+| defenderSubPlan | string | <input type="checkbox"> | None | <pre>'P2'</pre> | The subplan for the specific Defender for Cloud Plan.<br>The sub-plan selected for a Standard pricing configuration, when more than one sub-plan is available. Each sub-plan enables a set of security features.<br>When subplan is not specified at all, the full plan is applied.<br>Example:<br>'P1',<br>'P2' |
+| extensions | Extension[] | <input type="checkbox"> | None | <pre>[]</pre> | List of extensions offered under a plan.<br>for example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'AgentlessVmScanning'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;isEnabled: 'false'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 
 ## Examples
 <pre>
