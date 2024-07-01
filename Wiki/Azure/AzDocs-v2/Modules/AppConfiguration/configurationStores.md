@@ -26,6 +26,7 @@ This module is used for creating Azure App Configuration
 | disableLocalAuth | bool | <input type="checkbox"> | None | <pre>true</pre> | Indicates whether requests using non-AAD authentication are blocked. |
 | enablePurgeProtection | bool | <input type="checkbox"> | None | <pre>true</pre> | Indicates whether purge protection should be enabled. |
 | softDeleteRetentionInDays | int | <input type="checkbox"> | Value between 1-7 | <pre>7</pre> | The soft-delete retention for keeping items after deleting them. |
+| configurationValues | ConfigurationValue[] | <input type="checkbox"> | None | <pre>[]</pre> | The configuration values to add to the App Configuration store. |
 
 ## Outputs
 | Name | Type | Description |

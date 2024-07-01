@@ -195,7 +195,7 @@ function Get-BicepMetadata
                     }
                     elseif ($line -like 'param *')
                     {
-                        if ($line -match '^param\s+(?<ParameterName>\w+)\s+(?<ParameterType>\w+)(?:\s+=\s+(?<DefaultValue>.*)\s*)?$')
+                        if ($line -match '^param\s+(?<ParameterName>[^\s]+)\s+(?<ParameterType>[^\s]+)(?:\s+=\s+(?<DefaultValue>.*)\s*)?$')
                         {
                             $defaultValue = $matches.ContainsKey('DefaultValue') ? $matches['DefaultValue'] : $null
                             $parameter = [PSCustomObject]@{
@@ -234,7 +234,7 @@ function Get-BicepMetadata
                     elseif ($line -like 'output *')
                     {
 
-                        if ($line -match '^^output\s+(?<OutputName>\w+)\s+(?<OutputType>\w+)(?:\s+=\s+(?<OutputValue>.*)\s*)?$')
+                        if ($line -match '^^output\s+(?<OutputName>[^\s]+)\s+(?<OutputType>[^\s]+)(?:\s+=\s+(?<OutputValue>.*)\s*)?$')
                         {
                             $output = [PSCustomObject]@{
                                 Name       = $matches.OutputName

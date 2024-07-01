@@ -23,7 +23,6 @@ dependsOn: [
     contentValue: contentValue
     contentFormat: contentFormat
     apiPolicy: apiPolicy
-    serviceUrl: serviceUrl
   }
 }
 </pre>
@@ -83,7 +82,8 @@ param apiPath string = ''
   'wadl-link-json'
   'wadl-xml'
   'wsdl'
-  'wsdl-link'])
+  'wsdl-link'
+])
 param contentFormat string?
 
 @description('Content value when Importing an API.')
