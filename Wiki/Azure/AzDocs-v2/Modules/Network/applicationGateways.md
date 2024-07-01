@@ -57,6 +57,7 @@ Creating an application gateway
 | redirectHttpToHttps | bool | <input type="checkbox"> | None | <pre>false</pre> | If this is true the default port 80 rule will be adjusted so that it will redirect http to https requests.<br>If `FqdnToRedirect` is specified, that url will be used. Expected is that the website would redirect any requests to https.<br>If `FqdnToRedirect` is not specified, an Static Web App will be created that would redirect http to https traffic.<br><br>The default port 80 will be configured with a rewrite rule that would change the response from the `FqdnToRedirect` or the fqdn of the static web app address to the original requested host. |
 | fqdnToRedirect | string | <input type="checkbox"> | None | <pre>''</pre> | Supply a fqdn to use for redirection. It is expected that the website would redirect all traffic to https with the same fqdn. See also `RedirectHttpToHttps`for more information |
 | deployDefaults | bool | <input type="checkbox"> | None | <pre>true</pre> | If this is true the default port 80 rule, listener, backendsettings and backendpool will be added to the application gateway. |
+| availabilityZones | array | <input type="checkbox"> | `'1'` or `'2'` or `'3'` | <pre>[]</pre> | The zones to use for this application gateway. |
 
 ## Outputs
 | Name | Type | Description |

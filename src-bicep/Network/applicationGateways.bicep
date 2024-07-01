@@ -323,6 +323,16 @@ param fqdnToRedirect string = ''
 @description('If this is true the default port 80 rule, listener, backendsettings and backendpool will be added to the application gateway.')
 param deployDefaults bool = true
 
+@description('The zones to use for this application gateway.')
+@allowed([
+  '1'
+  '2'
+  '3'
+])
+param availabilityZones array = []
+
+
+
 // ===================================== Variables =====================================
 @description('Building up the Backend Address Pools based on ezApplicationGatewayEntrypoints')
 var ezApplicationGatewayBackendAddressPools = [for entryPoint in ezApplicationGatewayEntrypoints: {
@@ -689,6 +699,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' =
     trustedRootCertificates: trustedRootCertificates
     trustedClientCertificates: trustedClientCertificates
   }
+  zones: availabilityZones
 }
 
 @description('Upsert the diagnostic settings associated with the application gateway.')
