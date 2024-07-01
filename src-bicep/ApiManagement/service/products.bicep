@@ -4,19 +4,24 @@ Creating a product resource in an existing Api Management Service.
 .DESCRIPTION
 Creating a product resource in an existing Api Management Service.
 <pre>
-module policies 'br:contosoregistry.azurecr.io/service/policies.bicep' = {
-  name: format('{0}-{1}', take('${deployment().name}', 46), 'policies')
+module products 'br:contosoregistry.azurecr.io/service/products.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 46), 'products')
   params: {
     apiManagementServiceName: apiManagementServiceName
+    approvalRequired: approvalRequired
+    productDescription: productDescription
+    productDisplayName: productDisplayName
     name: productName
-    format: format
-    value: value
+    state: state
+    subscriptionRequired: subscriptionRequired
+    subscriptionLimit: subscriptionLimit
+    terms: terms
   }
 }
 </pre>
-<p>Creates a product resource with the name policyFragmentName.</p>
+<p>Creates a product resource with the specified parameters.</p>
 .LINKS
-- [Bicep Microsoft.ApiManagement policies](https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/policies?pivots=deployment-language-bicep)
+- [Bicep Microsoft.ApiManagement products](https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/products?pivots=deployment-language-bicep)
 */
 // ===================================== Parameters =====================================
 @description('The name of the existing API Management service instance.')
@@ -71,8 +76,8 @@ resource product 'Microsoft.ApiManagement/service/products@2023-05-01-preview' =
   }
 }
 
-@description('The name of the created service policy instance.')
+@description('The name of the product.')
 output productName string = product.name
 
-@description('The resource id of the created service policy instance.')
+@description('The id of the product.')
 output productId string = product.id
