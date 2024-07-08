@@ -322,13 +322,7 @@ Public certificates for Azure App Service for example intermediate and root cert
   }
 ]
 ''')
-type publicCertifcate = {
-  name: string
-  blob: string
-  publicCertificateLocation: 'CurrentUserMy' | 'LocalMachineMy' | 'Unknown'
-}
-
-param publicCertificates publicCertifcate[] = []
+param publicCertificates array = []
 
 // ================================================= Variables =================================================
 @description('''
@@ -485,7 +479,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     }
   }
 
-  resource publicCertificatesWebApp 'publicCertificates@2022-09-01' = [for publicCertificate in publicCertificates : {
+  resource publicCertificatesWebAppStaging 'publicCertificates@2022-09-01' = [for publicCertificate in publicCertificates : {
     name: publicCertificate.name
     properties: {
       blob: any(publicCertificate.blob)
