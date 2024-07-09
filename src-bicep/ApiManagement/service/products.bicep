@@ -40,6 +40,7 @@ param productDisplayName string
 
 @description('The resource name')
 @minLength(1)
+@maxLength(80)
 param name string
 
 @allowed([
