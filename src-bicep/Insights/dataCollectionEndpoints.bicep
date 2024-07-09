@@ -79,7 +79,7 @@ param publicNetworkAccess string = 'Enabled'
 
 
 // ================================================= Resources ==================================================
-resource datacollectionendpoint 'Microsoft.Insights/dataCollectionEndpoints@2022-06-01' = {
+resource datacollectionendpoint 'Microsoft.Insights/dataCollectionEndpoints@2023-03-11' = {
   name: dataCollectionEndpointName
   location: location
   tags: tags

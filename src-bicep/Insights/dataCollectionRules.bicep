@@ -128,7 +128,7 @@ var builtInRoleNames = {
 
 
 // ===================================== Resources =====================================
-resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2021-09-01-preview' = {
+resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2023-03-11' = {
   kind: kind
   location: location
   name: dataCollectionRuleName
