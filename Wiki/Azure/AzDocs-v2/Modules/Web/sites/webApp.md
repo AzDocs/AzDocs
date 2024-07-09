@@ -2,11 +2,6 @@
 
 Target Scope: resourceGroup
 
-## User Defined Types
-| Name | Type | Discriminator | Description
-| -- |  -- | -- | -- |
-| <a id="publicCertifcate">publicCertifcate</a>  | <pre>{</pre> |  | Public certificates for Azure App Service for example intermediate and root certificates. See https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.web/web-app-public-certificate/azuredeploy.json [   {     name: 'TrustedRootCertificate'     blob: 'base64 encoded public certificate file'     publicCertificateLocation: 'LocalMachineMy'   } ] | 
-
 ## Synopsis
 Creating an AppService Instance: WebApp, FunctionApp etc.
 
@@ -53,7 +48,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | healthCheckPath | string | <input type="checkbox"> | None | <pre>''</pre> | Relative path of the health check probe. A valid path starts with "/".<br>Example:<br>'/api/HealthCheck' |
 | roleAssignments | array | <input type="checkbox"> | None | <pre>[]</pre> | Setting up roleassignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' //Website Contributor<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalType: 'ServicePrincipal'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | netFrameworkVersion | string | <input type="checkbox"> | None | <pre>''</pre> | The .NET Framework version to set for the app. Default it is null. Get the list of supported versions by running: `az functionapp list-runtimes`.<br>Example:<br>'v8.0' |
-| publicCertificates | publicCertifcate[] | <input type="checkbox"> | None | <pre>[]</pre> |  |
+| publicCertificates | array | <input type="checkbox"> | None | <pre>[]</pre> | Public certificates for Azure App Service for example intermediate and root certificates. See https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.web/web-app-public-certificate/azuredeploy.json<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'TrustedRootCertificate'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blob: 'base64 encoded public certificate file'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;publicCertificateLocation: 'LocalMachineMy'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 
 ## Outputs
 | Name | Type | Description |
