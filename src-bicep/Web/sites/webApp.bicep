@@ -351,7 +351,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
 @description('Fetch the application insights instance. This application insights instance should be pre-existing.')
 resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = if(!empty(appInsightsName)) {
   scope: az.resourceGroup(appInsightsResourceGroupName)
-  name: !empty(appInsightsName) ? appInsightsName : 'donotuse'
+  name: !empty(appInsightsName) ? appInsightsName : 'donotuse' // in order to prevent a pre-validation error, fill in a dummy value
 }
 
 @description('Only set linux site config if the app service plan is of kind linux, otherwise deployment fails.')
