@@ -327,7 +327,6 @@ type publicCertifcate = {
   blob: string
   publicCertificateLocation: 'CurrentUserMy' | 'LocalMachineMy' | 'Unknown'
 }
-
 param publicCertificates publicCertifcate[] = []
 
 // ================================================= Variables =================================================
@@ -350,9 +349,9 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
 }
 
 @description('Fetch the application insights instance. This application insights instance should be pre-existing.')
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = if(!empty(appInsightsName)) {
   scope: az.resourceGroup(appInsightsResourceGroupName)
-  name: appInsightsName
+  name: !empty(appInsightsName) ? appInsightsName : 'donotuse'
 }
 
 @description('Only set linux site config if the app service plan is of kind linux, otherwise deployment fails.')
@@ -485,7 +484,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     }
   }
 
-  resource publicCertificatesWebApp 'publicCertificates@2022-09-01' = [for publicCertificate in publicCertificates : {
+  resource publicCertificatesWebAppStaging 'publicCertificates@2022-09-01' = [for publicCertificate in publicCertificates : {
     name: publicCertificate.name
     properties: {
       blob: any(publicCertificate.blob)
