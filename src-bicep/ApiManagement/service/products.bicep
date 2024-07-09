@@ -30,7 +30,7 @@ module products 'br:contosoregistry.azurecr.io/service/products.bicep' = {
 param apiManagementServiceName string
 
 @description('Whether subscription approval is required or not.')
-param approvalRequired bool
+param approvalRequired bool?
 
 @description('Product description. May include HTML formatting tags.')
 param productDescription string
@@ -40,6 +40,7 @@ param productDisplayName string
 
 @description('The resource name')
 @minLength(1)
+@maxLength(80)
 param name string
 
 @allowed([
@@ -50,10 +51,10 @@ param name string
 param state string = 'notPublished'
 
 @description('Whether subscription is required or not.')
-param subscriptionRequired bool
+param subscriptionRequired bool?
 
 @description('Whether the number of subscriptions a user can have to this product at the same time. Set to null or omit to allow unlimited per user subscriptions. Can be present only if subscriptionRequired property is present and has a value of false.')
-param subscriptionLimit int
+param subscriptionLimit int?
 
 @description('Product terms of use. Developers trying to subscribe to the product will be presented and required to accept these terms before they can complete the subscription process.')
 param terms string
