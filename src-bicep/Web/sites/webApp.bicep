@@ -322,7 +322,12 @@ Public certificates for Azure App Service for example intermediate and root cert
   }
 ]
 ''')
-param publicCertificates array = []
+type publicCertifcate = {
+  name: string
+  blob: string
+  publicCertificateLocation: 'CurrentUserMy' | 'LocalMachineMy' | 'Unknown'
+}
+param publicCertificates publicCertifcate[] = []
 
 // ================================================= Variables =================================================
 @description('''
@@ -344,9 +349,9 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
 }
 
 @description('Fetch the application insights instance. This application insights instance should be pre-existing.')
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = if(!empty(appInsightsName)) {
   scope: az.resourceGroup(appInsightsResourceGroupName)
-  name: appInsightsName
+  name: !empty(appInsightsName) ? appInsightsName : 'donotuse'
 }
 
 @description('Only set linux site config if the app service plan is of kind linux, otherwise deployment fails.')
