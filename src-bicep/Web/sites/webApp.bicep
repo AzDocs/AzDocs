@@ -329,18 +329,6 @@ type publicCertifcate = {
 }
 param publicCertificates publicCertifcate[] = []
 
-// ================================================= Variables =================================================
-@description('''
-Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).
-[link](https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=dotnet5)
-''')
-var internalSettings = !empty(appInsightsName)
-  ? {
-      APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString // Recommended MS way
-      APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey // Some features don't work without this (for example Log Stream)
-    }
-  : {}
-
 // ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this appservice instance. This app service plan should be pre-existing.')
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
@@ -353,6 +341,17 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = if(!e
   scope: az.resourceGroup(appInsightsResourceGroupName)
   name: !empty(appInsightsName) ? appInsightsName : 'donotuse' // in order to prevent a pre-validation error, fill in a dummy value
 }
+
+@description('''
+Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).
+[link](https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=dotnet5)
+''')
+var internalSettings = !empty(appInsightsName)
+  ? {
+      APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString // Recommended MS way
+      APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey // Some features don't work without this (for example Log Stream)
+    }
+  : {}
 
 @description('Only set linux site config if the app service plan is of kind linux, otherwise deployment fails.')
 var linuxSiteConfig = appServicePlan.kind == 'linux'
@@ -460,24 +459,24 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     )
   }
 
-  resource config 'config@2022-09-01' = if (deploySlot) {
+  resource configStaging 'config@2022-09-01' = if (deploySlot) {
     name: 'appsettings'
     properties: union(internalSettings, appSettings)
   }
 
-  resource connectionString 'config@2022-09-01' = if (deploySlot) {
+  resource connectionStringStaging 'config@2022-09-01' = if (deploySlot) {
     name: 'connectionstrings'
     properties: connectionStrings
   }
 
-  resource basicPublishingCredentialsPoliciesFtp 'basicPublishingCredentialsPolicies@2022-09-01' = {
+  resource basicPublishingCredentialsPoliciesFtpStaging 'basicPublishingCredentialsPolicies@2022-09-01' = {
     name: 'ftp'
     properties: {
       allow: false
     }
   }
 
-  resource basicPublishingCredentialsPoliciesScm 'basicPublishingCredentialsPolicies@2022-09-01' = {
+  resource basicPublishingCredentialsPoliciesScmStaging 'basicPublishingCredentialsPolicies@2022-09-01' = {
     name: 'scm'
     properties: {
       allow: false
