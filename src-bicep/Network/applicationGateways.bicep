@@ -331,7 +331,14 @@ param deployDefaults bool = true
 ])
 param availabilityZones array = []
 
+@description('Optional parameter to set all custom errorpages on the application gateway to the html file at this url')
+param customErrorpagesUrl string = ''
 
+@description('Optional parameter to set custom errorpage for error 403 on the application gateway to the html file at this url')
+param customErrorpage403Url string = ''
+
+@description('Optional parameter to set custom errorpage for error 502 on the application gateway to the html file at this url')
+param customErrorpage502Url string = ''
 
 // ===================================== Variables =====================================
 @description('Building up the Backend Address Pools based on ezApplicationGatewayEntrypoints')
@@ -646,6 +653,26 @@ var unifiedRewriteRuleSets = union(rewriteRuleSets, redirectHttpToHttps ? [
   ] : []
 )
 
+var customErrorConfigurations = union(
+  [],
+  (!empty(customErrorpage403Url) || !empty(customErrorpagesUrl))
+    ? [
+        {
+          customErrorPageUrl: !empty(customErrorpage403Url) ? customErrorpage403Url : customErrorpagesUrl
+          statusCode: 'HttpStatus403'
+        }
+      ]
+    : [],
+  (!empty(customErrorpage502Url) || !empty(customErrorpagesUrl))
+    ? [
+        {
+          customErrorPageUrl: !empty(customErrorpage502Url) ? customErrorpage502Url : customErrorpagesUrl
+          statusCode: 'HttpStatus502'
+        }
+      ]
+    : []
+)
+
 // ===================================== Resources =====================================
 @description('Static website if http needs to be redirected to https and no fqdn is supplied with `FqdnToRedirect`')
 module swaRedirect '../Web/staticSites.bicep' = if (redirectHttpToHttps && empty(fqdnToRedirect)) {
@@ -667,7 +694,7 @@ resource applicationGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2022-01
 }
 
 @description('Upsert the Application Gateway with the given parameters.')
-resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' = {
+resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' = {
   name: applicationGatewayName
   tags: tags
   location: location
@@ -678,6 +705,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' =
       minCapacity: minCapacity
       maxCapacity: maxCapacity
     }
+    customErrorConfigurations: customErrorConfigurations
     gatewayIPConfigurations: unifiedGatewayIPConfigurations
     frontendIPConfigurations: frontendIpConfigurations
     frontendPorts: frontendPorts

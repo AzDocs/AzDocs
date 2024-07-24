@@ -58,6 +58,9 @@ Creating an application gateway
 | fqdnToRedirect | string | <input type="checkbox"> | None | <pre>''</pre> | Supply a fqdn to use for redirection. It is expected that the website would redirect all traffic to https with the same fqdn. See also `RedirectHttpToHttps`for more information |
 | deployDefaults | bool | <input type="checkbox"> | None | <pre>true</pre> | If this is true the default port 80 rule, listener, backendsettings and backendpool will be added to the application gateway. |
 | availabilityZones | array | <input type="checkbox"> | `'1'` or `'2'` or `'3'` | <pre>[]</pre> | The zones to use for this application gateway. |
+| customErrorpagesUrl | string | <input type="checkbox"> | None | <pre>''</pre> | Optional parameter to set all custom errorpages on the application gateway to the html file at this url |
+| customErrorpage403Url | string | <input type="checkbox"> | None | <pre>''</pre> | Optional parameter to set custom errorpage for error 403 on the application gateway to the html file at this url |
+| customErrorpage502Url | string | <input type="checkbox"> | None | <pre>''</pre> | Optional parameter to set custom errorpage for error 502 on the application gateway to the html file at this url |
 
 ## Outputs
 | Name | Type | Description |
