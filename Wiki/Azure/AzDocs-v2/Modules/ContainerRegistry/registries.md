@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+## User Defined Types
+| Name | Type | Discriminator | Description
+| -- |  -- | -- | -- |
+| <a id="containerRegistrySku">containerRegistrySku</a>  | <pre>'Basic' &#124; 'Premium' &#124; 'Standard'</pre> |  | possible SKU options | 
+
 ## Synopsis
 Creating a Azure Container Registry.
 
@@ -19,16 +24,16 @@ Creating an Azure Container Registry with the given specs.
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to the [specifications](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings) |
 | identity | object | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | Sets the identity property for the container registry<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;type: 'UserAssigned'<br>&nbsp;&nbsp;&nbsp;userAssignedIdentities: userAssignedIdentities<br>}' |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
-| skuName | string | <input type="checkbox"> | `'Basic'` or `'Classic'` or `'Premium'` or `'Standard'` | <pre>'Premium'</pre> | The sku of this Azure Container Registry. |
+| skuName | [containerRegistrySku](#containerRegistrySku) | <input type="checkbox"> | None | <pre>'Premium'</pre> | The sku of this Azure Container Registry. |
 | adminUserEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable the admin user to login with a username & password to this ACR. |
 | anonymousPullEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Allow pulling without being authenticated against this Azure Container Registry. |
 | allowAzureServicesNetworkBypass | bool | <input type="checkbox"> | None | <pre>false</pre> | If you want to allow trusted azure services to bypass your network settings, enable this. |
 | publicNetworkAccess | bool | <input type="checkbox"> | None | <pre>false</pre> | The default network action for this Azure Container Registry. |
-| ipRules | array | <input type="checkbox"> | None | <pre>[]</pre> | An array of IP Rules to apply to this Azure Container Registry. For object structure, please refer to the [specification](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep#iprule). |
+| ipRules | array | <input type="checkbox"> | None | <pre>[]</pre> | An array of IP Rules to apply to this Azure Container Registry. <br>For object structure, please refer to the [specification]<br>(https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep#iprule). |
 | policies | object | <input type="checkbox"> | None | <pre>{}</pre> | The policies to apply on this ACR. For object structure, please refer to the [specifications](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep#policies). |
 | zoneRedundancy | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Enable zone redundancy for this ACR. |
 | dataEndpointEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable data endpoint for this ACR. |
-| networkRuleSet | object | <input type="checkbox"> | None | <pre>empty(ipRules) ? {</pre> | Setting up the networkRuleSet and add ip rules if any are defined. |
+| networkRuleSet | object | <input type="checkbox"> | None | <pre>empty(ipRules)</pre> | Setting up the networkRuleSet and add ip rules if any are defined. |
 
 ## Outputs
 | Name | Type | Description |
@@ -39,7 +44,7 @@ Creating an Azure Container Registry with the given specs.
 
 ## Examples
 <pre>
-module acr '../../AzDocs/src-bicep/ContainerRegistry/registries.bicep' = {
+module acr 'br:acrazdocsprd.azurecr.io/containerregistry/registries:2024.06.07.1-main' = {
   name: format('{0}-{1}', take('${deployment().name}', 48), 'acrDeploy')
   params: {
     tags: tags

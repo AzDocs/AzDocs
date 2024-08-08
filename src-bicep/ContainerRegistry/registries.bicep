@@ -5,7 +5,7 @@ Creating a Azure Container Registry.
 Creating an Azure Container Registry with the given specs.
 .EXAMPLE
 <pre>
-module acr '../../AzDocs/src-bicep/ContainerRegistry/registries.bicep' = {
+module acr 'br:acrazdocsprd.azurecr.io/containerregistry/registries:2024.06.07.1-main' = {
   name: format('{0}-{1}', take('${deployment().name}', 48), 'acrDeploy')
   params: {
     tags: tags
@@ -104,14 +104,11 @@ Example:
 ''')
 param tags object = {}
 
-@allowed([
-  'Basic'
-  'Classic'
-  'Premium'
-  'Standard'
-])
+@description('possible SKU options')
+type containerRegistrySku = 'Basic' | 'Premium' | 'Standard'
+
 @description('The sku of this Azure Container Registry.')
-param skuName string = 'Premium'
+param skuName containerRegistrySku = 'Premium'
 
 @description('Enable the admin user to login with a username & password to this ACR.')
 param adminUserEnabled bool = false
@@ -127,7 +124,11 @@ The default network action for this Azure Container Registry.
 Disabling public network access is not allowed for SKU Basic and SKU Standard.''')
 param publicNetworkAccess bool = false
 
-@description('An array of IP Rules to apply to this Azure Container Registry. For object structure, please refer to the [specification](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep#iprule).')
+@description('''
+An array of IP Rules to apply to this Azure Container Registry. 
+For object structure, please refer to the [specification]
+(https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep#iprule).
+This param is not used for SKU Basic and SKU Standard.''')
 param ipRules array = []
 
 @description('The policies to apply on this ACR. For object structure, please refer to the [specifications](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep#policies).')
@@ -143,14 +144,21 @@ param zoneRedundancy string = 'Disabled'
 @description('Enable data endpoint for this ACR.')
 param dataEndpointEnabled bool = false
 
-@description('Setting up the networkRuleSet and add ip rules if any are defined.')
-param networkRuleSet object = empty(ipRules) ? {
-  defaultAction: 'Allow'
-  ipRules: []
-} : {
-  defaultAction: 'Deny'
-  ipRules: ipRules
-}
+@description('''
+Setting up the networkRuleSet and add ip rules if any are defined.
+This param is not used for SKU Basic and SKU Standard.''')
+param networkRuleSet object = empty(ipRules)
+  ? {
+      defaultAction: 'Allow'
+      ipRules: []
+    }
+  : {
+      defaultAction: 'Deny'
+      ipRules: ipRules
+    }
+
+@description('networkRuleSet param is not allowed for SKU Basic and SKU Standard.')
+var enableNetworkRuleSet = skuName == 'Premium'
 
 @description('Upsert the azure container registry instance.')
 resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
@@ -164,7 +172,7 @@ resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = 
   properties: {
     adminUserEnabled: adminUserEnabled
     anonymousPullEnabled: anonymousPullEnabled
-    networkRuleSet: networkRuleSet
+    networkRuleSet: enableNetworkRuleSet ? networkRuleSet : null
     policies: policies
     dataEndpointEnabled: dataEndpointEnabled
     publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
