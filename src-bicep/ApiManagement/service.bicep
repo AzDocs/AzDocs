@@ -144,9 +144,11 @@ you need to set virtualNetworkType either to External or Internal.
 You also need to open NSG ports [docs](https://learn.microsoft.com/en-gb/azure/api-management/virtual-network-reference?tabs=stv2)
 and other configuration [docs](https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?source=recommendations&tabs=stv2)
 ''')
-var virtualNetworkConfiguration = empty(virtualNetworkName) ? {} : {
-  subnetResourceId: '${subscription().id}/resourceGroups/${virtualNetworkResourceGroupName}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}/subnets/${virtualNetworkIntegrationSubnetName}'
-}
+var virtualNetworkConfiguration = empty(virtualNetworkName)
+  ? {}
+  : {
+      subnetResourceId: '${subscription().id}/resourceGroups/${virtualNetworkResourceGroupName}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}/subnets/${virtualNetworkIntegrationSubnetName}'
+    }
 
 @description('''
 Type of network. None (Default Value) means the API Management service is not part of any Virtual Network. This is mandatory when using private endpoints.
