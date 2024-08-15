@@ -26,6 +26,19 @@ module topic 'br:contosoregistry.azurecr.io/servicebus/namespaces/topics:latest'
 .LINKS
 - [Bicep Microsoft.ServiceBus/Namespaces/Topics](https://learn.microsoft.com/en-us/azure/templates/microsoft.servicebus/namespaces/topics?pivots=deployment-language-bicep)
 */
+
+@description('Type representing the status of a messaging entity.')
+type statusType = 'Active'
+  | 'Creating'
+  | 'Deleting'
+  | 'Disabled'	
+  | 'ReceiveDisabled'
+  | 'Renaming'
+  | 'Restoring'
+  | 'SendDisabled'
+  | 'Unknown'
+
+
 @minLength(6)
 @maxLength(50)
 @description('''The name of the servicebus namespace. This will be the target servicebus where systemevents will be delivered.
@@ -80,18 +93,7 @@ param maxSizeInMegabytes int = 1024
 param requiresDuplicateDetection bool
 
 @description('Enumerates the possible values for the status of a messaging entity.')
-@allowed([
-  'Active'
-  'Creating'
-  'Deleting'
-  'Disabled'	
-  'ReceiveDisabled'
-  'Renaming'
-  'Restoring'
-  'SendDisabled'
-  'Unknown'
-])
-param status string = 'Active'
+param status statusType = 'Active'
 
 @description('Value that indicates whether the topic supports ordering.')
 param supportOrdering bool

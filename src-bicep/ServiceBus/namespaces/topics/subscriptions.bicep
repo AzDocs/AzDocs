@@ -46,6 +46,17 @@ type clientAffinePropertiesType = {
   isShared: bool
 }
 
+@description('Enumerates the possible values for the status of a messaging entity.')
+type statusType = 'Active'
+  | 'Creating'
+  | 'Deleting'
+  | 'Disabled'
+  | 'ReceiveDisabled'
+  | 'Renaming'
+  | 'Restoring'
+  | 'SendDisabled'
+  | 'Unknown'
+
 @minLength(6)
 @maxLength(50)
 @description('''The name of the servicebus namespace. This will be the target servicebus where systemevents will be delivered.
@@ -122,18 +133,7 @@ param maxDeliveryCount int
 param requiresSession bool
 
 @description('Enumerates the possible values for the status of a messaging entity.')
-@allowed([
-  'Active'
-  'Creating'
-  'Deleting'
-  'Disabled'
-  'ReceiveDisabled'
-  'Renaming'
-  'Restoring'
-  'SendDisabled'
-  'Unknown'
-])
-param status string
+param status statusType = 'Active'
 
 resource servicebusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' existing = {
   name: serviceBusNamespaceName
