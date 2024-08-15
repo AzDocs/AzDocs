@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+## User Defined Types
+| Name | Type | Discriminator | Description
+| -- |  -- | -- | -- |
+| <a id="statusType">statusType</a>  | <pre>'Active'</pre> |  | Type representing the status of a messaging entity. | 
+
 ## Synopsis
 Creating a Topic inside of a servicebus namespace
 
@@ -22,7 +27,7 @@ Creating a Topic resource with the given specs inside of a servicebus namespace.
 | maxMessageSizeInKilobytes | int | <input type="checkbox"> | None | <pre>1024</pre> | Maximum size (in KB) of the message payload that can be accepted by the topic. This property is only used in Premium today and default is 1024. |
 | maxSizeInMegabytes | int | <input type="checkbox"> | None | <pre>1024</pre> | Maximum size of the topic in megabytes, which is the size of the memory allocated for the topic. Default is 1024. |
 | requiresDuplicateDetection | bool | <input type="checkbox" checked> | None | <pre></pre> | Value indicating if this topic requires duplicate detection. |
-| status | string | <input type="checkbox"> | `'Active'` or `'Creating'` or `'Deleting'` or `'Disabled'` or `'ReceiveDisabled'` or `'Renaming'` or `'Restoring'` or `'SendDisabled'` or `'Unknown'` | <pre>'Active'</pre> | Enumerates the possible values for the status of a messaging entity. |
+| status | [statusType](#statusType) | <input type="checkbox"> | None | <pre>'Active'</pre> | Enumerates the possible values for the status of a messaging entity. |
 | supportOrdering | bool | <input type="checkbox" checked> | None | <pre></pre> | Value that indicates whether the topic supports ordering. |
 
 ## Outputs

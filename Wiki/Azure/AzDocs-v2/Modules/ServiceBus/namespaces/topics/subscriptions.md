@@ -6,6 +6,7 @@ Target Scope: resourceGroup
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
 | <a id="clientAffinePropertiesType">clientAffinePropertiesType</a>  | <pre>{</pre> |  | The properties of the client-affine subscription. | 
+| <a id="statusType">statusType</a>  | <pre>'Active'</pre> |  | Enumerates the possible values for the status of a messaging entity. | 
 
 ## Synopsis
 Creating a Subscription inside of a servicebus namespace topic
@@ -32,7 +33,7 @@ Creating a Subscription resource with the given specs inside of a servicebus nam
 | lockDuration | string | <input type="checkbox"> | None | <pre>'PT1M'</pre> | ISO 8061 lock duration timespan for the subscription. The default value is 1 minute. |
 | maxDeliveryCount | int | <input type="checkbox" checked> | None | <pre></pre> | Number of maximum deliveries. |
 | requiresSession | bool | <input type="checkbox" checked> | None | <pre></pre> | Value indicating if a subscription supports the concept of sessions. |
-| status | string | <input type="checkbox" checked> | `'Active'` or `'Creating'` or `'Deleting'` or `'Disabled'` or `'ReceiveDisabled'` or `'Renaming'` or `'Restoring'` or `'SendDisabled'` or `'Unknown'` | <pre></pre> | Enumerates the possible values for the status of a messaging entity. |
+| status | statusType | <input type="checkbox"> | None | <pre>'Active'</pre> | Enumerates the possible values for the status of a messaging entity. |
 
 ## Outputs
 | Name | Type | Description |
