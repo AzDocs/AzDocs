@@ -5,7 +5,7 @@ Creating a Queue inside of a servicebus namespace
 Creating a Queue resource with the given specs inside of a servicebus namespace.
 .EXAMPLE
 <pre>
-module queue 'br:contosoregistry.azurecr.io/servicebus/namespaces/queue:latest' = {
+module queue 'br:contosoregistry.azurecr.io/servicebus/namespaces/queues:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 50), 'queue')
   scope: resourceGroup
   params: {
