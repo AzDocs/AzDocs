@@ -2,6 +2,30 @@
 
 Target Scope: resourceGroup
 
+## Synopsis
+Creating an Action Group.
+
+## Description
+Creating an Action Group for Azure Monitor.<br>
+<pre><br>
+module action group 'br:contosoregistry.azurecr.io/insights/actiongroups:latest' = {<br>
+  name: format('{0}-{1}', take('${deployment().name}', 52), 'actiongroup')<br>
+  params: {<br>
+    actionGroupName: 'ag-appl-dev'<br>
+    groupShortName: 'agappldev'<br>
+    emailReceivers: [<br>
+        {<br>
+            name: 'testemailfunction'<br>
+            emailAddress: 'first.last@email.com'<br>
+            useCommonAlertSchema: false<br>
+            status: 'Enabled'<br>
+        }<br>
+    ]<br>
+  }<br>
+}<br>
+</pre><br>
+<p>Configures a smart detection rule with the name 'Degradation in dependency duration' that is integrated in applicationInsights.</p>
+
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
@@ -25,3 +49,6 @@ Target Scope: resourceGroup
 | -- |  -- | -- |
 | actionGroupResourceId | string | The Resource ID of the upserted action group |
 | actionGroupName | string | The name of the upserted action group |
+
+## Links
+- [Bicep Proactive Detection Configs](https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/2018-05-01-preview/components/proactivedetectionconfigs?pivots=deployment-language-bicep)

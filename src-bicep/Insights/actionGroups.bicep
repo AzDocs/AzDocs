@@ -1,3 +1,30 @@
+/*
+.SYNOPSIS
+Creating an Action Group.
+.DESCRIPTION
+Creating an Action Group for Azure Monitor.
+<pre>
+module action group 'br:contosoregistry.azurecr.io/insights/actiongroups:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 52), 'actiongroup')
+  params: {
+    actionGroupName: 'ag-appl-dev'
+    groupShortName: 'agappldev'
+    emailReceivers: [
+        {
+            name: 'testemailfunction'
+            emailAddress: 'first.last@email.com'
+            useCommonAlertSchema: false
+            status: 'Enabled'
+        }
+    ]
+  }
+}
+</pre>
+<p>Configures a smart detection rule with the name 'Degradation in dependency duration' that is integrated in applicationInsights.</p>
+.LINKS
+- [Bicep Proactive Detection Configs](https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/2018-05-01-preview/components/proactivedetectionconfigs?pivots=deployment-language-bicep)
+*/
+// ===================================== Parameters =====================================
 @description('The name of the actionGroup to upsert.')
 @minLength(1)
 @maxLength(260)
@@ -41,7 +68,7 @@ Example:
 param tags object = {}
 
 @description('Upsert the actionGroup with the given parameters.')
-resource actionGroup 'Microsoft.Insights/actionGroups@2021-09-01' = {
+resource actionGroup 'Microsoft.Insights/actionGroups@2023-09-01-preview' = {
   name: actionGroupName
   tags: tags
   location: 'global'
