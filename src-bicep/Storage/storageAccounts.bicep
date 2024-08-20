@@ -88,6 +88,10 @@ The access tier is used for billing. The 'Premium' access tier is the default va
 ])
 param defaultBlobAccessTier string = 'Hot'
 
+
+// Set the defaultBlobAccessTier to null if the storageAccountSku is Premium_ZRS or Premium_LRS
+var effectiveBlobAccessTier = contains(storageAccountSku, 'Premium') ? null : defaultBlobAccessTier
+
 @description('Allow or disallow public access to all blobs or containers in the storage account. The default interpretation is true for this property.')
 param allowBlobPublicAccess bool = false
 
@@ -281,7 +285,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     name: storageAccountSku
   }
   properties: {
-    accessTier: defaultBlobAccessTier
+    accessTier: effectiveBlobAccessTier
     allowBlobPublicAccess: allowBlobPublicAccess
     allowSharedKeyAccess: allowSharedKeyAccess
     #disable-next-line BCP035
