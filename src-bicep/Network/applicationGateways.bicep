@@ -721,7 +721,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' =
     firewallPolicy: {
       id: applicationGatewayWafPolicies.id
     }
-	privateLinkConfigurations: privateLinkConfigurations
+	  privateLinkConfigurations: privateLinkConfigurations
     sslProfiles: unifiedSslProfiles
     sslPolicy: sslPolicy
     sslCertificates: sslCertificates
