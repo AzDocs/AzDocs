@@ -88,8 +88,7 @@ The access tier is used for billing. The 'Premium' access tier is the default va
 ])
 param defaultBlobAccessTier string = 'Hot'
 
-
-// Set the defaultBlobAccessTier to null if the storageAccountSku is Premium_ZRS or Premium_LRS
+@description('Set the accessTier property on the storage account to null if the storageAccountSku is Premium_ZRS or Premium_LRS. Otherwise it will have the value of the defaultBlobAccessTier parameter.')
 var effectiveBlobAccessTier = contains(storageAccountSku, 'Premium') ? null : defaultBlobAccessTier
 
 @description('Allow or disallow public access to all blobs or containers in the storage account. The default interpretation is true for this property.')
@@ -208,6 +207,14 @@ Possible values are any combination of Logging,Metrics,AzureServices (For exampl
 ])
 param allowBypassAcl string = 'None'
 
+@description('Account HierarchicalNamespace enabled if set to true. Can only be set at account creation time. ')
+param isHnsEnabled bool = false
+
+@description('Dealing with [issue:](https://github.com/Azure/azure-rest-api-specs/issues/18441)')
+var hnsPropertyObject = isHnsEnabled ? {
+  isHnsEnabled: true
+} : {}
+
 // ================================================= Variables =================================================
 @description('''
 One or more managed identities on this storage account. Defaults to no assigned managed identity. 
@@ -258,24 +265,24 @@ the user assigned managed identity bound to the storage account.
 Add the required RBAC or access policy rights to this account on the Keyvault if it needs to be able to get, list, or decrypt the keys from the keyvault. 
 For example if a cmk key is used.
 ''')
-resource storageAccountUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (!empty(userAssignedIdentityName)) {
+resource storageAccountUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' existing = if (!empty(userAssignedIdentityName)) {
   name: userAssignedIdentityName
   scope: resourceGroup(userAssignedIdentityResourceGroupName)
 }
 
 @description('The key vault to use for encryption. Needs to be pre-existing.')
-resource cMKKeyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = if (!empty(keyVaultName)) {
+resource cMKKeyVault 'Microsoft.KeyVault/vaults@2024-04-01-preview' existing = if (!empty(keyVaultName)) {
   name: keyVaultName
   scope: resourceGroup(keyVaultResourceGroupName)
 
-  resource cMKKey 'keys@2023-07-01' existing = if (!empty(keyName)) {
+  resource cMKKey 'keys@2024-04-01-preview' existing = if (!empty(keyName)) {
     name: keyName
   }
 }
 
 // ================================================= Resources =================================================
 @description('Upsert the storage account based on the given parameters.')
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: toLower(storageAccountName)
   identity: identity
   location: location
@@ -284,7 +291,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   sku: {
     name: storageAccountSku
   }
-  properties: {
+  properties: union({
     accessTier: effectiveBlobAccessTier
     allowBlobPublicAccess: allowBlobPublicAccess
     allowSharedKeyAccess: allowSharedKeyAccess
@@ -334,7 +341,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     supportsHttpsTrafficOnly: true
     networkAcls: networkAcls
     publicNetworkAccess: publicNetworkAccess
-  }
+  }, hnsPropertyObject)
 }
 
 @description('Upsert the diagnostic settings for the storage account based on the given parameters.')

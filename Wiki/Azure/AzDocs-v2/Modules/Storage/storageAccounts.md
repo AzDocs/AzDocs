@@ -38,6 +38,7 @@ Creating a storage account.
 | keyName | string | <input type="checkbox"> | None | <pre>''</pre> | The name of the key in the key vault to use for encryption. If this is set, the storage account will be encrypted with a key from the key vault. |
 | overrideNoIdentity | bool | <input type="checkbox"> | None | <pre>true</pre> | Determine that the storage account does not have an identity. If you want to use a cmk key,then you need to set this to false. Defaults to true for backwards compatibility. |
 | allowBypassAcl | string | <input type="checkbox"> | `'AzureServices'` or `'None'` or `'Logging'` or `'Metrics'` or `'Logging, Metrics'` or `'Logging, Metrics, AzureServices'` | <pre>'None'</pre> | Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. <br>Possible values are any combination of Logging,Metrics,AzureServices (For example, "Logging, Metrics"), or None to bypass none of those traffics. |
+| isHnsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Account HierarchicalNamespace enabled if set to true. Can only be set at account creation time.  |
 
 ## Outputs
 | Name | Type | Description |
