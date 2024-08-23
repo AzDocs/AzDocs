@@ -340,6 +340,9 @@ param customErrorpage403Url string = ''
 @description('Optional parameter to set custom errorpage for error 502 on the application gateway to the html file at this url')
 param customErrorpage502Url string = ''
 
+@description('Optional array of private link configurations. For object structure, please refer to the [Bicep resource definition](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayprivatelinkconfiguration).')
+param privateLinkConfigurations array = []
+
 // ===================================== Variables =====================================
 @description('Building up the Backend Address Pools based on ezApplicationGatewayEntrypoints')
 var ezApplicationGatewayBackendAddressPools = [for entryPoint in ezApplicationGatewayEntrypoints: {
@@ -718,6 +721,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' =
     firewallPolicy: {
       id: applicationGatewayWafPolicies.id
     }
+	privateLinkConfigurations: privateLinkConfigurations
     sslProfiles: unifiedSslProfiles
     sslPolicy: sslPolicy
     sslCertificates: sslCertificates
