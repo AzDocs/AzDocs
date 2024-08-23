@@ -306,7 +306,9 @@ The default frontend Ip Configuration that is used to attach the httplisteners t
   'appGatewayFrontendIP'
   'appGatewayPrivateFrontendIP'
 ])
-param defaultFrontendIpConfigurationName string = enablePrivateFrontendIp ? 'appGatewayPrivateFrontendIP' : 'appGatewayFrontendIP'
+param defaultFrontendIpConfigurationName string = enablePrivateFrontendIp
+  ? 'appGatewayPrivateFrontendIP'
+  : 'appGatewayFrontendIP'
 
 @description('''
 If this is true the default port 80 rule will be adjusted so that it will redirect http to https requests.
@@ -340,104 +342,232 @@ param customErrorpage403Url string = ''
 @description('Optional parameter to set custom errorpage for error 502 on the application gateway to the html file at this url')
 param customErrorpage502Url string = ''
 
+@description('Optional array of private link configurations. For object structure, please refer to the [Bicep resource definition](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayprivatelinkconfiguration).')
+param privateLinkConfigurations array = []
+
 // ===================================== Variables =====================================
 @description('Building up the Backend Address Pools based on ezApplicationGatewayEntrypoints')
-var ezApplicationGatewayBackendAddressPools = [for entryPoint in ezApplicationGatewayEntrypoints: {
-  name: replace(ezApplicationGatewayEntrypointsBackendAddressPoolName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-  properties: union({}, empty(entryPoint.backendAddressFqdn) ? { backendAddresses: [] } : {
-      backendAddresses: [
-        {
-          fqdn: entryPoint.backendAddressFqdn
-        }
-      ]
-    })
-}]
+var ezApplicationGatewayBackendAddressPools = [
+  for entryPoint in ezApplicationGatewayEntrypoints: {
+    name: replace(
+      ezApplicationGatewayEntrypointsBackendAddressPoolName,
+      '<entrypointHostName>',
+      replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')
+    )
+    properties: union(
+      {},
+      empty(entryPoint.backendAddressFqdn)
+        ? { backendAddresses: [] }
+        : {
+            backendAddresses: [
+              {
+                fqdn: entryPoint.backendAddressFqdn
+              }
+            ]
+          }
+    )
+  }
+]
 
 @description('Create a list of trusted root ca id\'s based on the param trustedRootCertificates')
-var trustedRootCertificateIds = [for trustedRootCertificate in trustedRootCertificates: {
-  id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/trustedRootCertificates', applicationGatewayName, trustedRootCertificate.name)
-}]
+var trustedRootCertificateIds = [
+  for trustedRootCertificate in trustedRootCertificates: {
+    id: resourceId(
+      subscription().subscriptionId,
+      az.resourceGroup().name,
+      'Microsoft.Network/applicationGateways/trustedRootCertificates',
+      applicationGatewayName,
+      trustedRootCertificate.name
+    )
+  }
+]
 
-var ezApplicationGatewayBackendHttpSettingsCollection = [for entryPoint in ezApplicationGatewayEntrypoints: {
-  name: replace(ezApplicationGatewayEntrypointsBackendHttpSettingsName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-  properties: union(
-    {
-      port: 443
+var ezApplicationGatewayBackendHttpSettingsCollection = [
+  for entryPoint in ezApplicationGatewayEntrypoints: {
+    name: replace(
+      ezApplicationGatewayEntrypointsBackendHttpSettingsName,
+      '<entrypointHostName>',
+      replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')
+    )
+    properties: union(
+      {
+        port: 443
+        protocol: 'Https'
+        cookieBasedAffinity: 'Disabled'
+        connectionDraining: {
+          enabled: false
+          drainTimeoutInSec: 1
+        }
+        pickHostNameFromBackendAddress: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName)
+          ? false
+          : true
+        hostName: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName)
+          ? entryPoint.backendSettingsOverrideHostName
+          : ''
+        affinityCookieName: replace(
+          ezApplicationGatewayEntrypointsAfinityCookieNameName,
+          '<entrypointHostName>',
+          replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')
+        )
+        requestTimeout: 30
+        probe: {
+          id: resourceId(
+            subscription().subscriptionId,
+            az.resourceGroup().name,
+            'Microsoft.Network/applicationGateways/probes',
+            applicationGatewayName,
+            replace(
+              ezApplicationGatewayEntrypointsProbeName,
+              '<entrypointHostName>',
+              replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')
+            )
+          )
+        }
+      },
+      contains(entryPoint, 'backendSettingsOverrideTrustedRootCertificates') && entryPoint.backendSettingsOverrideTrustedRootCertificates == true
+        ? {
+            trustedRootCertificates: trustedRootCertificateIds
+          }
+        : {}
+    )
+  }
+]
+
+var ezApplicationGatewayHttpListeners = [
+  for entryPoint in ezApplicationGatewayEntrypoints: {
+    name: replace(
+      ezApplicationGatewayEntrypointsHttpsListenerName,
+      '<entrypointHostName>',
+      replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')
+    )
+    properties: {
+      frontendIPConfiguration: {
+        id: resourceId(
+          subscription().subscriptionId,
+          az.resourceGroup().name,
+          'Microsoft.Network/applicationGateways/frontendIPConfigurations',
+          applicationGatewayName,
+          defaultFrontendIpConfigurationName
+        )
+      }
+      frontendPort: {
+        id: resourceId(
+          subscription().subscriptionId,
+          az.resourceGroup().name,
+          'Microsoft.Network/applicationGateways/frontendPorts',
+          applicationGatewayName,
+          'Port_443'
+        ) // TODO: Hardcoded value
+      }
       protocol: 'Https'
-      cookieBasedAffinity: 'Disabled'
-      connectionDraining: {
-        enabled: false
-        drainTimeoutInSec: 1
+      sslCertificate: {
+        id: resourceId(
+          subscription().subscriptionId,
+          az.resourceGroup().name,
+          'Microsoft.Network/applicationGateways/sslCertificates',
+          applicationGatewayName,
+          replace(replace(replace(replace(entryPoint.certificateName, '-', '--'), '.', '-'), '_', '-'), ' ', '-')
+        )
       }
-      pickHostNameFromBackendAddress: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName) ? false : true
-      hostName: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName) ? entryPoint.backendSettingsOverrideHostName : ''
-      affinityCookieName: replace(ezApplicationGatewayEntrypointsAfinityCookieNameName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-      requestTimeout: 30
-      probe: {
-        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, replace(ezApplicationGatewayEntrypointsProbeName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')))
-      }
-    }, contains(entryPoint, 'backendSettingsOverrideTrustedRootCertificates') && entryPoint.backendSettingsOverrideTrustedRootCertificates == true ? {
-      trustedRootCertificates: trustedRootCertificateIds
-    } : {}
-  )
-}]
-
-var ezApplicationGatewayHttpListeners = [for entryPoint in ezApplicationGatewayEntrypoints: {
-  name: replace(ezApplicationGatewayEntrypointsHttpsListenerName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-  properties: {
-    frontendIPConfiguration: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, defaultFrontendIpConfigurationName)
-    }
-    frontendPort: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_443') // TODO: Hardcoded value
-    }
-    protocol: 'Https'
-    sslCertificate: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/sslCertificates', applicationGatewayName, replace(replace(replace(replace(entryPoint.certificateName, '-', '--'), '.', '-'), '_', '-'), ' ', '-'))
-    }
-    hostName: entryPoint.entrypointHostName
-    requireServerNameIndication: true
-  }
-}]
-
-var ezApplicationGatewayRequestRoutingRules = [for i in range(0, length(ezApplicationGatewayEntrypoints)): {
-  name: replace(ezApplicationGatewayEntrypointsRequestRoutingRuleName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-'))
-  properties: union({
-      ruleType: 'Basic'
-      priority: (i * 10) + 10000
-      httpListener: {
-        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, replace(ezApplicationGatewayEntrypointsHttpsListenerName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
-      }
-      backendAddressPool: {
-        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendAddressPoolName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
-      }
-      backendHttpSettings: {
-        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, replace(ezApplicationGatewayEntrypointsBackendHttpSettingsName, '<entrypointHostName>', replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')))
-      }
-    }, contains(ezApplicationGatewayEntrypoints[i], 'rewriteRulesetName') && !empty(ezApplicationGatewayEntrypoints[i].rewriteRulesetName) ? {
-      rewriteRuleSet: {
-        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, ezApplicationGatewayEntrypoints[i].rewriteRulesetName)
-      }
-    } : {})
-}]
-
-var ezApplicationGatewayProbes = [for entryPoint in ezApplicationGatewayEntrypoints: {
-  name: replace(ezApplicationGatewayEntrypointsProbeName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-  properties: {
-    protocol: 'Https'
-    path: contains(entryPoint, 'backendSettingsOverrideProbePath') && !empty(entryPoint.backendSettingsOverrideProbePath) ? entryPoint.backendSettingsOverrideProbePath : '/'
-    interval: 60
-    timeout: 20
-    unhealthyThreshold: 2
-    pickHostNameFromBackendHttpSettings: true
-    minServers: 0
-    match: {
-      statusCodes: [
-        '200-399'
-      ]
+      hostName: entryPoint.entrypointHostName
+      requireServerNameIndication: true
     }
   }
-}]
+]
+
+var ezApplicationGatewayRequestRoutingRules = [
+  for i in range(0, length(ezApplicationGatewayEntrypoints)): {
+    name: replace(
+      ezApplicationGatewayEntrypointsRequestRoutingRuleName,
+      '<entrypointHostName>',
+      replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')
+    )
+    properties: union(
+      {
+        ruleType: 'Basic'
+        priority: (i * 10) + 10000
+        httpListener: {
+          id: resourceId(
+            subscription().subscriptionId,
+            az.resourceGroup().name,
+            'Microsoft.Network/applicationGateways/httpListeners',
+            applicationGatewayName,
+            replace(
+              ezApplicationGatewayEntrypointsHttpsListenerName,
+              '<entrypointHostName>',
+              replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')
+            )
+          )
+        }
+        backendAddressPool: {
+          id: resourceId(
+            subscription().subscriptionId,
+            az.resourceGroup().name,
+            'Microsoft.Network/applicationGateways/backendAddressPools',
+            applicationGatewayName,
+            replace(
+              ezApplicationGatewayEntrypointsBackendAddressPoolName,
+              '<entrypointHostName>',
+              replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')
+            )
+          )
+        }
+        backendHttpSettings: {
+          id: resourceId(
+            subscription().subscriptionId,
+            az.resourceGroup().name,
+            'Microsoft.Network/applicationGateways/backendHttpSettingsCollection',
+            applicationGatewayName,
+            replace(
+              ezApplicationGatewayEntrypointsBackendHttpSettingsName,
+              '<entrypointHostName>',
+              replace(replace(ezApplicationGatewayEntrypoints[i].entrypointHostName, '-', '--'), '.', '-')
+            )
+          )
+        }
+      },
+      contains(ezApplicationGatewayEntrypoints[i], 'rewriteRulesetName') && !empty(ezApplicationGatewayEntrypoints[i].rewriteRulesetName)
+        ? {
+            rewriteRuleSet: {
+              id: resourceId(
+                subscription().subscriptionId,
+                az.resourceGroup().name,
+                'Microsoft.Network/applicationGateways/rewriteRuleSets',
+                applicationGatewayName,
+                ezApplicationGatewayEntrypoints[i].rewriteRulesetName
+              )
+            }
+          }
+        : {}
+    )
+  }
+]
+
+var ezApplicationGatewayProbes = [
+  for entryPoint in ezApplicationGatewayEntrypoints: {
+    name: replace(
+      ezApplicationGatewayEntrypointsProbeName,
+      '<entrypointHostName>',
+      replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')
+    )
+    properties: {
+      protocol: 'Https'
+      path: contains(entryPoint, 'backendSettingsOverrideProbePath') && !empty(entryPoint.backendSettingsOverrideProbePath)
+        ? entryPoint.backendSettingsOverrideProbePath
+        : '/'
+      interval: 60
+      timeout: 20
+      unhealthyThreshold: 2
+      pickHostNameFromBackendHttpSettings: true
+      minServers: 0
+      match: {
+        statusCodes: [
+          '200-399'
+        ]
+      }
+    }
+  }
+]
 
 @description('The public frontend ip configuration for this application gateway. This will be merged into the `frontendIpConfigurations` variable.')
 var publicFrontendIpConfiguration = {
@@ -455,21 +585,23 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-05-01' existing = {
 }
 
 @description('The default frontend ip configurations. If the private frontend IP feature is enabled, this will prepare the correct object structure for both public & private ip\'s. If disabled, it will only include the public ip.')
-var frontendIpConfigurations = enablePrivateFrontendIp ? [
-  publicFrontendIpConfiguration
-  {
-    name: 'appGatewayPrivateFrontendIP'
-    properties: {
-      privateIPAllocationMethod: 'Static'
-      privateIPAddress: privateFrontendStaticIp
-      subnet: {
-        id: '${vnet.id}/subnets/${applicationGatewaySubnetName}'
+var frontendIpConfigurations = enablePrivateFrontendIp
+  ? [
+      publicFrontendIpConfiguration
+      {
+        name: 'appGatewayPrivateFrontendIP'
+        properties: {
+          privateIPAllocationMethod: 'Static'
+          privateIPAddress: privateFrontendStaticIp
+          subnet: {
+            id: '${vnet.id}/subnets/${applicationGatewaySubnetName}'
+          }
+        }
       }
-    }
-  }
-] : [
-  publicFrontendIpConfiguration
-]
+    ]
+  : [
+      publicFrontendIpConfiguration
+    ]
 
 @description('This is the custom v2 legacy profile')
 var legacyCustomV2Profile = {
@@ -508,7 +640,12 @@ var legacyCustomProfile = {
 }
 
 @description('Defines the default legacy profile, based on if the main profile is customv2 or something else.')
-var legacyProfile = sslPolicy.policyType == 'Custom' || (sslPolicy.policyType == 'Predefined' && startsWith(sslPolicy.policyName, 'AppGwSslPolicy201')) ? legacyCustomProfile : legacyCustomV2Profile
+var legacyProfile = sslPolicy.policyType == 'Custom' || (sslPolicy.policyType == 'Predefined' && startsWith(
+    sslPolicy.policyName,
+    'AppGwSslPolicy201'
+  ))
+  ? legacyCustomProfile
+  : legacyCustomV2Profile
 
 var defaultBackendPoolName = 'appGatewayBackendPool'
 var defaultRuleName = 'defaultRule'
@@ -517,140 +654,196 @@ var defaultHttpListener = 'appGatewayHttpListener'
 var defaultBackendHttpSettingsName = 'appGatewayBackendHttpSettings'
 
 @description('This unifies the user-defined SSL profiles & the default legacy profile we offer from this module.')
-var unifiedSslProfiles = union(sslProfiles, [ legacyProfile ])
+var unifiedSslProfiles = union(sslProfiles, [legacyProfile])
 
 @description('Default backendpool that is used for all port 80 calls')
-var defaultBackendAddressPool = deployDefaults ? [
-  {
-    name: defaultBackendPoolName
-    properties: {
-      backendAddresses: (!redirectHttpToHttps) ? [] : [
-        {
-          fqdn: empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect
+var defaultBackendAddressPool = deployDefaults
+  ? [
+      {
+        name: defaultBackendPoolName
+        properties: {
+          backendAddresses: (!redirectHttpToHttps)
+            ? []
+            : [
+                {
+                  fqdn: empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect
+                }
+              ]
         }
-      ]
-    }
-  }
-] : []
+      }
+    ]
+  : []
 
 @description('This unifies the user-defined backend pools & the ezApplicationGatewayBackendAddressPools with the default application gateway backendpool. We need at least 1 backendpool for the appgw to be created, so we just create a dummy default one.')
-var unifiedBackendAddressPools = union(backendAddressPools, ezApplicationGatewayBackendAddressPools, defaultBackendAddressPool)
+var unifiedBackendAddressPools = union(
+  backendAddressPools,
+  ezApplicationGatewayBackendAddressPools,
+  defaultBackendAddressPool
+)
 
 @description('The priority should be between 1 and 20000')
 var maxPriority = 20000
 
 @description('This unifies the user-defined request routing rules & the ezApplicationGatewayRequestRoutingRules with the default application gateway request routing rule. We need at least 1 request routing rule for the appgw to be created, so we just create a dummy default one.')
-var unifiedRequestRoutingRules = union(requestRoutingRules, ezApplicationGatewayRequestRoutingRules, deployDefaults ? [
-    {
-      name: defaultRuleName
-      properties: union(
+var unifiedRequestRoutingRules = union(
+  requestRoutingRules,
+  ezApplicationGatewayRequestRoutingRules,
+  deployDefaults
+    ? [
         {
-          ruleType: 'Basic'
-          priority: maxPriority
-          httpListener: {
-            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, defaultHttpListener)
-          }
-          backendAddressPool: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, defaultBackendPoolName)
-          }
-          backendHttpSettings: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, defaultBackendHttpSettingsName)
-          }
-
-        }, redirectHttpToHttps ? {
-          rewriteRuleSet: {
-            id: resourceId('Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, defaultRewriteRuleName)
-          }
-        } : {})
-    }
-  ] : []
+          name: defaultRuleName
+          properties: union(
+            {
+              ruleType: 'Basic'
+              priority: maxPriority
+              httpListener: {
+                id: resourceId(
+                  'Microsoft.Network/applicationGateways/httpListeners',
+                  applicationGatewayName,
+                  defaultHttpListener
+                )
+              }
+              backendAddressPool: {
+                id: resourceId(
+                  'Microsoft.Network/applicationGateways/backendAddressPools',
+                  applicationGatewayName,
+                  defaultBackendPoolName
+                )
+              }
+              backendHttpSettings: {
+                id: resourceId(
+                  'Microsoft.Network/applicationGateways/backendHttpSettingsCollection',
+                  applicationGatewayName,
+                  defaultBackendHttpSettingsName
+                )
+              }
+            },
+            redirectHttpToHttps
+              ? {
+                  rewriteRuleSet: {
+                    id: resourceId(
+                      'Microsoft.Network/applicationGateways/rewriteRuleSets',
+                      applicationGatewayName,
+                      defaultRewriteRuleName
+                    )
+                  }
+                }
+              : {}
+          )
+        }
+      ]
+    : []
 )
 
 @description('This unifies the user-defined http listener & the ezApplicationGatewayHttpListeners with the default application gateway http listener. We need at least 1 http listener for the appgw to be created, so we just create a dummy default one.')
-var unifiedHttpListeners = union(httpListeners, ezApplicationGatewayHttpListeners, deployDefaults ? [
-    {
-      name: defaultHttpListener
-      properties: {
-        firewallPolicy: {
-          id: applicationGatewayWafPolicies.id
+var unifiedHttpListeners = union(
+  httpListeners,
+  ezApplicationGatewayHttpListeners,
+  deployDefaults
+    ? [
+        {
+          name: defaultHttpListener
+          properties: {
+            firewallPolicy: {
+              id: applicationGatewayWafPolicies.id
+            }
+            frontendIPConfiguration: {
+              id: resourceId(
+                'Microsoft.Network/applicationGateways/frontendIPConfigurations',
+                applicationGatewayName,
+                defaultFrontendIpConfigurationName
+              )
+            }
+            frontendPort: {
+              id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_80') //TODO hardcode refence to a param
+            }
+            protocol: 'Http'
+            requireServerNameIndication: false
+          }
         }
-        frontendIPConfiguration: {
-          id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, defaultFrontendIpConfigurationName)
-        }
-        frontendPort: {
-          id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_80') //TODO hardcode refence to a param
-        }
-        protocol: 'Http'
-        requireServerNameIndication: false
-      }
-    }
-  ] : []
+      ]
+    : []
 )
 
-var defaultBackendHttpSettings = deployDefaults ? [
-  {
-    name: defaultBackendHttpSettingsName
-    properties: union({
-        port: 80
-        protocol: 'Http'
-        cookieBasedAffinity: cookieBasedAffinity
-        pickHostNameFromBackendAddress: true
-        requestTimeout: 20
-      }, (!redirectHttpToHttps) ? {} : {
-        pickHostNameFromBackendAddress: false
-        hostname: empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect
-      })
-  }
-] : []
+var defaultBackendHttpSettings = deployDefaults
+  ? [
+      {
+        name: defaultBackendHttpSettingsName
+        properties: union(
+          {
+            port: 80
+            protocol: 'Http'
+            cookieBasedAffinity: cookieBasedAffinity
+            pickHostNameFromBackendAddress: true
+            requestTimeout: 20
+          },
+          (!redirectHttpToHttps)
+            ? {}
+            : {
+                pickHostNameFromBackendAddress: false
+                hostname: empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect
+              }
+        )
+      }
+    ]
+  : []
 
 @description('This unifies the user-defined backend http settings & the ezApplicationGatewayBackendHttpSettingsCollection with the default application gateway backend http settings. We need at least 1 backend http settings for the appgw to be created, so we just create a dummy default one.')
-var unifiedBackendHttpSettingsCollection = union(backendHttpSettingsCollection, ezApplicationGatewayBackendHttpSettingsCollection, defaultBackendHttpSettings)
+var unifiedBackendHttpSettingsCollection = union(
+  backendHttpSettingsCollection,
+  ezApplicationGatewayBackendHttpSettingsCollection,
+  defaultBackendHttpSettings
+)
 
 @description('This unifies the user-defined probes with the ez gateway probes.')
 var unifiedProbes = union(probes, ezApplicationGatewayProbes)
 
 @description('This unifies the user-defined frontend ip configurations with the default application gateway backend frontend ip configuration. We need at least 1 frontend ip configuration for the appgw to be created, so we just create a dummy default one.')
 var unifiedGatewayIPConfigurations = union(gatewayIPConfigurations, [
-    {
-      name: 'appGatewayIpConfig'
-      properties: {
-        subnet: {
-          id: '${vnet.id}/subnets/${applicationGatewaySubnetName}'
-        }
+  {
+    name: 'appGatewayIpConfig'
+    properties: {
+      subnet: {
+        id: '${vnet.id}/subnets/${applicationGatewaySubnetName}'
       }
     }
-  ])
+  }
+])
 
-var unifiedRewriteRuleSets = union(rewriteRuleSets, redirectHttpToHttps ? [
-    {
-      name: 'appGatewayRedirectRule'
-      properties: {
-        rewriteRules: [
-          {
-            ruleSequence: 100
-            conditions: [
+var unifiedRewriteRuleSets = union(
+  rewriteRuleSets,
+  redirectHttpToHttps
+    ? [
+        {
+          name: 'appGatewayRedirectRule'
+          properties: {
+            rewriteRules: [
               {
-                variable: 'http_resp_Location'
-                pattern: '(https?):\\/\\/${replace(empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect, '.', '\\.')}(.*)$'
-                ignoreCase: true
-                negate: false
+                ruleSequence: 100
+                conditions: [
+                  {
+                    variable: 'http_resp_Location'
+                    pattern: '(https?):\\/\\/${replace(empty(fqdnToRedirect) ? swaRedirect.outputs.staticWebAppUrl : fqdnToRedirect, '.', '\\.')}(.*)$'
+                    ignoreCase: true
+                    negate: false
+                  }
+                ]
+                name: 'RedirectToOriginalUrl'
+                actionSet: {
+                  requestHeaderConfigurations: []
+                  responseHeaderConfigurations: [
+                    {
+                      headerName: 'Location'
+                      headerValue: 'https://{var_host}{http_resp_Location_2}'
+                    }
+                  ]
+                }
               }
             ]
-            name: 'RedirectToOriginalUrl'
-            actionSet: {
-              requestHeaderConfigurations: []
-              responseHeaderConfigurations: [
-                {
-                  headerName: 'Location'
-                  headerValue: 'https://{var_host}{http_resp_Location_2}'
-                }
-              ]
-            }
           }
-        ]
-      }
-    }
-  ] : []
+        }
+      ]
+    : []
 )
 
 var customErrorConfigurations = union(
@@ -718,6 +911,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' =
     firewallPolicy: {
       id: applicationGatewayWafPolicies.id
     }
+    privateLinkConfigurations: privateLinkConfigurations
     sslProfiles: unifiedSslProfiles
     sslPolicy: sslPolicy
     sslCertificates: sslCertificates
