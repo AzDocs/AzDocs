@@ -61,6 +61,7 @@ Creating an application gateway
 | customErrorpagesUrl | string | <input type="checkbox"> | None | <pre>''</pre> | Optional parameter to set all custom errorpages on the application gateway to the html file at this url |
 | customErrorpage403Url | string | <input type="checkbox"> | None | <pre>''</pre> | Optional parameter to set custom errorpage for error 403 on the application gateway to the html file at this url |
 | customErrorpage502Url | string | <input type="checkbox"> | None | <pre>''</pre> | Optional parameter to set custom errorpage for error 502 on the application gateway to the html file at this url |
+| privateLinkConfigurations | array | <input type="checkbox"> | None | <pre>[]</pre> | Optional array of private link configurations. For object structure, please refer to the [Bicep resource definition](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayprivatelinkconfiguration). |
 
 ## Outputs
 | Name | Type | Description |
