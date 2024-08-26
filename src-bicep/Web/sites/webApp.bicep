@@ -119,9 +119,11 @@ The type of webapp to create.
   'app,container,windows'
   'app,linux,kubernetes'
   'functionapp'
+  'functionapp,powershell'
   'functionapp,linux'
   'functionapp,linux,kubernetes'
   'functionapp,linux,kubernetes,container'
+  'functionapp,linux,powershell'
 ])
 param webAppKind string = 'app,linux'
 
@@ -311,7 +313,6 @@ Example:
 ''')
 param netFrameworkVersion string = ''
 
-
 @description('''
 Public certificates for Azure App Service for example intermediate and root certificates. See https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.web/web-app-public-certificate/azuredeploy.json
 [
@@ -337,7 +338,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
 }
 
 @description('Fetch the application insights instance. This application insights instance should be pre-existing.')
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = if(!empty(appInsightsName)) {
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = if (!empty(appInsightsName)) {
   scope: az.resourceGroup(appInsightsResourceGroupName)
   name: !empty(appInsightsName) ? appInsightsName : 'donotuse' // in order to prevent a pre-validation error, fill in a dummy value
 }
@@ -419,13 +420,15 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     }
   }
 
-  resource publicCertificatesWebApp 'publicCertificates@2022-09-01' = [for publicCertificate in publicCertificates : {
-    name: publicCertificate.name
-    properties: {
-      blob: any(publicCertificate.blob)
-      publicCertificateLocation: publicCertificate.publicCertificateLocation
+  resource publicCertificatesWebApp 'publicCertificates@2022-09-01' = [
+    for publicCertificate in publicCertificates: {
+      name: publicCertificate.name
+      properties: {
+        blob: any(publicCertificate.blob)
+        publicCertificateLocation: publicCertificate.publicCertificateLocation
+      }
     }
-  }]
+  ]
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
@@ -483,13 +486,15 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     }
   }
 
-  resource publicCertificatesWebAppStaging 'publicCertificates@2022-09-01' = [for publicCertificate in publicCertificates : {
-    name: publicCertificate.name
-    properties: {
-      blob: any(publicCertificate.blob)
-      publicCertificateLocation: publicCertificate.publicCertificateLocation
+  resource publicCertificatesWebAppStaging 'publicCertificates@2022-09-01' = [
+    for publicCertificate in publicCertificates: {
+      name: publicCertificate.name
+      properties: {
+        blob: any(publicCertificate.blob)
+        publicCertificateLocation: publicCertificate.publicCertificateLocation
+      }
     }
-  }]
+  ]
 }
 
 resource RoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [
