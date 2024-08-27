@@ -5,13 +5,13 @@ Configuring role assignment for the Log Analytics Workspace
 This module is used for creating role assignments for existing Azure Log Analytics Workspace.
 .EXAMPLE
 <pre>
-module rolelogAnalyticsWorkspace 'br:contosoregistry.azurecr.io/authorization/roleassignments:latest' = {
-  name: guid(logAnalyticsWorkspace.id, principalId, roleDefinitionId)
-  scope: logAnalyticsWorkspace
-  properties: {
-    principalId: principalId
-    roleDefinitionId: roleDefinition.id
-    principalType: principalType
+module rolelogAnalyticsWorkspace 'br:contosoregistry.azurecr.io/authorization/roleassignmentsloganalyticsworkspace:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 56), 'lawauth')
+  params: {
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.logAnalyticsWorkspaceResourceName
+    principalId: '47c4d212-8012-4821-ae34-ff16bf356ee2'
+    roleDefinitionId: 'acc9fe40-3a05-45cc-b23c-72f68cc7476f'
+    principalType: 'Group'
   }
 }
 </pre>
