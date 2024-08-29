@@ -38,15 +38,18 @@ resource networkWatcher 'Microsoft.Network/networkWatchers@2021-08-01' existing 
   name: networkWatcherName
 }
 
-@description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
+@description('The azure resource id of the log analytics workspace to log the flowlogs to.')
 @minLength(0)
-param logAnalyticsWorkspaceResourceId string
+param trafficAnalyticsLogAnalyticsWorkspaceResourceId string
 
 @description('The resourceid for the storage account to log the NSG flow logs to. This should be pre-existing.')
 param nsgFlowLogStorageAccountResourceId string
 
 @description('The interval in minutes which would decide how frequently TA service should do flow analytics.')
 param trafficAnalyticsInterval int  = 10
+
+@description('If set to true, the network watcher flow analytics configuration will be enabled.')
+param networkWatcherFlowAnalyticsConfiguration bool = true
 
 @description('''
 Parameters that define the retention policy for flow log. See the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2021-08-01/networkwatchers/flowlogs?pivots=deployment-language-bicep#retentionpolicyparameters).
@@ -58,8 +61,9 @@ param retentionPolicy object = {
   enabled: true
 }
 
+
 @description('Upsert the NSG Flow logs with the given parameters.')
-resource nsgFlowLog 'Microsoft.Network/networkWatchers/flowLogs@2021-08-01' = if (!empty(logAnalyticsWorkspaceResourceId)) {
+resource nsgFlowLog 'Microsoft.Network/networkWatchers/flowLogs@2021-08-01' = if (!empty(trafficAnalyticsLogAnalyticsWorkspaceResourceId)) {
   parent: networkWatcher
   name: replace(nsgFlowLogResourceName, '<networkSecurityGroupName>', networkSecurityGroupName)
   tags: tags
@@ -70,8 +74,8 @@ resource nsgFlowLog 'Microsoft.Network/networkWatchers/flowLogs@2021-08-01' = if
     enabled: true
     flowAnalyticsConfiguration: {
       networkWatcherFlowAnalyticsConfiguration: {
-        enabled: true
-        workspaceResourceId: logAnalyticsWorkspaceResourceId
+        enabled: networkWatcherFlowAnalyticsConfiguration
+        workspaceResourceId: trafficAnalyticsLogAnalyticsWorkspaceResourceId
         trafficAnalyticsInterval: trafficAnalyticsInterval
       }
     }

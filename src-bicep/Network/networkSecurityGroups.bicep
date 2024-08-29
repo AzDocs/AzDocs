@@ -16,7 +16,7 @@ param diagnosticsName string = 'AzurePlatformCentralizedLogging'
 
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
 @minLength(0)
-param logAnalyticsWorkspaceResourceId string
+param logAnalyticsWorkspaceResourceId string = ''
 
 @description('The name of the networkwatcher for this Virtual Network. This should be pre-existing.')
 @minLength(1)
@@ -71,6 +71,11 @@ Example:
 ''')
 param tags object = {}
 
+@description('The azure resource id of the log analytics workspace to log the flowlogs to.')
+@minLength(0)
+param trafficAnalyticsLogAnalyticsWorkspaceResourceId string
+
+
 @description('Upsert the NSG with the given parameters.')
 resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
   name: networkSecurityGroupName
@@ -93,13 +98,13 @@ resource nsgDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
 
 @description('Upsert the NSG Flow logs with the given parameters.')
 module nsgFlowLog 'networkWatchers/flowLogs.bicep' = {
-  name: take(format('{0}-{1}', take('${deployment().name}', 35), networkSecurityGroupName), 64)
+  name: take(format('{0}-{1}', take('${deployment().name}', 33), '${networkSecurityGroupName}fl'), 64)
   scope: az.resourceGroup(az.subscription().subscriptionId, networkWatcherResourceGroupName)
   params: {
     networkWatcherName: networkWatcherName
     location: location
     tags: tags
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    trafficAnalyticsLogAnalyticsWorkspaceResourceId: trafficAnalyticsLogAnalyticsWorkspaceResourceId
     networkSecurityGroupName: networkSecurityGroupName
     networkSecurityGroupResourceId: nsg.id
     nsgFlowLogStorageAccountResourceId: nsgFlowLogStorageAccountResourceId
