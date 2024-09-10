@@ -19,15 +19,45 @@ module appgw 'br:contosoregistry.azurecr.io/network/applicationGateways:latest' 
         entrypointHostName: 'test1.com'
         backendAddressFqdn": 'www.google.nl'
         certificateName: 'certificate1.pfx'
-      },  
+      },
       {
         entrypointHostName: 'test2.com'
         backendAddressFqdn: ''
         certificateName: 'test2.pfx'
         backendSettingsOverrideHostName: 'test2.org'
         backendSettingsOverrideTrustedRootCertificates: true
+        sslProfileName: 'testprofile'
       }
-    ]  
+    ],
+    sslProfiles: [
+      {
+        name: 'testprofile'
+        properties: {
+          sslPolicy: {
+            policyType: 'CustomV2'
+            minProtocolVersion: 'TLSv1_3'
+            cipherSuites: []
+          }
+          clientAuthConfiguration: {
+            verifyClientCertIssuerDN: true
+            verifyClientRevocation: 'OCSP'
+          }
+          trustedClientCertificates: [
+            {
+              id: resourceId(subscription().subscriptionId, 'myfirstresourcegroup', 'Microsoft.Network/applicationGateways/trustedClientCertificates', 'myfirstappgwpub', 'testcert')
+            }
+          ]
+        }
+      }
+    ],
+    var trustedClientCertificates = [
+      {
+        name: 'testcert'
+        properties: {
+          data: '-----BEGIN CERTIFICATE-----<<PLAINTEXTCERTIFCATEBYTES>>-----END CERTIFICATE-----'
+        }
+      }
+    ]
   }
 }
 </pre>
@@ -38,7 +68,7 @@ module appgw 'br:contosoregistry.azurecr.io/network/applicationGateways:latest' 
 
 // ===================================== Parameters =====================================
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
-param location string = resourceGroup().location
+param location string = az.resourceGroup().location
 
 @description('The name of the VNet where you want to onboard this Application Gateway into.')
 @minLength(2)
@@ -235,7 +265,8 @@ param gatewayIPConfigurations array = []
     "backendSettingsOverrideHostName": "test2.org",
     "backendSettingsOverrideTrustedRootCertificates": true,
     "backendSettingsOverrideProbePath": "/healthprobe",
-    "rewriteRulesetName" : "fallback-rewriteset"
+    "rewriteRulesetName" : "fallback-rewriteset",
+    "sslProfileName": "testprofile"
   }
 </details>
 ''')
@@ -384,20 +415,26 @@ var ezApplicationGatewayBackendHttpSettingsCollection = [for entryPoint in ezApp
 
 var ezApplicationGatewayHttpListeners = [for entryPoint in ezApplicationGatewayEntrypoints: {
   name: replace(ezApplicationGatewayEntrypointsHttpsListenerName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-  properties: {
-    frontendIPConfiguration: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, defaultFrontendIpConfigurationName)
-    }
-    frontendPort: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_443') // TODO: Hardcoded value
-    }
-    protocol: 'Https'
-    sslCertificate: {
-      id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/sslCertificates', applicationGatewayName, replace(replace(replace(replace(entryPoint.certificateName, '-', '--'), '.', '-'), '_', '-'), ' ', '-'))
-    }
-    hostName: entryPoint.entrypointHostName
-    requireServerNameIndication: true
-  }
+  properties: union(
+    {
+      frontendIPConfiguration: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, defaultFrontendIpConfigurationName)
+      }
+      frontendPort: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'Port_443') // TODO: Hardcoded value
+      }
+      protocol: 'Https'
+      sslCertificate: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/sslCertificates', applicationGatewayName, replace(replace(replace(replace(entryPoint.certificateName, '-', '--'), '.', '-'), '_', '-'), ' ', '-'))
+      }
+      hostName: entryPoint.entrypointHostName
+      requireServerNameIndication: true
+    }, contains(entryPoint, 'sslProfileName') && !empty(entryPoint.sslProfileName) ? {
+      sslProfile: {
+        id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/sslProfiles', applicationGatewayName, entryPoint.sslProfileName)
+      }
+    } : {}
+  )
 }]
 
 var ezApplicationGatewayRequestRoutingRules = [for i in range(0, length(ezApplicationGatewayEntrypoints)): {
