@@ -19,6 +19,7 @@ Target Scope: resourceGroup
 | flowLogRetentionPolicy | object | <input type="checkbox"> | None | <pre>{<br>  days: 0<br>  enabled: true<br>}</pre> | Parameters that define the retention policy for flow log. See the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2021-08-01/networkwatchers/flowlogs?pivots=deployment-language-bicep#retentionpolicyparameters).<br>days: Number of days to retain flow log records.<br>enabled:	Flag to enable/disable retention. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | trafficAnalyticsLogAnalyticsWorkspaceResourceId | string | <input type="checkbox" checked> | Length between 0-* | <pre></pre> | The azure resource id of the log analytics workspace to log the flowlogs to. |
+| networkWatcherFlowAnalyticsConfiguration | bool | <input type="checkbox"> | None | <pre>true</pre> | Enable Traffic Analytics. |
 
 ## Outputs
 | Name | Type | Description |

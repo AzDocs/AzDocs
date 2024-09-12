@@ -75,6 +75,8 @@ param tags object = {}
 @minLength(0)
 param trafficAnalyticsLogAnalyticsWorkspaceResourceId string
 
+@description('Enable Traffic Analytics.')
+param networkWatcherFlowAnalyticsConfiguration bool = true
 
 @description('Upsert the NSG with the given parameters.')
 resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
@@ -111,6 +113,7 @@ module nsgFlowLog 'networkWatchers/flowLogs.bicep' = {
     nsgFlowLogResourceName: nsgFlowLogResourceName
     trafficAnalyticsInterval: flowLogTrafficAnalyticsInterval
     retentionPolicy: flowLogRetentionPolicy
+    networkWatcherFlowAnalyticsConfiguration: networkWatcherFlowAnalyticsConfiguration
   }
 }
 
