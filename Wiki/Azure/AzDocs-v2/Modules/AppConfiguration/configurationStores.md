@@ -5,8 +5,9 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="IdentityType">IdentityType</a>  | <pre>{</pre> | type |  | 
+| <a id="IdentityType">IdentityType</a>  | <pre></pre> | type |  | 
 | <a id="ConfigurationValue">ConfigurationValue</a>  | <pre>{</pre> |  |  | 
+| <a id="FeatureFlag">FeatureFlag</a>  | <pre>{</pre> |  |  | 
 
 ## Synopsis
 Creating Azure App Configuration
@@ -27,6 +28,7 @@ This module is used for creating Azure App Configuration
 | enablePurgeProtection | bool | <input type="checkbox"> | None | <pre>true</pre> | Indicates whether purge protection should be enabled. |
 | softDeleteRetentionInDays | int | <input type="checkbox"> | Value between 1-7 | <pre>7</pre> | The soft-delete retention for keeping items after deleting them. |
 | configurationValues | ConfigurationValue[] | <input type="checkbox"> | None | <pre>[]</pre> | The configuration values to add to the App Configuration store. |
+| featureFlags | FeatureFlag[] | <input type="checkbox"> | None | <pre>[]</pre> | The feature flags to add to the App Configuration store. |
 
 ## Outputs
 | Name | Type | Description |

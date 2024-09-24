@@ -59,16 +59,19 @@ param location string = resourceGroup().location
 param skuName string = 'Standard'
 
 @discriminator('type')
-type IdentityType = {
-  type: 'SystemAssigned'
-} | {
-  type: 'UserAssigned'
-  userAssignedIdentities: {
-    *: {}
+type IdentityType =
+  | {
+    type: 'SystemAssigned'
   }
-} | {
-  type: 'None'
-}
+  | {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      *: {}
+    }
+  }
+  | {
+    type: 'None'
+  }
 
 @description('Managed service identity to use for this configuration store. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).')
 param identity IdentityType = {
@@ -115,6 +118,19 @@ type ConfigurationValue = {
 @description('The configuration values to add to the App Configuration store.')
 param configurationValues ConfigurationValue[] = []
 
+type FeatureFlag = {
+  name: string
+  label: string?
+  value: {
+    id: string
+    description: string
+    enabled: bool
+  }
+}
+
+@description('The feature flags to add to the App Configuration store.')
+param featureFlags FeatureFlag[] = []
+
 resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023-09-01-preview' = {
   name: configurationStoreName
   location: location
@@ -130,13 +146,27 @@ resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023
     softDeleteRetentionInDays: softDeleteRetentionInDays
   }
 
-  resource configurationStoreValue 'keyValues' = [for cv in configurationValues: {
-    name: '${replace(uriComponent(cv.key), '%', '~')}${!empty(cv.?label) ? '$${cv.label}' : ''}'
-    properties: {
-      contentType: cv.?contentType
-      value: cv.value
+  resource configurationStoreValue 'keyValues' = [
+    for cv in configurationValues: {
+      name: '${replace(uriComponent(cv.key), '%', '~')}${!empty(cv.?label) ? '$${cv.label}' : ''}'
+      properties: {
+        contentType: cv.?contentType
+        value: cv.value
+      }
     }
-  }]
+  ]
+
+  resource configStoreKeyValue 'keyValues@2023-03-01' = [
+    for entry in featureFlags: {
+      name: empty(entry.?label)
+        ? '.appconfig.featureflag~2F${entry.name}'
+        : '.appconfig.featureflag~2F${entry.name}$${entry.label}'
+      properties: {
+        value: string(entry.value)
+        contentType: 'application/vnd.microsoft.appconfig.ff+json;charset=utf-8'
+      }
+    }
+  ]
 }
 
 @description('The configuration store name.')
