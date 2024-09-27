@@ -120,6 +120,9 @@ The type of webapp to create.
   'app,container,windows'
   'app,linux,kubernetes'
   'functionapp'
+  'functionapp,linux'
+  'functionapp,linux,kubernetes'
+  'functionapp,linux,kubernetes,container'
 ])
 param webAppKind string = 'app,linux'
 
