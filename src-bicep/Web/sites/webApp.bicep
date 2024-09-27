@@ -34,6 +34,7 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
     appSettings: {}
     connectionStrings: {}
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    minimumElasticInstanceCount: minimumElasticInstanceCount
     publicCertificates: [
       {
         name: 'TrustedRootCertificate'
@@ -109,6 +110,8 @@ param connectionStrings object = {}
 
 @description('''
 The type of webapp to create.
+
+See also: https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md
 ''')
 @allowed([
   'api'
@@ -119,11 +122,9 @@ The type of webapp to create.
   'app,container,windows'
   'app,linux,kubernetes'
   'functionapp'
-  'functionapp,powershell'
   'functionapp,linux'
   'functionapp,linux,kubernetes'
   'functionapp,linux,kubernetes,container'
-  'functionapp,linux,powershell'
 ])
 param webAppKind string = 'app,linux'
 
@@ -330,6 +331,9 @@ type publicCertifcate = {
 }
 param publicCertificates publicCertifcate[] = []
 
+@description('Number of minimum instance count for a site. This setting only applies to the Elastic Plans.')
+param minimumElasticInstanceCount int?
+
 // ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this appservice instance. This app service plan should be pre-existing.')
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
@@ -391,6 +395,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
         use32BitWorkerProcess: use32BitWorkerProcess
         numberOfWorkers: numberOfWorkers
         netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
+        minimumElasticInstanceCount: minimumElasticInstanceCount ?? 0 // Only required if the app service plan is a elastic plan (function app). Default to 0.
       },
       linuxSiteConfig
     )
