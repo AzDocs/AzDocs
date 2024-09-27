@@ -1,3 +1,30 @@
+/*
+.SYNOPSIS
+Creating an AppService Plan Instance: WebApp, FunctionApp, etc
+.DESCRIPTION
+Creating an AppService Plan Instance: WebApp, FunctionApp etc. with the given specs.
+.EXAMPLE
+<pre>
+module webApp 'br:contosoregistry.azurecr.io/web/serverfarms:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 53), 'serverfarms')
+  params: {
+    appServicePlanMaximumElasticWorkerCount: appServicePlanMaximumElasticWorkerCount
+    appServicePlanName: appServicePlanName
+    appServicePlanOsType: appServicePlanOsType
+    appServicePlanPerSiteScaling: appServicePlanPerSiteScaling
+    appServicePlanSku: appServicePlanSku
+    location: resourceLocation
+    tags: tags
+  }
+}
+</pre>
+<p>Creates a WebApp with the name 'webAppName'</p>
+.LINKS
+- [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)
+- [Azure App Service Kind](https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
+*/
+
+// ================================================= Parameters =================================================
 @description('The resourcename for the app service plan to upsert.')
 @minLength(1)
 @maxLength(40)
@@ -45,6 +72,10 @@ param appServicePlanPerSiteScaling bool = true
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
+@description('Maximum number of total workers allowed for this ElasticScaleEnabled App Service Plan')
+param appServicePlanMaximumElasticWorkerCount int?
+
+// ================================================= Resources =================================================
 @description('Upsert the app service plan with the given parameters.')
 resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   name: appServicePlanName
@@ -53,11 +84,13 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   properties: {
     reserved: appServicePlanOsType == 'linux' ? true : false //According to MS Docs: If Linux app service plan true, false otherwise.
     perSiteScaling: appServicePlanPerSiteScaling
+    maximumElasticWorkerCount: appServicePlanMaximumElasticWorkerCount ?? 1 // Only required if the app service plan is a elastic plan (function app). Default to 1.
   }
   sku: appServicePlanSku
   kind: appServicePlanOsType
 }
 
+// ================================================= Outputs =================================================
 @description('Output the App Service Plan\'s resource id.')
 output appServicePlanResourceId string = appServicePlan.id
 @description('Output the App Service Plan\'s SKU name.')
