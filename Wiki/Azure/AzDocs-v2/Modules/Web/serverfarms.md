@@ -2,6 +2,12 @@
 
 Target Scope: resourceGroup
 
+## Synopsis
+Creating an AppService Plan Instance: WebApp, FunctionApp, etc
+
+## Description
+Creating an AppService Plan Instance: WebApp, FunctionApp etc. with the given specs.
+
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
@@ -11,6 +17,7 @@ Target Scope: resourceGroup
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | appServicePlanPerSiteScaling | bool | <input type="checkbox"> | None | <pre>true</pre> | If true, apps assigned to this App Service plan can be scaled independently.<br>If false, apps assigned to this App Service plan will scale to all instances of the plan. |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
+| appServicePlanMaximumElasticWorkerCount | int? | <input type="checkbox" checked> | None | <pre></pre> | Maximum number of total workers allowed for this ElasticScaleEnabled App Service Plan |
 
 ## Outputs
 | Name | Type | Description |
@@ -18,3 +25,24 @@ Target Scope: resourceGroup
 | appServicePlanResourceId | string | Output the App Service Plan\'s resource id. |
 | appServicePlanSkuName | string | Output the App Service Plan\'s SKU name. |
 | appServicePlanResourceName | string | Output the App Service Plan\'s resource name. |
+
+## Examples
+<pre>
+module webApp 'br:contosoregistry.azurecr.io/web/serverfarms:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 53), 'serverfarms')
+  params: {
+    appServicePlanMaximumElasticWorkerCount: appServicePlanMaximumElasticWorkerCount
+    appServicePlanName: appServicePlanName
+    appServicePlanOsType: appServicePlanOsType
+    appServicePlanPerSiteScaling: appServicePlanPerSiteScaling
+    appServicePlanSku: appServicePlanSku
+    location: resourceLocation
+    tags: tags
+  }
+}
+</pre>
+<p>Creates a WebApp with the name 'webAppName'</p>
+
+## Links
+- [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)<br>
+- [Azure App Service Kind](https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
