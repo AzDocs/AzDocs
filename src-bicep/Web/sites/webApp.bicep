@@ -110,6 +110,8 @@ param connectionStrings object = {}
 
 @description('''
 The type of webapp to create.
+
+See also: https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md
 ''')
 @allowed([
   'api'
