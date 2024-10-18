@@ -55,6 +55,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | netFrameworkVersion | string | <input type="checkbox"> | None | <pre>''</pre> | The .NET Framework version to set for the app. Default it is null. Get the list of supported versions by running: `az functionapp list-runtimes`.<br>Example:<br>'v8.0' |
 | publicCertificates | publicCertifcate[] | <input type="checkbox"> | None | <pre>[]</pre> |  |
 | minimumElasticInstanceCount | int? | <input type="checkbox" checked> | None | <pre></pre> | Number of minimum instance count for a site. This setting only applies to the Elastic Plans. |
+| webSocketsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine whether to enable WebSockets for app (default: false). |
 
 ## Outputs
 | Name | Type | Description |

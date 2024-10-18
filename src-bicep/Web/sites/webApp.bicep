@@ -334,6 +334,9 @@ param publicCertificates publicCertifcate[] = []
 @description('Number of minimum instance count for a site. This setting only applies to the Elastic Plans.')
 param minimumElasticInstanceCount int?
 
+@description('Determine whether to enable WebSockets for app (default: false).')
+param webSocketsEnabled bool = false
+
 // ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this appservice instance. This app service plan should be pre-existing.')
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
@@ -396,6 +399,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
         numberOfWorkers: numberOfWorkers
         netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
         minimumElasticInstanceCount: minimumElasticInstanceCount ?? 0 // Only required if the app service plan is a elastic plan (function app). Default to 0.
+        webSocketsEnabled: webSocketsEnabled
       },
       linuxSiteConfig
     )
