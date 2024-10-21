@@ -3,10 +3,10 @@
 Target Scope: resourceGroup
 
 ## Synopsis
-Creating Azure Key Vault
+Creating Azure Key Vault and optionally secrets.
 
 ## Description
-This module is used for creating Azure Key Vault
+This module is used for creating Azure Key Vault and optionally secrets.
 
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
@@ -19,7 +19,7 @@ This module is used for creating Azure Key Vault
 | enableRbacAuthorization | bool | <input type="checkbox"> | None | <pre>false</pre> | Property that controls how data actions are authorized. When true, the key vault will use Role Based Access Control (RBAC) for authorization of data actions, <br>and the access policies specified in vault properties will be ignored. <br>When false, the key vault will use the access policies specified in vault properties, and any policy stored on Azure Resource Manager will be ignored. <br>If null or not specified, the vault is created with the default value of false. |
 | tenantId | string | <input type="checkbox"> | None | <pre>subscription().tenantId</pre> | Specifies the Azure Active Directory tenant ID that should be used for authenticating requests to the key vault. Get it by using Get-AzSubscription cmdlet. Defaults to the current subscription\'s tenant. |
 | skuName | string | <input type="checkbox"> | `'standard'` or `'premium'` | <pre>'standard'</pre> | Specifies whether the key vault is a standard vault or a premium vault. |
-| secrets | array | <input type="checkbox"> | None | <pre>[]</pre> | Specifies all secrets {"secretName":"","secretValue":""} wrapped in a secure object. |
+| secrets | array | <input type="checkbox"> | None | <pre>[]</pre> | Specifies all secrets {"secretName":"","secretValue":""} wrapped in a secure object.<br>Example:<br>param secrets array = [<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attributesEnabled: true<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attributesExp: dateTimeToEpoch(dateTimeAdd(utcNow('u'), 'P1Y'))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attributesNbf: dateTimeToEpoch(utcNow('u'))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;secretName: 'ClientSecret21'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;secretValue: 'VeryDifficultPassword'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contentType: 'password'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | recoverKeyvault | bool | <input type="checkbox"> | None | <pre>false</pre> | Specifies if you need to recover a Keyvault. This is mandatory whenever a deleted keyvault with the same name already existed in your subscription. |
 | subnetIdsToWhitelist | array | <input type="checkbox"> | None | <pre>[]</pre> | Specifies the Resource ID\'s of the subnet(s) you want to whitelist on the KeyVault |
 | softDeleteRetentionInDays | int | <input type="checkbox" checked> | Value between 7-90 | <pre></pre> | The soft-delete retention for keeping items after deleting them. |
@@ -31,7 +31,7 @@ This module is used for creating Azure Key Vault
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox"> | Length between 0-* | <pre>''</pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings. |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
-| tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+| tags | object? | <input type="checkbox" checked> | None | <pre></pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 
 ## Outputs
 | Name | Type | Description |
@@ -46,14 +46,14 @@ module keyVault 'br:contosoregistry.azurecr.io/keyvault/vaults:latest' = {
   name: '${take(deployment().name, 57)}-kv'
   params:{
     keyVaultName: keyVaultName
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    enableRbacAuthorization: true
     softDeleteRetentionInDays: 30
     location: location
     skuName: 'standard'
     enabledForTemplateDeployment: true
     enabledForDiskEncryption: true
     keyVaultnetworkAclsBypass: 'AzureServices'
-    publicNetworkAccess: 'enabled'
+    publicNetworkAccess: 'Enabled'
   }
 }
 </pre>

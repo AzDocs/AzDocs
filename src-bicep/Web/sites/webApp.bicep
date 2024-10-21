@@ -125,6 +125,7 @@ See also: https://github.com/Azure/app-service-linux-docs/blob/master/Things_You
   'functionapp,linux'
   'functionapp,linux,kubernetes'
   'functionapp,linux,kubernetes,container'
+  'functionapp,workflowapp'
 ])
 param webAppKind string = 'app,linux'
 

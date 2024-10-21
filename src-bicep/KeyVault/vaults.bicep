@@ -1,22 +1,22 @@
 /*
 .SYNOPSIS
-Creating Azure Key Vault
+Creating Azure Key Vault and optionally secrets.
 .DESCRIPTION
-This module is used for creating Azure Key Vault
+This module is used for creating Azure Key Vault and optionally secrets.
 .EXAMPLE
 <pre>
 module keyVault 'br:contosoregistry.azurecr.io/keyvault/vaults:latest' = {
   name: '${take(deployment().name, 57)}-kv'
   params:{
     keyVaultName: keyVaultName
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    enableRbacAuthorization: true
     softDeleteRetentionInDays: 30
     location: location
     skuName: 'standard'
     enabledForTemplateDeployment: true
     enabledForDiskEncryption: true
     keyVaultnetworkAclsBypass: 'AzureServices'
-    publicNetworkAccess: 'enabled'
+    publicNetworkAccess: 'Enabled'
   }
 }
 </pre>
@@ -65,7 +65,20 @@ param tenantId string = subscription().tenantId
 ])
 param skuName string = 'standard'
 
-@description('Specifies all secrets {"secretName":"","secretValue":""} wrapped in a secure object.')
+@description('''
+Specifies all secrets {"secretName":"","secretValue":""} wrapped in a secure object.
+Example:
+param secrets array = [
+  {
+    attributesEnabled: true
+    attributesExp: dateTimeToEpoch(dateTimeAdd(utcNow('u'), 'P1Y'))
+    attributesNbf: dateTimeToEpoch(utcNow('u'))
+    secretName: 'ClientSecret21'
+    secretValue: 'VeryDifficultPassword'
+    contentType: 'password'
+  }
+]
+''')
 param secrets array = []
 
 @description('Specifies if you need to recover a Keyvault. This is mandatory whenever a deleted keyvault with the same name already existed in your subscription.')
@@ -132,7 +145,7 @@ Example:
   SecondTag: another value
 }
 ''')
-param tags object = {}
+param tags object?
 
 @description('Translate the passed parameter to actual usable subnet objects.')
 var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
@@ -193,7 +206,12 @@ resource secretsRef 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [for secret
   tags: tags
   properties: {
     value: secret.secretValue
-    contentType: !empty(secret.contentType) ? secret.contentType : ''
+    contentType: secret.?contentType ?? ''
+    attributes: {
+      enabled: secret.?attributesEnabled ?? true
+      exp: secret.?attributesExp ?? null
+      nbf: secret.?attributesNbf ?? null
+    }
   }
 }]
 
