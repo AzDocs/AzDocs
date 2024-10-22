@@ -25,6 +25,9 @@ param serviceBusNamespaceName string
 @description('The name of the servicebus queue.')
 param serviceBusQueueName string
 
+@description('ISO 8601 timespan duration of a peek-lock; that is, the amount of time that the message is locked for other receivers. The maximum value for LockDuration is 5 minutes; the default value is 1 minute.')
+param lockDuration string = 'PT1M'
+
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' existing = {
   name: serviceBusNamespaceName
 }
@@ -32,4 +35,7 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview
 resource queue 'Microsoft.ServiceBus/namespaces/queues@2022-10-01-preview' = {
   name: serviceBusQueueName
   parent: serviceBusNamespace
+  properties: {
+    lockDuration: lockDuration
+  }
 }
