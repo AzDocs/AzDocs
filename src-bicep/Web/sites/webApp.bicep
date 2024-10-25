@@ -335,6 +335,9 @@ param publicCertificates publicCertifcate[] = []
 @description('Number of minimum instance count for a site. This setting only applies to the Elastic Plans.')
 param minimumElasticInstanceCount int?
 
+@description('Determine whether to enable VNet content share for app (default: false). Should be enabled for function app where both function app and storage account are in VNet. [link](https://docs.microsoft.com/en-us/azure/app-service/web-sites-integrate-with-vnet#vnet-content-share)')
+param vnetContentShareEnabled bool = false
+
 @description('Determine whether to enable WebSockets for app (default: false).')
 param webSocketsEnabled bool = false
 
@@ -385,6 +388,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     publicNetworkAccess: publicNetworkAccess
     keyVaultReferenceIdentity: keyVaultReferenceIdentity
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
+    vnetContentShareEnabled: vnetContentShareEnabled
     siteConfig: union(
       {
         cors: empty(cors) ? null : cors
@@ -455,6 +459,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     publicNetworkAccess: publicNetworkAccess
     clientAffinityEnabled: clientAffinityEnabled
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
+    vnetContentShareEnabled: vnetContentShareEnabled
     siteConfig: union(
       {
         cors: empty(cors) ? null : cors
