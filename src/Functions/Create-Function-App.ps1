@@ -97,7 +97,7 @@ $functionAppId = (Invoke-Executable -AllowToFail az functionapp show --name $Fun
 #TODO: az functionapp create is not idempotent, therefore the following fix. For more information, see https://github.com/Azure/azure-cli/issues/11863
 if (!$functionAppId) {
     # Create FunctionApp
-    Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlan.id --os-type $FunctionAppOSType --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime $FunctionAppRuntime --functions-version 4 --disable-app-insights --tags @ResourceTags
+    Invoke-Executable az functionapp create --name $FunctionAppName --plan $appServicePlan.id --os-type $FunctionAppOSType --resource-group $FunctionAppResourceGroupName --storage-account $FunctionAppStorageAccountName --runtime $FunctionAppRuntime --functions-version 4 --disable-app-insights --tags @ResourceTags --https-only true
     $functionAppId = (Invoke-Executable az functionapp show --name $FunctionAppName --resource-group $FunctionAppResourceGroupName | ConvertFrom-Json).id
 }
 
@@ -110,9 +110,6 @@ if ($StopFunctionAppImmediatelyAfterCreation) {
 if ($ResourceTags) {
     Set-ResourceTagsForResource -ResourceId $functionAppId -ResourceTags ${ResourceTags}
 }
-
-# Enforce HTTPS
-Invoke-Executable az functionapp update --ids $functionAppId --set httpsOnly=true
 
 # Set Always On, the number of instances and the ftps-state to disable
 Invoke-Executable az functionapp config set --ids $functionAppId --always-on $FunctionAppAlwaysOn --number-of-workers $FunctionAppNumberOfInstances --ftps-state Disabled --min-tls-version $FunctionAppMinimalTlsVersion
