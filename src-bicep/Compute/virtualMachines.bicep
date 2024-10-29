@@ -264,6 +264,18 @@ Azure Hybrid Benefit provides software updates and integrated support directly f
 ])
 param OSLicenseType string = ''
 
+@description('''
+Specifies a base-64 encoded string of custom data. 
+The base-64 encoded string is decoded to a binary array that is saved as a file on the Virtual Machine. 
+The maximum length of the binary array is 65535 bytes. 
+
+**Note: Do not pass any secrets or passwords in customData property. **
+This property cannot be updated after the VM is created. 
+The property 'customData' is passed to the VM to be saved as a file, for more information see [Custom Data on Azure VMs](https://azure.microsoft.com/blog/custom-data-and-cloud-init-on-windows-azure/). 
+For using cloud-init for your Linux VM, see [Using cloud-init to customize a Linux VM during creation](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/using-cloud-init).
+''')
+param customData string = ''
+
 @description('Union the different settings for the linux vm configuration')
 var linuxConfigurationUnion = union(
   linuxConfiguration, //default configuration
@@ -341,6 +353,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       adminPassword: virtualMachineAdminPasswordOrPublicKey
       linuxConfiguration: operatingSystem == 'Linux' ? linuxConfigurationUnion : null
       windowsConfiguration: operatingSystem == 'Windows' ? windowsConfigurationUnion : null
+      customData: customData
     }
     storageProfile: {
       imageReference: virtualMachineImageReference
