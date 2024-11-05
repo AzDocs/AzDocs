@@ -47,9 +47,18 @@ For example:
 param subnetIdsToWhitelist array = []
 
 @description('''
-Array of strings containing value of the Public IP you want to whitelist on this storage account. Specifies the IP or IP range in CIDR format. Only IPV4 address is allowed.
+Array of strings containing value of the Public IP you want to whitelist on this storage account. 
+Specifies the IP or IP range in CIDR format. Only IPV4 address is allowed.
 ''')
 param publicIpsToWhitelist array = []
+
+@description('''
+Array of strings containing values for the resourceIds you want to whitelist on this storage account.
+Can also contain a wildcard as name in the resourceId, if multiple services e.g. in a resource group should be included.
+Example:
+'/subscriptions/<subscriptionId>/resourcegroups/<resourceGroupName>/providers/Microsoft.Synapse/workspaces/*'
+''')
+param resourceIdsToWhitelist array = []
 
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
 param logAnalyticsWorkspaceResourceId string = ''
@@ -244,8 +253,16 @@ var ipRules = [
   }
 ]
 
+@description('Build the needed object for the Resource Access Rules based on the `resourceIdsToWhitelist` parameter.')
+var resourceAccessRules= [
+  for resourceId in resourceIdsToWhitelist: {
+    tenantId: subscription().tenantId
+    resourceId: resourceId
+  }
+]
+
 @description('Setting up the networkAcls and add rules if any are defined.')
-var networkAcls = empty(virtualNetworkRules) && empty(ipRules)
+var networkAcls = empty(virtualNetworkRules) && empty(ipRules) && empty(resourceAccessRules)
   ? {
       defaultAction: 'Allow'
     }
@@ -254,6 +271,7 @@ var networkAcls = empty(virtualNetworkRules) && empty(ipRules)
       bypass: allowBypassAcl
       virtualNetworkRules: virtualNetworkRules
       ipRules: ipRules
+      resourceAccessRules: resourceAccessRules
     }
 
 var supportsBlobService = storageAccountKind == 'BlockBlobStorage' || storageAccountKind == 'BlobStorage' || storageAccountKind == 'StorageV2' || storageAccountKind == 'Storage'

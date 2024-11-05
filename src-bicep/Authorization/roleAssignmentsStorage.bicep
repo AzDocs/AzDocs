@@ -1,3 +1,25 @@
+/*
+.SYNOPSIS
+Assign a role on the storage account scope to an identity
+.DESCRIPTION
+Assign a role on the storage account scope to a identity with the given specs.
+.EXAMPLE
+<pre>
+module roleAssignmentsStorage 'br:contosoregistry.azurecr.io/authorization/roleassignmentsstorage:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 51), 'rolesstorage')
+  params: {
+    principalType: 'User'
+    principalId: 'a348f815-0d14-4a85-b2fe-d3b36519e4fd' //object id of the user
+    roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' //Storage Blob Data Contributor
+    storageAccountName: workspaceStorage.outputs.storageAccountName
+  }
+}
+</pre>
+<p>Assign a role on the storage account scope to an identity</p>
+.LINKS
+- [Bicep Microsoft.Authorization/roleAssignments](https://learn.microsoft.com/en-us/azure/templates/microsoft.authorization/roleassignments?pivots=deployment-language-bicep)
+*/
+
 @description('The AAD Object ID of the pricipal you want to assign the role to.')
 @minLength(36)
 @maxLength(36)
@@ -33,7 +55,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing 
   name: storageAccountName
 }
 
-@description('Fetch the role based on the given roleDefinitionId. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles')
+@description('Fetch the role based on the given roleDefinitionId. See [Link](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles)')
 resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: resourceGroup()
   name: roleDefinitionId
