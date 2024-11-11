@@ -8,19 +8,33 @@ Creating a Postgres server with the given specs.
 module postgres 'br:contosoregistry.azurecr.io/sql/postgres:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 57), 'postgresserver')
   params: {
-    postgresAuthenticationAdminPassword: postgresAuthenticationAdminPassword
-    postgresAuthenticationAdminUsername: postgresAuthenticationAdminUsername
     postgresServerName: postgresServerName
     azureActiveDirectoryOnlyAuthentication: azureActiveDirectoryOnlyAuthentication
     createMode: createMode
     location: location
     tags: tags
     postgresSqlDatabaseName: postgresSqlDatabaseName
+    activeDirectoryAuth: activeDirectoryAuth
+    postgresServerVersion: postgresServerVersion
+    publicNetworkAccess: publicNetworkAccess
+    retentionDays: retentionDays
+    storageAutoGrow: storageAutoGrow
+    storageSizeGB: storageSizeGB
+    storageTier: storageTier
+    skuName: skuName
+    skuTier: skuTier
+    userAssignedManagedIdentityName: userAssignedManagedIdentityName
+    createPostgresUserAssignedManagedIdentity: createPostgresUserAssignedManagedIdentity
+    tenantId: tenantId
+    geoRedundantBackup: geoRedundantBackup
+    highAvailabilityMode: highAvailabilityMode
+    customWindow: customWindow
   }
 }
 </pre>
 .LINKS
-- [Bicep Microsoft.Postgres servers](https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/flexibleservers?pivots=deployment-language-bicepp)
+- [Bicep Microsoft.DBforPostgreSQL flexibleServers](https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/2024-08-01/flexibleservers?pivots=deployment-language-bicep)
+- [Bicep Microsoft.DBforPostgreSQL flexibleServers/databases](https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/2024-08-01/flexibleservers/databases?pivots=deployment-language-bicep)
 */
 
 // ================================================= Parameters =================================================
@@ -32,22 +46,9 @@ param location string = resourceGroup().location
 @maxLength(63)
 param postgresServerName string
 
-@description('If this is enabled, Postgres authentication gets disabled and you will only be able to login using Azure AD accounts.')
-param azureActiveDirectoryOnlyAuthentication bool = true
-
-@description('''
-The username for the administrator using Postgres Authentication. Once created it cannot be changed.
-If you opted for EntraID only authentication, this param can be given an empty ('') value.
-You can choose for EntraID only authentication by setting the param azureActiveDirectoryOnlyAuthentication to true.
-''')
-param postgresAuthenticationAdminUsername string = ''
-
-@secure()
-@description('''
-The password for the administrator using Postgres Authentication (required for server creation).
-Azure Postgres enforces [password complexity](https://learn.microsoft.com/en-us/Postgres/relational-databases/security/password-policy?view=Postgres-server-ver16#password-complexity).
-''')
-param postgresAuthenticationAdminPassword string = ''
+@description('Enable Azure Active Directory only authentication.')
+type activeDirectoryAuthType = 'Enabled' | 'Disabled'
+param activeDirectoryAuth activeDirectoryAuthType = 'Enabled'
 
 @description('Determines if a user assigned managed identity should be created for this Postgres server.')
 param createPostgresUserAssignedManagedIdentity bool = false
@@ -66,8 +67,8 @@ Example:
 param tags object = {}
 
 @description('The version of the sql server.')
-type postgresVersion = '11' | '12' | '13' | '14' | '15'
-param postgresServerVersion postgresVersion = '15'
+type postgresVersion = '11' | '12' | '13' | '14' | '15' | '16'
+param postgresServerVersion postgresVersion = '16'
 
 @description('The backup retention period in days. This is how many days Point-in-Time Restore will be supported.')
 param retentionDays int = 7
@@ -115,7 +116,7 @@ param skuName string = 'Standard_D4s_v5'
 type postgresSkuTier = 'Burstable' | 'GeneralPurpose' | 'MemoryOptimized'
 param skuTier postgresSkuTier = 'GeneralPurpose'
 
-@description('	the types of identities associated with this resource; currently restricted to None and UserAssigned')
+@description('The types of identities associated with this resource; currently restricted to None and UserAssigned')
 type userAssignedIdentity = 'None' | 'UserAssigned'
 param userAssignedIdentityType userAssignedIdentity = createPostgresUserAssignedManagedIdentity
   ? 'UserAssigned'
@@ -124,6 +125,43 @@ param userAssignedIdentityType userAssignedIdentity = createPostgresUserAssigned
 @description('The Database name of the postgres sql database')
 @minLength(1)
 param postgresSqlDatabaseName string
+
+@description('The public network access for the Postgres server.')
+type publicNetworkAccessType = 'Enabled' | 'Disabled'
+param publicNetworkAccess publicNetworkAccessType = 'Disabled'
+
+@description('The availability zone.')
+type geoRedundantBackupType = 'Enabled' | 'Disabled'
+param geoRedundantBackup geoRedundantBackupType
+
+@description('The high availability mode.')
+type highAvailabilityModeType = 'Disabled' | 'SameZone' | 'ZeroRedundant'
+param highAvailabilityMode highAvailabilityModeType
+
+@description('The custom maintenance window.')
+type customWindowType = 'Disabled' | 'Enabled'
+param customWindow customWindowType = 'Disabled'
+
+@description('The day of the week.')
+param dayOfWeek int
+
+@description('The start hour.')
+param startHour int
+
+@description('The start minute.')
+param startMinute int
+
+@minLength(36)
+@maxLength(36)
+@description('The tenant id of active directory for the Postgres server.')
+param tenantId string
+
+@description('The data encryption type for the Postgres server.')
+type dataEncryptionType = 'AzureKeyVault' | 'SystemManaged'
+param dataEncryption dataEncryptionType = 'SystemManaged'
+
+@description('The IOPS for the Postgres server.')
+param iops int = 500
 
 // ================================================= Resources =================================================
 resource postgresServerUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (createPostgresUserAssignedManagedIdentity) {
@@ -142,40 +180,61 @@ var userAssignedIdentityObject = createPostgresUserAssignedManagedIdentity
   : null
 
 @description('Upsert the Postgres Server, vnet whitelisting rules, security assessments, alertpolicies, auditsettings & vulnerability scans with the passed parameters')
-resource Server 'Microsoft.DBforPostgreSQL/flexibleServers@2023-03-01-preview' = {
-  name: postgresServerName
-  location: location
-  tags: tags
-  sku: {
-    name: skuName
-    tier: skuTier
-  }
+resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
   identity: {
     type: userAssignedIdentityType
     userAssignedIdentities: userAssignedIdentityObject
   }
+  location: location
+  name: postgresServerName
+  sku: {
+    name: skuName
+    tier: skuTier
+  }
   properties: {
-    version: postgresServerVersion
-    createMode: createMode
-    administratorLogin: azureActiveDirectoryOnlyAuthentication ? null : postgresAuthenticationAdminUsername
-    administratorLoginPassword: azureActiveDirectoryOnlyAuthentication ? null : postgresAuthenticationAdminPassword
     storage: {
+      autoGrow: storageAutoGrow
       storageSizeGB: storageSizeGB
       tier: storageTier
-      autoGrow: storageAutoGrow
+      iops: iops
     }
+    network: {
+      publicNetworkAccess: publicNetworkAccess
+    }
+    dataEncryption: {
+      type: dataEncryption
+    }
+    authConfig: {
+      activeDirectoryAuth: activeDirectoryAuth
+      passwordAuth: 'Disabled'
+      tenantId: tenantId
+    }
+    version: postgresServerVersion
     backup: {
       backupRetentionDays: retentionDays
+      geoRedundantBackup: geoRedundantBackup
+    }
+    createMode: createMode
+    highAvailability: {
+      mode: highAvailabilityMode
+    }
+    maintenanceWindow: {
+      customWindow: customWindow
+      dayOfWeek: dayOfWeek
+      startHour: startHour
+      startMinute: startMinute
     }
   }
+  tags: tags
 }
 
-resource Database 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
+@description('Create the Postgres database under the Postgres server')
+resource Database 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
   name: postgresSqlDatabaseName
-  parent: Server
+  parent: postgresServer
 }
 
 @description('Output the postgres server Id')
-output postgresServerId string = Server.id
+output postgresServerId string = postgresServer.id
 @description('Output the postgres server name')
-output postgresServerName string = Server.name
+output postgresServerName string = postgresServer.name
