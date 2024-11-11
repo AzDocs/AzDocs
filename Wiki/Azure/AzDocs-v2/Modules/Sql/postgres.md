@@ -16,6 +16,7 @@ Target Scope: resourceGroup
 | <a id="geoRedundantBackupType">geoRedundantBackupType</a>  | <pre>'Enabled' &#124; 'Disabled'</pre> |  | The availability zone. | 
 | <a id="highAvailabilityModeType">highAvailabilityModeType</a>  | <pre>'Disabled' &#124; 'SameZone' &#124; 'ZeroRedundant'</pre> |  | The high availability mode. | 
 | <a id="customWindowType">customWindowType</a>  | <pre>'Disabled' &#124; 'Enabled'</pre> |  | The custom maintenance window. | 
+| <a id="dataEncryptionType">dataEncryptionType</a>  | <pre>'AzureKeyVault' &#124; 'SystemManaged'</pre> |  | The data encryption type for the Postgres server. | 
 
 ## Synopsis
 Creating a Postgres server
@@ -50,6 +51,8 @@ Creating a Postgres server with the given specs.
 | startHour | int | <input type="checkbox" checked> | None | <pre></pre> | The start hour. |
 | startMinute | int | <input type="checkbox" checked> | None | <pre></pre> | The start minute. |
 | tenantId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The tenant id of active directory for the Postgres server. |
+| dataEncryption | dataEncryptionType | <input type="checkbox"> | None | <pre>'SystemManaged'</pre> |  |
+| iops | int | <input type="checkbox"> | None | <pre>500</pre> | The IOPS for the Postgres server. |
 
 ## Outputs
 | Name | Type | Description |
