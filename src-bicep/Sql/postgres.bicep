@@ -156,6 +156,13 @@ param startMinute int
 @description('The tenant id of active directory for the Postgres server.')
 param tenantId string
 
+@description('The data encryption type for the Postgres server.')
+type dataEncryptionType = 'AzureKeyVault' | 'SystemManaged'
+param dataEncryption dataEncryptionType = 'SystemManaged'
+
+@description('The IOPS for the Postgres server.')
+param iops int = 500
+
 // ================================================= Resources =================================================
 resource postgresServerUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (createPostgresUserAssignedManagedIdentity) {
   name: userAssignedManagedIdentityName
@@ -180,12 +187,29 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' =
   }
   location: location
   name: postgresServerName
+  sku: {
+    name: skuName
+    tier: skuTier
+  }
   properties: {
+    storage: {
+      autoGrow: storageAutoGrow
+      storageSizeGB: storageSizeGB
+      tier: storageTier
+      iops: iops
+    }
+    network: {
+      publicNetworkAccess: publicNetworkAccess
+    }
+    dataEncryption: {
+      type: dataEncryption
+    }
     authConfig: {
       activeDirectoryAuth: activeDirectoryAuth
       passwordAuth: 'Disabled'
       tenantId: tenantId
     }
+    version: postgresServerVersion
     backup: {
       backupRetentionDays: retentionDays
       geoRedundantBackup: geoRedundantBackup
@@ -200,19 +224,6 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' =
       startHour: startHour
       startMinute: startMinute
     }
-    network: {
-      publicNetworkAccess: publicNetworkAccess
-    }
-    storage: {
-      autoGrow: storageAutoGrow
-      storageSizeGB: storageSizeGB
-      tier: storageTier
-    }
-    version: postgresServerVersion
-  }
-  sku: {
-    name: skuName
-    tier: skuTier
   }
   tags: tags
 }
