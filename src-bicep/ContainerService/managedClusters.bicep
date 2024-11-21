@@ -637,7 +637,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-11-01' = {
       networkPluginMode: networkProfileNetworkPlugin == 'azure' ? networkPluginMode : ''
       loadBalancerSku: 'Standard'
       networkPolicy: networkPolicy
-      loadBalancerProfile: {
+      loadBalancerProfile: networkProfileOutboundType == 'userDefinedRouting' ? null : {
         managedOutboundIPs: {
           count: managedOutboundIPsIPv4
           countIPv6: !contains(networkProfileIpFamilies, 'IPv6') ? 0 : managedOutboundIPsIPv6
