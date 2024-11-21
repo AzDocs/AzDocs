@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="activeDirectoryAuthType">activeDirectoryAuthType</a>  | <pre>'Enabled' &#124; 'Disabled'</pre> |  | Enable Azure Active Directory only authentication. | 
+| <a id="authTypeEnabled">authTypeEnabled</a>  | <pre>'Enabled' &#124; 'Disabled'</pre> |  | Enable Azure Active Directory authentication. | 
 | <a id="postgresVersion">postgresVersion</a>  | <pre>'11' &#124; '12' &#124; '13' &#124; '14' &#124; '15' &#124; '16'</pre> |  | The version of the sql server. | 
 | <a id="postgresCreateMode">postgresCreateMode</a>  | <pre></pre> |  | Create mode the mode to create a new PostgresPostgres Server. | 
 | <a id="postgresStorageAutoGrow">postgresStorageAutoGrow</a>  | <pre>'Disabled' &#124; 'Enabled'</pre> |  | Storage autogrow flag to enable / disable storage auto grow for flexible server. | 
@@ -29,7 +29,10 @@ Creating a Postgres server with the given specs.
 | -- |  -- | -- | -- | -- | -- |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
 | postgresServerName | string | <input type="checkbox" checked> | Length between 3-63 | <pre></pre> | The resourcename of the Postgres Server upsert. |
-| activeDirectoryAuth | activeDirectoryAuthType | <input type="checkbox"> | None | <pre>'Enabled'</pre> |  |
+| activeDirectoryAuth | authTypeEnabled | <input type="checkbox"> | None | <pre>'Enabled'</pre> |  |
+| administratorLoginAuthentication | authTypeEnabled | <input type="checkbox"> | None | <pre>'Disabled'</pre> | Enable administrator login authentication. |
+| administratorLogin | string? | <input type="checkbox" checked> | Length between 0-128 | <pre></pre> | The administrator login name. |
+| administratorLoginPassword | string? | <input type="checkbox" checked> | Length between 0-128 | <pre></pre> | The password of the administrator login. |
 | createPostgresUserAssignedManagedIdentity | bool | <input type="checkbox"> | None | <pre>false</pre> | Determines if a user assigned managed identity should be created for this Postgres server. |
 | userAssignedManagedIdentityName | string | <input type="checkbox"> | None | <pre>'id-&#36;{postgresServerName}'</pre> | The name of the user assigned managed identity to create for this Postgres server. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
