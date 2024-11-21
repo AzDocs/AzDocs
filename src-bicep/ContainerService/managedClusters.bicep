@@ -575,7 +575,7 @@ resource aksSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existi
 }
 
 // ===================================== Resources =====================================
-resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-08-01' = {
+resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-preview' = {
   name: aksName
   location: location
   tags: tags
@@ -595,7 +595,6 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-08-01' = {
     kubernetesVersion: aksKubernetesVersion
     dnsPrefix: empty(aksFqdnSubdomain) ? dnsPrefix : null
     fqdnSubdomain: apiServerAccessProfileEnablePrivateCluster ? aksFqdnSubdomain : ''
-    #disable-next-line BCP037
     ingressProfile: enableInternalAppRouting ? {
       webAppRouting: {
         enabled: true
