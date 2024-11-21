@@ -498,6 +498,9 @@ param workloadIdentity bool = false
 @description('The OpenID Connect provider issuer profile of the Managed Cluster, used with the workloadIdentity. See [link](https://learn.microsoft.com/en-us/azure/aks/use-oidc-issuer)')
 param oidcIssuerProfile bool = false
 
+@description('Enables app routing using an internal NGINX ingress controller')
+param enableInternalAppRouting bool = false
+
 // ===================================== Variables =====================================
 var aks_addons = union({
     azurepolicy: {
@@ -572,7 +575,7 @@ resource aksSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' existi
 }
 
 // ===================================== Resources =====================================
-resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-11-01' = {
+resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-08-01' = {
   name: aksName
   location: location
   tags: tags
@@ -592,6 +595,15 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-11-01' = {
     kubernetesVersion: aksKubernetesVersion
     dnsPrefix: empty(aksFqdnSubdomain) ? dnsPrefix : null
     fqdnSubdomain: apiServerAccessProfileEnablePrivateCluster ? aksFqdnSubdomain : ''
+    #disable-next-line BCP037
+    ingressProfile: enableInternalAppRouting ? {
+      webAppRouting: {
+        enabled: true
+        nginx: {
+          defaultIngressControllerType: 'Internal'
+        }
+      }
+    } : null
     agentPoolProfiles: [
       {
         name: 'system'
