@@ -94,14 +94,14 @@ param userAssignedIdentityResourceGroupName string = az.resourceGroup().name
 param aksClusterSkuTier string = 'Free'
 
 @description('The kubernetes version of the AKS cluster.')
-param aksKubernetesVersion string = '1.28.3'
+param aksKubernetesVersion string = '1.30.5'
 
 @description('''
 Node pool version. Both patch version <major.minor.patch> and <major.minor> are supported. When <major.minor> is specified, the latest supported patch version is chosen automatically.
 As best practice, you should have all node pools in an AKS cluster to the same Kubernetes version. The node pool version must have the same major version as the control plane.
 The node pool minor version must be within two minor versions of the control plane version. The node pool version cannot be greater than the control plane version.
 ''')
-param nodePoolOrchestratorVersion string = '1.28.3'
+param nodePoolOrchestratorVersion string = '1.30.5'
 
 @description('''
 The number of nodes you want to host in the aks cluster. Number of agents (VMs) to host docker containers.
