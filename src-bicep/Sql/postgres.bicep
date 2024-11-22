@@ -46,9 +46,21 @@ param location string = resourceGroup().location
 @maxLength(63)
 param postgresServerName string
 
-@description('Enable Azure Active Directory only authentication.')
-type activeDirectoryAuthType = 'Enabled' | 'Disabled'
-param activeDirectoryAuth activeDirectoryAuthType = 'Enabled'
+@description('Enable Azure Active Directory authentication.')
+type authTypeEnabled = 'Enabled' | 'Disabled'
+param activeDirectoryAuth authTypeEnabled = 'Enabled'
+
+@description('Enable administrator login authentication.')
+param administratorLoginAuthentication authTypeEnabled = 'Disabled'
+
+@maxLength(128)
+@description('The administrator login name.')
+param administratorLogin string?
+
+@secure()
+@maxLength(128)
+@description('The password of the administrator login.')
+param administratorLoginPassword string?
 
 @description('Determines if a user assigned managed identity should be created for this Postgres server.')
 param createPostgresUserAssignedManagedIdentity bool = false
@@ -206,10 +218,12 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' =
     }
     authConfig: {
       activeDirectoryAuth: activeDirectoryAuth
-      passwordAuth: 'Disabled'
+      passwordAuth: administratorLoginAuthentication
       tenantId: tenantId
     }
     version: postgresServerVersion
+    administratorLogin: administratorLoginAuthentication == 'Enabled' ? administratorLogin : null
+    administratorLoginPassword: administratorLoginAuthentication == 'Enabled' ? administratorLoginPassword : null
     backup: {
       backupRetentionDays: retentionDays
       geoRedundantBackup: geoRedundantBackup

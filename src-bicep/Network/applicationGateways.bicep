@@ -249,6 +249,7 @@ param gatewayIPConfigurations array = []
     (optional)backendSettingsOverrideHostName: Hostname used that is used for the backend resouces
     (optional)backendSettingsOverrideTrustedRootCertificates: if true. all the given trusted root CA's are added.
     (optional)backendSettingsOverrideProbePath: If set, the given probe path is used instead of the default one.
+    (optional)backendSettingsOverrideRequestTimeout: If set, the given request timeout is used instead of the default one (30 seconds).
     (optional)rewriteRulesetName: if set, it would bind the rewrite set name that is given.
 
 <details>
@@ -265,6 +266,7 @@ param gatewayIPConfigurations array = []
     "backendSettingsOverrideHostName": "test2.org",
     "backendSettingsOverrideTrustedRootCertificates": true,
     "backendSettingsOverrideProbePath": "/healthprobe",
+    "backendSettingsOverrideRequestTimeout": 30,
     "rewriteRulesetName" : "fallback-rewriteset",
     "sslProfileName": "testprofile"
   }
@@ -406,7 +408,7 @@ var ezApplicationGatewayBackendHttpSettingsCollection = [for entryPoint in ezApp
       pickHostNameFromBackendAddress: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName) ? false : true
       hostName: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName) ? entryPoint.backendSettingsOverrideHostName : ''
       affinityCookieName: replace(ezApplicationGatewayEntrypointsAfinityCookieNameName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-      requestTimeout: 30
+      requestTimeout: contains(entryPoint, 'backendSettingsOverrideRequestTimeout') && !empty(entryPoint.backendSettingsOverrideRequestTimeout) ? entryPoint.backendSettingsOverrideRequestTimeout : 30
       probe: {
         id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, replace(ezApplicationGatewayEntrypointsProbeName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')))
       }
