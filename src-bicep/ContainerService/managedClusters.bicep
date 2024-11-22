@@ -679,7 +679,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-previ
     } : {
       enablePrivateCluster: apiServerAccessProfileEnablePrivateCluster
       privateDNSZone: apiServerAccessProfileEnablePrivateCluster ? aksPrivateDnsZone : ''
-      enablePrivateClusterPublicFQDN: enablePrivateClusterPublicFQDN
+      enablePrivateClusterPublicFQDN: aksPrivateDnsZone == 'none' ? true : enablePrivateClusterPublicFQDN
       enableVnetIntegration: !empty(apiServerSubnetId)
       subnetId: !empty(apiServerSubnetId) ? apiServerSubnetId : null
     }
