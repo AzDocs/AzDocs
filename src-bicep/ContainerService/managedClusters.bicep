@@ -383,6 +383,9 @@ param dnsPrefix string = '${aksName}-dns'
 @description('Whether you want your aks cluster to be private. When true, must be used with fqdnSubdomain.')
 param apiServerAccessProfileEnablePrivateCluster bool = false
 
+@description('The subnet to integrate the API server into. If empty, the API server will not be integrated into a subnet.')
+param apiServerSubnetId string = ''
+
 @description('The subdomain to create the AKS cluster in. This cannot be updated once the Managed Cluster has been created. When used, must be used together with private cluster and custom private dns zone (not "none").')
 param aksFqdnSubdomain string = privateClusterDnsMethod == 'privateDnsZone' ? aksName : ''
 
@@ -677,6 +680,8 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-previ
       enablePrivateCluster: apiServerAccessProfileEnablePrivateCluster
       privateDNSZone: apiServerAccessProfileEnablePrivateCluster ? aksPrivateDnsZone : ''
       enablePrivateClusterPublicFQDN: aksPrivateDnsZone == 'none' ? true : enablePrivateClusterPublicFQDN
+      enableVnetIntegration: !empty(apiServerSubnetId)
+      subnetId: !empty(apiServerSubnetId) ? apiServerSubnetId : null
     }
     identityProfile: !empty(kubeletidentity) ? {
       kubeletidentity: kubeletidentity
