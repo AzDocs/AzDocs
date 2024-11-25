@@ -210,7 +210,7 @@ param nodePoolVmOsType string = 'Linux'
 Specifies the OS SKU used by the agent pool. If not specified, the default is Ubuntu if OSType=Linux or Windows2019 if OSType=Windows.
 And the default Windows OSSKU will be changed to Windows2022 after Windows2019 is deprecated.
 ''')
-param nodePoolVmOsSKU string = nodePoolVmOsType == 'Linux' ? 'Ubuntu' : 'Windows'
+param nodePoolVmOsSKU string = nodePoolVmOsType == 'Linux' ? 'AzureLinux' : 'Windows'
 
 @allowed([
   ''
@@ -239,14 +239,11 @@ param openServiceMeshAddon bool = false
 param sgxPlugin bool = false
 
 @description('Enable AKS logs')
-param omsagent bool = false
+param omsagent bool = !empty(logAnalyticsWorkspaceResourceId)
 
 @description('The Azure resource id of the log analytics workspace to log to.')
 @minLength(0)
 param logAnalyticsWorkspaceResourceId string = ''
-
-@description('The name of the log analytics workspace when used.')
-param logAnalyticsWorkspaceName string = !empty(logAnalyticsWorkspaceResourceId) ? last(split(logAnalyticsWorkspaceResourceId, '/')) : ''
 
 @description('Diagnostic categories to log')
 param aksDiagCategories array = [
@@ -257,7 +254,7 @@ param aksDiagCategories array = [
 ]
 
 @description('Enable SysLogs and send to log analytics')
-param enableSysLog bool = false
+param enableSysLog bool = !empty(logAnalyticsWorkspaceResourceId)
 
 @description('Network plugin used for building the Kubernetes network.')
 @allowed([
@@ -265,14 +262,14 @@ param enableSysLog bool = false
   'azure'
   'none'
 ])
-param networkProfileNetworkPlugin string = 'kubenet'
+param networkProfileNetworkPlugin string = 'azure'
 
 @allowed([
   ''
-  'Overlay'
+  'overlay'
 ])
 @description('The network plugin type')
-param networkPluginMode string = ''
+param networkPluginMode string = 'overlay'
 
 @allowed([
   ''
@@ -302,7 +299,7 @@ param networkProfileDnsServiceIP string = '100.65.0.10'
   'userAssignedNATGateway'
   'userDefinedRouting'
 ])
-param networkProfileOutboundType string = 'loadBalancer'
+param networkProfileOutboundType string = 'userDefinedRouting'
 
 @description('''
 The ipv6 podcidr for a dual-stack aks cluster.
@@ -377,11 +374,11 @@ This cannot be updated once the Managed Cluster has been created.
 @minLength(1)
 @maxLength(54)
 #disable-next-line BCP335 //Disabling validation of this parameter to cope with warning of name too long because of prefilled value.
-param dnsPrefix string = '${aksName}-dns'
+param dnsPrefix string = aksName
 
 //## private cluster
 @description('Whether you want your aks cluster to be private. When true, must be used with fqdnSubdomain.')
-param apiServerAccessProfileEnablePrivateCluster bool = false
+param enablePrivateCluster bool = true
 
 @description('The subnet to integrate the API server into. If empty, the API server will not be integrated into a subnet.')
 param apiServerSubnetId string = ''
@@ -422,10 +419,10 @@ param upgradeSettingsMaxSurge string = '33%'
 @maxValue(100)
 param managedOutboundIPsIPv4 int = 1
 
-@description('The desired number of IPv6 outbound IPs created/managed by Azure for the cluster load balancer. Allowed values must be in the range of 1 to 100 (inclusive). The default value is 0 for single-stack and 1 for dual-stack.')
+@description('The desired number of IPv6 outbound IPs created/managed by Azure for the cluster load balancer. Allowed values must be in the range of 0 to 100 (inclusive). The default value is 0 for single-stack and 1 for dual-stack.')
 @minValue(0)
 @maxValue(100)
-param managedOutboundIPsIPv6 int = 1
+param managedOutboundIPsIPv6 int = 0
 
 @description('''
 The public key you want to use for logging into your VMSS.
@@ -502,7 +499,7 @@ param workloadIdentity bool = false
 param oidcIssuerProfile bool = false
 
 @description('Enables app routing using an internal NGINX ingress controller')
-param enableInternalAppRouting bool = false
+param enableInternalAppRouting bool = true
 
 // ===================================== Variables =====================================
 var aks_addons = union({
@@ -549,6 +546,8 @@ var kubeletidentity = !empty(userAssignedManagedIdentityName) ? {
   clientId: aksUim.properties.clientId
   objectId: aksUim.properties.principalId
 } : {}
+
+var logAnalyticsWorkspaceName = !empty(logAnalyticsWorkspaceResourceId) ? last(split(logAnalyticsWorkspaceResourceId, '/')) : ''
 
 // ===================================== Existing Resources =====================================
 @description('''
@@ -597,7 +596,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-previ
   properties: {
     kubernetesVersion: aksKubernetesVersion
     dnsPrefix: empty(aksFqdnSubdomain) ? dnsPrefix : null
-    fqdnSubdomain: apiServerAccessProfileEnablePrivateCluster ? aksFqdnSubdomain : ''
+    fqdnSubdomain: enablePrivateCluster ? aksFqdnSubdomain : ''
     ingressProfile: enableInternalAppRouting ? {
       webAppRouting: {
         enabled: true
@@ -677,8 +676,8 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-previ
     apiServerAccessProfile: !empty(authorizedIPRanges) ? {
       authorizedIPRanges: authorizedIPRanges
     } : {
-      enablePrivateCluster: apiServerAccessProfileEnablePrivateCluster
-      privateDNSZone: apiServerAccessProfileEnablePrivateCluster ? aksPrivateDnsZone : ''
+      enablePrivateCluster: enablePrivateCluster
+      privateDNSZone: enablePrivateCluster ? aksPrivateDnsZone : ''
       enablePrivateClusterPublicFQDN: aksPrivateDnsZone == 'none' ? true : enablePrivateClusterPublicFQDN
       enableVnetIntegration: !empty(apiServerSubnetId)
       subnetId: !empty(apiServerSubnetId) ? apiServerSubnetId : null
