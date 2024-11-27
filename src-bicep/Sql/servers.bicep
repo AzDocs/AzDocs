@@ -84,7 +84,6 @@ param azureActiveDirectoryOnlyAuthentication bool = false
 ])
 param azureActiveDirectoryAdminPrincipalType string = 'User'
 
-
 @description('''
 If you want to use Azure Active Directory authentication, you need to completely fill this object with correct values.
 See the [docs](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-bicep#serverexternaladministrator) for what to fill in. Make sure to combine it with the param userAADLogin to true.
@@ -115,6 +114,9 @@ param sqlAuthenticationAdminPassword string
 @description('Provide an array of e-mailaddresses (strings) where the vulnerability reports should be sent to.')
 param vulnerabilityScanEmails array = []
 
+@description('Enable Vulnerability Assessment on this SQL Server.')
+param enableVulnerabilityAssessment bool = true
+
 @description('The resource name of the storage account to be used for the vulnerabilityscans.')
 @minLength(3)
 @maxLength(24)
@@ -144,7 +146,9 @@ If you are using more that one user assigned managed identity, you can choose wh
 Example
 '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/${userAssignedManagedIdentityName}'
 ''')
-param sqlServerprimaryUserAssignedIdentityId string = (createSqlUserAssignedManagedIdentity) ? '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/${userAssignedManagedIdentityName}' : ''
+param sqlServerprimaryUserAssignedIdentityId string = (createSqlUserAssignedManagedIdentity)
+  ? '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/${userAssignedManagedIdentityName}'
+  : ''
 
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
@@ -207,13 +211,14 @@ param auditingSettingsIsAzureMonitorTargetEnabled bool = true
 One or more managed identities running this SQL server. Defaults to a system assigned managed identity. 
 When one or more user-assigned managed identities are assigned to the server, designate one of those as the primary or default identity for the server.
 ''')
-var identity = (createSqlUserAssignedManagedIdentity) ? {
-  type: 'SystemAssigned,UserAssigned'
-  userAssignedIdentities: {
-    '${sqlServerUserAssignedManagedIdentity.id}': {}
-  }
-} : { type: 'SystemAssigned' }
-
+var identity = (createSqlUserAssignedManagedIdentity)
+  ? {
+      type: 'SystemAssigned,UserAssigned'
+      userAssignedIdentities: {
+        '${sqlServerUserAssignedManagedIdentity.id}': {}
+      }
+    }
+  : { type: 'SystemAssigned' }
 
 // ================================================= Resources =================================================
 resource sqlServerUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (createSqlUserAssignedManagedIdentity) {
@@ -239,21 +244,25 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
     keyId: !empty(sqlServerEncryptionKeyKeyvaultUri) ? sqlServerEncryptionKeyKeyvaultUri : null
   }
 
-  resource sqlVnetRules 'virtualNetworkRules@2023-05-01-preview' = [for (subnetId, i) in subnetResourceIdsToWhitelist: if (!empty(subnetResourceIdsToWhitelist)) {
-    name: 'subnet-${i}'
-    properties: {
-      ignoreMissingVnetServiceEndpoint: ignoreMissingVnetServiceEndpoint
-      virtualNetworkSubnetId: subnetId
+  resource sqlVnetRules 'virtualNetworkRules@2023-05-01-preview' = [
+    for (subnetId, i) in subnetResourceIdsToWhitelist: if (!empty(subnetResourceIdsToWhitelist)) {
+      name: 'subnet-${i}'
+      properties: {
+        ignoreMissingVnetServiceEndpoint: ignoreMissingVnetServiceEndpoint
+        virtualNetworkSubnetId: subnetId
+      }
     }
-  }]
+  ]
 
-  resource SqlServerAllowFirewall 'firewallRules@2023-05-01-preview' = [for rule in sqlServerFirewallRules: if (!empty(sqlServerFirewallRules)) {
-    name: rule.name
-    properties: {
-      startIpAddress: rule.start
-      endIpAddress: rule.end
+  resource SqlServerAllowFirewall 'firewallRules@2023-05-01-preview' = [
+    for rule in sqlServerFirewallRules: if (!empty(sqlServerFirewallRules)) {
+      name: rule.name
+      properties: {
+        startIpAddress: rule.start
+        endIpAddress: rule.end
+      }
     }
-  }]
+  ]
 
   resource sqlServerAdvancedSecurityAssessment 'securityAlertPolicies@2023-05-01-preview' = {
     name: 'advancedSecurityAssessment'
@@ -286,7 +295,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
     }
   }
 
-  resource sqlVulnerability 'vulnerabilityAssessments@2022-05-01-preview' = {
+  resource sqlVulnerability 'vulnerabilityAssessments@2022-05-01-preview' = if (enableVulnerabilityAssessment) {
     name: 'default'
     properties: {
       recurringScans: {
@@ -325,15 +334,21 @@ module storageBlobDataContributorRoleAssignment '../Authorization/roleAssignment
   params: {
     storageAccountName: vulnerabilityScanStorageAccount.outputs.storageAccountName
     roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' //Storage Blob Data Contributor
-    principalId: createSqlUserAssignedManagedIdentity ? sqlServer.identity.userAssignedIdentities[sqlServerUserAssignedManagedIdentity.id].principalId : sqlServer.identity.principalId
+    principalId: createSqlUserAssignedManagedIdentity
+      ? sqlServer.identity.userAssignedIdentities[sqlServerUserAssignedManagedIdentity.id].principalId
+      : sqlServer.identity.principalId
   }
 }
 
 @description('Output the storage account resource name where the vulnerability scan reports are stored for this SQL Server.')
-output vulnerabilityScanStorageAccountName string = !empty(vulnerabilityScanStorageAccountName) ? vulnerabilityScanStorageAccount.outputs.storageAccountName : ''
+output vulnerabilityScanStorageAccountName string = !empty(vulnerabilityScanStorageAccountName)
+  ? vulnerabilityScanStorageAccount.outputs.storageAccountName
+  : ''
 @description('Output the name of the SQL Server.')
 output sqlServerName string = sqlServer.name
 @description('Output the resource ID of the SQL Server.')
 output sqlServerResourceId string = sqlServer.id
 @description('Output the principal id for the identity of this SQL Server.')
 output sqlServerIdentityPrincipalId string = sqlServer.identity.principalId
+@description('Output the fully qualified domain name of the SQL Server.')
+output fullyQualifiedDomainName string = sqlServer.properties.fullyQualifiedDomainName
