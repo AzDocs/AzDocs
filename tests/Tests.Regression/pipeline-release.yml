@@ -1043,7 +1043,7 @@ stages:
                 - task: PowerShell@2
                   displayName: "Get Build URL"
                   inputs:
-                    targetType: 'inline'
+                    targetType: "inline"
                     pwsh: true
                     script: |
                       $buildId = "$(Build.BuildId)"
@@ -1094,7 +1094,7 @@ stages:
                 - task: PowerShell@2
                   displayName: "Get Build URL"
                   inputs:
-                    targetType: 'inline'
+                    targetType: "inline"
                     pwsh: true
                     script: |
                       $buildId = "$(Build.BuildId)"

@@ -19,11 +19,11 @@ resource pricingplancap 'microsoft.insights/components/pricingPlans@2017-10-01' 
   name: 'current'
   parent: applicationInsights
   properties: {
-      cap: dailyQuota
-      planType: 'Basic'
-      stopSendNotificationWhenHitCap: true
-      warningThreshold: warningThreshold
-    }
+    cap: dailyQuota
+    planType: 'Basic'
+    stopSendNotificationWhenHitCap: true
+    warningThreshold: warningThreshold
+  }
 }
 
 @description('The Resource ID of the upserted pricing plan cap.')

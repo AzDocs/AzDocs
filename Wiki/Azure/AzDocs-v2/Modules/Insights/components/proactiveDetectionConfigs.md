@@ -38,7 +38,7 @@ module proactivedetectionconfig 'br:contosoregistry.azurecr.io/insights/componen
 | IsInPreview | bool | <input type="checkbox"> | None | <pre>false</pre> | A flag indicating whether the rule is in preview |
 | SupportsEmailNotifications | bool | <input type="checkbox"> | None | <pre>true</pre> | A flag indicating whether email notifications are supported for detections for this rule |
 | applicationInsightsName | string | <input type="checkbox" checked> | None | <pre></pre> | Existing parent Application Insights resource |
-| customEmails | array | <input type="checkbox"> | None | <pre>[ ]</pre> | Additional email recipients for smart detection notification |
+| customEmails | array | <input type="checkbox"> | None | <pre>[]</pre> | Additional email recipients for smart detection notification |
 | SendEmailsToSubscriptionOwners | bool | <input type="checkbox"> | None | <pre>false</pre> | A flag that indicated whether notifications on this rule should be sent to subscription owners |
 
 ## Outputs

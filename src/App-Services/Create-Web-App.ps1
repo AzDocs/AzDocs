@@ -146,7 +146,7 @@ else
 Invoke-Executable az webapp identity assign --ids $webAppId
 
 # Set CORS settings
-if($CORSUrls)
+if ($CORSUrls)
 {
     Set-CorsSettings -AppType 'webapp' -CORSUrls $CORSUrls -ResourceId $webAppId
 }
@@ -155,32 +155,32 @@ if($CORSUrls)
 if ($EnableAppServiceDeploymentSlot)
 {
     $parametersForDeploymentSlot = @{
-        AppType                                      = 'webapp';
-        ResourceResourceGroupName                    = $AppServiceResourceGroupName;
-        ResourceName                                 = $AppServiceName;
-        ResourceDeploymentSlotName                   = $AppServiceDeploymentSlotName;
-        LogAnalyticsWorkspaceResourceId              = $LogAnalyticsWorkspaceResourceId;
-        StopResourceSlotImmediatelyAfterCreation     = $StopAppServiceSlotImmediatelyAfterCreation;
-        ResourceTags                                 = ${ResourceTags};
-        ResourceAlwaysOn                             = $AppServiceAlwaysOn;
-        ResourceMinimalTlsVersion                    = $AppServiceMinimalTlsVersion;
-        DisablePublicAccessForResourceDeploymentSlot = $DisablePublicAccessForAppServiceDeploymentSlot;
-        ForcePublic                                  = $ForcePublic;
-        GatewayVnetResourceGroupName                 = $GatewayVnetResourceGroupName;
-        GatewayVnetName                              = $GatewayVnetName;
-        GatewaySubnetName                            = $GatewaySubnetName;
-        GatewayWhitelistRulePriority                 = $GatewayWhitelistRulePriority;
-        ResourcePrivateEndpointVnetResourceGroupName = $AppServicePrivateEndpointVnetResourceGroupName;
-        ResourcePrivateEndpointVnetName              = $AppServicePrivateEndpointVnetName;
-        ResourcePrivateEndpointSubnetName            = $AppServicePrivateEndpointSubnetName;
-        DNSZoneResourceGroupName                     = $DNSZoneResourceGroupName;
-        ResourcePrivateDnsZoneName                   = $AppServicePrivateDnsZoneName;
-        ResourceDisableVNetWhitelisting              = $DisableVNetWhitelistForDeploymentSlot;
-        ResourceDisablePrivateEndpoints              = $DisablePrivateEndpointForDeploymentSlot;
-        DiagnosticSettingsLogs                       = $DiagnosticSettingsLogs;
-        DiagnosticSettingsMetrics                    = $DiagnosticSettingsMetrics;
-        DiagnosticSettingsDisabled                   = $DiagnosticSettingsDisabled;
-        CORSUrls                                     = $CORSUrls;
+        AppType                                      = 'webapp'
+        ResourceResourceGroupName                    = $AppServiceResourceGroupName
+        ResourceName                                 = $AppServiceName
+        ResourceDeploymentSlotName                   = $AppServiceDeploymentSlotName
+        LogAnalyticsWorkspaceResourceId              = $LogAnalyticsWorkspaceResourceId
+        StopResourceSlotImmediatelyAfterCreation     = $StopAppServiceSlotImmediatelyAfterCreation
+        ResourceTags                                 = ${ResourceTags}
+        ResourceAlwaysOn                             = $AppServiceAlwaysOn
+        ResourceMinimalTlsVersion                    = $AppServiceMinimalTlsVersion
+        DisablePublicAccessForResourceDeploymentSlot = $DisablePublicAccessForAppServiceDeploymentSlot
+        ForcePublic                                  = $ForcePublic
+        GatewayVnetResourceGroupName                 = $GatewayVnetResourceGroupName
+        GatewayVnetName                              = $GatewayVnetName
+        GatewaySubnetName                            = $GatewaySubnetName
+        GatewayWhitelistRulePriority                 = $GatewayWhitelistRulePriority
+        ResourcePrivateEndpointVnetResourceGroupName = $AppServicePrivateEndpointVnetResourceGroupName
+        ResourcePrivateEndpointVnetName              = $AppServicePrivateEndpointVnetName
+        ResourcePrivateEndpointSubnetName            = $AppServicePrivateEndpointSubnetName
+        DNSZoneResourceGroupName                     = $DNSZoneResourceGroupName
+        ResourcePrivateDnsZoneName                   = $AppServicePrivateDnsZoneName
+        ResourceDisableVNetWhitelisting              = $DisableVNetWhitelistForDeploymentSlot
+        ResourceDisablePrivateEndpoints              = $DisablePrivateEndpointForDeploymentSlot
+        DiagnosticSettingsLogs                       = $DiagnosticSettingsLogs
+        DiagnosticSettingsMetrics                    = $DiagnosticSettingsMetrics
+        DiagnosticSettingsDisabled                   = $DiagnosticSettingsDisabled
+        CORSUrls                                     = $CORSUrls
     }
 
     New-DeploymentSlot @parametersForDeploymentSlot

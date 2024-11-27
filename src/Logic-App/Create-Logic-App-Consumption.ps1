@@ -3,7 +3,7 @@ param (
     [Parameter(Mandatory)][string] $LogicAppResourceGroupName,
     [Parameter(Mandatory)][string] $LogicAppName,
     [Parameter(Mandatory)][string] $LogicAppDefinitionPath,
-    [Parameter()][string] $LogicAppLocation = "westeurope",
+    [Parameter()][string] $LogicAppLocation = 'westeurope',
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter()][System.Object[]] $ResourceTags,
 

@@ -52,7 +52,7 @@ if ($ApplyToAllSlots)
 GrantPermissions -StorageResourceGroupName $StorageResourceGroupName -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -StorageAccountName $StorageAccountName -RoleToAssign $RoleToAssign -AppServiceSlotName $AppServiceSlotName
 
 # Apply to all slots if desired
-foreach($availableSlot in $availableSlots)
+foreach ($availableSlot in $availableSlots)
 {
     GrantPermissions -StorageResourceGroupName $StorageResourceGroupName -AppServiceResourceGroupName $AppServiceResourceGroupName -AppServiceName $AppServiceName -StorageAccountName $StorageAccountName -RoleToAssign $RoleToAssign -AppServiceSlotName $availableSlot.name
 }

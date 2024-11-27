@@ -13,13 +13,13 @@ function Set-DiagnosticSettings
 
     if (!$DiagnosticSettingsLogs)
     {
-        Write-Host "No diagnostic settings for logs were specified. Continueing with the default set"
+        Write-Host 'No diagnostic settings for logs were specified. Continueing with the default set'
         $DiagnosticSettingsLogs = Get-DefaultDiagnosticSettings -ResourceId $ResourceId -DiagnosticSettingType 'Logs'
     }
 
     if (!$DiagnosticSettingsMetrics)
     {
-        Write-Host "No diagnostic settings for metrics were specified. Continueing with the default set"
+        Write-Host 'No diagnostic settings for metrics were specified. Continueing with the default set'
         $DiagnosticSettingsMetrics = Get-DefaultDiagnosticSettings -ResourceId $ResourceId -DiagnosticSettingType 'Metrics'
     }
 
@@ -49,25 +49,27 @@ function Set-DiagnosticSettings
     if ($DiagnosticSettingsMetrics)
     {
         # Confirm the diagnostic setting exists
-        Confirm-DiagnosticSettings -ResourceId $ResourceId -DiagnosticSettings $DiagnosticSettingsMetrics -DiagnosticSettingType "Metrics"
+        Confirm-DiagnosticSettings -ResourceId $ResourceId -DiagnosticSettings $DiagnosticSettingsMetrics -DiagnosticSettingType 'Metrics'
 
         $metrics = New-DiagnosticSetting -DiagnosticSettings $DiagnosticSettingsMetrics
-        $optionalParameters += "--metrics", "$metrics"
+        $optionalParameters += '--metrics', "$metrics"
     }
     if ($DiagnosticSettingsLogs)
     {
         # Confirm the diagnostic setting exists
-        Confirm-DiagnosticSettings -ResourceId $ResourceId -DiagnosticSettings $DiagnosticSettingsLogs -DiagnosticSettingType "Logs"
+        Confirm-DiagnosticSettings -ResourceId $ResourceId -DiagnosticSettings $DiagnosticSettingsLogs -DiagnosticSettingType 'Logs'
 
         $logs = New-DiagnosticSetting -DiagnosticSettings $DiagnosticSettingsLogs
-        $optionalParameters += "--logs", "$logs"
+        $optionalParameters += '--logs', "$logs"
     }
 
-    if($ResourceId -match '^\/subscriptions\/[a-z0-9]{8}(?:-[a-z0-9]{4}){3}-[a-z0-9]{12}\/resourceGroups\/(?<ResourceGroupName>[\w-_]+)\/.*$'){
-        $resourceGroupName =  $Matches['ResourceGroupName']
+    if ($ResourceId -match '^\/subscriptions\/[a-z0-9]{8}(?:-[a-z0-9]{4}){3}-[a-z0-9]{12}\/resourceGroups\/(?<ResourceGroupName>[\w-_]+)\/.*$')
+    {
+        $resourceGroupName = $Matches['ResourceGroupName']
         Write-Host "Found resource group name:'$resourceGroupName'"
     }
-    else{
+    else
+    {
         throw "Cannot figure out what the resourcegroupname is based on the ResourceId:'$ResourceId'"
     }
     # Create new diagnostic setting
@@ -109,7 +111,7 @@ function Get-DefaultDiagnosticSettings
     [CmdletBinding()]
     param (
         [Parameter()][string] $ResourceId,
-        [Parameter()][string][ValidateSet("Logs", "Metrics")] $DiagnosticSettingType
+        [Parameter()][string][ValidateSet('Logs', 'Metrics')] $DiagnosticSettingType
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -138,7 +140,7 @@ function New-DiagnosticSetting
             Enabled  = $true
         }
     }
-    $PSNativeCommandArgumentPassing = "Legacy"
+    $PSNativeCommandArgumentPassing = 'Legacy'
     Write-Output ($diagnosticSettingsToCreate | ConvertTo-Json -Compress -AsArray)
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
@@ -149,7 +151,7 @@ function Confirm-DiagnosticSettings
     param (
         [Parameter(Mandatory)][string] $ResourceId,
         [Parameter()][System.Object[]] $DiagnosticSettings,
-        [Parameter()][string][ValidateSet("Logs", "Metrics")] $DiagnosticSettingType
+        [Parameter()][string][ValidateSet('Logs', 'Metrics')] $DiagnosticSettingType
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet

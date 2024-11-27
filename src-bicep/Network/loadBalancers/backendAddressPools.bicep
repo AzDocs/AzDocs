@@ -58,14 +58,16 @@ resource lbBackendAddressPool 'Microsoft.Network/loadBalancers/backendAddressPoo
   parent: loadBalancer
   name: lbBackendAddressPoolName
   properties: {
-    loadBalancerBackendAddresses: [for (ip, j) in nicIpAddresses: {
-      name: 'address${j}'
-      properties: {
-        virtualNetwork: {
-          id: vNetID
+    loadBalancerBackendAddresses: [
+      for (ip, j) in nicIpAddresses: {
+        name: 'address${j}'
+        properties: {
+          virtualNetwork: {
+            id: vNetID
+          }
+          ipAddress: ip
         }
-        ipAddress: ip
       }
-    }]
+    ]
   }
 }

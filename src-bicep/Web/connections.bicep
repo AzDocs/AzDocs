@@ -98,7 +98,6 @@ method: 'get'
 ''')
 param connectionTestLink array = []
 
-
 resource connection 'Microsoft.Web/connections@2016-06-01' = {
   name: connectionName
   location: location
@@ -123,4 +122,3 @@ output connectionResourceId string = connection.id
 output connectionApiVersion string = connection.apiVersion
 @description('Output the connection\'s connection runtime url.')
 output connectionRuntimeUrl string = reference(connection.id, connection.apiVersion, 'full').properties.connectionRuntimeUrl
-

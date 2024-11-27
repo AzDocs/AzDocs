@@ -26,14 +26,13 @@ param securityPolicyName string
 param frontDoorName string
 
 @description('Specifies the list of patterns to match by the security policy.')
-param securityPolicyPatternsToMatch array = [ '/*' ]
+param securityPolicyPatternsToMatch array = ['/*']
 
 @description('Specifies the name of the existing Azure Front Door WAF policy.')
 param wafPolicyName string
 
 @description('The name of the existing AFD endpoint.')
 param afdEndpointsName string
-
 
 // ===================================== Resources =====================================
 @description('The ID of the Azure resource that represents the existing Front Door Cdn profile.')

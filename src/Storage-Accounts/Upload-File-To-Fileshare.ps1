@@ -19,7 +19,8 @@ $storageAccountConnectionString = (Invoke-Executable az storage account show-con
 # Upload file to Fileshare
 $additionalParameters = @()
 
-if($DestinationPath){
+if ($DestinationPath)
+{
     $additionalParameters += '--path', $DestinationPath
 }
 

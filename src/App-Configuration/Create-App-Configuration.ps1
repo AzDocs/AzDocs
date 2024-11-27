@@ -4,20 +4,20 @@ param (
     [Parameter(Mandatory)][string] $AppConfigName,
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter()][System.Object[]] $ResourceTags,
-    [Parameter()][string] $AppConfigLocation = "westeurope",
-    [Alias("LogAnalyticsWorkspaceName")]
-    [Parameter()][ValidateSet("Free", "Standard")][string] $AppConfigSku = 'Standard',
+    [Parameter()][string] $AppConfigLocation = 'westeurope',
+    [Alias('LogAnalyticsWorkspaceName')]
+    [Parameter()][ValidateSet('Free', 'Standard')][string] $AppConfigSku = 'Standard',
     [Parameter()][bool] $AppConfigAllowPublicAccess = $false,
 
     # Private Endpoint
-    [Alias("VnetResourceGroupName")]
+    [Alias('VnetResourceGroupName')]
     [Parameter()][string] $AppConfigPrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
+    [Alias('VnetName')]
     [Parameter()][string] $AppConfigPrivateEndpointVnetName,
     [Parameter()][string] $AppConfigPrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $AppConfigPrivateDnsZoneName = "privatelink.azconfig.io",
+    [Alias('PrivateDnsZoneName')]
+    [Parameter()][string] $AppConfigPrivateDnsZoneName = 'privatelink.azconfig.io',
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic, 

@@ -285,7 +285,6 @@ param ingressTransport string = 'auto'
 @description('The name of the existing container app workload profile. If used, it should be pre-existing in the managed environment.')
 param workloadProfileName string = ''
 
-
 @description('the managed environment of the container app. Should be pre-existing')
 #disable-next-line BCP081 //preview version used because of support byo vnet with /27 subnet with workload profiles
 resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-11-01-preview' existing = {

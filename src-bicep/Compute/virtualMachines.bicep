@@ -244,23 +244,23 @@ You can use Azure Hybrid Benefit for Windows Server to deploy new virtual machin
 Azure Hybrid Benefit provides software updates and integrated support directly from Azure infrastructure for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines.
 ''')
 @allowed([
-    'RHEL_BYOS'
-    'SLES_STANDARD'
-    'SLES_SAP'
-    'SLES_HPC'
-    'SLES'
-    'RHEL_SAPHA'
-    'RHEL_SAPAPPS'
-    'RHEL_ELS_6'
-    'RHEL_EUS'
-    'RHEL_BASE'
-    'SLES_BYOS'
-    'RHEL_BASESAPAPPS'
-    'RHEL_BASESAPHA'
-    'Windows_Server'
-    'Windows_Client'
-    'None'
-    ''
+  'RHEL_BYOS'
+  'SLES_STANDARD'
+  'SLES_SAP'
+  'SLES_HPC'
+  'SLES'
+  'RHEL_SAPHA'
+  'RHEL_SAPAPPS'
+  'RHEL_ELS_6'
+  'RHEL_EUS'
+  'RHEL_BASE'
+  'SLES_BYOS'
+  'RHEL_BASESAPAPPS'
+  'RHEL_BASESAPHA'
+  'Windows_Server'
+  'Windows_Client'
+  'None'
+  ''
 ])
 param OSLicenseType string = ''
 
@@ -278,24 +278,30 @@ param customData string = ''
 
 @description('Union the different settings for the linux vm configuration')
 var linuxConfigurationUnion = union(
-  linuxConfiguration, //default configuration
-  { provisionVMAgent: provisionVMAgent }, //adding the provision vm agent setting
-  virtualMachineAuthenticationMethod == 'sshPublicKey' ? { //adding ssh public key authorization settings
-    disablePasswordAuthentication: true
-    ssh: {
-      publicKeys: [
-        {
-          path: '/home/${virtualMachineAdminUsername}/.ssh/authorized_keys'
-          keyData: virtualMachineAdminPasswordOrPublicKey
+  linuxConfiguration,
+  //default configuration
+  { provisionVMAgent: provisionVMAgent },
+  //adding the provision vm agent setting
+  virtualMachineAuthenticationMethod == 'sshPublicKey'
+    ? {
+        //adding ssh public key authorization settings
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              path: '/home/${virtualMachineAdminUsername}/.ssh/authorized_keys'
+              keyData: virtualMachineAdminPasswordOrPublicKey
+            }
+          ]
         }
-      ]
-    }
-  } : {}
+      }
+    : {}
 )
 
 @description('Union the different settings for the windows vm configuration')
 var windowsConfigurationUnion = union(
-  windowsConfiguration, //default configuration
+  windowsConfiguration,
+  //default configuration
   { provisionVMAgent: provisionVMAgent } //adding the provision vm agent setting
 )
 
@@ -365,19 +371,25 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     }
     availabilitySet: (!empty(availabilitySetName)) ? { id: availabilitySet.id } : null
     networkProfile: {
-      networkInterfaces: length(networkInterfaces) <= 0 ? [ { id: virtualMachineNetworkInterface.outputs.networkInterfaceResourceId } ] : networkInterfaces
+      networkInterfaces: length(networkInterfaces) <= 0
+        ? [{ id: virtualMachineNetworkInterface.outputs.networkInterfaceResourceId }]
+        : networkInterfaces
     }
     diagnosticsProfile: {
       bootDiagnostics: {
         enabled: bootdiagnosticsEnabled
-        storageUri: !empty(bootDiagnosticsStorageAccountName) ? bootDiagnosticsStorageAccount.properties.primaryEndpoints.blob : null
+        storageUri: !empty(bootDiagnosticsStorageAccountName)
+          ? bootDiagnosticsStorageAccount.properties.primaryEndpoints.blob
+          : null
       }
     }
   }
   zones: availabilityZones
-  dependsOn: !empty(availabilitySetName) ? [
-    availabilitySet
-  ] : []
+  dependsOn: !empty(availabilitySetName)
+    ? [
+        availabilitySet
+      ]
+    : []
 }
 
 @description('Output the availability set\'s Resource ID.')

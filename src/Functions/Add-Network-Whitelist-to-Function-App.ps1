@@ -1,11 +1,11 @@
 [CmdletBinding()]
 param (
-    [Alias("ResourceGroupName")]
+    [Alias('ResourceGroupName')]
     [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Parameter()][string] $AccessRestrictionRuleDescription,
     [Parameter()][string] $FunctionAppDeploymentSlotName,
-    [Parameter()][string] $AccessRestrictionAction = "Allow",
+    [Parameter()][string] $AccessRestrictionAction = 'Allow',
     [Parameter()][string] $Priority = 10,
     [Parameter()][bool] $ApplyToAllSlots = $false,
     [Parameter()][bool] $ApplyToMainEntrypoint = $true,
@@ -13,7 +13,7 @@ param (
 
     # Rulename/CIDR/Subnet
     [Parameter()][string] $AccessRestrictionRuleName,
-    [Alias("IpRangeToWhitelist")]
+    [Alias('IpRangeToWhitelist')]
     [Parameter()][ValidatePattern('^$|^(?:(?:\d{1,3}.){3}\d{1,3})(?:\/(?:\d{1,2}))?$', ErrorMessage = "The text '{0}' does not match with the CIDR notation, like '1.2.3.4/32'")][string] $CIDRToWhitelist,
     [Parameter()][string] $SubnetToWhitelistSubnetName,
     [Parameter()][string] $SubnetToWhitelistVnetName,
@@ -51,7 +51,7 @@ if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToW
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
     
     # Make sure the service endpoint is enabled for the subnet (for internal routing)
-    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.Web"
+    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier 'Microsoft.Web'
 }
 
 if ($ApplyToAllSlots)

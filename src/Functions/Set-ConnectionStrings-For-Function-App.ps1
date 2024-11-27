@@ -21,10 +21,10 @@ if ($ApplyToAllSlots)
 $optionalParameters = @()
 if ($FunctionAppDeploymentSlotName)
 {
-    $optionalParameters += "--slot", "$FunctionAppDeploymentSlotName"
+    $optionalParameters += '--slot', "$FunctionAppDeploymentSlotName"
 }
 
-foreach($FunctionAppConnectionString in ($FunctionAppConnectionStringsInJson | ConvertFrom-Json))
+foreach ($FunctionAppConnectionString in ($FunctionAppConnectionStringsInJson | ConvertFrom-Json))
 {
     $connectionStringKeyValuePair = "$($FunctionAppConnectionString.name)=`"$($FunctionAppConnectionString.value)`""
     
@@ -34,7 +34,7 @@ foreach($FunctionAppConnectionString in ($FunctionAppConnectionStringsInJson | C
     Invoke-Executable az webapp config connection-string set --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --connection-string-type $($FunctionAppConnectionString.type) --settings $connectionStringKeyValuePair @optionalParameters
 
     # Update slots
-    foreach($availableSlot in $availableSlots)
+    foreach ($availableSlot in $availableSlots)
     {
         Invoke-Executable az webapp config connection-string set --resource-group $FunctionAppResourceGroupName --name $FunctionAppName --connection-string-type $($FunctionAppConnectionString.type) --settings $connectionStringKeyValuePair --slot $availableSlot.name
     }

@@ -1,12 +1,13 @@
 function SetAppInsightsForFunctionApp($AppInsightsName, $AppInsightsResourceGroupName, $FunctionAppName, $FunctionAppResourceGroupName, $AppServiceSlotName)
 {
     # Fetch the AppInsights connection information
-    $appInsightsSettings = Invoke-Executable az resource show --resource-group $AppInsightsResourceGroupName --name $AppInsightsName --resource-type "Microsoft.Insights/components" | ConvertFrom-Json
+    $appInsightsSettings = Invoke-Executable az resource show --resource-group $AppInsightsResourceGroupName --name $AppInsightsName --resource-type 'Microsoft.Insights/components' | ConvertFrom-Json
     $connectionString = $appInsightsSettings.properties.ConnectionString
     $appInsightsKey = $appInsightsSettings.properties.InstrumentationKey
 
     $additionalParameters = @()
-    if ($AppServiceSlotName) {
+    if ($AppServiceSlotName)
+    {
         $additionalParameters += '--slot' , $AppServiceSlotName
     }
 
@@ -18,12 +19,13 @@ function SetAppInsightsForFunctionApp($AppInsightsName, $AppInsightsResourceGrou
 function SetAppInsightsForAppService($AppInsightsName, $AppInsightsResourceGroupName, $AppServiceName, $AppServiceResourceGroupName, $AppServiceSlotName)
 {
     # Fetch the AppInsights connection information
-    $appInsightsSettings = Invoke-Executable az resource show --resource-group $AppInsightsResourceGroupName --name $AppInsightsName --resource-type "Microsoft.Insights/components" | ConvertFrom-Json
+    $appInsightsSettings = Invoke-Executable az resource show --resource-group $AppInsightsResourceGroupName --name $AppInsightsName --resource-type 'Microsoft.Insights/components' | ConvertFrom-Json
     $connectionString = $appInsightsSettings.properties.ConnectionString
     $appInsightsKey = $appInsightsSettings.properties.InstrumentationKey
 
     $additionalParameters = @()
-    if ($AppServiceSlotName) {
+    if ($AppServiceSlotName)
+    {
         $additionalParameters += '--slot' , $AppServiceSlotName
     }
 

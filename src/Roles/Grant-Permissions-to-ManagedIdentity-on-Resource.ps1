@@ -32,15 +32,15 @@ if ($AppServiceManagedIdentity)
     if ($ApplyToAllSlots)
     {
         $parametersForSlot = @{
-            AppType                          = 'webapp';
-            ManagedIdentityResourceName      = $ManagedIdentityResourceName;
-            ManagedIdentityResourceGroupName = $ManagedIdentityResourceGroupName;
-            TargetResourceName               = $TargetResourceName;
-            TargetResourceGroupName          = $TargetResourceGroupName;
-            TargetResourceType               = $TargetResourceType;
-            TargetResourceNamespace          = $TargetResourceNamespace;
-            TargetResourceParentPath         = $TargetResourceParentPath;
-            RoleToAssign                     = $RoleToAssign;
+            AppType                          = 'webapp'
+            ManagedIdentityResourceName      = $ManagedIdentityResourceName
+            ManagedIdentityResourceGroupName = $ManagedIdentityResourceGroupName
+            TargetResourceName               = $TargetResourceName
+            TargetResourceGroupName          = $TargetResourceGroupName
+            TargetResourceType               = $TargetResourceType
+            TargetResourceNamespace          = $TargetResourceNamespace
+            TargetResourceParentPath         = $TargetResourceParentPath
+            RoleToAssign                     = $RoleToAssign
         }
         
         Set-ManagedIdentityForSlot @parametersForSlot
@@ -53,15 +53,15 @@ elseif ($FunctionAppManagedIdentity)
     if ($ApplyToAllSlots)
     {
         $parametersForSlot = @{
-            AppType                          = 'functionapp';
-            ManagedIdentityResourceName      = $ManagedIdentityResourceName;
-            ManagedIdentityResourceGroupName = $ManagedIdentityResourceGroupName;
-            TargetResourceName               = $TargetResourceName;
-            TargetResourceGroupName          = $TargetResourceGroupName;
-            TargetResourceType               = $TargetResourceType;
-            TargetResourceNamespace          = $TargetResourceNamespace;
-            TargetResourceParentPath         = $TargetResourceParentPath;
-            RoleToAssign                     = $RoleToAssign;
+            AppType                          = 'functionapp'
+            ManagedIdentityResourceName      = $ManagedIdentityResourceName
+            ManagedIdentityResourceGroupName = $ManagedIdentityResourceGroupName
+            TargetResourceName               = $TargetResourceName
+            TargetResourceGroupName          = $TargetResourceGroupName
+            TargetResourceType               = $TargetResourceType
+            TargetResourceNamespace          = $TargetResourceNamespace
+            TargetResourceParentPath         = $TargetResourceParentPath
+            RoleToAssign                     = $RoleToAssign
         }
     
         Set-ManagedIdentityForSlot @parametersForSlot

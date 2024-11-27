@@ -4,8 +4,8 @@ param (
     [Parameter(Mandatory)][string] $CosmosDbAccountName,
     [Parameter(Mandatory)][string] $CosmosDbAccountResourceGroupName,
     [Parameter(Mandatory)][string] $CassandraKeySpaceName,
-    [Parameter(Mandatory, ParameterSetName = "Throughput")][string][ValidateSet("Autoscale", "Manual")] $CassandraKeyspaceThroughputType,
-    [Parameter(Mandatory, ParameterSetName = "Throughput")][int] $CassandraKeyspaceThroughputAmount
+    [Parameter(Mandatory, ParameterSetName = 'Throughput')][string][ValidateSet('Autoscale', 'Manual')] $CassandraKeyspaceThroughputType,
+    [Parameter(Mandatory, ParameterSetName = 'Throughput')][int] $CassandraKeyspaceThroughputAmount
 )
 
 #region ===BEGIN IMPORTS===
@@ -46,10 +46,10 @@ switch ($CassandraKeyspaceThroughputType)
 $keyspaceExists = Invoke-Executable az cosmosdb cassandra keyspace exists --account-name $CosmosDbAccountName --name $CassandraKeyspaceName --resource-group $CosmosDbAccountResourceGroupName
 if ([System.Convert]::ToBoolean($keyspaceExists))
 {
-    $keyspaceThroughput = Invoke-Executable -AllowToFail az cosmosdb cassandra keyspace throughput show --account-name  $CosmosDbAccountName --name $CassandraKeyspaceName --resource-group $CosmosDbAccountResourceGroupName | ConvertFrom-Json
+    $keyspaceThroughput = Invoke-Executable -AllowToFail az cosmosdb cassandra keyspace throughput show --account-name $CosmosDbAccountName --name $CassandraKeyspaceName --resource-group $CosmosDbAccountResourceGroupName | ConvertFrom-Json
     if ($keyspaceThroughput -and $CassandraKeyspaceThroughputType)
     {
-        $keyspaceCurrentThroughputType = $null -eq $keyspaceThroughput.resource.autoscaleSettings ? "Manual" : "Autoscale"
+        $keyspaceCurrentThroughputType = $null -eq $keyspaceThroughput.resource.autoscaleSettings ? 'Manual' : 'Autoscale'
         if ($keyspaceCurrentThroughputType -ne $CassandraKeyspaceThroughputType)
         {
             Write-Host "Migrating keyspace from $keyspaceCurrentThroughputType to $CassandraKeyspaceThroughputType"
@@ -57,7 +57,7 @@ if ([System.Convert]::ToBoolean($keyspaceExists))
         }
         else
         {
-            Write-Host "No need to migrate keyspace throughput type. Continueing.."
+            Write-Host 'No need to migrate keyspace throughput type. Continueing..'
         }
     }
 }

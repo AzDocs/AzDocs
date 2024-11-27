@@ -232,11 +232,15 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-06-01' = {
         {
           name: replace(replace(replace(privateDnsZoneName, '-', '--'), '.', '-'), '*', 'wildcard')
           properties: {
-            privateDnsZoneId: resourceId(subscription().subscriptionId, privateDnsZoneResourceGroupName, 'Microsoft.Network/privateDnsZones', privateDnsZoneName)
+            privateDnsZoneId: resourceId(
+              subscription().subscriptionId,
+              privateDnsZoneResourceGroupName,
+              'Microsoft.Network/privateDnsZones',
+              privateDnsZoneName
+            )
           }
         }
       ]
     }
   }
-
 }

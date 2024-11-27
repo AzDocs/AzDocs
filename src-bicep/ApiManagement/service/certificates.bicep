@@ -55,7 +55,6 @@ loadFileAsBase64('./somecert_so_company_org.pfx')
 ''')
 param apimCertificateData string = ''
 
-
 resource apimService 'Microsoft.ApiManagement/service@2023-03-01-preview' existing = {
   name: apiManagementServiceName
 }
@@ -68,7 +67,7 @@ resource apimCertificate 'Microsoft.ApiManagement/service/certificates@2023-03-0
     data: apimCertificateData
     password: apimCertificatePassword
     keyVault: {
-      identityClientId: !empty(identityClientId) ? identityClientId: null //system assigned identity will be used with null
+      identityClientId: !empty(identityClientId) ? identityClientId : null //system assigned identity will be used with null
       secretIdentifier: secretIdentifier
     }
   }

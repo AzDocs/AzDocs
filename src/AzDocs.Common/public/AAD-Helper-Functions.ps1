@@ -45,7 +45,7 @@ function Add-MemberToAADRole
         if (($roleMembers | Where-Object { $_.id -eq $PrincipalId }).Length -gt 0)
         {
             Write-Host "Member $($PrincipalId) already exists in the $($RoleName) role." -ForegroundColor Green
-            return;
+            return
         }
     }
     catch

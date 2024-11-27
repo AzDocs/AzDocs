@@ -54,30 +54,31 @@ param workspacesRegion string = 'westeurope'
 @description('The number of days the Policy Analytics data for the firewall policy is saved in the log analytics workspace.')
 param insightsRetentionDays int = 30
 
-
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' = {
   name: firewallPolicyName
   tags: tags
   location: location
   properties: {
     threatIntelMode: threatIntelMode
-    insights: (!insightsEnabled || empty(logAnalyticsResourcesDefaultWorkspaceId)) ? null : {
-      isEnabled: insightsEnabled
-      logAnalyticsResources: {
-        defaultWorkspaceId: {
-          id: logAnalyticsResourcesDefaultWorkspaceId
-        }
-        workspaces: [
-          {
-            region: workspacesRegion
-            workspaceId: {
+    insights: (!insightsEnabled || empty(logAnalyticsResourcesDefaultWorkspaceId))
+      ? null
+      : {
+          isEnabled: insightsEnabled
+          logAnalyticsResources: {
+            defaultWorkspaceId: {
               id: logAnalyticsResourcesDefaultWorkspaceId
             }
+            workspaces: [
+              {
+                region: workspacesRegion
+                workspaceId: {
+                  id: logAnalyticsResourcesDefaultWorkspaceId
+                }
+              }
+            ]
           }
-        ]
-      }
-      retentionDays: insightsRetentionDays
-    }
+          retentionDays: insightsRetentionDays
+        }
   }
 }
 

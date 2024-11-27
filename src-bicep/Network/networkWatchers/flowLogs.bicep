@@ -46,7 +46,7 @@ param trafficAnalyticsLogAnalyticsWorkspaceResourceId string
 param nsgFlowLogStorageAccountResourceId string
 
 @description('The interval in minutes which would decide how frequently TA service should do flow analytics.')
-param trafficAnalyticsInterval int  = 10
+param trafficAnalyticsInterval int = 10
 
 @description('If set to true, the network watcher flow analytics configuration will be enabled.')
 param networkWatcherFlowAnalyticsConfiguration bool = true
@@ -60,7 +60,6 @@ param retentionPolicy object = {
   days: 0
   enabled: true
 }
-
 
 @description('Upsert the NSG Flow logs with the given parameters.')
 resource nsgFlowLog 'Microsoft.Network/networkWatchers/flowLogs@2021-08-01' = if (!empty(trafficAnalyticsLogAnalyticsWorkspaceResourceId)) {

@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="identityType">identityType</a>  | <pre>{ type: 'None' } &#124; { type: 'SystemAssigned' } &#124; { type: 'UserAssigned', userAssignedIdentities: object }</pre> | type | The identity type. This can be either `None`, a `System Assigned` or a `UserAssigned` identity. In the case of UserAssigned, the userAssignedIdentities must be set with the ResourceId of the user assigned identity resource and the identity must have at least read logs rbac rights on the resource in scope. | 
+| <a id="identityType">identityType</a>  | <pre></pre> | type | The identity type. This can be either `None`, a `System Assigned` or a `UserAssigned` identity. In the case of UserAssigned, the userAssignedIdentities must be set with the ResourceId of the user assigned identity resource and the identity must have at least read logs rbac rights on the resource in scope. | 
 
 ## Synopsis
 Creating scheduled rules on a log source to create an alert from.

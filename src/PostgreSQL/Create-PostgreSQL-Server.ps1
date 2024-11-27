@@ -1,20 +1,20 @@
 [CmdletBinding()]
 param (
-    [Alias("SqlServerPassword")]
+    [Alias('SqlServerPassword')]
     [Parameter(Mandatory)][string] $PostgreSqlServerPassword,
-    [Alias("SqlServerUsername")]
+    [Alias('SqlServerUsername')]
     [Parameter(Mandatory)][string] $PostgreSqlServerUsername,
-    [Alias("SqlServerName")]
+    [Alias('SqlServerName')]
     [Parameter(Mandatory)][string] $PostgreSqlServerName,
-    [Alias("SqlServerResourceGroupName")]
+    [Alias('SqlServerResourceGroupName')]
     [Parameter(Mandatory)][string] $PostgreSqlServerResourceGroupName,
-    [Alias("SqlServerSku")]
+    [Alias('SqlServerSku')]
     [Parameter(Mandatory)][string] $PostgreSqlServerSku,
     [Parameter()][int] $BackupRetentionInDays = 7,
-    [Alias("SqlServerVersion")]
-    [Parameter()][string] $PostgreSqlServerVersion = "11",
+    [Alias('SqlServerVersion')]
+    [Parameter()][string] $PostgreSqlServerVersion = '11',
     [Parameter()][ValidateSet('Enabled', 'Disabled')][string] $PostgreSqlServerPublicNetworkAccess = 'Disabled',
-    [Parameter()][ValidateSet('TLS1_0', 'TLS1_1', 'TLS1_2', 'TLSEnforcementDisabled')][string] $PostgreSqlServerMinimalTlsVersion = "TLS1_2",
+    [Parameter()][ValidateSet('TLS1_0', 'TLS1_1', 'TLS1_2', 'TLSEnforcementDisabled')][string] $PostgreSqlServerMinimalTlsVersion = 'TLS1_2',
 
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetName,
@@ -22,15 +22,15 @@ param (
     [Parameter()][string] $ApplicationSubnetName,
 
     # Private Endpoint
-    [Alias("VnetResourceGroupName")]
+    [Alias('VnetResourceGroupName')]
     [Parameter()][string] $PostgreSqlServerPrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
+    [Alias('VnetName')]
     [Parameter()][string] $PostgreSqlServerPrivateEndpointVnetName,
-    [Alias("SqlServerPrivateEndpointSubnetName")]
+    [Alias('SqlServerPrivateEndpointSubnetName')]
     [Parameter()][string] $PostgreSqlServerPrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $PostgreSqlServerPrivateDnsZoneName = "privatelink.postgres.database.azure.com", 
+    [Alias('PrivateDnsZoneName')]
+    [Parameter()][string] $PostgreSqlServerPrivateDnsZoneName = 'privatelink.postgres.database.azure.com', 
 
     [Parameter()][System.Object[]] $ResourceTags,
 
@@ -71,7 +71,7 @@ Write-Host "Found location $($resourceGroupLocation)"
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName -and $PostgreSqlServerPublicNetworkAccess -eq 'Disabled')
 {
     $PostgreSqlServerPublicNetworkAccess = 'Enabled'
-    Write-Warning "You are trying to use VNet whitelisting with public access disabled. This is impossible. The public endpoint will be forcefully enabled."
+    Write-Warning 'You are trying to use VNet whitelisting with public access disabled. This is impossible. The public endpoint will be forcefully enabled.'
 }
 
 # Create PostgreSQL Server if it does not exist
@@ -99,7 +99,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     Remove-VnetRulesIfExists -ServiceType 'postgres' -ResourceGroupName $PostgreSqlServerResourceGroupName -ResourceName $PostgreSqlServerName -AccessRuleName $oldAccessRuleName
     # END REMOVE OLD NAMES
 
-    Write-Host "VNET Whitelisting is desired. Adding the needed components."
+    Write-Host 'VNET Whitelisting is desired. Adding the needed components.'
     
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-PostgreSQL.ps1" -PostgreSqlServerName $PostgreSqlServerName -PostgreSqlServerResourceGroupName $PostgreSqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
@@ -108,7 +108,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
 # Private Endpoint
 if ($PostgreSqlServerPrivateEndpointVnetResourceGroupName -and $PostgreSqlServerPrivateEndpointVnetName -and $PostgreSqlServerPrivateEndpointSubnetName -and $DNSZoneResourceGroupName -and $PostgreSqlServerPrivateDnsZoneName)
 {
-    Write-Host "A private endpoint is desired. Adding the needed components."
+    Write-Host 'A private endpoint is desired. Adding the needed components.'
     $vnetId = (Invoke-Executable az network vnet show --resource-group $PostgreSqlServerPrivateEndpointVnetResourceGroupName --name $PostgreSqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
     $sqlServerPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $PostgreSqlServerPrivateEndpointVnetResourceGroupName --name $PostgreSqlServerPrivateEndpointSubnetName --vnet-name $PostgreSqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
     $sqlServerPrivateEndpointName = "$($PostgreSqlServerName)-pvtpsql"

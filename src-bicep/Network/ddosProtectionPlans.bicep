@@ -25,7 +25,6 @@ var ddosProtectionPlanId =  ddos.ddosProtectionPlanId
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
-
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
 Example:

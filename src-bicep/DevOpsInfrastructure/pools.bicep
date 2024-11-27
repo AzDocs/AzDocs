@@ -197,7 +197,12 @@ var azureDevOpsOrganizations = union(initialAzureDevOpsOrganization, additionalA
 @description('The resourceId of the subnet to integrate the devops pool in. This subnet needs to be delegated to Microsoft.DevOpsInfrastructure/pools.')
 var subnetResourceId = (empty(virtualNetworkName) || empty(subnetName))
   ? ''
-  : resourceId(virtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnetName)
+  : resourceId(
+      virtualNetworkResourceGroupName,
+      'Microsoft.Network/virtualNetworks/subnets',
+      virtualNetworkName,
+      subnetName
+    )
 
 @description('The resourceId of the existing user assigned managed identity.')
 var userAssignedIdentity = (!empty(userAssignedManagedIdentityName))

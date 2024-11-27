@@ -364,7 +364,7 @@ function Get-Certificate
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
-    [System.Security.Cryptography.X509Certificates.X509Certificate2]$certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($CertificatePath, $CertificatePassword);
+    [System.Security.Cryptography.X509Certificates.X509Certificate2]$certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($CertificatePath, $CertificatePassword)
     if (!$certificate)
     {
         throw "Could not fetch the certificate $CertificatePath"
@@ -690,7 +690,7 @@ function New-RewriteRuleAndCondition
     $rewriteRule = $rewriteRuleSet.rewriteRules | Where-Object Name -EQ $RewriteRuleName
     if (!$rewriteRule)
     {
-        $needToRewrite = $true;
+        $needToRewrite = $true
     }
     else
     {
@@ -718,7 +718,8 @@ function New-RewriteRuleAndCondition
     # Create new rewrite rules + conditions
     if ($needToRewrite)
     {
-        if(!$HeaderValue){
+        if (!$HeaderValue)
+        {
             $HeaderValue = @'
 '""'
 '@
@@ -1041,7 +1042,7 @@ function New-ApplicationGatewayEntrypoint
         Confirm-ApplicationGatewayPathBasedRoutingRule -ApplicationGatewayRuleDefaultIngressDomainNameDashed $applicationGatewayRuleDefaultIngressDomainNameDashed -ApplicationGatewayRulePath $ApplicationGatewayRulePath
     }
 
-    $CommonName = "Unknown"
+    $CommonName = 'Unknown'
     if ($withUploadCertificate)
     {
         # Fetch the commonname for the given certificate
@@ -1121,7 +1122,7 @@ function New-ApplicationGatewayEntrypoint
     }
     else
     {
-        $keyvaultCertificate = Invoke-Executable az keyvault certificate show --name $CertificateName --vault-name $CertificateKeyvaultName  | ConvertFrom-Json
+        $keyvaultCertificate = Invoke-Executable az keyvault certificate show --name $CertificateName --vault-name $CertificateKeyvaultName | ConvertFrom-Json
     }
 
     if (!$keyvaultCertificate)

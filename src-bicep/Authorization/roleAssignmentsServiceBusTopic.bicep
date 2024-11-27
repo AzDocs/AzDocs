@@ -22,7 +22,8 @@ module roleAssignmentsServiceBusTopic 'resource.roleAssignmentsServiceBusTopic.b
 */
 
 @description('The type of principal you want to assign the role to.')
-type principalTypes = 'User'
+type principalTypes =
+  | 'User'
   | 'Group'
   | 'ServicePrincipal'
   | 'Unknown'
@@ -55,7 +56,6 @@ param topicName string
 @minLength(36)
 @maxLength(36)
 param roleDefinitionId string
-
 
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing = {
   name: serviceBusNamespaceName

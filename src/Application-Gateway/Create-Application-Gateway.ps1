@@ -2,19 +2,19 @@
 param (
     [Parameter(Mandatory)][string] $ApplicationGatewayName,
     [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
-    [Alias("VnetName")]
+    [Alias('VnetName')]
     [Parameter(Mandatory)][string] $ApplicationGatewayVnetName,
-    [Alias("VnetResourceGroupName")]
+    [Alias('VnetResourceGroupName')]
     [Parameter(Mandatory)][string] $ApplicationGatewayVnetResourceGroupName,
-    [Alias("GatewaySubnetName")]
+    [Alias('GatewaySubnetName')]
     [Parameter(Mandatory)][string] $ApplicationGatewaySubnetName,
     [Parameter(Mandatory)][string] $ApplicationGatewayCapacity,
     [Parameter(Mandatory)][string] $ApplicationGatewaySku,
     [Parameter(Mandatory)][string] $CertificateKeyvaultName,
     [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName,
     [Parameter()][bool] $EnableWafPreventionMode = $false,
-    [Parameter()][string] $WafRuleSetType = "OWASP",
-    [Parameter()][string] $WafRuleSetVersion = "3.0",
+    [Parameter()][string] $WafRuleSetType = 'OWASP',
+    [Parameter()][string] $WafRuleSetVersion = '3.0',
     [Parameter()][System.Object[]] $ResourceTags,
 
     # Diagnostic Settings
@@ -56,12 +56,12 @@ if ($ResourceTags)
     Set-ResourceTagsForResource -ResourceId $applicationGatewayId -ResourceTags ${ResourceTags}
 }
 
-if ($ApplicationGatewaySku -contains "WAF")
+if ($ApplicationGatewaySku -contains 'WAF')
 {
-    $wafMode = "Detection"
+    $wafMode = 'Detection'
     if ($EnableWafPreventionMode)
     {
-        $wafMode = "Prevention"
+        $wafMode = 'Prevention'
     }
 
     Invoke-Executable az network application-gateway waf-config set --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --enabled true --firewall-mode $wafMode --rule-set-type $WafRuleSetType --rule-set-version $WafRuleSetVersion

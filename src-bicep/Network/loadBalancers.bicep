@@ -46,33 +46,35 @@ param loadBalancerExposureType string = 'Internal'
 Define the Frontend Ip Configuration you want to use for this Load Balancer. For formatting & options, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/loadbalancers?pivots=deployment-language-bicep.
 Defaults to a default public or internal frontend ip based on the `loadBalancerExposureType` parameter. If you override this, the `loadBalancerExposureType` parameter gets useless.
 ''')
-param frontendIPConfigurations array = loadBalancerExposureType == 'Public' ? [
-  {
-    name: '${loadBalancerName}-frontendIP'
-    properties: {
-      publicIPAddress: {
-        id: '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/publicIPAddresses/${loadBalancerPublicIpAddressName}'
+param frontendIPConfigurations array = loadBalancerExposureType == 'Public'
+  ? [
+      {
+        name: '${loadBalancerName}-frontendIP'
+        properties: {
+          publicIPAddress: {
+            id: '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/publicIPAddresses/${loadBalancerPublicIpAddressName}'
+          }
+        }
       }
-    }
-  }
-] : [
-  {
-    name: '${loadBalancerName}-frontendIP'
-    properties: {
-      privateIPAddress: null
-      privateIPAddressVersion: 'IPv4'
-      privateIPAllocationMethod: 'Dynamic'
-      subnet: {
-        id: '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/${privateFrontendIpVirtualNetworkName}/subnets/${privateFrontendIpSubnetName}'
-      }
-    }
-    zones: [
-      2
-      3
-      1
     ]
-  }
-]
+  : [
+      {
+        name: '${loadBalancerName}-frontendIP'
+        properties: {
+          privateIPAddress: null
+          privateIPAddressVersion: 'IPv4'
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/${privateFrontendIpVirtualNetworkName}/subnets/${privateFrontendIpSubnetName}'
+          }
+        }
+        zones: [
+          2
+          3
+          1
+        ]
+      }
+    ]
 
 @description('''
 Define the sku you want to use for this Load Balancer. For formatting & options, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/loadbalancers?pivots=deployment-language-bicep.
@@ -215,9 +217,11 @@ resource loadBalancer 'Microsoft.Network/loadBalancers@2022-01-01' = {
     inboundNatRules: inboundNatRules
     outboundRules: outboundNatRules
   }
-  dependsOn: !empty(loadBalancerPublicIpAddress) ? [
-    loadBalancerPublicIpAddress
-  ] : []
+  dependsOn: !empty(loadBalancerPublicIpAddress)
+    ? [
+        loadBalancerPublicIpAddress
+      ]
+    : []
 }
 
 @description('Outputs the resource name of the upserted Load Balancer.')

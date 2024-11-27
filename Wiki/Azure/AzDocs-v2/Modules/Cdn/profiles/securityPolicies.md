@@ -25,7 +25,7 @@ module secpolicy 'br:contosoregistry.azurecr.io/cdn/profiles/securitypolicies.bi
 | -- |  -- | -- | -- | -- | -- |
 | securityPolicyName | string | <input type="checkbox" checked> | None | <pre></pre> | Specifies the name of the security policy. |
 | frontDoorName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the existing Front Door Cdn profile to create. |
-| securityPolicyPatternsToMatch | array | <input type="checkbox"> | None | <pre>[ '/*' ]</pre> | Specifies the list of patterns to match by the security policy. |
+| securityPolicyPatternsToMatch | array | <input type="checkbox"> | None | <pre>['/*']</pre> | Specifies the list of patterns to match by the security policy. |
 | wafPolicyName | string | <input type="checkbox" checked> | None | <pre></pre> | Specifies the name of the existing Azure Front Door WAF policy. |
 | afdEndpointsName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the existing AFD endpoint. |
 

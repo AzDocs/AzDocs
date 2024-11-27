@@ -1,10 +1,10 @@
 [CmdletBinding(DefaultParameterSetName = 'default')]
 param (
-    [Alias("VnetResourceGroupName")]
+    [Alias('VnetResourceGroupName')]
     [Parameter(Mandatory)][string] $AppServicePrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
+    [Alias('VnetName')]
     [Parameter(Mandatory)][string] $AppServicePrivateEndpointVnetName,
-    [Alias("ApplicationPrivateEndpointSubnetName")]
+    [Alias('ApplicationPrivateEndpointSubnetName')]
     [Parameter(Mandatory)][string] $AppServicePrivateEndpointSubnetName,
     [Parameter(Mandatory)][string] $AppServicePlanName,
     [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,
@@ -13,11 +13,11 @@ param (
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
     [Parameter(Mandatory, ParameterSetName = 'default')][Parameter(Mandatory, ParameterSetName = 'DeploymentSlot')][string] $AppServiceRunTime,
-    [Alias("LogAnalyticsWorkspaceName")]
+    [Alias('LogAnalyticsWorkspaceName')]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
+    [Alias('PrivateDnsZoneName')]
+    [Parameter()][string] $AppServicePrivateDnsZoneName = 'privatelink.azurewebsites.net',
     [Parameter()][string] $AppServicePlanNumberOfWorkerInstances = 3,
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
     
@@ -36,7 +36,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Write-Warning 'This script is deprecated. Please use the Create-Web-App.ps1 and the Create-App-Service-Plan-Linux.ps1 instead.'
-Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+Write-Host '##vso[task.complete result=SucceededWithIssues;]'
 
 # Create AppServicePlan
 & "$PSScriptRoot\Create-App-Service-Plan-Linux.ps1" -AppServicePlanName $AppServicePlanName -AppServicePlanResourceGroupName $AppServicePlanResourceGroupName -AppServicePlanSkuName $AppServicePlanSkuName -AppServicePlanNumberOfWorkerInstances $AppServicePlanNumberOfWorkerInstances -ResourceTags ${ResourceTags}

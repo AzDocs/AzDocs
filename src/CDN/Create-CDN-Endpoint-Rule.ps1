@@ -5,8 +5,8 @@ param (
     [Parameter(Mandatory)][string] $CdnProfileName,
     [Parameter(Mandatory)][string] $CdnResourceGroupName,
     [Parameter(Mandatory)][string] $ActionName,
-    [Parameter()][string] $CacheDuration = "01:00:00",
-    [Parameter()][ValidateSet("BypassCache", "Override", "SetIfMissing")] $CacheBehavior = "Override",
+    [Parameter()][string] $CacheDuration = '01:00:00',
+    [Parameter()][ValidateSet('BypassCache', 'Override', 'SetIfMissing')] $CacheBehavior = 'Override',
     [Parameter()][int] $Order = 0 # order 0 is for global
 )
 

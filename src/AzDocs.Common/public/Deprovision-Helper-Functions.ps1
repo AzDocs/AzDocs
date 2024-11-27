@@ -18,8 +18,8 @@ function Remove-LinkedApplicationsFromSubnet
         $applicationType = $application.kind.split(',')[0]
         switch ($applicationType)
         {
-            "app" { Remove-VNetIntegrationFromResource -ResourceGroupName $ResourceGroupName -ResourceName $application.name -AppType 'webapp' }
-            "functionapp" { Remove-VNetIntegrationFromResource -ResourceGroupName $ResourceGroupName -ResourceName $application.name -AppType 'functionapp' }
+            'app' { Remove-VNetIntegrationFromResource -ResourceGroupName $ResourceGroupName -ResourceName $application.name -AppType 'webapp' }
+            'functionapp' { Remove-VNetIntegrationFromResource -ResourceGroupName $ResourceGroupName -ResourceName $application.name -AppType 'functionapp' }
         }
     }
 
@@ -32,7 +32,7 @@ function Remove-VNetIntegrationFromResource
     param (
         [Parameter(Mandatory)][string] $ResourceGroupName,
         [Parameter(Mandatory)][string] $ResourceName,
-        [Parameter(Mandatory)][ValidateSet("webapp", "functionapp")][string] $AppType
+        [Parameter(Mandatory)][ValidateSet('webapp', 'functionapp')][string] $AppType
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet

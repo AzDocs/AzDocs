@@ -33,7 +33,7 @@ function Invoke-AzRestCall
     }
     else
     {
-        $json = ($Body | ConvertTo-Json -Compress -Depth 100).Replace("""", """""")
+        $json = ($Body | ConvertTo-Json -Compress -Depth 100).Replace('"', '""')
         Invoke-Executable -AllowToFail:$AllowToFail az rest --method $Method --url $url --body """$json"""
     }
 }
@@ -53,5 +53,5 @@ function Show-RestError
         Write-Host 'StatusDescription:' $Exception.Exception.Response.StatusDescription -ForegroundColor Red
     }
     Write-Host 'Exception:' $Exception.Exception -ForegroundColor Red
-    throw $Exception;
+    throw $Exception
 }

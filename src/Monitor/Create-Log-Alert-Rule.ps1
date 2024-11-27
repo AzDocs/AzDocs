@@ -6,11 +6,11 @@ param (
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter(Mandatory)][int] $MonitorAlertFrequencyInMinutes,
     [Parameter(Mandatory)][int] $MonitorAlertTimeWindowInMinutes,
-    [Parameter(Mandatory, ParameterSetName = "metric")][ValidateSet("GreaterThan", "LessThan", "Equal")][string] $MonitorAlertMetricTriggerThresholdOperator,
-    [Parameter(Mandatory, ParameterSetName = "metric")][double] $MonitorAlertMetricTriggerThreshold,
-    [Parameter(Mandatory, ParameterSetName = "metric")][ValidateSet("Consecutive", "Total")][string] $MonitorAlertMetricTriggerType,
-    [Parameter(Mandatory, ParameterSetName = "metric")][string] $MonitorAlertMetricColumn,
-    [Parameter(Mandatory)][string][ValidateSet("GreaterThan", "LessThan", "Equal")] $MonitorAlertTriggerThresholdOperator,
+    [Parameter(Mandatory, ParameterSetName = 'metric')][ValidateSet('GreaterThan', 'LessThan', 'Equal')][string] $MonitorAlertMetricTriggerThresholdOperator,
+    [Parameter(Mandatory, ParameterSetName = 'metric')][double] $MonitorAlertMetricTriggerThreshold,
+    [Parameter(Mandatory, ParameterSetName = 'metric')][ValidateSet('Consecutive', 'Total')][string] $MonitorAlertMetricTriggerType,
+    [Parameter(Mandatory, ParameterSetName = 'metric')][string] $MonitorAlertMetricColumn,
+    [Parameter(Mandatory)][string][ValidateSet('GreaterThan', 'LessThan', 'Equal')] $MonitorAlertTriggerThresholdOperator,
     [Parameter(Mandatory)][double] $MonitorAlertTriggerThreshold,
     [Parameter(Mandatory)][string] $MonitorAlertingActionSeverity,
     [Parameter(Mandatory)][int] $MonitorAlertingActionSuppressThrottlingInMinutes,
@@ -38,13 +38,13 @@ $schedule = New-AzScheduledQueryRuleSchedule -FrequencyInMinutes $MonitorAlertFr
 $parametersTriggerCondition = @{
     ThresholdOperator = $MonitorAlertTriggerThresholdOperator
     Threshold         = $MonitorAlertTriggerThreshold
-    WarningAction     = "Ignore"
+    WarningAction     = 'Ignore'
 }
 
-if ($PsCmdlet.ParameterSetName -eq "metric")
+if ($PsCmdlet.ParameterSetName -eq 'metric')
 {
     $metricTrigger = New-AzScheduledQueryRuleLogMetricTrigger -ThresholdOperator $MonitorAlertMetricTriggerThresholdOperator -Threshold $MonitorAlertMetricTriggerThreshold -MetricTriggerType $MonitorAlertMetricTriggerType -MetricColumn $MonitorAlertMetricColumn -WarningAction Ignore
-    $parametersTriggerCondition.Add("MetricTrigger", $metricTrigger)
+    $parametersTriggerCondition.Add('MetricTrigger', $metricTrigger)
 }
 
 # set a trigger condition
@@ -54,12 +54,12 @@ $triggerCondition = New-AzScheduledQueryRuleTriggerCondition @parametersTriggerC
 $actionGroupId = (Get-AzResource -Name $MonitorAlertActionGroupName -ResourceGroupName $MonitorAlertActionGroupResourceGroupName).Id
 $parametersAznsAction = @{
     ActionGroup   = $actionGroupId
-    WarningAction = "Ignore"
+    WarningAction = 'Ignore'
 }
 
 if ($MonitorAlertCustomActionEmailSubject)
 {
-    $parametersAznsAction.Add("EmailSubject", $MonitorAlertCustomActionEmailSubject)
+    $parametersAznsAction.Add('EmailSubject', $MonitorAlertCustomActionEmailSubject)
 }
 
 # link actiongroup to action

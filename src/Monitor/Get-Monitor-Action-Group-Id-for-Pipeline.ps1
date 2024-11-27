@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $MonitorActionGroupName,
     [Parameter(Mandatory)][string] $MonitorActionResourceGroupName,
-    [Parameter()][string] $OutputPipelineVariableName = "MonitorActionGroupId"
+    [Parameter()][string] $OutputPipelineVariableName = 'MonitorActionGroupId'
 )
 
 #region ===BEGIN IMPORTS===

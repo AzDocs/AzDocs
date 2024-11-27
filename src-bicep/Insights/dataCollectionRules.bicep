@@ -126,7 +126,6 @@ var builtInRoleNames = {
   )
 }
 
-
 // ===================================== Resources =====================================
 resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2023-03-11' = {
   kind: kind
@@ -162,7 +161,6 @@ resource dataCollectionRule_roleAssignments 'Microsoft.Authorization/roleAssignm
     scope: dataCollectionRule
   }
 ]
-
 
 @description('The name of the dataCollectionRule.')
 output name string = dataCollectionRule.name

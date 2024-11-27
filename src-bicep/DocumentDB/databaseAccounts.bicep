@@ -155,9 +155,11 @@ param diagnosticSettingsMetricsCategories array = [
   }
 ]
 
-var virtualNetworkRules = [for subnet in subnetsToWhitelist: {
-  id: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${subnet.resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${subnet.vnetName}/subnets/${subnet.subnetName}'
-}]
+var virtualNetworkRules = [
+  for subnet in subnetsToWhitelist: {
+    id: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${subnet.resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${subnet.vnetName}/subnets/${subnet.subnetName}'
+  }
+]
 
 @description('Upserting the DocumentDB account.')
 resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {

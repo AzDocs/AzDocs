@@ -1,6 +1,6 @@
 [CmdletBinding(DefaultParameterSetName = 'default')]
 param (
-  [Parameter(
+    [Parameter(
         ParameterSetName = 'AddHttps',
         HelpMessage = 'Enable https for custom domain',
         Position = 0)]
@@ -33,13 +33,13 @@ function IsStillEnablingHttps
         [Parameter()][int] $RetryCounter = 3
     )
 
-    $count = 0;
+    $count = 0
     while (((Invoke-Executable az cdn custom-domain show -g $CdnResourceGroupName --profile-name $CdnProfileName --endpoint-name $CdnEndpointName --name $CdnCustomDomainName ) | ConvertFrom-Json).customHttpsProvisioningState -eq 'Enabling' )
     {
         Write-Host 'Enabling Https is still in progress'
         Start-Sleep -Seconds 60
         $count++
-        if($count -gt $RetryCounter)
+        if ($count -gt $RetryCounter)
         {
             return $true
         }
@@ -49,12 +49,12 @@ function IsStillEnablingHttps
 
 Invoke-Executable az cdn custom-domain create --endpoint-name $CdnEndpointName --hostname $Hostname --resource-group $CdnResourceGroupName --name $CdnCustomDomainName --profile-name $CdnProfileName
 
-if($AddHttps)
+if ($AddHttps)
 {
     $isStillEnablingHttps = IsStillEnablingHttps -CdnProfileName $CdnProfileName -CdnResourceGroupName $CdnResourceGroupName -CdnEndpointName $CdnEndpointName -CdnCustomDomainName $CdnCustomDomainName
-    if($isStillEnablingHttps)
+    if ($isStillEnablingHttps)
     {
-        Write-Warning "Still enabling custom https, can take up to 6 hours. Try again later."
+        Write-Warning 'Still enabling custom https, can take up to 6 hours. Try again later.'
     } 
     else
     {

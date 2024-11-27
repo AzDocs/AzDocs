@@ -2,10 +2,10 @@
 param (
     [Parameter(Mandatory)][string] $KeyvaultName,
     [Parameter(Mandatory)][string] $KeyvaultResourceGroupName,
-    [Parameter()][string] $KeyvaultCertificatePermissions = "",
-    [Parameter()][string] $KeyvaultKeyPermissions = "",
-    [Parameter()][string] $KeyvaultSecretPermissions = "",
-    [Parameter()][string] $KeyvaultStoragePermissions = ""
+    [Parameter()][string] $KeyvaultCertificatePermissions = '',
+    [Parameter()][string] $KeyvaultKeyPermissions = '',
+    [Parameter()][string] $KeyvaultSecretPermissions = '',
+    [Parameter()][string] $KeyvaultStoragePermissions = ''
 )
 
 #region ===BEGIN IMPORTS===
@@ -18,7 +18,7 @@ $identityId = (Invoke-Executable az account show | ConvertFrom-Json).user.name
 
 if (!$identityId)
 {
-    throw "Identity not found"
+    throw 'Identity not found'
 }
 
 Write-Host "Identity ID: $identityId"

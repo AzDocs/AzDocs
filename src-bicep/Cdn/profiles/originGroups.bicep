@@ -63,7 +63,6 @@ param probeIntervalInSeconds int = 60
 ])
 param sessionAffinityState string = 'Disabled'
 
-
 // ===================================== Resources =====================================
 @description('The existing FrontDoor profile to use.')
 resource frontdoor 'Microsoft.Cdn/profiles@2022-11-01-preview' existing = {

@@ -318,7 +318,6 @@ module synSqlPrivateEndpoint '../Network/privateEndpoints.bicep' = if (!empty(pr
   }
 }
 
-
 // ================================================= Outputs =================================================
 @description('The name of the deployed Synapse Workspace.')
 output synapseWorkSpaceName string = synapseWorkspace.name

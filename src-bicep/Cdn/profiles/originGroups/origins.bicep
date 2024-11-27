@@ -119,14 +119,16 @@ resource origins 'Microsoft.Cdn/profiles/originGroups/origins@2022-11-01-preview
     weight: weight
     enabledState: bool(originEnabledState) ? 'Enabled' : 'Disabled'
     enforceCertificateNameCheck: enforceCertificateNameCheck
-    sharedPrivateLinkResource: empty(privateLinkName) ? null : {
-      privateLink: {
-        id: privateLinkResourceId
-      }
-      groupId: groupId
-      privateLinkLocation: privateLinkLocation
-      requestMessage: 'Private link service from AFD'
-    }
+    sharedPrivateLinkResource: empty(privateLinkName)
+      ? null
+      : {
+          privateLink: {
+            id: privateLinkResourceId
+          }
+          groupId: groupId
+          privateLinkLocation: privateLinkLocation
+          requestMessage: 'Private link service from AFD'
+        }
   }
 }
 

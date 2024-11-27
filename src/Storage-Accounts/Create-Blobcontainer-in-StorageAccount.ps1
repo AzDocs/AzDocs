@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param (
-    [Alias("BlobStorageAccountName")]
+    [Alias('BlobStorageAccountName')]
     [Parameter(Mandatory)][string] $StorageAccountName,
-    [Alias("ContainerName", "BlobStorageContainerName")]
+    [Alias('ContainerName', 'BlobStorageContainerName')]
     [Parameter(Mandatory)][string] $BlobContainerName,
     [Parameter(Mandatory)][string] $StorageAccountResourceGroupName,
     # Diagnostic settings

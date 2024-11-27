@@ -167,7 +167,6 @@ resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-11-01-previe
   }
 }
 
-
 @description('Output of the resource id of the management environment')
 output managedEnvironmentResourceId string = managedEnvironment.id
 @description('Output of the name of the management environment')

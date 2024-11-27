@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param (
-    [Alias("Namespace")]
+    [Alias('Namespace')]
     [Parameter(Mandatory)][string] $ResourceProviderNamespace
 )
 

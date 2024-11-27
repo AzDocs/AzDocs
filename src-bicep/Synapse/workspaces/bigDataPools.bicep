@@ -123,7 +123,6 @@ resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' existing = {
   name: synapseWorkSpaceName
 }
 
-
 // ================================================= Resources =================================================
 resource sparkPool 'Microsoft.Synapse/workspaces/bigDataPools@2021-06-01' = {
   parent: synapseWorkspace
@@ -131,13 +130,13 @@ resource sparkPool 'Microsoft.Synapse/workspaces/bigDataPools@2021-06-01' = {
   location: location
   tags: tags
   properties: {
-    nodeCount: !sparkAutoScaleEnabled? sparkNodeCount: 0
+    nodeCount: !sparkAutoScaleEnabled ? sparkNodeCount : 0
     nodeSizeFamily: sparkNodeSizeFamily
     nodeSize: sparkNodeSize
     autoScale: {
       enabled: sparkAutoScaleEnabled
-      minNodeCount: sparkAutoScaleEnabled? sparkAutoScaleMinNodeCount: null
-      maxNodeCount: sparkAutoScaleEnabled? sparkAutoScaleMaxNodeCount: null
+      minNodeCount: sparkAutoScaleEnabled ? sparkAutoScaleMinNodeCount : null
+      maxNodeCount: sparkAutoScaleEnabled ? sparkAutoScaleMaxNodeCount : null
     }
     autoPause: {
       enabled: sparkAutoPauseEnabled

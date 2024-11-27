@@ -68,7 +68,6 @@ param roleAssignmentDescription string = ''
 @maxLength(36)
 param roleDefinitionId string
 
-
 @description('Fetch the role based on the given roleDefinitionId. See [documentation](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles)')
 resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: subscription()

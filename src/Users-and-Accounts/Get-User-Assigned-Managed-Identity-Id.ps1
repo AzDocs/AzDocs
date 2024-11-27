@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $UserAssignedManagedIdentityName,
     [Parameter(Mandatory)][string] $UserAssignedManagedIdentityResourceGroupName,
-    [Parameter()][string] $OutputPipelineVariableName = "UserAssignedManagedIdentityId"
+    [Parameter()][string] $OutputPipelineVariableName = 'UserAssignedManagedIdentityId'
 )
 
 #region ===BEGIN IMPORTS===

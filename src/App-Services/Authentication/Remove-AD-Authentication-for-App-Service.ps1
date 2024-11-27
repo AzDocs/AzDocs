@@ -21,8 +21,8 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $statusCode = 401
 $rules = @(
-    [PSCustomObject]@{RuleName = "Login redirect to AAD" },
-    [PSCustomObject]@{RuleName = "Callback from AAD" }
+    [PSCustomObject]@{RuleName = 'Login redirect to AAD' },
+    [PSCustomObject]@{RuleName = 'Callback from AAD' }
 )
 
 # keep original context
@@ -78,6 +78,6 @@ Write-Host "Statuscodes that will be set: $statusCodesToSet"
 # Did not use Invoke-Executable because it changes the type of $statusCodesToSet
 # Doesn't work as well when changing the $statusCodesToSet to a string value space-separated e.g $($statusCodesToTest -join ' '). Does work without using Invoke-Executable.
 az network application-gateway probe update --gateway-name $ApplicationGatewayName --name $ApplicationGatewayHealthProbeName --resource-group $ApplicationGatewayResourceGroupName --match-status-codes $statusCodesToSet
-Write-Host "Statuscode has been updated"
+Write-Host 'Statuscode has been updated'
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

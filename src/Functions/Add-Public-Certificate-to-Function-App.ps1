@@ -2,9 +2,9 @@
 param (
     [Parameter(Mandatory)][string] $FunctionAppResourceGroupName,
     [Parameter(Mandatory)][string] $FunctionAppName,
-    [Alias("CertificateNameForFunctionApp")]
+    [Alias('CertificateNameForFunctionApp')]
     [Parameter(Mandatory)][string] $FunctionAppCertificateName,
-    [Alias("CertificateFilePath")]
+    [Alias('CertificateFilePath')]
     [Parameter(Mandatory)][string] $FunctionAppCertificateFilePath,
 
     # Deploymentslots
@@ -24,20 +24,20 @@ $apiVersion = '2018-02-01'
 if ($cert)
 {
     $propertiesObject = @{
-        blob                      = $cert.Data;
-        publicCertificateLocation = "CurrentUserMy"
+        blob                      = $cert.Data
+        publicCertificateLocation = 'CurrentUserMy'
     }
 
     if ($FunctionSlotName)
     {
         $resource = Get-AzWebAppSlot -ResourceGroupName $FunctionAppResourceGroupName -Name $FunctionAppName -Slot $FunctionSlotName
-        $resourceName = $resource.Name + "/" + $FunctionAppCertificateName
+        $resourceName = $resource.Name + '/' + $FunctionAppCertificateName
         New-AzResource -Location $resource.Location -PropertyObject $propertiesObject -ResourceGroupName $resource.ResourceGroup -ResourceType Microsoft.Web/sites/slots/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
     }
     else
     {
         $resource = Get-AzFunctionApp -ResourceGroupName $FunctionAppResourceGroupName -Name $FunctionAppName
-        $resourceName = $resource.Name + "/" + $FunctionAppCertificateName
+        $resourceName = $resource.Name + '/' + $FunctionAppCertificateName
         New-AzResource -Location $resource.Location -PropertyObject $PropertiesObject -ResourceGroupName $resource.resourceGroupName -ResourceType Microsoft.Web/sites/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
     }
 
@@ -47,7 +47,7 @@ if ($cert)
         $slots = Get-AzResource -ResourceGroupName $resource.resourceGroupName -ResourceType Microsoft.Web/sites/slots -ResourceName $FunctionAppName -ApiVersion $apiVersion
         foreach ($slot in $slots)
         {
-            $resourceName = $slot.Name + "/" + $FunctionAppCertificateName
+            $resourceName = $slot.Name + '/' + $FunctionAppCertificateName
             New-AzResource -Location $slot.Location -PropertyObject $propertiesObject -ResourceGroupName $slot.resourceGroupName -ResourceType Microsoft.Web/sites/slots/publicCertificates -ResourceName $resourceName -ApiVersion $apiVersion -Force
         }
     }

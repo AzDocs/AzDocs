@@ -1,13 +1,13 @@
 [CmdletBinding()]
 param (
-    [Alias("StorageResourceGroupName")]
+    [Alias('StorageResourceGroupName')]
     [Parameter(Mandatory)][string] $StorageAccountResourceGroupName,
     [Parameter()][System.Object[]] $ResourceTags,
     [Parameter(Mandatory)][string] $StorageAccountName,
-    [Parameter()][string][ValidateSet("BlobStorage", "BlockBlobStorage", "FileStorage", "Storage", "StorageV2")] $StorageAccountKind = "StorageV2",
-    [Parameter()][string][ValidateSet("Premium_LRS", "Premium_ZRS", "Standard_GRS", "Standard_GZRS", "Standard_LRS", "Standard_RAGRS", "Standard_RAGZRS", "Standard_ZRS")] $StorageAccountSku = "Standard_LRS",
+    [Parameter()][string][ValidateSet('BlobStorage', 'BlockBlobStorage', 'FileStorage', 'Storage', 'StorageV2')] $StorageAccountKind = 'StorageV2',
+    [Parameter()][string][ValidateSet('Premium_LRS', 'Premium_ZRS', 'Standard_GRS', 'Standard_GZRS', 'Standard_LRS', 'Standard_RAGRS', 'Standard_RAGZRS', 'Standard_ZRS')] $StorageAccountSku = 'Standard_LRS',
     [Parameter()][bool] $StorageAccountAllowBlobPublicAccess = $false,
-    [Parameter()][string][ValidateSet("TLS1_0", "TLS1_1", "TLS1_2")] $StorageAccountMinimalTlsVersion = "TLS1_2",
+    [Parameter()][string][ValidateSet('TLS1_0', 'TLS1_1', 'TLS1_2')] $StorageAccountMinimalTlsVersion = 'TLS1_2',
 
     # VNET Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -15,15 +15,15 @@ param (
     [Parameter()][string] $ApplicationSubnetName,
 
     # Private Endpoint
-    [Alias("VnetResourceGroupName")]
+    [Alias('VnetResourceGroupName')]
     [Parameter()][string] $StorageAccountPrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
+    [Alias('VnetName')]
     [Parameter()][string] $StorageAccountPrivateEndpointVnetName,
     [Parameter()][string] $StorageAccountPrivateEndpointSubnetName,
     [Parameter()][string] $PrivateEndpointGroupId,
     [Parameter()][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $StorageAccountPrivateDnsZoneName = "privatelink.blob.core.windows.net",
+    [Alias('PrivateDnsZoneName')]
+    [Parameter()][string] $StorageAccountPrivateDnsZoneName = 'privatelink.blob.core.windows.net',
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
@@ -64,7 +64,7 @@ if ($ResourceTags)
 # VNET Whitelisting
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)
 {
-    Write-Host "VNET Whitelisting is desired. Adding the needed components."
+    Write-Host 'VNET Whitelisting is desired. Adding the needed components.'
 
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-StorageAccount.ps1" -StorageAccountName $StorageAccountName -StorageAccountResourceGroupName $StorageAccountResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName
@@ -76,7 +76,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
 # Private Endpoint
 if ($StorageAccountPrivateEndpointVnetName -and $StorageAccountPrivateEndpointVnetResourceGroupName -and $StorageAccountPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $StorageAccountPrivateDnsZoneName)
 {
-    Write-Host "A private endpoint is desired. Adding the needed components."
+    Write-Host 'A private endpoint is desired. Adding the needed components.'
     # Fetch the basic information for creating the Private Endpoint
     $storageAccountId = (Invoke-Executable az storage account show --name $StorageAccountName --resource-group $StorageAccountResourceGroupName | ConvertFrom-Json).id
     $vnetId = (Invoke-Executable az network vnet show --resource-group $StorageAccountPrivateEndpointVnetResourceGroupName --name $StorageAccountPrivateEndpointVnetName | ConvertFrom-Json).id

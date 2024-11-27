@@ -12,7 +12,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 $budget = Invoke-Executable -AllowToFail az consumption budget show --budget-name $BudgetName
 if ($budget)
 {
-    Write-Host "Found budget removing.."
+    Write-Host 'Found budget removing..'
     Invoke-Executable az consumption budget delete --budget-name $BudgetName
 }
 else

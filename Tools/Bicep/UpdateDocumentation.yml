@@ -16,15 +16,15 @@ steps:
         git config user.name 'Azure.Devops@pipeline.com'
         Write-Host 'Doing git checkout...' -ForegroundColor Cyan
         git checkout -b $sourceBranch 
-      
+
         . .\Tools\Bicep\Get-BicepMetadata.ps1
         . .\Tools\Bicep\Update-MetadataMarkdown.ps1
         $metadata = Get-BicepMetadata -path '.\src-bicep'
         Update-MetadataMarkdown -Metadata $metadata -DestinationPath '.\Wiki\Azure\AzDocs-v2\Modules'
-        
+
         git add --all
         git diff --quiet && git diff --staged --quiet || git commit --all --message "Updating Documentation [skip azurepipelines]"
 
         Write-Host "Doing git push.." -ForegroundColor Cyan
         git push --set-upstream origin $sourceBranch
-        Write-Host "Done." -ForegroundColor Cyan  
+        Write-Host "Done." -ForegroundColor Cyan

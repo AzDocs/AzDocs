@@ -42,7 +42,7 @@ resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' existing = {
 
 // ================================================= Resources =================================================
 @description('Create a managed identity used for the role assignment during the deployment.')
-resource synapseManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' = if (empty(sidObjectId))  {
+resource synapseManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' = if (empty(sidObjectId)) {
   name: userAssignedManagedIdentityName
   location: location
 }
@@ -59,7 +59,10 @@ resource synapseAdminAssignment 'Microsoft.Synapse/workspaces/administrators@202
 }
 
 // Assign the Azure RBAC "Owner" role on the Synapse workspace to the UIM identity if created
-var roleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635') // Owner
+var roleDefinitionId = subscriptionResourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
+) // Owner
 resource identityRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (empty(sidObjectId)) {
   name: guid(subscription().subscriptionId, synapseManagedIdentity.id, roleDefinitionId)
   scope: synapseWorkspace

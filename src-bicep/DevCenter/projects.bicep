@@ -32,16 +32,19 @@ param devCenterProjectName string
 param devCenterProjectDescription string = 'Dev Center project'
 
 @discriminator('type')
-type IdentityType = {
-  type: 'SystemAssigned'
-} | {
-  type: 'UserAssigned'
-  userAssignedIdentities: {
-    *: {}
+type IdentityType =
+  | {
+    type: 'SystemAssigned'
   }
-} | {
-  type: 'None'
-}
+  | {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      *: {}
+    }
+  }
+  | {
+    type: 'None'
+  }
 
 @description('Managed service identity to use for this resource. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).')
 param identity IdentityType = {
@@ -66,7 +69,6 @@ resource devCenterProject 'Microsoft.DevCenter/projects@2024-02-01' = {
     maxDevBoxesPerUser: maxDevBoxesPerUser ?? null
   }
 }
-
 
 @description('The resource ID of the project created in the Dev Center.')
 output devCenterProject string = devCenterProject.id

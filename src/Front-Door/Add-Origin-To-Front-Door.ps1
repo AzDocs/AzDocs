@@ -6,9 +6,9 @@ param (
     # Origin group
     [Parameter(Mandatory)][string] $OriginGroupName,
     # Health probe origin group
-    [Parameter()][string] $OriginHealthProbePath = "/",
-    [Parameter()][string][ValidateSet("Http", "Https", "NotSet")] $OriginHealthProbeProtocol = 'Https',
-    [Parameter()][string][ValidateSet("GET", "HEAD", "NotSet")] $OriginHealthProbeRequestType = 'GET',
+    [Parameter()][string] $OriginHealthProbePath = '/',
+    [Parameter()][string][ValidateSet('Http', 'Https', 'NotSet')] $OriginHealthProbeProtocol = 'Https',
+    [Parameter()][string][ValidateSet('GET', 'HEAD', 'NotSet')] $OriginHealthProbeRequestType = 'GET',
     [Parameter()][string] $OriginHealthProbeIntervalInSeconds = 100,
     
     # Health probe Load Balancing
@@ -22,11 +22,11 @@ param (
     [Parameter()][string] $ResourceName,
     [Parameter()][string] $CustomOriginHostName,
 
-    [Parameter()][string] $OriginHttpPort = "80",
-    [Parameter()][string] $OriginHttpsPort = "443",
-    [Parameter()][string] $OriginPriority = "1", 
-    [Parameter()][string] $OriginWeight = "1000", 
-    [Parameter()][string][ValidateSet("Enabled", "Disabled")] $OriginEnabled = "Enabled",
+    [Parameter()][string] $OriginHttpPort = '80',
+    [Parameter()][string] $OriginHttpsPort = '443',
+    [Parameter()][string] $OriginPriority = '1', 
+    [Parameter()][string] $OriginWeight = '1000', 
+    [Parameter()][string][ValidateSet('Enabled', 'Disabled')] $OriginEnabled = 'Enabled',
     [Parameter()][string] $OriginHostHeader
 )
 
@@ -40,16 +40,16 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 Write-Host "Creating origin group for $OriginGroupName"
 
 $paramsForOriginGroup = @{
-    FrontDoorProfileName                                 = $FrontDoorProfileName;
-    FrontDoorResourceGroup                               = $FrontDoorResourceGroup;
-    OriginGroupName                                      = $OriginGroupName;
-    OriginHealthProbePath                                = $OriginHealthProbePath;
-    OriginHealthProbeProtocol                            = $OriginHealthProbeProtocol;
-    OriginHealthProbeRequestType                         = $OriginHealthProbeRequestType;
-    OriginHealthProbeIntervalInSeconds                   = $OriginHealthProbeIntervalInSeconds;
-    OriginLoadBalancingSampleSize                        = $OriginLoadBalancingSampleSize;
-    OriginLoadBalancingSuccessfulSamplesRequired         = $OriginLoadBalancingSuccessfulSamplesRequired;
-    OriginLoadBalancingAdditationalLatencyInMilliseconds = $OriginLoadBalancingAdditationalLatencyInMilliseconds;
+    FrontDoorProfileName                                 = $FrontDoorProfileName
+    FrontDoorResourceGroup                               = $FrontDoorResourceGroup
+    OriginGroupName                                      = $OriginGroupName
+    OriginHealthProbePath                                = $OriginHealthProbePath
+    OriginHealthProbeProtocol                            = $OriginHealthProbeProtocol
+    OriginHealthProbeRequestType                         = $OriginHealthProbeRequestType
+    OriginHealthProbeIntervalInSeconds                   = $OriginHealthProbeIntervalInSeconds
+    OriginLoadBalancingSampleSize                        = $OriginLoadBalancingSampleSize
+    OriginLoadBalancingSuccessfulSamplesRequired         = $OriginLoadBalancingSuccessfulSamplesRequired
+    OriginLoadBalancingAdditationalLatencyInMilliseconds = $OriginLoadBalancingAdditationalLatencyInMilliseconds
 }
 
 Add-OriginGroupToFrontDoor @paramsForOriginGroup
@@ -57,7 +57,8 @@ Write-Host "Done creating origin group for $OriginGroupName"
 
 # Add origin to the group
 Write-Host "Generating hostname based on resourcetype: $ResourceType"
-switch ($ResourceType) {
+switch ($ResourceType)
+{
     'webapp' { $hostname = "$($ResourceName).azurewebsites.net" }
     'functionapp' { $hostname = "$($ResourceName).azurewebsites.net" }
     'custom' { $hostname = $CustomOriginHostName }
@@ -67,17 +68,17 @@ Write-Host "Generated hostname $hostname"
 Write-Host "Creating origin for host $hostName"
 
 $paramsForOrigin = @{
-    FrontDoorProfileName   = $FrontDoorProfileName;
-    FrontDoorResourceGroup = $FrontDoorResourceGroup;
-    OriginGroupName        = $OriginGroupName;
-    OriginName             = $OriginName;
-    OriginHostName         = $hostName;
-    OriginHttpPort         = $OriginHttpPort;
-    OriginHttpsPort        = $OriginHttpsPort;
-    OriginPriority         = $OriginPriority;
-    OriginWeight           = $OriginWeight;
-    OriginEnabled          = $OriginEnabled;
-    OriginHostHeader       = $OriginHostHeader;
+    FrontDoorProfileName   = $FrontDoorProfileName
+    FrontDoorResourceGroup = $FrontDoorResourceGroup
+    OriginGroupName        = $OriginGroupName
+    OriginName             = $OriginName
+    OriginHostName         = $hostName
+    OriginHttpPort         = $OriginHttpPort
+    OriginHttpsPort        = $OriginHttpsPort
+    OriginPriority         = $OriginPriority
+    OriginWeight           = $OriginWeight
+    OriginEnabled          = $OriginEnabled
+    OriginHostHeader       = $OriginHostHeader
 }
 
 Add-OriginToOriginGroup @paramsForOrigin

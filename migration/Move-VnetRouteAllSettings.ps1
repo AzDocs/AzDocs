@@ -96,8 +96,8 @@ $appSettings = $apps | ForEach-Object -Parallel {
 $appSettings | Out-GridView -Title 'apps to change - gridview'
 if (!$WhatIf)
 {
-    $yes = [System.Management.Automation.Host.ChoiceDescription]::new('&Yes' , 'Apply all the changes');
-    $no = [System.Management.Automation.Host.ChoiceDescription]::new('&No' , 'Do not change anything');
+    $yes = [System.Management.Automation.Host.ChoiceDescription]::new('&Yes' , 'Apply all the changes')
+    $no = [System.Management.Automation.Host.ChoiceDescription]::new('&No' , 'Do not change anything')
     $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
     $result = $host.ui.PromptForChoice('Apply new settings', 'Do you want to apply all the new settings as shown in the gridview?', $options, 0)
     if ($result -eq 1)

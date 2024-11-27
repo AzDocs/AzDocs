@@ -14,22 +14,24 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-if($ReadOnlyConnectionString)
+if ($ReadOnlyConnectionString)
 {
-    $connectionType = "Primary Read Only"
+    $connectionType = 'Primary Read Only'
 }
 else
 {
-    $connectionType = "Primary"
+    $connectionType = 'Primary'
 }
 
-$connectionString = (Invoke-Executable az appconfig credential list --resource-group $AppConfigResourceGroupName --name $AppConfigName | ConvertFrom-Json | Where-Object name -eq $connectionType).connectionString
-if (!$connectionString) {
-    throw "Could not find connectionstring for specified AppConfiguration."
+$connectionString = (Invoke-Executable az appconfig credential list --resource-group $AppConfigResourceGroupName --name $AppConfigName | ConvertFrom-Json | Where-Object name -EQ $connectionType).connectionString
+if (!$connectionString)
+{
+    throw 'Could not find connectionstring for specified AppConfiguration.'
 }
 
 $additionalParameters = @()
-if ($AppServiceSlotName) {
+if ($AppServiceSlotName)
+{
     $additionalParameters += '--slot' , $AppServiceSlotName
 }
 

@@ -107,5 +107,3 @@ output vaultResourceName string = recoveryServicesVault.name
 output vaultResourceId string = recoveryServicesVault.id
 @description('Output the system assigned managed identity for this Recovery Services Vault.')
 output vaultIdentityPrincipalId string = recoveryServicesVault.identity.principalId
-
-

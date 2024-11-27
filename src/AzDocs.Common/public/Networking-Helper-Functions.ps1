@@ -8,29 +8,29 @@ function Get-StartIpInIpv4Network
 
 	if ($SubnetCidr -eq '0.0.0.0/0')
 	{
-		return "0.0.0.0"
+		return '0.0.0.0'
 	}
 
 	$splittedIpAddress = $SubnetCidr -split '/'
-	if($splittedIpAddress.length -eq 1)
+	if ($splittedIpAddress.length -eq 1)
 	{
-		$splittedIpAddress += "32"
+		$splittedIpAddress += '32'
 	}
 	$subnetMask = ConvertTo-IPv4MaskString -MaskBits $splittedIpAddress[1]
 
-	$BinarySubnetMask = ""
-	if ($splittedIpAddress[1] -ne "32")
+	$BinarySubnetMask = ''
+	if ($splittedIpAddress[1] -ne '32')
 	{
-		$BinarySubnetMask = (Convert-SubnetMaskToBinary $subnetMask).replace(".", "")
+		$BinarySubnetMask = (Convert-SubnetMaskToBinary $subnetMask).replace('.', '')
 	}
-	$BinaryNetworkAddressSection = $BinarySubnetMask.replace("1", "")
+	$BinaryNetworkAddressSection = $BinarySubnetMask.replace('1', '')
 	$BinaryNetworkAddressLength = $BinaryNetworkAddressSection.length
 	$CIDR = 32 - $BinaryNetworkAddressLength
-	$BinaryIP = (Convert-IPToBinary $splittedIpAddress[0]).Replace(".", "")
+	$BinaryIP = (Convert-IPToBinary $splittedIpAddress[0]).Replace('.', '')
 	$BinaryIPNetworkSection = $BinaryIP.substring(0, $CIDR)
     
 	#Starting IP
-	$FirstAddress = $BinaryNetworkAddressSection -replace "0$", "1"
+	$FirstAddress = $BinaryNetworkAddressSection -replace '0$', '1'
 	$BinaryFirstAddress = $BinaryIPNetworkSection + $FirstAddress
 	$strFirstIP = Convert-BinaryIPAddress $BinaryFirstAddress
 	return $strFirstIP
@@ -46,29 +46,29 @@ function Get-EndIpInIpv4Network
 
 	if ($SubnetCidr -eq '0.0.0.0/0')
 	{
-		return "255.255.255.255"
+		return '255.255.255.255'
 	}
 
 	$splittedIpAddress = $SubnetCidr -split '/'
-	if($splittedIpAddress.length -eq 1)
+	if ($splittedIpAddress.length -eq 1)
 	{
-		$splittedIpAddress += "32"
+		$splittedIpAddress += '32'
 	}
 	$subnetMask = ConvertTo-IPv4MaskString -MaskBits $splittedIpAddress[1]
 
-	$BinarySubnetMask = ""
-	if ($splittedIpAddress[1] -ne "32")
+	$BinarySubnetMask = ''
+	if ($splittedIpAddress[1] -ne '32')
 	{
-		$BinarySubnetMask = (Convert-SubnetMaskToBinary $subnetMask).replace(".", "")
+		$BinarySubnetMask = (Convert-SubnetMaskToBinary $subnetMask).replace('.', '')
 	}
-	$BinaryNetworkAddressSection = $BinarySubnetMask.replace("1", "")
+	$BinaryNetworkAddressSection = $BinarySubnetMask.replace('1', '')
 	$BinaryNetworkAddressLength = $BinaryNetworkAddressSection.length
 	$CIDR = 32 - $BinaryNetworkAddressLength
-	$BinaryIP = (Convert-IPToBinary $splittedIpAddress[0]).Replace(".", "")
+	$BinaryIP = (Convert-IPToBinary $splittedIpAddress[0]).Replace('.', '')
 	$BinaryIPNetworkSection = $BinaryIP.substring(0, $CIDR)
        
 	#End IP
-	$LastAddress = ($BinaryNetworkAddressSection -replace "0", "1") -replace "1$", "0"
+	$LastAddress = ($BinaryNetworkAddressSection -replace '0', '1') -replace '1$', '0'
 	$BinaryLastAddress = $BinaryIPNetworkSection + $LastAddress
 	$strLastIP = Convert-BinaryIPAddress $BinaryLastAddress
 	return $strLastIP
@@ -85,7 +85,7 @@ function ConvertTo-IPv4MaskString
 	)
 	$mask = ([Math]::Pow(2, $MaskBits) - 1) * [Math]::Pow(2, (32 - $MaskBits))
 	$bytes = [BitConverter]::GetBytes([UInt32] $mask)
-	(($bytes.Count - 1)..0 | ForEach-Object { [String] $bytes[$_] }) -join "."
+	(($bytes.Count - 1)..0 | ForEach-Object { [String] $bytes[$_] }) -join '.'
 }
 
 
@@ -93,14 +93,14 @@ function Test-IP ($strIP)
 {
 	$bValidIP = $true
 	$arrSections = @()
-	$arrSections += $strIP.split(".")
+	$arrSections += $strIP.split('.')
 	#firstly, make sure there are 4 sections in the IP address
 	if ($arrSections.count -ne 4) { $bValidIP = $false }
 	
 	#secondly, make sure it only contains numbers and it's between 0-254
 	if ($bValidIP)
 	{
-		[reflection.assembly]::LoadWithPartialName("Microsoft.VisualBasic") | Out-Null
+		[reflection.assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
 		foreach ($item in $arrSections)
 		{
 			if (!([Microsoft.VisualBasic.Information]::isnumeric($item))) { $bValidIP = $false }
@@ -123,14 +123,14 @@ function Test-SubnetMask ($strSubnetMask)
 {
 	$bValidMask = $true
 	$arrSections = @()
-	$arrSections += $strSubnetMask.split(".")
+	$arrSections += $strSubnetMask.split('.')
 	#firstly, make sure there are 4 sections in the subnet mask
 	if ($arrSections.count -ne 4) { $bValidMask = $false }
 	
 	#secondly, make sure it only contains numbers and it's between 0-255
 	if ($bValidMask)
 	{
-		[reflection.assembly]::LoadWithPartialName("Microsoft.VisualBasic") | Out-Null
+		[reflection.assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
 		foreach ($item in $arrSections)
 		{
 			if (!([Microsoft.VisualBasic.Information]::isnumeric($item))) { $bValidMask = $false }
@@ -161,11 +161,11 @@ function Test-SubnetMask ($strSubnetMask)
 			}
 			$strFullBinary = $strFullBinary + $binary
 		}
-		if ($strFullBinary.contains("01")) { $bValidMask = $false }
+		if ($strFullBinary.contains('01')) { $bValidMask = $false }
 		if ($bValidMask)
 		{
-			$strFullBinary = $strFullBinary.replace("10", "1.0")
-			if ((($strFullBinary.split(".")).count -ne 2)) { $bValidMask = $false }
+			$strFullBinary = $strFullBinary.replace('10', '1.0')
+			if ((($strFullBinary.split('.')).count -ne 2)) { $bValidMask = $false }
 		}
 	}
 	Return $bValidMask
@@ -178,7 +178,7 @@ function ConvertTo-Binary ($strDecimal)
 	{
 		while ($strBinary.length -lt 8)
 		{
-			$strBinary = "0" + $strBinary
+			$strBinary = '0' + $strBinary
 		}
 	}
 	Return $strBinary
@@ -190,12 +190,12 @@ function Convert-IPToBinary ($strIP)
 	if (Test-IP $strIP)
 	{
 		$arrSections = @()
-		$arrSections += $strIP.split(".")
+		$arrSections += $strIP.split('.')
 		foreach ($section in $arrSections)
 		{
 			if ($null -ne $strBinaryIP)
 			{
-				$strBinaryIP = $strBinaryIP + "."
+				$strBinaryIP = $strBinaryIP + '.'
 			}
 			$strBinaryIP = $strBinaryIP + (ConvertTo-Binary $section)
 		}
@@ -209,12 +209,12 @@ Function Convert-SubnetMaskToBinary ($strSubnetMask)
 	if (Test-SubnetMask $strSubnetMask)
 	{
 		$arrSections = @()
-		$arrSections += $strSubnetMask.split(".")
+		$arrSections += $strSubnetMask.split('.')
 		foreach ($section in $arrSections)
 		{
 			if ($null -ne $strBinarySubnetMask)
 			{
-				$strBinarySubnetMask = $strBinarySubnetMask + "."
+				$strBinarySubnetMask = $strBinarySubnetMask + '.'
 			}
 			$strBinarySubnetMask = $strBinarySubnetMask + (ConvertTo-Binary $section)
 		}
@@ -240,8 +240,8 @@ function Assert-IntentionallyCreatedPublicResource
 
 	if (!$ForcePublic)
 	{
-		Write-Host "##vso[task.complete result=Failed;]You are creating a resource which is, from a network perspective, fully open to the internet. This is NOT recommended. If this was intentional, please pass the -ForcePublic flag."
-		throw "You are creating a resource which is, from a network perspective, fully open to the internet. This is NOT recommended. If this was intentional, please pass the -ForcePublic flag."
+		Write-Host '##vso[task.complete result=Failed;]You are creating a resource which is, from a network perspective, fully open to the internet. This is NOT recommended. If this was intentional, please pass the -ForcePublic flag.'
+		throw 'You are creating a resource which is, from a network perspective, fully open to the internet. This is NOT recommended. If this was intentional, please pass the -ForcePublic flag.'
 	}
 	else
 	{

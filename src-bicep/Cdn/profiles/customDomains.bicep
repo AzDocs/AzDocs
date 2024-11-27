@@ -29,7 +29,7 @@ param frontDoorName string
 param frontDoorSecretName string = ''
 
 @description('The name of the custom domain resource. This is a valid resource name and does not include periods.')
-param customDomainResourceName string  = replace(customDomainName, '.', '-')
+param customDomainResourceName string = replace(customDomainName, '.', '-')
 
 @description('''
 The type of certificate. If the type "CustomerCertificate" is used, there must be a valid Secret Resource Reference Id.
@@ -79,19 +79,25 @@ resource customDomain 'Microsoft.Cdn/profiles/customDomains@2022-11-01-preview' 
   parent: CDNProfile
   name: customDomainResourceName
   properties: {
-    azureDnsZone: !empty(azureDNSZoneId) ? {
-      id: azureDNSZoneId
-    }: null
+    azureDnsZone: !empty(azureDNSZoneId)
+      ? {
+          id: azureDNSZoneId
+        }
+      : null
     hostName: customDomainName
-    preValidatedCustomDomainResourceId: !empty(preValidatedCustomDomainResourceId) ? {
-      id: preValidatedCustomDomainResourceId
-    }: null
+    preValidatedCustomDomainResourceId: !empty(preValidatedCustomDomainResourceId)
+      ? {
+          id: preValidatedCustomDomainResourceId
+        }
+      : null
     tlsSettings: {
       certificateType: customDomainCertificateType
       minimumTlsVersion: customDomainTLSVersion
-      secret: empty(frontDoorSecretName) ? null : {
-        id: frontDoorSecret.id
-      }
+      secret: empty(frontDoorSecretName)
+        ? null
+        : {
+            id: frontDoorSecret.id
+          }
     }
   }
 }

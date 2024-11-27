@@ -3,42 +3,42 @@ param (
     [Parameter(Mandatory = $true, ParameterSetName = 'withUploadCertificate')][string] $CertificatePath,
     [Parameter(Mandatory = $true, ParameterSetName = 'withUploadCertificate')][string] $CertificatePassword,
     [Parameter(Mandatory = $true, ParameterSetName = 'withExistingCertificate')][string] $CertificateName,
-    [Alias("DomainName")]
+    [Alias('DomainName')]
     [Parameter(Mandatory)][string] $IngressDomainName,
-    [Alias("GatewayName")]
+    [Alias('GatewayName')]
     [Parameter(Mandatory)][string] $ApplicationGatewayName,
-    [Alias("GatewayType")]
-    [Parameter(Mandatory)][ValidateSet("Private", "Public")][string] $ApplicationGatewayFacingType,
+    [Alias('GatewayType')]
+    [Parameter(Mandatory)][ValidateSet('Private', 'Public')][string] $ApplicationGatewayFacingType,
     [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
     [Parameter(Mandatory)][string] $CertificateKeyvaultResourceGroupName,
-    [Alias("SharedServicesKeyvaultName")]
+    [Alias('SharedServicesKeyvaultName')]
     [Parameter(Mandatory)][string] $CertificateKeyvaultName,
     [Parameter(Mandatory)][string] $BackendDomainname,
     [Parameter()][string] $HealthProbeDomainName,
-    [Alias("HealthProbePath")]
+    [Alias('HealthProbePath')]
     [Parameter(Mandatory)][string] $HealthProbeUrlPath,
-    [Alias("HealthProbeInterval")]
+    [Alias('HealthProbeInterval')]
     [Parameter()][int] $HealthProbeIntervalInSeconds = 60,
-    [Alias("HealthProbeThreshold")]
+    [Alias('HealthProbeThreshold')]
     [Parameter()][int] $HealthProbeNumberOfTriesBeforeMarkedDown = 2,
-    [Alias("HealthProbeTimeout")]
+    [Alias('HealthProbeTimeout')]
     [Parameter()][int] $HealthProbeTimeoutInSeconds = 20,
-    [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $HealthProbeProtocol = "HTTPS",
-    [Alias("HttpsSettingsProtocol")]
-    [Parameter()][ValidateSet("HTTP", "HTTPS")][string] $HttpsSettingsRequestToBackendProtocol = "HTTPS",
-    [Alias("HttpsSettingsPort")]
+    [Parameter()][ValidateSet('HTTP', 'HTTPS')][string] $HealthProbeProtocol = 'HTTPS',
+    [Alias('HttpsSettingsProtocol')]
+    [Parameter()][ValidateSet('HTTP', 'HTTPS')][string] $HttpsSettingsRequestToBackendProtocol = 'HTTPS',
+    [Alias('HttpsSettingsPort')]
     [Parameter()][ValidateRange(0, 65535)][int] $HttpsSettingsRequestToBackendPort = 443,
-    [Alias("HttpsSettingsCookieAffinity")]
-    [Parameter()][ValidateSet("Disabled", "Enabled")][string] $HttpsSettingsRequestToBackendCookieAffinity = "Disabled",
-    [Alias("HttpsSettingsConnectionDrainingTimeout")]
+    [Alias('HttpsSettingsCookieAffinity')]
+    [Parameter()][ValidateSet('Disabled', 'Enabled')][string] $HttpsSettingsRequestToBackendCookieAffinity = 'Disabled',
+    [Alias('HttpsSettingsConnectionDrainingTimeout')]
     [Parameter()][int] $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds = 0,
-    [Alias("HttpsSettingsTimeout")]
+    [Alias('HttpsSettingsTimeout')]
     [Parameter()][int] $HttpsSettingsRequestToBackendTimeoutInSeconds = 30,
     [Parameter()][string] $HttpsSettingsCustomRootCertificateFilePath,
-    [Alias("MatchStatusCodes")]
-    [Parameter()][string] $HealthProbeMatchStatusCodes = "200-399",
-    [Alias("GatewayRuleType")]
-    [Parameter(Mandatory)][ValidateSet("Basic", "PathBasedRouting")][string] $ApplicationGatewayRuleType = "Basic",
+    [Alias('MatchStatusCodes')]
+    [Parameter()][string] $HealthProbeMatchStatusCodes = '200-399',
+    [Alias('GatewayRuleType')]
+    [Parameter(Mandatory)][ValidateSet('Basic', 'PathBasedRouting')][string] $ApplicationGatewayRuleType = 'Basic',
     [Parameter()][string] $ApplicationGatewayRuleDefaultIngressDomainName, 
     [Parameter()][string] $ApplicationGatewayRulePath
 )
@@ -52,38 +52,41 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 try
 {
     $params = @{
-        IngressDomainName = $IngressDomainName 
-        ApplicationGatewayName = $ApplicationGatewayName
-        ApplicationGatewayFacingType = $ApplicationGatewayFacingType
-        ApplicationGatewayResourceGroupName = $ApplicationGatewayResourceGroupName
-        CertificateKeyvaultResourceGroupName = $CertificateKeyvaultResourceGroupName
-        CertificateKeyvaultName = $CertificateKeyvaultName
-        BackendDomainName = $BackendDomainname
-        HealthProbeUrlPath = $HealthProbeUrlPath
-        HealthProbeIntervalInSeconds = $HealthProbeIntervalInSeconds
-        HealthProbeNumberOfTriesBeforeMarkedDown = $HealthProbeNumberOfTriesBeforeMarkedDown
-        HealthProbeTimeoutInSeconds = $HealthProbeTimeoutInSeconds
-        HealthProbeProtocol = $HealthProbeProtocol
-        HttpsSettingsRequestToBackendProtocol = $HttpsSettingsRequestToBackendProtocol
-        HttpsSettingsRequestToBackendPort = $HttpsSettingsRequestToBackendPort
-        HttpsSettingsRequestToBackendCookieAffinity = $HttpsSettingsRequestToBackendCookieAffinity
+        IngressDomainName                                               = $IngressDomainName 
+        ApplicationGatewayName                                          = $ApplicationGatewayName
+        ApplicationGatewayFacingType                                    = $ApplicationGatewayFacingType
+        ApplicationGatewayResourceGroupName                             = $ApplicationGatewayResourceGroupName
+        CertificateKeyvaultResourceGroupName                            = $CertificateKeyvaultResourceGroupName
+        CertificateKeyvaultName                                         = $CertificateKeyvaultName
+        BackendDomainName                                               = $BackendDomainname
+        HealthProbeUrlPath                                              = $HealthProbeUrlPath
+        HealthProbeIntervalInSeconds                                    = $HealthProbeIntervalInSeconds
+        HealthProbeNumberOfTriesBeforeMarkedDown                        = $HealthProbeNumberOfTriesBeforeMarkedDown
+        HealthProbeTimeoutInSeconds                                     = $HealthProbeTimeoutInSeconds
+        HealthProbeProtocol                                             = $HealthProbeProtocol
+        HttpsSettingsRequestToBackendProtocol                           = $HttpsSettingsRequestToBackendProtocol
+        HttpsSettingsRequestToBackendPort                               = $HttpsSettingsRequestToBackendPort
+        HttpsSettingsRequestToBackendCookieAffinity                     = $HttpsSettingsRequestToBackendCookieAffinity
         HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds = $HttpsSettingsRequestToBackendConnectionDrainingTimeoutInSeconds
-        HttpsSettingsRequestToBackendTimeoutInSeconds = $HttpsSettingsRequestToBackendTimeoutInSeconds
-        HttpsSettingsCustomRootCertificateFilePath = $HttpsSettingsCustomRootCertificateFilePath
-        HealthProbeMatchStatusCodes = $HealthProbeMatchStatusCodes
-        ApplicationGatewayRuleType = $ApplicationGatewayRuleType
-        HealthProbeDomainName = $HealthProbeDomainName
-        ApplicationGatewayRuleDefaultIngressDomainName = $ApplicationGatewayRuleDefaultIngressDomainName
-        ApplicationGatewayRulePath = $ApplicationGatewayRulePath        
+        HttpsSettingsRequestToBackendTimeoutInSeconds                   = $HttpsSettingsRequestToBackendTimeoutInSeconds
+        HttpsSettingsCustomRootCertificateFilePath                      = $HttpsSettingsCustomRootCertificateFilePath
+        HealthProbeMatchStatusCodes                                     = $HealthProbeMatchStatusCodes
+        ApplicationGatewayRuleType                                      = $ApplicationGatewayRuleType
+        HealthProbeDomainName                                           = $HealthProbeDomainName
+        ApplicationGatewayRuleDefaultIngressDomainName                  = $ApplicationGatewayRuleDefaultIngressDomainName
+        ApplicationGatewayRulePath                                      = $ApplicationGatewayRulePath        
     }
 
-    switch ($PsCmdlet.ParameterSetName) {
-        'withUploadCertificate' {
-           $params.CertificatePath = $CertificatePath
-           $params.CertificatePassword = $CertificatePassword
+    switch ($PsCmdlet.ParameterSetName)
+    {
+        'withUploadCertificate'
+        {
+            $params.CertificatePath = $CertificatePath
+            $params.CertificatePassword = $CertificatePassword
         }
-       'withExistingCertificate' {
-           $params.CertificateName = $CertificateName
+        'withExistingCertificate'
+        {
+            $params.CertificateName = $CertificateName
         }
     }
     

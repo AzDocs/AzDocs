@@ -66,6 +66,3 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2023-03-01-pre
 output apiPolicyName string = apiPolicy.name
 @description('The resource id of the created API policy instance.')
 output apiPolicyId string = apiPolicy.id
-
-
-

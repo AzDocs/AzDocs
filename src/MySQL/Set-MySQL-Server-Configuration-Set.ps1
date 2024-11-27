@@ -13,8 +13,9 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $optionalParameters = @()
-if ($MySqlServerConfigValue) {
-    $optionalParameters += "--value", "$MySqlServerConfigValue"
+if ($MySqlServerConfigValue)
+{
+    $optionalParameters += '--value', "$MySqlServerConfigValue"
 }
 
 Invoke-Executable az mysql server configuration set --resource-group $MySqlServerResourceGroupName --server $MySqlServerName --name $MySqlServerConfigName @optionalParameters

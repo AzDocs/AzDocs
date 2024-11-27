@@ -10,7 +10,7 @@ function Get-DashedDomainname
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
-    $dashedDomainName = $DomainName.Replace("-", "--").Replace(".", "-").Replace("*", "wildcard")
+    $dashedDomainName = $DomainName.Replace('-', '--').Replace('.', '-').Replace('*', 'wildcard')
     Write-Output $dashedDomainName
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
@@ -34,7 +34,7 @@ function Get-StatusCodeRanges($existingStatusCodes, $statusCode)
             continue
         }
 
-        if ($item.Contains("-"))
+        if ($item.Contains('-'))
         {
             $splittedValue = $item.Split('-')
             $minValue = [int]$splittedValue[0]
@@ -71,7 +71,7 @@ function Get-StatusCodeRanges($existingStatusCodes, $statusCode)
                 elseif (($statusCode - $minValue) -eq 1)
                 {
                     $range = Get-Range -min $minValue -max ($statusCode - 1)
-                    $statusCodesToSet.Add($range);
+                    $statusCodesToSet.Add($range)
 
                     # add the remaining value
                     $statusCodesToSet.Add($maxValue)
@@ -134,7 +134,7 @@ function Get-UtcDateStringFromNow
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
 
-    Write-Output (Get-Date -AsUTC).AddDays($Days) | Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
+    Write-Output (Get-Date -AsUTC).AddDays($Days) | Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ'
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }

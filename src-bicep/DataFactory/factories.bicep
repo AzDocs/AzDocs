@@ -59,7 +59,9 @@ param diagnosticSettingsMetricsCategories array = [
 ]
 
 @description('Determine the correct identityType for this Azure Data Factory based on the users input.')
-var identityType = systemAssignedIdentity ? (!empty(userAssignedIdentities) ? 'SystemAssigned,UserAssigned' : 'SystemAssigned') : (!empty(userAssignedIdentities) ? 'UserAssigned' : 'None')
+var identityType = systemAssignedIdentity
+  ? (!empty(userAssignedIdentities) ? 'SystemAssigned,UserAssigned' : 'SystemAssigned')
+  : (!empty(userAssignedIdentities) ? 'UserAssigned' : 'None')
 
 @description('Upsert the Azure Data Factory using the given parameters.')
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {

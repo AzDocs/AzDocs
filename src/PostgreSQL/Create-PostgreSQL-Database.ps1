@@ -1,10 +1,10 @@
 [CmdletBinding()]
 param (
-    [Alias("SqlServerResourceGroupName")]
+    [Alias('SqlServerResourceGroupName')]
     [Parameter(Mandatory)][string] $PostgreSqlServerResourceGroupName,
-    [Alias("SqlServerName")]
+    [Alias('SqlServerName')]
     [Parameter(Mandatory)][string] $PostgreSqlServerName,
-    [Alias("SqlDatabaseName")]
+    [Alias('SqlDatabaseName')]
     [Parameter(Mandatory)][string] $PostgreSqlDatabaseName
 )
 

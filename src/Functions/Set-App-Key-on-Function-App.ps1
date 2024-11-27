@@ -4,7 +4,7 @@ param (
     [Parameter(Mandatory)][string] $FunctionAppName,
     [Parameter(Mandatory)][string] $FunctionAppAppKeyName,
     [Parameter()][string] $FunctionAppAppKeyValue,
-    [Parameter()][ValidateSet("functionKeys", "masterKey", "systemKey")][string] $FunctionAppAppKeyType = "functionKeys",
+    [Parameter()][ValidateSet('functionKeys', 'masterKey', 'systemKey')][string] $FunctionAppAppKeyType = 'functionKeys',
     [Parameter()][string] $FunctionAppDeploymentSlotName,
     [Parameter()][bool] $ApplyToAllSlots = $false,
     [Parameter()][int] $RetryApplyToAllSlotsCount = 3
@@ -16,7 +16,8 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-function Invoke-WithRetry {
+function Invoke-WithRetry
+{
     param(
         [Parameter(Mandatory)][string] $ExecutableLiteralPath,
         [Parameter(ValueFromRemainingArguments)] $ExecutableArguments,
@@ -50,12 +51,12 @@ if ($ApplyToAllSlots)
 $optionalParameters = @()
 if ($FunctionAppDeploymentSlotName)
 {
-    $optionalParameters += "--slot", "$FunctionAppDeploymentSlotName"
+    $optionalParameters += '--slot', "$FunctionAppDeploymentSlotName"
 }
 
 if ($FunctionAppAppKeyValue)
 {
-    $optionalParameters += "--key-value", "$FunctionAppAppKeyValue"
+    $optionalParameters += '--key-value', "$FunctionAppAppKeyValue"
 }
 
 $setKeyResult = Invoke-Executable az functionapp keys set --key-name $FunctionAppAppKeyName --key-type $FunctionAppAppKeyType --name $FunctionAppName --resource-group $FunctionAppResourceGroupName @optionalSlotParameter @optionalParameters | ConvertFrom-Json
@@ -63,11 +64,11 @@ $keyValue = $setKeyResult.properties.value
 
 Write-Output $keyValue
 
-foreach($availableSlot in $availableSlots)
+foreach ($availableSlot in $availableSlots)
 {
     # Slot keys can not be modified if slot is stopped
     $stopSlot = $false
-    if ($availableSlot.State -eq "Stopped")
+    if ($availableSlot.State -eq 'Stopped')
     {
         $stopSlot = $true
         Invoke-Executable az functionapp start --name $FunctionAppName --resource-group $FunctionAppResourceGroupName --slot $availableSlot.name

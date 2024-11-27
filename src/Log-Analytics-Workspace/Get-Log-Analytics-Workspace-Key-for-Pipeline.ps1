@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceGroupName,
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceName,
-    [Parameter()][string] $OutputPipelineVariableName = "LogAnalyticsWorkspaceKey"
+    [Parameter()][string] $OutputPipelineVariableName = 'LogAnalyticsWorkspaceKey'
 )
 
 #region ===BEGIN IMPORTS===

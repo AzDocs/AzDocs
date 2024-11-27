@@ -148,15 +148,19 @@ Example:
 param tags object?
 
 @description('Translate the passed parameter to actual usable subnet objects.')
-var virtualNetworkRules = [for subnetId in subnetIdsToWhitelist: {
-  id: subnetId
-  ignoreMissingVnetServiceEndpoint: false
-}]
+var virtualNetworkRules = [
+  for subnetId in subnetIdsToWhitelist: {
+    id: subnetId
+    ignoreMissingVnetServiceEndpoint: false
+  }
+]
 
 @description('Translate the ip rules to the correct format, so it can be used within the resource')
-var ipRules = [for ipRule in allowedIpAddresses: {
+var ipRules = [
+  for ipRule in allowedIpAddresses: {
     value: ipRule
-}]
+  }
+]
 
 @description('Upsert the Keyvault')
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
@@ -200,27 +204,31 @@ resource keyvaultDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-p
 }
 
 @description('Upsert the secrets defined in the parameters')
-resource secretsRef 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [for secret in secrets: {
-  name: replace(replace(replace(replace(secret.secretName, '-', '--'), '.', '-'), '_', '-'), ' ', '-')
-  parent: keyVault
-  tags: tags
-  properties: {
-    value: secret.secretValue
-    contentType: secret.?contentType ?? ''
-    attributes: {
-      enabled: secret.?attributesEnabled ?? true
-      exp: secret.?attributesExp ?? null
-      nbf: secret.?attributesNbf ?? null
+resource secretsRef 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [
+  for secret in secrets: {
+    name: replace(replace(replace(replace(secret.secretName, '-', '--'), '.', '-'), '_', '-'), ' ', '-')
+    parent: keyVault
+    tags: tags
+    properties: {
+      value: secret.secretValue
+      contentType: secret.?contentType ?? ''
+      attributes: {
+        enabled: secret.?attributesEnabled ?? true
+        exp: secret.?attributesExp ?? null
+        nbf: secret.?attributesNbf ?? null
+      }
     }
   }
-}]
+]
 
 @description('The keyvault name.')
 output keyVaultName string = keyVault.name
 @description('The keyvault resource id.')
 output keyVaultId string = keyVault.id
 @description('An array of secrets which were added to keyvault. Each object contains id & name parameters.')
-output keyvaultSecrets array = [for i in range(0, length(secrets)): {
-  id: secretsRef[i].id
-  name: secretsRef[i].name
-}]
+output keyvaultSecrets array = [
+  for i in range(0, length(secrets)): {
+    id: secretsRef[i].id
+    name: secretsRef[i].name
+  }
+]

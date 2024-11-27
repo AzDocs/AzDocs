@@ -57,7 +57,6 @@ param notificationsByRoleState string = 'On'
 @description('The security contact\'s phone number')
 param securityContactPhoneNumber string = ''
 
-
 resource defenderForCloudSecurityContacts 'Microsoft.Security/securityContacts@2020-01-01-preview' = {
   name: 'default'
   properties: {

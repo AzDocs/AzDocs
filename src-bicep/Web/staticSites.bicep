@@ -29,7 +29,6 @@ param staticWebAppName string
 ])
 param staticWebAppSku string = 'Free'
 
-
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
 Example:
@@ -43,8 +42,7 @@ param tags object = {}
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
-
-resource staticWebApp  'Microsoft.Web/staticSites@2022-03-01' = {
+resource staticWebApp 'Microsoft.Web/staticSites@2022-03-01' = {
   name: staticWebAppName
   location: location
   tags: tags
@@ -52,8 +50,7 @@ resource staticWebApp  'Microsoft.Web/staticSites@2022-03-01' = {
     name: staticWebAppSku
     tier: staticWebAppSku
   }
-  properties: {
-  }
+  properties: {}
 }
 
 @description('Identifer of the newly created static web app')

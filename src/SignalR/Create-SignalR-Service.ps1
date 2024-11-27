@@ -24,11 +24,13 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $optionalParams = @()
-if($SignalrUnitCount){
+if ($SignalrUnitCount)
+{
     $optionalParams += '--unit-count', $SignalrUnitCount
 }
 
-if($SignalrAllowedOrigins){
+if ($SignalrAllowedOrigins)
+{
     $optionalParams += '--allowed-origins', $SignalrAllowedOrigins
 }
 

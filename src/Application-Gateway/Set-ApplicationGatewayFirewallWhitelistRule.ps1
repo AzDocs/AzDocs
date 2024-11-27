@@ -8,7 +8,7 @@ param (
     [Parameter()][string] $ApplicationGatewayWafCustomRuleRequestHeaderValue,
     [Parameter(Mandatory)][string] $ApplicationGatewayResourceGroupName,
     [Parameter(Mandatory)][string] $ApplicationGatewayWafName,
-    [Parameter()][ValidateSet("Block", "Allow")][string] $ApplicationGatewayWafCustomRuleAction = "Block",
+    [Parameter()][ValidateSet('Block', 'Allow')][string] $ApplicationGatewayWafCustomRuleAction = 'Block',
     [Parameter(Mandatory, ParameterSetName = 'HighPriority')][switch] $HighPriority,
     [Parameter(Mandatory, ParameterSetName = 'DefinedPriority')][ValidateRange(1, 100)][int] $Priority
 )
@@ -70,7 +70,7 @@ function Test-PriorityInUse
         [int]
         $Priority
     )
-    $RuleWithSamePriority = $Rules | Where-Object Priority -eq $Priority
+    $RuleWithSamePriority = $Rules | Where-Object Priority -EQ $Priority
     if ($RuleWithSamePriority)
     {
         throw "There is already a custom rule with the same priority: $($RuleWithSamePriority.Name)"
@@ -92,7 +92,7 @@ $firewallCustomRules = @(New-AzApplicationGatewayFirewallCondition -MatchVariabl
 
 if ($CIDRToWhitelist)
 {
-    $ipCondition = New-AzApplicationGatewayFirewallCondition -Operator IPMatch -NegationCondition $true -MatchVariable (New-AzApplicationGatewayFirewallMatchVariable -variableName 'RemoteAddr') -MatchValue $CIDRToWhitelist
+    $ipCondition = New-AzApplicationGatewayFirewallCondition -Operator IPMatch -NegationCondition $true -MatchVariable (New-AzApplicationGatewayFirewallMatchVariable -VariableName 'RemoteAddr') -MatchValue $CIDRToWhitelist
     $firewallCustomRules += $ipCondition
 }
 
@@ -109,7 +109,7 @@ if (!$azPolicy.CustomRules)
     $azPolicy.CustomRules = [System.Collections.Generic.List[Microsoft.Azure.Commands.Network.Models.PSApplicationGatewayFirewallCustomRule]]::new()
 }
 
-$currentRule = $azPolicy.CustomRules | where-object Name -eq $ruleName
+$currentRule = $azPolicy.CustomRules | Where-Object Name -EQ $ruleName
 
 if (!$currentRule)
 {

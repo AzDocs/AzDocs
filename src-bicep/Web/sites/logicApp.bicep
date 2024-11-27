@@ -331,22 +331,26 @@ param appInsightsResourceGroupName string = az.resourceGroup().name
 // ================================================= Variables ==================================================
 
 @description('Unify the user-defined settings with the internal settings (for example for auto-configuring Application Insights).')
-var internalSettings = !empty(appInsightsName) ? [ {
-    name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-    value: appInsights.properties.InstrumentationKey
-  } ] : []
+var internalSettings = !empty(appInsightsName)
+  ? [
+      {
+        name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+        value: appInsights.properties.InstrumentationKey
+      }
+    ]
+  : []
 
 @description('Unify the user-defined appsettings with the needed default settings for this logic app.')
 var appSettingsFinal = union(appSettings, [
-    {
-      name: 'AzureWebJobsStorage'
-      value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
-    }
-    {
-      name: 'AzureWebJobsDashboard'
-      value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
-    }
-  ])
+  {
+    name: 'AzureWebJobsStorage'
+    value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+  }
+  {
+    name: 'AzureWebJobsDashboard'
+    value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+  }
+])
 // ================================================== Resources ===================================================
 
 @description('Fetch the application insights instance. This application insights instance should be pre-existing.')
@@ -381,9 +385,11 @@ resource workflowLogicApp 'Microsoft.Web/sites@2022-03-01' = {
     enabled: logicAppEnabledState
     serverFarmId: appServicePlan.id
     siteConfig: {
-      connectionStrings: empty(connectionStrings) ? null : [
-        connectionStrings
-      ]
+      connectionStrings: empty(connectionStrings)
+        ? null
+        : [
+            connectionStrings
+          ]
       linuxFxVersion: linuxFxVersion
       scmIpSecurityRestrictions: scmIpSecurityRestrictions
       alwaysOn: alwaysOn

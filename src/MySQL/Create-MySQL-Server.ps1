@@ -80,7 +80,7 @@ if ($ResourceTags)
 
 if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEndpointVnetName -and $MySqlServerPrivateEndpointSubnetName -and $MySqlServerPrivateDnsZoneName -and $DNSZoneResourceGroupName)
 {
-    Write-Host "A private endpoint is desired. Adding the needed components."
+    Write-Host 'A private endpoint is desired. Adding the needed components.'
     # Fetch needed information
     $mySqlServerResourceId = (Invoke-Executable az mysql server show --name $MySqlServerName --resource-group $MySqlServerResourceGroupName | ConvertFrom-Json).id
     $vnetId = (Invoke-Executable az network vnet show --resource-group $MySqlServerPrivateEndpointVnetResourceGroupName --name $MySqlServerPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -98,7 +98,7 @@ if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $Applicatio
     Remove-VnetRulesIfExists -ServiceType 'mysql' -ResourceGroupName $MySqlServerResourceGroupName -ResourceName $MySqlServerName -AccessRuleName $oldAccessRuleName
     # END REMOVE OLD NAMES
 
-    Write-Host "VNET Whitelisting is desired. Adding the needed components."
+    Write-Host 'VNET Whitelisting is desired. Adding the needed components.'
     
     # Whitelist VNET
     & "$PSScriptRoot\Add-Network-Whitelist-to-MySQL.ps1" -MySqlServerName $MySqlServerName -MySqlServerResourceGroupName $MySqlServerResourceGroupName -SubnetToWhitelistSubnetName $ApplicationSubnetName -SubnetToWhitelistVnetName $ApplicationVnetName -SubnetToWhitelistVnetResourceGroupName $ApplicationVnetResourceGroupName

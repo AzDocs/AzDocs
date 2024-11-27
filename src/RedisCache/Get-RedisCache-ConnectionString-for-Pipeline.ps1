@@ -3,7 +3,7 @@ param (
     [Parameter(Mandatory)][string] $RedisInstanceName,
     [Parameter(Mandatory)][string] $RedisInstanceResourceGroupName,
     [Parameter()][switch] $ForceUseInsecureNonSslConnection,
-    [Parameter()][string] $OutputPipelineVariableName = "RedisConnectionString"
+    [Parameter()][string] $OutputPipelineVariableName = 'RedisConnectionString'
 )
 
 #region ===BEGIN IMPORTS===
@@ -20,7 +20,7 @@ $useSsl = $true
 
 if ($ForceUseInsecureNonSslConnection)
 {
-    Write-Warning "You are using the non-ssl connection for RedisCache. We strongly recommend using the SSL version instead."
+    Write-Warning 'You are using the non-ssl connection for RedisCache. We strongly recommend using the SSL version instead.'
     if ($redis.enableNonSslPort -eq $false)
     {
         $message = "You are trying to use the non-SSL port for RedisCache, but this port isn't available. Please enable the non-SSL port before using it."

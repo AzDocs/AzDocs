@@ -39,7 +39,10 @@ param tags object = {}
 
 @description('The identity type. This can be either `None`, a `System Assigned` or a `UserAssigned` identity. In the case of UserAssigned, the userAssignedIdentities must be set with the ResourceId of the user assigned identity resource and the identity must have at least read logs rbac rights on the resource in scope.')
 @discriminator('type')
-type identityType = { type: 'None' } | { type: 'SystemAssigned' } | { type: 'UserAssigned', userAssignedIdentities: object }
+type identityType =
+  | { type: 'None' }
+  | { type: 'SystemAssigned' }
+  | { type: 'UserAssigned', userAssignedIdentities: object }
 
 @description('''
 Sets the identity. This can be either `None`, a `System Assigned` or a `UserAssigned` identity.
@@ -76,7 +79,6 @@ param dataCollectionEndpointDescription string = 'Data Collection Endpoint'
   'SecuredByPerimeter'
 ])
 param publicNetworkAccess string = 'Enabled'
-
 
 // ================================================= Resources ==================================================
 resource datacollectionendpoint 'Microsoft.Insights/dataCollectionEndpoints@2023-03-11' = {

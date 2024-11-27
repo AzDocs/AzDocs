@@ -12,7 +12,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $existingVirtualMachines = Invoke-Executable az vm list --resource-group $VirtualMachineResourceGroupName | ConvertFrom-Json | Where-Object Name -Like "$VirtualMachineBaseName*"
-$existingVirtualMachines.Name | ForEach-Object -parallel {
+$existingVirtualMachines.Name | ForEach-Object -Parallel {
     Set-Location $using:PWD
     Import-Module "$using:PSScriptRoot\..\AzDocs.Common" -Force
 
@@ -22,7 +22,7 @@ $existingVirtualMachines.Name | ForEach-Object -parallel {
     {
         Write-Host "Checking '$virtualMachineName' for Extension '$using:VirtualMachineExtensionName'"
         $response = Invoke-Executable az vm extension list --resource-group $using:VirtualMachineResourceGroupName --vm-name $virtualMachineName | ConvertFrom-Json
-        $extensionResponse = $response | Where-Object Name -eq $using:VirtualMachineExtensionName
+        $extensionResponse = $response | Where-Object Name -EQ $using:VirtualMachineExtensionName
         if ($extensionResponse)
         {
             Write-Host "Extension found for '$virtualMachineName' in state '$($extensionResponse.provisioningState)'"

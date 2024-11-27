@@ -2,10 +2,10 @@
 param (
     [Parameter(Mandatory)][string] $VnetResourceGroupName,
     [Parameter(Mandatory)][string] $VnetName,
-    [Parameter(Mandatory)][string] $VnetCidr = "10.0.0.0/16",
+    [Parameter(Mandatory)][string] $VnetCidr = '10.0.0.0/16',
     [Parameter(Mandatory)][string] $SubnetName,
     [Parameter(Mandatory)][string] $Subnet,
-    [Parameter()][string] $DNSServers = "168.63.129.16", #Defaults to Azure Private Endpoint DNS
+    [Parameter()][string] $DNSServers = '168.63.129.16', #Defaults to Azure Private Endpoint DNS
     [Parameter()][System.Object[]] $ResourceTags
 )
 

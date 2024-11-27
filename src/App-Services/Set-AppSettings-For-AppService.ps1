@@ -21,12 +21,12 @@ if ($ApplyToAllSlots)
 $optionalParameters = @()
 if ($AppServiceDeploymentSlotName)
 {
-    $optionalParameters += "--slot", "$AppServiceDeploymentSlotName"
+    $optionalParameters += '--slot', "$AppServiceDeploymentSlotName"
 }
 
 Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName --settings @AppServiceAppSettings @optionalParameters
 
-foreach($availableSlot in $availableSlots)
+foreach ($availableSlot in $availableSlots)
 {
     Invoke-Executable az webapp config appsettings set --resource-group $AppServiceResourceGroupName --name $AppServiceName --settings @AppServiceAppSettings --slot $availableSlot.name
 }

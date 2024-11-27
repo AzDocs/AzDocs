@@ -30,17 +30,17 @@ if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToW
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
 
     # Add Service Endpoint to App Subnet to make sure we can connect to the service within the VNET
-    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.KeyVault"
+    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier 'Microsoft.KeyVault'
 }
 
 $optionalParameters = @()
 if ($CIDRToWhitelist)
 {
-    $optionalParameters += "--ip-address", "$CIDRToWhitelist"
+    $optionalParameters += '--ip-address', "$CIDRToWhitelist"
 }
 elseif ($subnetResourceId)
 {
-    $optionalParameters += "--subnet", "$subnetResourceId"
+    $optionalParameters += '--subnet', "$subnetResourceId"
 }
 
 Invoke-Executable az keyvault network-rule add --name $KeyvaultName --resource-group $KeyvaultResourceGroupName @optionalParameters

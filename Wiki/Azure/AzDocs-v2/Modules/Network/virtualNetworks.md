@@ -15,7 +15,7 @@ Creating a virtual network with the proper settings
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | virtualNetworkName | string | <input type="checkbox" checked> | Length between 2-64 | <pre></pre> | The name for the Virtual Network to upsert. |
-| virtualNetworkAddressPrefixes | array | <input type="checkbox"> | Length between 1-* | <pre>[ '10.0.0.0/16' ]</pre> | A list of address prefixes for the VNet (CIDR notation). This can be IPv4 and IPv6 mixed.<br>For example:<br>[<br>&nbsp;&nbsp;&nbsp;'10.0.0.0/16'<br>&nbsp;&nbsp;&nbsp;'fdfd:fdfd::/110'<br>] |
+| virtualNetworkAddressPrefixes | array | <input type="checkbox"> | Length between 1-* | <pre>['10.0.0.0/16']</pre> | A list of address prefixes for the VNet (CIDR notation). This can be IPv4 and IPv6 mixed.<br>For example:<br>[<br>&nbsp;&nbsp;&nbsp;'10.0.0.0/16'<br>&nbsp;&nbsp;&nbsp;'fdfd:fdfd::/110'<br>] |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
 | subnets | array | <input type="checkbox"> | None | <pre>[]</pre> | The subnets to upsert in this VNet. NOTE: Subnets which are present in your existing VNet and are not in this list, will be removed. For array/object format please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/virtualnetworks?tabs=bicep#subnet. |
 | dnsServers | array | <input type="checkbox"> | None | <pre>[]</pre> | DNS Servers to apply to this virtual network. Format is an array/list of IP\'s |

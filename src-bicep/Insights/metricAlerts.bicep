@@ -76,7 +76,7 @@ param metricAlertWebHookProperties object = {}
 param metricAlertAutoMitigate bool = true
 
 @description('the list of resource id\'s that this metric alert is scoped to.')
-param scopes array = [ subscription().id ]
+param scopes array = [subscription().id]
 
 @description('''
 How often the metric alert is evaluated represented in ISO 8601 duration format.
@@ -171,18 +171,19 @@ param targetResourceType string = ''
 @description('The region of the target resource(s) on which the alert is created/updated. Mandatory if the scope contains a subscription, resource group, or more than one resource.')
 param targetResourceRegion string = resourceGroup().location
 
-
 resource metricAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: metricAlertsName
   location: 'global'
   tags: tags
-  properties:  {
-    actions: empty(metricAlertActionGroupId) ? []: [
-      {
-        actionGroupId: metricAlertActionGroupId
-        webHookProperties: metricAlertWebHookProperties
-      }
-    ]
+  properties: {
+    actions: empty(metricAlertActionGroupId)
+      ? []
+      : [
+          {
+            actionGroupId: metricAlertActionGroupId
+            webHookProperties: metricAlertWebHookProperties
+          }
+        ]
     autoMitigate: metricAlertAutoMitigate
     criteria: metricAlertsCriteria
     description: metricAlertsDescription

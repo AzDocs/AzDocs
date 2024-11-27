@@ -33,7 +33,7 @@ $AccessRuleName = Get-AccessRestrictionRuleName -AccessRestrictionRuleName:$Acce
 if ($SubnetToWhitelistSubnetName -and $SubnetToWhitelistVnetName -and $SubnetToWhitelistVnetResourceGroupName)
 {
     $subnetResourceId = (Invoke-Executable az network vnet subnet show --resource-group $SubnetToWhitelistVnetResourceGroupName --name $SubnetToWhitelistSubnetName --vnet-name $SubnetToWhitelistVnetName | ConvertFrom-Json).id
-    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier "Microsoft.Sql"
+    Set-SubnetServiceEndpoint -SubnetResourceId $subnetResourceId -ServiceEndpointServiceIdentifier 'Microsoft.Sql'
 }
 
 if (!$subnetResourceId)
@@ -45,7 +45,7 @@ if (!$subnetResourceId)
     $firewallRules = ((Invoke-Executable az mysql server firewall-rule list --server-name $MySqlServerName --resource-group $MySqlServerResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.startIp -eq $startIpAddress -and $_.endIp -eq $endIpAddress -and $_.name -notlike "*$AccessRuleName" }
     if ($firewallRules.Length -gt 0)
     {
-        Write-Warning "This CIDR already exists with a different name. Please correct this."
+        Write-Warning 'This CIDR already exists with a different name. Please correct this.'
         return
     }
 
@@ -57,7 +57,7 @@ else
     $vnetRules = ((Invoke-Executable az mysql server vnet-rule list --server-name $MySqlServerName --resource-group $MySqlServerResourceGroupName) | ConvertFrom-Json) | Where-Object { $_.virtualNetworkSubnetId -eq $subnetResourceId -and $_.name -notlike "*$AccessRuleName" }
     if ($vnetRules.Length -gt 0)
     {
-        Write-Warning "This subnet already exists with a different name. Please correct this."
+        Write-Warning 'This subnet already exists with a different name. Please correct this.'
         return
     }
 

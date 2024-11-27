@@ -16,7 +16,9 @@ param documentDbInstanceName string
 param roleDefinitionType string
 
 @description('Currently only supports 2 roles (Cosmos DB Built-in Data Reader & Cosmos DB Built-in Data Contributor) as per https://learn.microsoft.com/en-us/azure/cosmos-db/how-to-setup-rbac.')
-var roleDefinitionId = roleDefinitionType == 'Contributor' ? '00000000-0000-0000-0000-000000000002' : '00000000-0000-0000-0000-000000000001'
+var roleDefinitionId = roleDefinitionType == 'Contributor'
+  ? '00000000-0000-0000-0000-000000000002'
+  : '00000000-0000-0000-0000-000000000001'
 var roleAssignmentId = guid(roleDefinitionId, principalId, documentDb.id)
 
 @description('Fetch the existing storage account for the role assignment scope in the next step.')

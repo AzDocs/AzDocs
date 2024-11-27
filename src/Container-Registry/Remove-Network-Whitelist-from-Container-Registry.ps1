@@ -37,11 +37,11 @@ if ($SubnetToRemoveSubnetName -and $SubnetToRemoveVnetName -and $SubnetToRemoveV
 $optionalParameters = @()
 if ($CIDRToRemoveFromWhitelist)
 {
-    $optionalParameters += "--ip-address", "$CIDRToRemoveFromWhitelist"
+    $optionalParameters += '--ip-address', "$CIDRToRemoveFromWhitelist"
 }
 elseif ($subnetResourceId)
 {
-    $optionalParameters += "--subnet", "$subnetResourceId"
+    $optionalParameters += '--subnet', "$subnetResourceId"
 }
 
 Invoke-Executable az acr network-rule remove --name $ContainerRegistryName --resource-group $ContainerRegistryResourceGroupName @optionalParameters

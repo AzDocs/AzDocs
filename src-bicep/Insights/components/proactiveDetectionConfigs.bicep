@@ -75,7 +75,7 @@ param SupportsEmailNotifications bool = true
 param applicationInsightsName string
 
 @description('Additional email recipients for smart detection notification')
-param customEmails array = [ ]
+param customEmails array = []
 
 @description('A flag that indicated whether notifications on this rule should be sent to subscription owners')
 param SendEmailsToSubscriptionOwners bool = false

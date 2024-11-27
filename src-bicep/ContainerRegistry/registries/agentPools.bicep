@@ -22,7 +22,6 @@ module agentpool 'br:contosoregistry.azurecr.io/containerregistry/registries/age
 
 // ================================================= Parameters =================================================
 
-
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -58,9 +57,8 @@ param agentPoolOsType string = 'Linux'
 @description('The tier of the agent machines of the agent pool.')
 param agentPoolTier string = 'S1'
 
-
 @description('The already existing container registry.')
-resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing =  {
+resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: acrName
 }
 
@@ -73,6 +71,6 @@ resource acrPool 'Microsoft.ContainerRegistry/registries/agentPools@2019-06-01-p
     count: agentPoolMachineCount
     os: agentPoolOsType
     tier: agentPoolTier
-    virtualNetworkSubnetResourceId: !empty(acrPoolSubnetId)? acrPoolSubnetId: null
+    virtualNetworkSubnetResourceId: !empty(acrPoolSubnetId) ? acrPoolSubnetId : null
   }
 }

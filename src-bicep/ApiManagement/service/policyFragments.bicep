@@ -43,7 +43,6 @@ param fragmentDescription string
 @minLength(1)
 param fragmentValue string
 
-
 resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' existing = {
   name: apiManagementServiceName
 }

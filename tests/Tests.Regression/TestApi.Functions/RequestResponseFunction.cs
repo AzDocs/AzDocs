@@ -20,7 +20,7 @@ namespace TestApi.Functions
             sb.AppendLine("==Headers==");
             foreach (var header in req.Headers)
             {
-                sb.AppendLine($"key: {header.Key}, value: { header.Value}");
+                sb.AppendLine($"key: {header.Key}, value: {header.Value}");
             }
             sb.AppendLine("==Headers==");
             sb.AppendLine();

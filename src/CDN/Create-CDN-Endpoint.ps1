@@ -6,7 +6,7 @@ param (
     [Parameter(Mandatory)][string] $CdnResourceGroupName,
     [Parameter(Mandatory)][string] $Origin,
     [Parameter(Mandatory)][string] $OriginHostHeader,
-    [Parameter()][ValidateSet("BypassCaching", "IgnoreQueryString", "NotSet", "UseQueryString" )] $QueryStringCaching = "UseQueryString"
+    [Parameter()][ValidateSet('BypassCaching', 'IgnoreQueryString', 'NotSet', 'UseQueryString' )] $QueryStringCaching = 'UseQueryString'
 )
 
 #region ===BEGIN IMPORTS===

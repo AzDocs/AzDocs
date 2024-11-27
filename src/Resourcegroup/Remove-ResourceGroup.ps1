@@ -17,7 +17,7 @@ if ($resourcegroupId)
     Remove-LinkedApplicationsFromSubnet -ResourceGroupName $ResourceGroupName
 
     # Added retry mechanism
-    $retryCount = 0;
+    $retryCount = 0
     while ($resourceGroupId -and $retryCount -lt $RetryDeletionCount)
     {
         Write-Host "Deleting resourcegroup $ResourceGroupName"

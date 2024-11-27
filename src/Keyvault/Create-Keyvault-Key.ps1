@@ -25,7 +25,7 @@ if ($KeyExpiresInDays)
     # Calculate the date based upon the days
     $expirationDate = Get-UtcDateStringFromNow -Days $KeyExpiresInDays
     Write-Host "Expiration date: $expirationDate"
-    $optionalParameters += "--expires", "$expirationDate"
+    $optionalParameters += '--expires', "$expirationDate"
 }
 
 if ($KeyNotBeforeInDays)
@@ -33,7 +33,7 @@ if ($KeyNotBeforeInDays)
     # Calculate the date based upon the days
     $beforeDate = Get-UtcDateStringFromNow -Days $SecretNotBeforeInDays
     Write-Host "Not Before Date: $beforeDate"
-    $optionalParameters += "--not-before", "$beforeDate"
+    $optionalParameters += '--not-before', "$beforeDate"
 }
 
 Invoke-Executable az keyvault key create --vault-name $KeyVaultName --name $KeyName @optionalParameters

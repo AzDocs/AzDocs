@@ -11,7 +11,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $existingVirtualMachines = Invoke-Executable az vm list --resource-group $VirtualMachineResourceGroupName | ConvertFrom-Json | Where-Object Name -Like "$VirtualMachineBaseName*"
-$existingVirtualMachines.Name | ForEach-Object -parallel {
+$existingVirtualMachines.Name | ForEach-Object -Parallel {
     Set-Location $using:PWD
     Import-Module "$using:PSScriptRoot\..\AzDocs.Common" -Force
 

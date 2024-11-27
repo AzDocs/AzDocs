@@ -64,9 +64,11 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
     publicIPAddressVersion: publicIPAddressVersion
     publicIPAllocationMethod: publicIPAllocationMethod
     idleTimeoutInMinutes: publicIPIdleTimeoutInMinutes
-    dnsSettings: empty(domainNameLabel) ? null : {
-      domainNameLabel: domainNameLabel
-    }
+    dnsSettings: empty(domainNameLabel)
+      ? null
+      : {
+          domainNameLabel: domainNameLabel
+        }
   }
   zones: !empty(availabilityZones) ? availabilityZones : null
 }

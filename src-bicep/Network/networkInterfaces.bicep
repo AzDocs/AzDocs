@@ -69,19 +69,21 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2022-01-01' = {
   tags: tags
   properties: {
     enableAcceleratedNetworking: enableAcceleratedNetworking
-    ipConfigurations: length(ipConfigurations) <= 0 ? [
-      {
-        name: networkInterfaceName
-        properties: {
-          privateIPAllocationMethod: privateIPAllocationMethod
-          subnet: {
-            id: subnetResourceId
+    ipConfigurations: length(ipConfigurations) <= 0
+      ? [
+          {
+            name: networkInterfaceName
+            properties: {
+              privateIPAllocationMethod: privateIPAllocationMethod
+              subnet: {
+                id: subnetResourceId
+              }
+              loadBalancerBackendAddressPools: loadBalancerBackendAddressPoolResourceIds
+              loadBalancerInboundNatRules: loadBalancerInboundNatRuleResourceIds
+            }
           }
-          loadBalancerBackendAddressPools: loadBalancerBackendAddressPoolResourceIds
-          loadBalancerInboundNatRules: loadBalancerInboundNatRuleResourceIds
-        }
-      }
-    ] : ipConfigurations
+        ]
+      : ipConfigurations
   }
 }
 

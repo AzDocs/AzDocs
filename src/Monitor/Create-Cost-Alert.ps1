@@ -61,12 +61,12 @@ $existingBudget = Invoke-AzRestCall -Method GET -ResourceUrl $url -ApiVersion '2
 # Create base JSON
 $body = @{
     properties = @{
-        amount     = $BudgetAmount;
-        category   = 'Cost';
-        timeGrain  = $null -ne $existingBudget.properties.timeGrain ? $existingBudget.properties.timeGrain : $BudgetTimeGrain;
+        amount     = $BudgetAmount
+        category   = 'Cost'
+        timeGrain  = $null -ne $existingBudget.properties.timeGrain ? $existingBudget.properties.timeGrain : $BudgetTimeGrain
         timePeriod = @{
-            startDate = $null -ne $existingBudget.properties.timePeriod.startDate ? $existingBudget.properties.timePeriod.startDate : (Get-Date $BudgetStartDate -Format 'yyyy-MM-dd');
-            endDate   = (Get-Date $BudgetEndDate -Format 'yyyy-MM-dd');
+            startDate = $null -ne $existingBudget.properties.timePeriod.startDate ? $existingBudget.properties.timePeriod.startDate : (Get-Date $BudgetStartDate -Format 'yyyy-MM-dd')
+            endDate   = (Get-Date $BudgetEndDate -Format 'yyyy-MM-dd')
         }
     }
 }
@@ -76,11 +76,11 @@ $alertName = "$($AlertThresholdType)_$($AlertThresholdOperator)_$($AlertThreshol
 
 $body.properties.notifications += @{
     $alertName = @{
-        enabled       = $true;
-        operator      = $AlertThresholdOperator;
-        threshold     = $AlertThreshold;
-        locale        = 'en-us';
-        thresholdType = $AlertThresholdType;
+        enabled       = $true
+        operator      = $AlertThresholdOperator
+        threshold     = $AlertThreshold
+        locale        = 'en-us'
+        thresholdType = $AlertThresholdType
     }
 }
 
@@ -111,8 +111,8 @@ switch ($PSCmdlet.ParameterSetName)
         $filters = @{
 
             tags = @{
-                name     = $FilterOnTagName;
-                operator = 'In';
+                name     = $FilterOnTagName
+                operator = 'In'
                 values   = @(
                     $FilterOnTagValue
                 )

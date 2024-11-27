@@ -47,7 +47,7 @@ function New-PrincipalName()
         $conn.ConnectionString = "Server=tcp:$($SqlServerName).database.windows.net,1433;Initial Catalog=$($SqlDatabaseName);Persist Security Info=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
         $conn.AccessToken = $AccessToken
         $conn.Open()
-        $cmd = [System.Data.SqlClient.SqlCommand]::new($sql, $conn);
+        $cmd = [System.Data.SqlClient.SqlCommand]::new($sql, $conn)
         if ($cmd.ExecuteNonQuery() -ne -1)
         {
             Write-Host "Failed to add the managed identity for $AppServicePrincipalName"
@@ -55,7 +55,7 @@ function New-PrincipalName()
     }
     finally
     {
-        $conn.Close();
+        $conn.Close()
     }
 }
 

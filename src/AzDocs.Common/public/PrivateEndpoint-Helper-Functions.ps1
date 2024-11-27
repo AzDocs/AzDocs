@@ -106,7 +106,7 @@ function Add-PrivateEndpoint
             {
                 Write-Host 'No dnsZoneGroup found with deprecated setup name. Continue;'
                 # Nothing to do. Continue to the next entry.
-                continue;
+                continue
             }
 
             Write-Host "Deleting private-endpoint dns-zone-group with $($dnsZoneGroup.name)"

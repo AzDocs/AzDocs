@@ -1,4 +1,3 @@
-
 /*
 .SYNOPSIS
 Creating a Smart Detector Alert Rule. 
@@ -96,7 +95,6 @@ param smartDetectorAlertRuleDetectorParameters object = {}
 @description('The name of the existing Application Insights instance the data for the alert is found in.')
 param appInsightsName string
 
-
 // ===================================== Resources =====================================
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: appInsightsName
@@ -126,7 +124,6 @@ resource smartDetectorAlertRule 'microsoft.alertsManagement/smartDetectorAlertRu
     throttling: empty(smartDetectorAlertRuleThrottling) ? null : smartDetectorAlertRuleThrottling
   }
 }
-
 
 // ===================================== Outputs =====================================
 @description('The Resource ID of the upserted smart detector alert rule.')

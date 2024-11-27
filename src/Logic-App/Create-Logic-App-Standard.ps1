@@ -60,11 +60,11 @@ $optionalParameters = @()
 if ($AppInsightsName -and $AppInsightsResourceGroupName)
 {
     $appInsightsKey = (Invoke-Executable az monitor app-insights component show --app $AppInsightsName --resource-group $AppInsightsResourceGroupName | ConvertFrom-Json).instrumentationKey
-    $optionalParameters += "--app-insights-key", $appInsightsKey
+    $optionalParameters += '--app-insights-key', $appInsightsKey
 }
 else
 {
-    $optionalParameters += "--disable-app-insights"
+    $optionalParameters += '--disable-app-insights'
 }
 
 # Create Logic App

@@ -8,7 +8,7 @@ param (
     [Parameter()][string] $ServiceTagHttpHeaders,
     [Parameter()][string] $AccessRestrictionRuleDescription,
     [Parameter()][string] $DeploymentSlotName,
-    [Parameter()][string] $AccessRestrictionAction = "Allow",
+    [Parameter()][string] $AccessRestrictionAction = 'Allow',
     [Parameter()][string] $Priority = 10,
     [Parameter()][bool] $ApplyToMainEntrypoint = $true,
     [Parameter()][bool] $ApplyToScmEntrypoint = $true,
@@ -24,7 +24,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 # Check apply to all slots
 if ($ApplyToAllSlots)
 {
-    Write-Host "Applying the whitelist to all slots"
+    Write-Host 'Applying the whitelist to all slots'
     $availableSlots = Invoke-Executable -AllowToFail az $AppType deployment slot list --name $ResourceName --resource-group $ResourceGroupName | ConvertFrom-Json
     if ($DeploymentSlotName)
     {

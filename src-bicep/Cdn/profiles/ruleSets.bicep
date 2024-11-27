@@ -23,7 +23,6 @@ param ruleSetName string
 @description('The name of the existing Front Door profile.')
 param frontDoorName string
 
-
 // ===================================== Resources =====================================
 @description('The existing FrontDoor Cdn profile to use.')
 resource CDNProfile 'Microsoft.Cdn/profiles@2022-11-01-preview' existing = {
@@ -35,7 +34,6 @@ resource ruleSet 'Microsoft.Cdn/profiles/ruleSets@2022-11-01-preview' = {
   parent: CDNProfile
   name: ruleSetName
 }
-
 
 @description('The name of the ruleset created.')
 output ruleSetName string = ruleSet.name

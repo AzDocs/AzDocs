@@ -230,9 +230,11 @@ param tags object = {}
 @description('Resource location')
 param location string = resourceGroup().location
 
-var targetRegions = [for region in defaultTargetRegions: {
-  name: region
-}]
+var targetRegions = [
+  for region in defaultTargetRegions: {
+    name: region
+  }
+]
 var unionTargetRegions = union(targetRegions, customTargetRegions)
 
 resource gallery 'Microsoft.Compute/galleries@2022-03-03' existing = {
@@ -264,19 +266,23 @@ resource galleryName_imageDefinitionName_version 'Microsoft.Compute/galleries/im
           {
             hostCaching: osDiskHostCaching
           },
-          empty(sourceStorageAccountId) || empty(sourceStorageAccountVhdUri) ? {} : {
-            source: {
-              storageAccountId: sourceStorageAccountId
-              uri: sourceStorageAccountVhdUri
-            }
-          }
+          empty(sourceStorageAccountId) || empty(sourceStorageAccountVhdUri)
+            ? {}
+            : {
+                source: {
+                  storageAccountId: sourceStorageAccountId
+                  uri: sourceStorageAccountVhdUri
+                }
+              }
         )
       },
-      empty(sourceId) ? {} : {
-        source: {
-          id: sourceId
-        }
-      }
+      empty(sourceId)
+        ? {}
+        : {
+            source: {
+              id: sourceId
+            }
+          }
     )
   }
 }

@@ -117,12 +117,14 @@ param databaseZoneRedundant bool = false
 One or more managed identities running this SQL server. Defaults to a system assigned managed identity. 
 When one or more user-assigned managed identities are assigned to the server, designate one of those as the primary or default identity for the server.
 ''')
-var identity = (createDatabaseUserAssignedManagedIdentity) ? {
-  type: 'UserAssigned'
-  userAssignedIdentities: {
-    '${databaseUserAssignedIdentity.id}': {}
-  }
-} : { type: 'None' }
+var identity = (createDatabaseUserAssignedManagedIdentity)
+  ? {
+      type: 'UserAssigned'
+      userAssignedIdentities: {
+        '${databaseUserAssignedIdentity.id}': {}
+      }
+    }
+  : { type: 'None' }
 
 // ================================================= Existing Resources =================================================
 @description('Fetch the SQL server to use as underlying provider for the SQL Database')
@@ -228,7 +230,6 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
       retentionDays: retentionDays
     }
   }
-
 }
 
 @description('Upsert the diagnostic settings for this SQL Database.')

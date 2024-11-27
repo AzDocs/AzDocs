@@ -6,7 +6,7 @@ Target Scope: resourceGroup
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
 | <a id="clientAffinePropertiesType">clientAffinePropertiesType</a>  | <pre>{</pre> |  | The properties of the client-affine subscription. | 
-| <a id="statusType">statusType</a>  | <pre>'Active'</pre> |  | Enumerates the possible values for the status of a messaging entity. | 
+| <a id="statusType">statusType</a>  | <pre></pre> |  | Enumerates the possible values for the status of a messaging entity. | 
 
 ## Synopsis
 Creating a Subscription inside of a servicebus namespace topic

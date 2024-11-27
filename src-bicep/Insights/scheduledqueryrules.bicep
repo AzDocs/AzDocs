@@ -180,7 +180,10 @@ param scheduledQueryRuleKind string = 'LogAlert'
 
 @description('The identity type. This can be either `None`, a `System Assigned` or a `UserAssigned` identity. In the case of UserAssigned, the userAssignedIdentities must be set with the ResourceId of the user assigned identity resource and the identity must have at least read logs rbac rights on the resource in scope.')
 @discriminator('type')
-type identityType = { type: 'None' } | { type: 'SystemAssigned' } | { type: 'UserAssigned', userAssignedIdentities: object }
+type identityType =
+  | { type: 'None' }
+  | { type: 'SystemAssigned' }
+  | { type: 'UserAssigned', userAssignedIdentities: object }
 
 @description('''
 Sets the identity. This can be either `None`, a `System Assigned` or a `UserAssigned` identity.
@@ -258,4 +261,6 @@ output scheduledQueryRuleName string = scheduledQueryRule.name
 @description('Output the resource ID of the upserted scheduledQueryRule.')
 output scheduledQueryRuleResourceId string = scheduledQueryRule.id
 @description('Output the identity object ID of the upserted scheduledQueryRule.')
-output scheduledQueryRuleIdentity string = identity.type == 'SystemAssigned' ? scheduledQueryRule.identity.principalId : ''
+output scheduledQueryRuleIdentity string = identity.type == 'SystemAssigned'
+  ? scheduledQueryRule.identity.principalId
+  : ''

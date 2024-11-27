@@ -93,7 +93,6 @@ resource publicIPPrefixes 'Microsoft.Network/publicIPPrefixes@2023-02-01' = {
     prefixLength: publicIPPrefixesPrefixLength
     publicIPAddressVersion: publicIPAddressVersion
     ipTags: publicIPPrefixesIpTags
-
   }
   zones: !empty(publicIPPrefixesZones) ? publicIPPrefixesZones : null
 }

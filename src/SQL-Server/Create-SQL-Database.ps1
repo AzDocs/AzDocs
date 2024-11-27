@@ -73,7 +73,7 @@ if ($SqlServerElasticPoolName)
 }
 
 # Create SQL database
-$sqlDatabaseId = (Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName  @additionalParameters | ConvertFrom-Json).id
+$sqlDatabaseId = (Invoke-Executable az sql db create --name $SqlDatabaseName --resource-group $SqlServerResourceGroupName --server $SqlServerName @additionalParameters | ConvertFrom-Json).id
 
 # Set resource tags
 if ($ResourceTags)

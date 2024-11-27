@@ -116,5 +116,3 @@ resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
 output apiName string = api.name
 @description('The resource id of the created API instance.')
 output apiId string = api.id
-
-

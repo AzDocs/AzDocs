@@ -66,7 +66,7 @@ function Update-MetadataMarkdown
         )
         $lines | ForEach-Object { 
             $singleDescription = $_
-            $newDescription = $singleDescription.TrimStart();
+            $newDescription = $singleDescription.TrimStart()
             if ($newDescription.Length -ne $singleDescription.Length)
             {
                 $neededBreakspaces = $singleDescription.Length - $newDescription.Length
@@ -313,8 +313,8 @@ function Update-MetadataMarkdown
             }
             $destinationFile = Join-Path -Path $destinationFolder -ChildPath "$($singleFileMetadata.Name).md"
       
-            $streamWriter = [System.IO.StreamWriter]::new($destinationFile, $false, [System.Text.Encoding]::UTF8);
-            $streamWriter.NewLine = "`r`n";
+            $streamWriter = [System.IO.StreamWriter]::new($destinationFile, $false, [System.Text.Encoding]::UTF8)
+            $streamWriter.NewLine = "`r`n"
 
             $streamWriter.WriteLine("# $($singleFileMetadata.Name)") | Out-Null
 

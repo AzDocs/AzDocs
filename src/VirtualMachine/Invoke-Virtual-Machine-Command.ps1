@@ -13,7 +13,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 
 $existingVirtualMachines = Get-AzVM -ResourceGroupName $VirtualMachineResourceGroupName | Where-Object Name -Like "$VirtualMachineBaseName*"
 
-$existingVirtualMachines.Name | ForEach-Object -parallel {
+$existingVirtualMachines.Name | ForEach-Object -Parallel {
     Set-Location $using:PWD
     Import-Module "$using:PSScriptRoot\..\AzDocs.Common" -Force
 

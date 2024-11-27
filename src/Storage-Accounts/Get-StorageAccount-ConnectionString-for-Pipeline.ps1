@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $StorageAccountName,
     [Parameter(Mandatory)][string] $StorageAccountResourceGroupName,
-    [Parameter()][string] $OutputPipelineVariableName = "StorageAccountConnectionString"
+    [Parameter()][string] $OutputPipelineVariableName = 'StorageAccountConnectionString'
 )
 
 #region ===BEGIN IMPORTS===

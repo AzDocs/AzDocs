@@ -34,7 +34,7 @@ function Convert-WriteHeaderToString
         {
             $sep = $line.IndexOf(':')
             $parameter = $line.Substring(0, $sep).Trim()
-            $value = $line.Substring($sep + 1).Trim();
+            $value = $line.Substring($sep + 1).Trim()
             $newValue = switch ($value)
             {
                 'True' { '$true' }

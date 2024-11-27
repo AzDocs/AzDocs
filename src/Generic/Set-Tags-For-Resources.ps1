@@ -1,13 +1,13 @@
 
-[CmdletBinding(DefaultParameterSetName = "Single")]
+[CmdletBinding(DefaultParameterSetName = 'Single')]
 param (
     [Parameter(Mandatory)][ValidateSet('merge', 'replace', 'delete')][string] $Operation,
     [Parameter(Mandatory)][string[]] $ResourceTags,
-    [Parameter(Mandatory, ParameterSetName = "Single")][string] $ResourceGroupName,
-    [Parameter(Mandatory, ParameterSetName = "Single")][string] $ResourceName,
-    [Parameter(ParameterSetName = "Single")][switch] $IncludeResourceGroup,
-    [Parameter(Mandatory, ParameterSetName = "Multiple")][string[]] $ResourceGroupNames,
-    [Parameter(ParameterSetName = "Multiple")][switch] $IncludeResourcesInResourceGroup
+    [Parameter(Mandatory, ParameterSetName = 'Single')][string] $ResourceGroupName,
+    [Parameter(Mandatory, ParameterSetName = 'Single')][string] $ResourceName,
+    [Parameter(ParameterSetName = 'Single')][switch] $IncludeResourceGroup,
+    [Parameter(Mandatory, ParameterSetName = 'Multiple')][string[]] $ResourceGroupNames,
+    [Parameter(ParameterSetName = 'Multiple')][switch] $IncludeResourcesInResourceGroup
 
 )
 

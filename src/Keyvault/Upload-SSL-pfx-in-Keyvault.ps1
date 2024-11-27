@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param (
-    [Alias("SharedServicesKeyvaultName")]
+    [Alias('SharedServicesKeyvaultName')]
     [Parameter(Mandatory)][string] $KeyvaultName,
     [Parameter(Mandatory)][string] $KeyvaultCertificateName,
     [Parameter(Mandatory)][string] $PfxFilename,

@@ -19,7 +19,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 $optionalParameters = @()
 if ($AppServiceDeploymentSlotName)
 {
-    $optionalParameters += "--slot", "$AppServiceDeploymentSlotName"
+    $optionalParameters += '--slot', "$AppServiceDeploymentSlotName"
 }
 
 # Fetch Storage Account Key. Unfortunately no Managed Identities yet :(
@@ -31,7 +31,7 @@ $customId = "$($StorageAccountName)-$($StorageShareType)-$($BlobOrFileShareName)
 # Mount Storage
 $mountPath = Invoke-Executable -AllowToFail az webapp config storage-account list --name $AppServiceName --resource-group $AppServiceResourceGroupName | ConvertFrom-Json | Where-Object { $_.name -eq $customId }
 # az webapp config storage-account add is not omnipotent. So we need to check if we need to add or update.
-if($mountPath)
+if ($mountPath)
 {
     # Update
     Invoke-Executable az webapp config storage-account update --access-key $storageAccountKey --account-name $StorageAccountName --custom-id $customId --share-name $BlobOrFileShareName --storage-type $StorageShareType --name $AppServiceName --resource-group $AppServiceResourceGroupName --mount-path $ContainerMountPath @optionalParameters

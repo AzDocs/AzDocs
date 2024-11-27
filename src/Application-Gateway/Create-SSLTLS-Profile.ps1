@@ -55,7 +55,7 @@ if ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Predef
 {
     if ($ApplicationGatewayPredefinedPolicyName)
     {
-        $optionalParameters += "--policy-name", "$ApplicationGatewayPredefinedPolicyName"
+        $optionalParameters += '--policy-name', "$ApplicationGatewayPredefinedPolicyName"
     }
 }
 elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Custom')
@@ -63,9 +63,9 @@ elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Cu
     # Check TLS Version
     Assert-TLSVersion -TlsVersion $ApplicationGatewayMinimalProtocolVersion
 
-    $optionalParameters += "--min-protocol-version", "$ApplicationGatewayMinimalProtocolVersion"
+    $optionalParameters += '--min-protocol-version', "$ApplicationGatewayMinimalProtocolVersion"
 
-    $optionalParameters += "--cipher-suites"
+    $optionalParameters += '--cipher-suites'
     foreach ($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
     {
         # Check CipherSuite
@@ -75,10 +75,10 @@ elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Cu
 }
 else
 {
-    throw "Unsupported operation"
+    throw 'Unsupported operation'
 }
 
-$currentSSLProfiles = Invoke-Executable az network application-gateway ssl-profile list --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json | Where-Object name -eq "$SSLProfileName"
+$currentSSLProfiles = Invoke-Executable az network application-gateway ssl-profile list --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName | ConvertFrom-Json | Where-Object name -EQ "$SSLProfileName"
 if ($currentSSLProfiles)
 {
     Invoke-Executable az network application-gateway ssl-profile update --gateway-name $ApplicationGatewayName --resource-group $ApplicationGatewayResourceGroupName --name $SSLProfileName --policy-type $ApplicationGatewayPolicyType @optionalParameters

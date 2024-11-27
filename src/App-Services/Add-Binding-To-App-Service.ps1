@@ -15,7 +15,7 @@ Write-Header -ScopedPSCmdlet $PSCmdlet
 $optionalParameters = @()
 if ($AppServiceSlotName)
 {
-    $optionalParameters += "--slot", "$AppServiceSlotName"
+    $optionalParameters += '--slot', "$AppServiceSlotName"
 }
 
 # Add binding

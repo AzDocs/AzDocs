@@ -51,7 +51,6 @@ param url string
 ])
 param protocol string = 'http'
 
-
 resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' existing = {
   name: apiManagementServiceName
 }
@@ -74,4 +73,3 @@ resource backend 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' =
 output backendName string = backend.name
 @description('The resource id of the created backend instance.')
 output backendId string = backend.id
-

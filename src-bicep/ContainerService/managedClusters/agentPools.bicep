@@ -77,7 +77,7 @@ param aksNodeMaxPods int = 110
 
 @description('The taints added to new nodes during node pool create and scale. For example, key=value:NoSchedule,eg CoreOnly=true:NoSchedule.')
 param nodeTaints array = []
-var taints = autoTaintWindows ? union(nodeTaints, [ 'sku=Windows:NoSchedule' ]) : nodeTaints
+var taints = autoTaintWindows ? union(nodeTaints, ['sku=Windows:NoSchedule']) : nodeTaints
 
 @description('''
 Any labels that should be applied to the node pool
@@ -188,7 +188,9 @@ resource agentPool 'Microsoft.ContainerService/managedClusters/agentPools@2023-0
     scaleDownMode: aksNodeScaleDownMode
     type: aksNodePoolType
     vmSize: aksNodeVmSize
-    vnetSubnetID: !empty(vnetSubnetID) ? vnetSubnetID : first(filter(aks.properties.agentPoolProfiles, x => x.name == 'system')).?vnetSubnetID
+    vnetSubnetID: !empty(vnetSubnetID)
+      ? vnetSubnetID
+      : first(filter(aks.properties.agentPoolProfiles, x => x.name == 'system')).?vnetSubnetID
     upgradeSettings: {
       maxSurge: upgradeSettingsMaxSurge
     }

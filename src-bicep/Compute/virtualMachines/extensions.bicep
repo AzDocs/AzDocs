@@ -24,7 +24,6 @@ module extensionAAD 'br:contosoregistry.azurecr.io/compute/virtualmachines/exten
 
 // ================================================= Parameters =================================================
 
-
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -80,7 +79,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' existing 
   name: virtualMachineName
 }
 
-resource extension'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = {
+resource extension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = {
   name: extensionName
   location: location
   tags: tags

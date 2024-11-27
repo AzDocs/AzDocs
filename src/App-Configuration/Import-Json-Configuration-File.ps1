@@ -3,7 +3,7 @@ param (
     [Parameter(Mandatory)][string] $AppConfigName,
     [Parameter(Mandatory)][string] $Label,
     [Parameter(Mandatory)][string] $JsonFilePath,
-    [Parameter()][string] $KeyValuePairSeparator = ":",
+    [Parameter()][string] $KeyValuePairSeparator = ':',
     [Parameter(Mandatory)][string] $KeyPrefix
 )
 

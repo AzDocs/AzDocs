@@ -20,7 +20,7 @@ function Add-ScopedRoleAssignment
 
 	if (!$AssigneeObjectId)
 	{
-		throw "Could not find Managed Identity or no PrincipalId specified"	
+		throw 'Could not find Managed Identity or no PrincipalId specified'	
 	}
 
 	if (-Not $Scope)

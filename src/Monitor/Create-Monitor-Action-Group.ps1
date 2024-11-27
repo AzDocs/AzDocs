@@ -1,10 +1,10 @@
 [CmdletBinding()]
 param (
-    [Alias("ActionGroupName")]
+    [Alias('ActionGroupName')]
     [Parameter(Mandatory)][string] $MonitorAlertActionGroupName,
-    [Alias("ApplicationResourceGroupName")]
+    [Alias('ApplicationResourceGroupName')]
     [Parameter(Mandatory)][string] $MonitorAlertActionResourceGroupName,
-    [Alias("Action")]
+    [Alias('Action')]
     [Parameter(Mandatory)][string[]] $AlertAction
 )
 

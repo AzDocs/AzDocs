@@ -6,8 +6,8 @@ param (
     [Parameter(Mandatory)][string] $CassandraKeySpaceName,
     [Parameter(Mandatory)][string] $CassandraTableName,
     [Parameter(Mandatory)][string] $CassandraTableSchema,
-    [Parameter(Mandatory, ParameterSetName = "Throughput")][string][ValidateSet("Autoscale", "Manual")] $CassandraTableThroughputType,
-    [Parameter(Mandatory, ParameterSetName = "Throughput")][int] $CassandraTableThroughputAmount
+    [Parameter(Mandatory, ParameterSetName = 'Throughput')][string][ValidateSet('Autoscale', 'Manual')] $CassandraTableThroughputType,
+    [Parameter(Mandatory, ParameterSetName = 'Throughput')][int] $CassandraTableThroughputAmount
 )
 
 #region ===BEGIN IMPORTS===
@@ -55,10 +55,10 @@ $CassandraTableSchema = $CassandraTableSchema.Replace('"', '\"')
 $tableExists = Invoke-Executable az cosmosdb cassandra table exists --account-name $CosmosDbAccountName --name $CassandraTableName --resource-group $CosmosDbAccountResourceGroupName --keyspace-name $CassandraKeySpaceName
 if ([System.Convert]::ToBoolean($tableExists))
 {
-    $tableThroughput = Invoke-Executable -AllowToFail az cosmosdb cassandra table throughput show --account-name  $CosmosDbAccountName --name $CassandraTableName --keyspace-name $CassandraKeySpaceName --resource-group $CosmosDbAccountResourceGroupName | ConvertFrom-Json
+    $tableThroughput = Invoke-Executable -AllowToFail az cosmosdb cassandra table throughput show --account-name $CosmosDbAccountName --name $CassandraTableName --keyspace-name $CassandraKeySpaceName --resource-group $CosmosDbAccountResourceGroupName | ConvertFrom-Json
     if ($tableThroughput -and $CassandraTableThroughputType)
     {
-        $tableCurrentThroughputType = $null -eq $tableThroughput.resource.autoscaleSettings ? "Manual" : "Autoscale"
+        $tableCurrentThroughputType = $null -eq $tableThroughput.resource.autoscaleSettings ? 'Manual' : 'Autoscale'
         if ($tableCurrentThroughputType -ne $CassandraTableThroughputType)
         {
             Write-Host "Migrating table from $tableCurrentThroughputType to $CassandraTableThroughputType"
@@ -66,7 +66,7 @@ if ([System.Convert]::ToBoolean($tableExists))
         }
         else
         {
-            Write-Host "No need to migrate table throughput type. Continueing.."
+            Write-Host 'No need to migrate table throughput type. Continueing..'
         }
     }
 }

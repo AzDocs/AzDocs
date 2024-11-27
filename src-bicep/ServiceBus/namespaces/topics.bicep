@@ -28,16 +28,16 @@ module topic 'br:contosoregistry.azurecr.io/servicebus/namespaces/topics:latest'
 */
 
 @description('Type representing the status of a messaging entity.')
-type statusType = 'Active'
+type statusType =
+  | 'Active'
   | 'Creating'
   | 'Deleting'
-  | 'Disabled'	
+  | 'Disabled'
   | 'ReceiveDisabled'
   | 'Renaming'
   | 'Restoring'
   | 'SendDisabled'
   | 'Unknown'
-
 
 @minLength(6)
 @maxLength(50)
@@ -104,18 +104,21 @@ resource servicebusNamespace 'Microsoft.ServiceBus/namespaces@2022-01-01-preview
 
 // Create the topic properties
 // If the namespace is premium, the maxMessageSizeInKilobytes property is included. Only premium namespaces support this property.
-var properties = union({
-  autoDeleteOnIdle: autoDeleteOnIdle
-  defaultMessageTimeToLive: defaultMessageTimeToLive
-  duplicateDetectionHistoryTimeWindow: duplicateDetectionHistoryTimeWindow
-  enableBatchedOperations: enableBatchedOperations
-  enableExpress: enableExpress
-  enablePartitioning: enablePartitioning
-  maxSizeInMegabytes: maxSizeInMegabytes
-  requiresDuplicateDetection: requiresDuplicateDetection
-  status: status
-  supportOrdering: supportOrdering
-}, servicebusNamespace.sku.name == 'Premium' ? { maxMessageSizeInKilobytes: maxMessageSizeInKilobytes } : {})
+var properties = union(
+  {
+    autoDeleteOnIdle: autoDeleteOnIdle
+    defaultMessageTimeToLive: defaultMessageTimeToLive
+    duplicateDetectionHistoryTimeWindow: duplicateDetectionHistoryTimeWindow
+    enableBatchedOperations: enableBatchedOperations
+    enableExpress: enableExpress
+    enablePartitioning: enablePartitioning
+    maxSizeInMegabytes: maxSizeInMegabytes
+    requiresDuplicateDetection: requiresDuplicateDetection
+    status: status
+    supportOrdering: supportOrdering
+  },
+  servicebusNamespace.sku.name == 'Premium' ? { maxMessageSizeInKilobytes: maxMessageSizeInKilobytes } : {}
+)
 
 resource topic 'Microsoft.ServiceBus/namespaces/topics@2022-01-01-preview' = {
   name: topicName

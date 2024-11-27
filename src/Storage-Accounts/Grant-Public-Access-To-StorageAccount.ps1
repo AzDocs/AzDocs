@@ -11,7 +11,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
-$message = "You are about to fully open your storage account to the internet. This is NOT recommended. We recommend that you use a self-hosted agent instead if you are trying to deploy resources to your storage account."
+$message = 'You are about to fully open your storage account to the internet. This is NOT recommended. We recommend that you use a self-hosted agent instead if you are trying to deploy resources to your storage account.'
 if (!$ForcePublic)
 {
     Write-Host "##vso[task.complete result=Failed;]$message If this was intentional, please pass the -ForcePublic flag."

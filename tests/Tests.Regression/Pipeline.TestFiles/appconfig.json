@@ -12,7 +12,12 @@
       }
     },
     "ReleaseDate": "2020-08-04T12:34:56.789Z",
-    "RolloutPercentage": [25, 50, 75, 100],
+    "RolloutPercentage": [
+      25,
+      50,
+      75,
+      100
+    ],
     "UseDefaultRouting": false
   }
 }

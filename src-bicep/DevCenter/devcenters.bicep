@@ -64,6 +64,5 @@ resource devCenter 'Microsoft.DevCenter/devcenters@2024-07-01-preview' = {
   properties: {}
 }
 
-
 @description('The resource ID of the Dev Center.')
 output devCenterId string = devCenter.id

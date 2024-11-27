@@ -62,7 +62,7 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' exi
 }
 
 @description('Upsert the role with the given parameters')
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' =  {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(configurationStore.id, principalId, roleDefinitionId)
   scope: configurationStore
   properties: {

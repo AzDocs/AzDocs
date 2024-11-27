@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param (
-    [Alias("UserName")]
+    [Alias('UserName')]
     [Parameter(Mandatory)][string] $AdUserName,
-    [Alias("Password")]
+    [Alias('Password')]
     [Parameter(Mandatory)][string] $AdPassword
 )
 

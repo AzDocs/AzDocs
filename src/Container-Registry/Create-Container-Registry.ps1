@@ -11,15 +11,15 @@ param (
     [Parameter()][string] $ApplicationSubnetName,
 
     # Private Endpoint
-    [Alias("VnetName")]
+    [Alias('VnetName')]
     [Parameter()][string] $ContainerRegistryPrivateEndpointVnetName,
-    [Alias("VnetResourceGroupName")]
+    [Alias('VnetResourceGroupName')]
     [Parameter()][string] $ContainerRegistryPrivateEndpointVnetResourceGroupName,
     [Parameter()][string] $ContainerRegistryPrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
-    [Parameter()][string] $PrivateEndpointGroupId = "registry",
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $ContainerRegistryPrivateDnsZoneName = "privatelink.azurecr.io",
+    [Parameter()][string] $PrivateEndpointGroupId = 'registry',
+    [Alias('PrivateDnsZoneName')]
+    [Parameter()][string] $ContainerRegistryPrivateDnsZoneName = 'privatelink.azurecr.io',
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
@@ -51,7 +51,7 @@ if ((!$ApplicationVnetResourceGroupName -or !$ApplicationVnetName -or !$Applicat
 $scriptArguments = @()
 if ($ContainerRegistryEnableAdminUser)
 {
-    $scriptArguments += "--admin-enabled", "true"
+    $scriptArguments += '--admin-enabled', 'true'
 }
 
 $containerRegistryId = (Invoke-Executable az acr create --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName --sku $ContainerRegistrySku @scriptArguments | ConvertFrom-Json).id
@@ -65,7 +65,7 @@ if ($ResourceTags)
 # Private Endpoint
 if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndpointVnetResourceGroupName -and $ContainerRegistryPrivateEndpointSubnetName -and $PrivateEndpointGroupId -and $DNSZoneResourceGroupName -and $ContainerRegistryPrivateDnsZoneName)
 {
-    Write-Host "A private endpoint is desired. Adding the needed components."
+    Write-Host 'A private endpoint is desired. Adding the needed components.'
     # Fetch basic info for pvt endpoint
     $vnetId = (Invoke-Executable az network vnet show --resource-group $ContainerRegistryPrivateEndpointVnetResourceGroupName --name $ContainerRegistryPrivateEndpointVnetName | ConvertFrom-Json).id
     $containerRegistryPrivateEndpointSubnetId = (Invoke-Executable az network vnet subnet show --resource-group $ContainerRegistryPrivateEndpointVnetResourceGroupName --name $ContainerRegistryPrivateEndpointSubnetName --vnet-name $ContainerRegistryPrivateEndpointVnetName | ConvertFrom-Json).id
@@ -78,7 +78,7 @@ if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndp
 # VNET Whitelisting
 if ($ApplicationVnetName -and $ApplicationSubnetName -and $ApplicationVnetResourceGroupName)
 {
-    if ($ContainerRegistrySku -ne "Premium")
+    if ($ContainerRegistrySku -ne 'Premium')
     {
         throw "VNET Whitelisting only supported on Premium SKU. Current SKU: $ContainerRegistrySku"
     }

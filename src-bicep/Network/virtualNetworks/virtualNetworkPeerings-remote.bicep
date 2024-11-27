@@ -42,7 +42,12 @@ resource vNetPeering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2
     allowGatewayTransit: false
     useRemoteGateways: false
     remoteVirtualNetwork: {
-      id: resourceId(spokeVNetSubscriptionId, spokeVNetResourceGroupName, 'Microsoft.Network/virtualNetworks', spokeVNetName)
+      id: resourceId(
+        spokeVNetSubscriptionId,
+        spokeVNetResourceGroupName,
+        'Microsoft.Network/virtualNetworks',
+        spokeVNetName
+      )
     }
   }
 }

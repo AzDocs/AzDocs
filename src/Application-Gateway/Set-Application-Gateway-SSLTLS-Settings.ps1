@@ -72,7 +72,7 @@ if ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Predef
 {
     if ($ApplicationGatewayPredefinedPolicyName)
     {
-        $optionalParameters += "--name", "$ApplicationGatewayPredefinedPolicyName"
+        $optionalParameters += '--name', "$ApplicationGatewayPredefinedPolicyName"
     }
 }
 elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Custom')
@@ -80,9 +80,9 @@ elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Cu
     # Check TLS Version
     Assert-TLSVersion -TlsVersion $ApplicationGatewayMinimalProtocolVersion
 
-    $optionalParameters += "--min-protocol-version", "$ApplicationGatewayMinimalProtocolVersion"
+    $optionalParameters += '--min-protocol-version', "$ApplicationGatewayMinimalProtocolVersion"
 
-    $optionalParameters += "--cipher-suites"
+    $optionalParameters += '--cipher-suites'
     foreach ($ApplicationGatewayCipherSuite in $ApplicationGatewayCipherSuites)
     {
         # Check CipherSuite
@@ -92,7 +92,7 @@ elseif ($ApplicationGatewayPolicyType -and $ApplicationGatewayPolicyType -eq 'Cu
 }
 else
 {
-    throw "Unsupported operation"
+    throw 'Unsupported operation'
 }
 
 Invoke-Executable az network application-gateway ssl-policy set --resource-group $ApplicationGatewayResourceGroupName --gateway-name $ApplicationGatewayName --policy-type $ApplicationGatewayPolicyType @optionalParameters

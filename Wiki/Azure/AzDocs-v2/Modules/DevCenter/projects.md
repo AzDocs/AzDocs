@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="IdentityType">IdentityType</a>  | <pre>{</pre> | type |  | 
+| <a id="IdentityType">IdentityType</a>  | <pre></pre> | type |  | 
 
 ## Synopsis
 Creating a Dev Center project.

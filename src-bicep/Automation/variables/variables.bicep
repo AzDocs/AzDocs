@@ -31,7 +31,6 @@ Example:
 ''')
 param variableValue string
 
-
 resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' existing = {
   name: automationAccountName
   resource keyVaultPolicies 'variables@2020-01-13-preview' = {

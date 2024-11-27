@@ -3,7 +3,7 @@
 param (
     [Parameter(Mandatory)][string] $CdnProfileName,
     [Parameter(Mandatory)][string] $CdnResourceGroupName,
-    [Parameter()][ValidateSet("Custom_Verizon", "Premium_Verizon", "Standard_Akamai", "Standard_ChinaCdn", "Standard_Microsoft", "Standard_Verizon")][string] $Sku = "Standard_Akamai"
+    [Parameter()][ValidateSet('Custom_Verizon', 'Premium_Verizon', 'Standard_Akamai', 'Standard_ChinaCdn', 'Standard_Microsoft', 'Standard_Verizon')][string] $Sku = 'Standard_Akamai'
 )
 
 #region ===BEGIN IMPORTS===

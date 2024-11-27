@@ -11,7 +11,7 @@ function Assert-CIDR
         [Parameter()][string] $CIDR,
         # Forcefully agree to this resource to be spun up to be publicly available
         [Parameter()][bool] $ForcePublic = $false, 
-        [Parameter()][ValidateSet("Allow", "Deny")][string] $AccessRestrictionAction = "Allow"
+        [Parameter()][ValidateSet('Allow', 'Deny')][string] $AccessRestrictionAction = 'Allow'
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -24,7 +24,7 @@ function Assert-CIDR
         }
         else
         {
-            throw "CIDR contains 0.0.0.0/0. This will open up any access. This is not recommended."
+            throw 'CIDR contains 0.0.0.0/0. This will open up any access. This is not recommended.'
         }
     }
 
@@ -54,22 +54,22 @@ function Assert-TLSVersion
     if (!$result)
     {
         # Strip TLSv from TlsVersion if it's there (AppGw)
-        if ($TlsVersion.StartsWith("TLSv"))
+        if ($TlsVersion.StartsWith('TLSv'))
         {
-            $TlsVersion = $TlsVersion.Replace("TLSv", "").Replace("_", ".")
+            $TlsVersion = $TlsVersion.Replace('TLSv', '').Replace('_', '.')
             Write-Host "TLS version is $TlsVersion"
         }
 
         # Strip TLS from TlsVersion if it's there
-        if ($TlsVersion.StartsWith("TLS"))
+        if ($TlsVersion.StartsWith('TLS'))
         {
-            $TlsVersion = $TlsVersion.Replace("TLS", "").Replace("_", ".")
+            $TlsVersion = $TlsVersion.Replace('TLS', '').Replace('_', '.')
             Write-Host "TLS version is $TlsVersion"
         }
     
         # Setting culture settings
-        $culture = [System.Globalization.CultureInfo]::CreateSpecificCulture("en-US")
-        $culture.NumberFormat.NumberDecimalSeparator = "."
+        $culture = [System.Globalization.CultureInfo]::CreateSpecificCulture('en-US')
+        $culture.NumberFormat.NumberDecimalSeparator = '.'
         [System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
     
         # Converting to decimal
@@ -83,8 +83,8 @@ function Assert-TLSVersion
 
         if ($convertedTlsVersion -lt 1.2)
         {
-            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-            Write-Warning "Please be warned that you are using a TLS version that is EOL. Please use TLS 1.2 or higher."
+            Write-Host '##vso[task.complete result=SucceededWithIssues;]'
+            Write-Warning 'Please be warned that you are using a TLS version that is EOL. Please use TLS 1.2 or higher.'
         }
     }
 
@@ -99,20 +99,20 @@ Helper for asserting if disabling TLS is allowed
 #>
 function Assert-ForceDisableTLS($tlsVersion, $forceDisableTls)
 {
-    if ($tlsVersion -ne "TLSEnforcementDisabled")
+    if ($tlsVersion -ne 'TLSEnforcementDisabled')
     {
         return $false
     }
 
     if ($forceDisableTls -eq $false)
     {
-        Write-Host "##vso[task.complete result=Failed;] You are creating a resource for which you want to disable TLS. This is NOT recommended. If this was intentional, please pass the -ForceDisableTLS flag."
-        throw "You are creating a resource where you want to disable TLS. This is NOT recommended. If this was intentional, please pass the -ForceDisableTLS flag."
+        Write-Host '##vso[task.complete result=Failed;] You are creating a resource for which you want to disable TLS. This is NOT recommended. If this was intentional, please pass the -ForceDisableTLS flag.'
+        throw 'You are creating a resource where you want to disable TLS. This is NOT recommended. If this was intentional, please pass the -ForceDisableTLS flag.'
     }
     else
     {
-        Write-Warning "You are creating a resource for which you want to disable TLS. This is NOT recommended."
-        return $true;
+        Write-Warning 'You are creating a resource for which you want to disable TLS. This is NOT recommended.'
+        return $true
     }
 }
 
@@ -133,12 +133,12 @@ function Assert-ForceDisableKeyvaultPurgeProtection
     Write-Header -ScopedPSCmdlet $PSCmdlet
     if ($ForceDisablePurgeProtection -eq $false -and $KeyvaultPurgeProtectionEnabled -eq $false)
     {
-        Write-Host "##vso[task.complete result=Failed;] You are creating a keyvault for which you want to disable purge protection. This is NOT recommended. If this was intentional, please pass the -ForceDisablePurgeProtection flag."
-        throw "You are creating a keyvault for which you want to disable purge protection. This is NOT recommended. If this was intentional, please pass the -ForceDisablePurgeProtection flag."
+        Write-Host '##vso[task.complete result=Failed;] You are creating a keyvault for which you want to disable purge protection. This is NOT recommended. If this was intentional, please pass the -ForceDisablePurgeProtection flag.'
+        throw 'You are creating a keyvault for which you want to disable purge protection. This is NOT recommended. If this was intentional, please pass the -ForceDisablePurgeProtection flag.'
     }
     else
     {
-        Write-Warning "You are creating a keyvault for which you want to disable purge protection. This is NOT recommended."
+        Write-Warning 'You are creating a keyvault for which you want to disable purge protection. This is NOT recommended.'
     }
 
     Write-Footer -ScopedPSCmdlet $PSCmdlet
@@ -162,7 +162,7 @@ function Assert-CipherSuite
     
     if (!($approvedSecurityLevel -contains $response.$CipherSuite.security))
     {
-        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+        Write-Host '##vso[task.complete result=SucceededWithIssues;]'
         Write-Warning "Please be warned that you are using a ciphersuite ($($CipherSuite)) that has the status $($response.$CipherSuite.security). This is NOT recommended. We advise you to update your cipher suites to one of the recommended ciphers."
     }
 }

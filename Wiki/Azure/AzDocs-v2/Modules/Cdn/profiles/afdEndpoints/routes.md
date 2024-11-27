@@ -51,7 +51,7 @@ module route 'br:contosoregistry.azurecr.io/profiles/afdEndpoints/routes.bicep' 
 | originPath | string | <input type="checkbox"> | None | <pre>'/'</pre> | Specifies a directory path on the origin that Azure Front Door Cdn can use to retrieve content from, e.g. contoso.cloudapp.net/originpath. |
 | ruleSets | array | <input type="checkbox"> | None | <pre>[]</pre> | Specifies the rule sets referenced by this endpoint. |
 | supportedProtocols | array | <input type="checkbox"> | None | <pre>[<br>  'Http'<br>  'Https'<br>]</pre> | Specifies the list of supported protocols for this route. This can be Http Only, Https Only or Http and Https. |
-| routePatternsToMatch | array | <input type="checkbox"> | None | <pre>[ '/*' ]</pre> | Specifies the route patterns of the rule. |
+| routePatternsToMatch | array | <input type="checkbox"> | None | <pre>['/*']</pre> | Specifies the route patterns of the rule. |
 | forwardingProtocol | string | <input type="checkbox"> | `'HttpOnly'` or `'HttpsOnly'` or `'MatchRequest'` | <pre>'MatchRequest'</pre> | Specifies the protocol this rule will use when forwarding traffic to backends. |
 | linkToDefaultDomain | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Enabled'</pre> | Specifies whether this route will be linked to the default endpoint domain. |
 | httpsRedirect | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Enabled'</pre> | Specifies whether to automatically redirect HTTP traffic to HTTPS traffic. Note that this is an easy way to set up this rule and it will be the first rule that gets executed. |

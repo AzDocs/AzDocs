@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="principalTypes">principalTypes</a>  | <pre>'User'</pre> |  | The type of principal you want to assign the role to. | 
+| <a id="principalTypes">principalTypes</a>  | <pre></pre> |  | The type of principal you want to assign the role to. | 
 
 ## Synopsis
 Assign a role on the servicebus topic scope to a identity

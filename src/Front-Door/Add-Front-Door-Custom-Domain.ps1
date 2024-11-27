@@ -29,22 +29,23 @@ Assert-TLSVersion -TlsVersion $CustomDomainMinimalTLSVersion
 
 # Get certificatename 
 $value = Get-CommonNameAndCertificateName -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword
-if ($null -eq $value.CommonName -or $null -eq $value.CertificateName) {
-    throw "Something went wrong with generating the certificate name."
+if ($null -eq $value.CommonName -or $null -eq $value.CertificateName)
+{
+    throw 'Something went wrong with generating the certificate name.'
 }
 
 # Add certificate to FrontDoor
 $paramForSecret = @{
-    CertificatePath                      = $CertificatePath;
-    CertificatePassword                  = $CertificatePassword;
-    CertificateKeyvaultResourceGroupName = $CertificateKeyvaultResourceGroupName;
-    CertificateKeyvaultName              = $CertificateKeyvaultName;
-    FrontDoorProfileName                 = $FrontDoorProfileName;
-    FrontDoorResourceGroup               = $FrontDoorResourceGroup;
-    IngressDomainName                    = $HostName;
-    CommonName                           = $value.CommonName;
-    CertificateName                      = $value.CertificateName;
-    ServicePrincipalObjectId             = $ServicePrincipalObjectId;
+    CertificatePath                      = $CertificatePath
+    CertificatePassword                  = $CertificatePassword
+    CertificateKeyvaultResourceGroupName = $CertificateKeyvaultResourceGroupName
+    CertificateKeyvaultName              = $CertificateKeyvaultName
+    FrontDoorProfileName                 = $FrontDoorProfileName
+    FrontDoorResourceGroup               = $FrontDoorResourceGroup
+    IngressDomainName                    = $HostName
+    CommonName                           = $value.CommonName
+    CertificateName                      = $value.CertificateName
+    ServicePrincipalObjectId             = $ServicePrincipalObjectId
 }
 
 Add-SecretToFrontDoor @paramForSecret
@@ -54,7 +55,8 @@ Invoke-Executable az afd custom-domain create --certificate-type $CustomDomainCe
 
 # Return DNS TXT record information
 $validationProperties = (Invoke-Executable -AllowToFail az afd custom-domain show --custom-domain-name $CustomDomainNameName --profile-name $FrontDoorProfileName --resource-group $FrontDoorResourceGroup | ConvertFrom-Json).validationProperties
-if ($validationProperties) {
+if ($validationProperties)
+{
     Write-Host "For traffic to be able to get delivered, please create a DNS TXT record with as record '_dnsauth.{your custom domain}' with the following validationToken: $($validationProperties.validationToken)"
 }
 

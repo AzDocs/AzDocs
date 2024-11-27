@@ -135,7 +135,6 @@ resource backupPolicy 'Microsoft.RecoveryServices/vaults/backupPolicies@2022-06-
   tags: tags
   parent: recoveryServicesVault
   properties: backupProtectionPolicy
-
 }
 
 @description('the resource id for the backup policy.')

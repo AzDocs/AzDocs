@@ -47,7 +47,6 @@ see [docs](https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profi
 ''')
 param secretParameters object = {}
 
-
 // ===================================== Resources =====================================
 @description('The existing FrontDoor Cdn profile to use.')
 resource CDNProfile 'Microsoft.Cdn/profiles@2022-11-01-preview' existing = {

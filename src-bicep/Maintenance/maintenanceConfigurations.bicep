@@ -150,7 +150,6 @@ Public means visible to all users.
 ])
 param visibilityMaintenanceConfiguration string = 'Custom'
 
-
 resource maintenanceConfiguration 'Microsoft.Maintenance/maintenanceConfigurations@2021-09-01-preview' = {
   name: maintenanceConfigurationsName
   location: location

@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $FrontDoorProfileName,
     [Parameter(Mandatory)][string] $FrontDoorResourceGroup,
-    [Parameter()][string] $OutputPipelineVariableName = "FrontDoorId"
+    [Parameter()][string] $OutputPipelineVariableName = 'FrontDoorId'
 )
 
 #region ===BEGIN IMPORTS===

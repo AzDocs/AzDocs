@@ -45,21 +45,21 @@ $optionalParameters = @()
 $existingRules = Invoke-Executable az acr network-rule list --resource-group $ContainerRegistryResourceGroupName --name $ContainerRegistryName | ConvertFrom-Json
 if ($CIDRToWhitelist)
 {
-    $optionalParameters += "--ip-address", "$CIDRToWhitelist"
+    $optionalParameters += '--ip-address', "$CIDRToWhitelist"
     $ipRule = $existingRules.ipRules | Where-Object { $_.ipAddressOrRange -eq $CIDRToWhitelist.split('/')[0] }
     if ($ipRule)
     {
-        Write-Warning "This CIDR is already added. Please correct this."
+        Write-Warning 'This CIDR is already added. Please correct this.'
         return
     }
 }
 elseif ($subnetResourceId)
 {
-    $optionalParameters += "--subnet", "$subnetResourceId"
+    $optionalParameters += '--subnet', "$subnetResourceId"
     $virtualNetworkRule = $existingRules.virtualNetworkRules | Where-Object { $_.virtualNetworkResourceId -eq $subnetResourceId }
     if ($virtualNetworkRule)
     {
-        Write-Warning "This subnet is already added. Please correct this."
+        Write-Warning 'This subnet is already added. Please correct this.'
         return
     }
 }

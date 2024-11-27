@@ -20,11 +20,13 @@ $vnetPeeringName = "$($VnetName)-$($RemoteVnetName)"
 $remoteVnetId = "/subscriptions/$($RemoteVnetSubscriptionId)/resourceGroups/$($RemoteVnetResourceGroupName)/providers/Microsoft.Network/VirtualNetworks/$($RemoteVnetName)"
 
 $optionalArguments = @()
-if ($AllowForwardedTrafficToRemoteVnet) {
+if ($AllowForwardedTrafficToRemoteVnet)
+{
     $optionalArguments += '--allow-forwarded-traffic'
 }
 
-if ($AllowVNetAccessToRemoteVnet) {
+if ($AllowVNetAccessToRemoteVnet)
+{
     $optionalArguments += '--allow-vnet-access'
 }
 

@@ -57,7 +57,7 @@ For example:
 ]
 ''')
 @minLength(1)
-param virtualNetworkAddressPrefixes array = [ '10.0.0.0/16' ]
+param virtualNetworkAddressPrefixes array = ['10.0.0.0/16']
 
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
@@ -107,7 +107,8 @@ Example:
 param tags object = {}
 
 @description('Setting up the properties and add ddosprotectionplan if it is enabled')
-var properties = union({
+var properties = union(
+  {
     addressSpace: {
       addressPrefixes: virtualNetworkAddressPrefixes
     }
@@ -117,11 +118,14 @@ var properties = union({
     }
     enableDdosProtection: !empty(ddosProtectionPlanId)
   },
-  empty(ddosProtectionPlanId) ? {} : { //Adding ddos protectionplan object
-    ddosProtectionPlan: {
-      id: ddosProtectionPlanId
-    }
-  }
+  empty(ddosProtectionPlanId)
+    ? {}
+    : {
+        //Adding ddos protectionplan object
+        ddosProtectionPlan: {
+          id: ddosProtectionPlanId
+        }
+      }
 )
 
 @description('Upsert the virtual network with the given parameters.')

@@ -2,7 +2,7 @@
 param (
     [Parameter(Mandatory)][string] $AppInsightsName,
     [Parameter(Mandatory)][string] $AppInsightsResourceGroupName,
-    [Alias("Location")]
+    [Alias('Location')]
     [Parameter(Mandatory)][string] $AppInsightsLocation, 
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
 
@@ -38,7 +38,7 @@ if ($DiagnosticSettingsLogAnalyticsWorkspaceResourceId)
     Set-DiagnosticSettings -ResourceId $applicationInsightsId -ResourceName $AppInsightsName -LogAnalyticsWorkspaceResourceId $DiagnosticSettingsLogAnalyticsWorkspaceResourceId -DiagnosticSettingsLogs:$DiagnosticSettingsLogs -DiagnosticSettingsMetrics:$DiagnosticSettingsMetrics 
 }
 
-$instrumentationKey = (Invoke-Executable az resource show --resource-group $AppInsightsResourceGroupName --name $AppInsightsName --resource-type "Microsoft.Insights/components" | ConvertFrom-Json).properties.InstrumentationKey
+$instrumentationKey = (Invoke-Executable az resource show --resource-group $AppInsightsResourceGroupName --name $AppInsightsName --resource-type 'Microsoft.Insights/components' | ConvertFrom-Json).properties.InstrumentationKey
 
 Write-Host "The AppInsightsInstrumentationKey of the AppInsights workspace is $instrumentationKey"
 Write-Output $instrumentationKey

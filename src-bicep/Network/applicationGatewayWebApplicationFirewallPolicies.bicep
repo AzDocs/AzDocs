@@ -31,8 +31,7 @@ Sometimes WAF might block a request that you want to allow for your application.
   ]
 </details>
 ''')
-param exclusions array = [
-]
+param exclusions array = []
 
 @description('The PolicySettings for policy. This defaults to an enabled policy in prevention mode. For array/object structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgatewaywebapplicationfirewallpolicies?tabs=bicep#policysettings.')
 param policySettings object = {

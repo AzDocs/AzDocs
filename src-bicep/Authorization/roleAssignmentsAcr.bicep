@@ -59,7 +59,7 @@ var roleIds = {
   AcrQuarantineWriter: resourceId('Microsoft.Authorization/roleAssignments', 'c8d4ff99-41c3-41a8-9f60-21dfdad59608')
 }
 
-resource containerRegistry  'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
   name: containerRegistryName
 }
 

@@ -77,7 +77,7 @@ param resourceTypesIncluded array = [
 param tagSettingsToFilterOn object = {
   filterOperator: 'All'
   tags: {
-   Patchday: ['Tuesday']
+    Patchday: ['Tuesday']
   }
 }
 
@@ -96,7 +96,7 @@ resource configurationAssignment 'Microsoft.Maintenance/configurationAssignments
       osTypes: osTypes
       resourceGroups: resourceGroupsToApplyTo
       resourceTypes: resourceTypesIncluded
-      tagSettings:tagSettingsToFilterOn
+      tagSettings: tagSettingsToFilterOn
     }
     maintenanceConfigurationId: maintenanceConfiguration.id
     resourceId: subscriptionId

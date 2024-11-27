@@ -13,7 +13,7 @@ param actionGroups array
 param condition object
 
 @description('The scope this alert will apply to. This defaults to the whole subscription, but you can pass an array of resourceId\'s to apply to. Please refer to the default Bicep documentation: https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/activitylogalerts?tabs=bicep')
-param scopes array = [ subscription().id ]
+param scopes array = [subscription().id]
 
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.

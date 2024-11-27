@@ -220,9 +220,11 @@ param allowBypassAcl string = 'None'
 param isHnsEnabled bool = false
 
 @description('Dealing with [issue:](https://github.com/Azure/azure-rest-api-specs/issues/18441)')
-var hnsPropertyObject = isHnsEnabled ? {
-  isHnsEnabled: true
-} : {}
+var hnsPropertyObject = isHnsEnabled
+  ? {
+      isHnsEnabled: true
+    }
+  : {}
 
 // ================================================= Variables =================================================
 @description('''
@@ -254,7 +256,7 @@ var ipRules = [
 ]
 
 @description('Build the needed object for the Resource Access Rules based on the `resourceIdsToWhitelist` parameter.')
-var resourceAccessRules= [
+var resourceAccessRules = [
   for resourceId in resourceIdsToWhitelist: {
     tenantId: subscription().tenantId
     resourceId: resourceId
@@ -309,57 +311,60 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   sku: {
     name: storageAccountSku
   }
-  properties: union({
-    accessTier: effectiveBlobAccessTier
-    allowBlobPublicAccess: allowBlobPublicAccess
-    allowSharedKeyAccess: allowSharedKeyAccess
-    #disable-next-line BCP035
-    azureFilesIdentityBasedAuthentication: !empty(azureFilesIdentityBasedAuthentication)
-      ? azureFilesIdentityBasedAuthentication
-      : null
-    defaultToOAuthAuthentication: defaultToOAuthAuthentication
-    encryption: {
-      keySource: !empty(keyVaultName) ? 'Microsoft.Keyvault' : 'Microsoft.Storage'
-      services: {
-        blob: supportsBlobService
+  properties: union(
+    {
+      accessTier: effectiveBlobAccessTier
+      allowBlobPublicAccess: allowBlobPublicAccess
+      allowSharedKeyAccess: allowSharedKeyAccess
+      #disable-next-line BCP035
+      azureFilesIdentityBasedAuthentication: !empty(azureFilesIdentityBasedAuthentication)
+        ? azureFilesIdentityBasedAuthentication
+        : null
+      defaultToOAuthAuthentication: defaultToOAuthAuthentication
+      encryption: {
+        keySource: !empty(keyVaultName) ? 'Microsoft.Keyvault' : 'Microsoft.Storage'
+        services: {
+          blob: supportsBlobService
+            ? {
+                enabled: true
+              }
+            : null
+          file: supportsFileService
+            ? {
+                enabled: true
+              }
+            : null
+          table: {
+            enabled: true
+          }
+          queue: {
+            enabled: true
+          }
+        }
+        keyvaultproperties: !empty(keyVaultName)
           ? {
-              enabled: true
+              keyname: keyName
+              keyvaulturi: cMKKeyVault.properties.vaultUri
             }
           : null
-        file: supportsFileService
+        identity: !empty(userAssignedIdentityName)
           ? {
-              enabled: true
+              userAssignedIdentity: storageAccountUserAssignedManagedIdentity.id
             }
           : null
-        table: {
-          enabled: true
-        }
-        queue: {
-          enabled: true
-        }
       }
-      keyvaultproperties: !empty(keyVaultName)
-        ? {
-            keyname: keyName
-            keyvaulturi: cMKKeyVault.properties.vaultUri
-          }
+      isNfsV3Enabled: enableNfsV3 ? enableNfsV3 : any('')
+      isSftpEnabled: enableSftp
+      largeFileSharesState: (storageAccountSku == 'Standard_LRS') || (storageAccountSku == 'Standard_ZRS')
+        ? largeFileSharesState
         : null
-      identity: !empty(userAssignedIdentityName)
-        ? {
-            userAssignedIdentity: storageAccountUserAssignedManagedIdentity.id
-          }
-        : null
-    }
-    isNfsV3Enabled: enableNfsV3 ? enableNfsV3 : any('')
-    isSftpEnabled: enableSftp
-    largeFileSharesState: (storageAccountSku == 'Standard_LRS') || (storageAccountSku == 'Standard_ZRS')
-      ? largeFileSharesState
-      : null
-    minimumTlsVersion: storageAccountMinimumTlsVersion
-    supportsHttpsTrafficOnly: true
-    networkAcls: networkAcls
-    publicNetworkAccess: publicNetworkAccess
-  }, hnsPropertyObject)
+      minimumTlsVersion: storageAccountMinimumTlsVersion
+      supportsHttpsTrafficOnly: true
+      networkAcls: networkAcls
+      publicNetworkAccess: publicNetworkAccess
+    },
+    hnsPropertyObject
+  )
 }
 
 @description('Upsert the diagnostic settings for the storage account based on the given parameters.')

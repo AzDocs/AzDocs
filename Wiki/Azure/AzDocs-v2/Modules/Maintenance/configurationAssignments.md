@@ -21,7 +21,7 @@ The Maintenance Configuration Assignment resource is a child resource of the Mai
 | locations | array | <input type="checkbox"> | None | <pre>[<br>  'westeurope'<br>]</pre> | Filter of the location of the resources you want to apply the maintenance configuration to. |
 | resourceGroupsToApplyTo | array | <input type="checkbox"> | None | <pre>[]</pre> | Filter of the resource groups of the resources you want to apply the maintenance configuration to. |
 | resourceTypesIncluded | array | <input type="checkbox"> | `'Microsoft.HybridCompute/machines'` or `'Microsoft.Compute/virtualMachines'` | <pre>[<br>  'Microsoft.Compute/virtualMachines'<br>]</pre> | Filter of the resource types of the resources you want to apply the maintenance configuration to. |
-| tagSettingsToFilterOn | object | <input type="checkbox"> | None | <pre>{<br>  filterOperator: 'All'<br>  tags: {<br>   Patchday: ['Tuesday']<br>  }<br>}</pre> | Filter of the tags of the resources you want to apply the maintenance configuration to. |
+| tagSettingsToFilterOn | object | <input type="checkbox"> | None | <pre>{<br>  filterOperator: 'All'<br>  tags: {<br>    Patchday: ['Tuesday']<br>  }<br>}</pre> | Filter of the tags of the resources you want to apply the maintenance configuration to. |
 
 ## Examples
 <pre>

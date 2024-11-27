@@ -40,11 +40,11 @@ else
 $optionalParameters = @()
 if ($CIDRToRemove)
 {
-    $optionalParameters += "--ip-address", "$CIDRToRemove"
+    $optionalParameters += '--ip-address', "$CIDRToRemove"
 }
 elseif ($subnetResourceId)
 {
-    $optionalParameters += "--subnet", "$subnetResourceId"
+    $optionalParameters += '--subnet', "$subnetResourceId"
 }
     
 # Add network rule to the ServiceBus Namespace

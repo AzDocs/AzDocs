@@ -23,7 +23,7 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: "test"
-      projects: '$(Build.Repository.LocalPath)/**/*Tests.csproj'
+      projects: "$(Build.Repository.LocalPath)/**/*Tests.csproj"
   - task: DotNetCoreCLI@2
     inputs:
       command: "publish"

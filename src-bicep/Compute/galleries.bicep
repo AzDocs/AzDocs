@@ -66,21 +66,26 @@ resource gallery 'Microsoft.Compute/galleries@2022-03-03' = {
   name: galleryName
   location: location
   tags: tags
-  properties: union({
+  properties: union(
+    {
       description: galleryDescription
       identifier: {}
     },
-    permissions != 'Private' ? {
-      sharingProfile: {
-        communityGalleryInfo: communityGalleryInfo
-        permissions: permissions
-      }
-    } : {},
-    isSoftDeleteEnabled ? {
-      softDeletePolicy: {
-        isSoftDeleteEnabled: isSoftDeleteEnabled
-      }
-    } : {}
+    permissions != 'Private'
+      ? {
+          sharingProfile: {
+            communityGalleryInfo: communityGalleryInfo
+            permissions: permissions
+          }
+        }
+      : {},
+    isSoftDeleteEnabled
+      ? {
+          softDeletePolicy: {
+            isSoftDeleteEnabled: isSoftDeleteEnabled
+          }
+        }
+      : {}
   )
 }
 

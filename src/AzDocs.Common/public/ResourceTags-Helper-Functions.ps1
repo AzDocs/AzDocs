@@ -39,10 +39,10 @@ function Update-ResourceTagsForResource
     param (
         [Parameter(Mandatory)][string[]] $ResourceTags,
         [Parameter(Mandatory)][ValidateSet('merge', 'replace', 'delete')] $Operation,
-        [Parameter(Mandatory, ParameterSetName = "Single")][Parameter(Mandatory, ParameterSetName = "Multiple")][string] $ResourceGroupName,
-        [Parameter(Mandatory, ParameterSetName = "Single")][string] $ResourceName,
-        [Parameter(ParameterSetName = "Single")][switch] $IncludeResourceGroup,
-        [Parameter(ParameterSetName = "Multiple")][switch] $IncludeResourcesInResourceGroup
+        [Parameter(Mandatory, ParameterSetName = 'Single')][Parameter(Mandatory, ParameterSetName = 'Multiple')][string] $ResourceGroupName,
+        [Parameter(Mandatory, ParameterSetName = 'Single')][string] $ResourceName,
+        [Parameter(ParameterSetName = 'Single')][switch] $IncludeResourceGroup,
+        [Parameter(ParameterSetName = 'Multiple')][switch] $IncludeResourcesInResourceGroup
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -57,7 +57,7 @@ function Update-ResourceTagsForResource
         $resources = Invoke-Executable az resource list --resource-group $ResourceGroupName --name $ResourceName --query [].id --output tsv
         if ($resources.Count -ne 1)
         {
-            throw "Found multiple resources with the same name in the same resource group. Stopping.."
+            throw 'Found multiple resources with the same name in the same resource group. Stopping..'
         }
     }
     else
@@ -81,7 +81,7 @@ function Update-ResourceTagsForResource
     }
     else
     {
-        Write-Host "No resources found to update. Continueing.."
+        Write-Host 'No resources found to update. Continueing..'
     }
     
     Write-Footer -ScopedPSCmdlet $PSCmdlet

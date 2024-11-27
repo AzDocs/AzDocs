@@ -12,16 +12,16 @@ param (
     [Parameter(Mandatory)][string] $MonitorAlertActionGroupName,
     [Parameter(Mandatory)][string] $MonitorAlertActionResourceGroupName,
     
-    [Parameter(Mandatory, ParameterSetName = "condition")][string] $MetricAlertRuleConditionSignalName,
-    [Parameter(Mandatory, ParameterSetName = "condition")][ValidateSet('Average', 'Count', 'Maximum', 'Minimum', 'Total')][string] $MetricAlertRuleConditionAggregation,
-    [Parameter(Mandatory, ParameterSetName = "condition")][ValidateSet('Equals', 'GreaterOrLessThan', 'GreaterThan', 'GreaterThanOrEqual', 'LessThan', 'LessThanOrEqual', 'NotEquals')][string] $MetricAlertRuleConditionOperation,
-    [Parameter(Mandatory, ParameterSetName = "condition")][ValidateSet('dynamic', 'static')][string] $MetricAlertRuleConditionType,
-    [Parameter(ParameterSetName = "condition")][ValidateSet('', 'High', 'Medium', 'Low')][AllowEmptyString()][string] $MetricAlertRuleConditionDynamicSensitivity = "Medium",
-    [Parameter(ParameterSetName = "condition")][int] $MetricAlertRuleConditionStaticThreshold = 0,
+    [Parameter(Mandatory, ParameterSetName = 'condition')][string] $MetricAlertRuleConditionSignalName,
+    [Parameter(Mandatory, ParameterSetName = 'condition')][ValidateSet('Average', 'Count', 'Maximum', 'Minimum', 'Total')][string] $MetricAlertRuleConditionAggregation,
+    [Parameter(Mandatory, ParameterSetName = 'condition')][ValidateSet('Equals', 'GreaterOrLessThan', 'GreaterThan', 'GreaterThanOrEqual', 'LessThan', 'LessThanOrEqual', 'NotEquals')][string] $MetricAlertRuleConditionOperation,
+    [Parameter(Mandatory, ParameterSetName = 'condition')][ValidateSet('dynamic', 'static')][string] $MetricAlertRuleConditionType,
+    [Parameter(ParameterSetName = 'condition')][ValidateSet('', 'High', 'Medium', 'Low')][AllowEmptyString()][string] $MetricAlertRuleConditionDynamicSensitivity = 'Medium',
+    [Parameter(ParameterSetName = 'condition')][int] $MetricAlertRuleConditionStaticThreshold = 0,
 
-    [Parameter(ParameterSetName = "condition")][string] $MetricAlertRuleConditionDimensionName,
-    [Parameter(ParameterSetName = "condition")][string] $MetricAlertRuleConditionDimensionValue,
-    [Parameter(ParameterSetName = "condition")][ValidateSet('Exclude', 'Include')][string] $MetricAlertRuleConditionDimensionOperator = "Include"
+    [Parameter(ParameterSetName = 'condition')][string] $MetricAlertRuleConditionDimensionName,
+    [Parameter(ParameterSetName = 'condition')][string] $MetricAlertRuleConditionDimensionValue,
+    [Parameter(ParameterSetName = 'condition')][ValidateSet('Exclude', 'Include')][string] $MetricAlertRuleConditionDimensionOperator = 'Include'
 )
 
 #region ===BEGIN IMPORTS===
@@ -49,7 +49,7 @@ else
     $optionalConditionParameters += '--sensitivity', $MetricAlertRuleConditionDynamicSensitivity
 }
 
-$resourceToMonitorId = (Invoke-Executable az resource list --resource-group $ResourceToMonitorResourceGroupName --query "[?name=='$($ResourceToMonitorName)']" | convertfrom-json).id
+$resourceToMonitorId = (Invoke-Executable az resource list --resource-group $ResourceToMonitorResourceGroupName --query "[?name=='$($ResourceToMonitorName)']" | ConvertFrom-Json).id
 
 $listDefinitionsForResource = (Invoke-Executable az monitor metrics list-definitions --resource $resourceToMonitorId | ConvertFrom-Json).name.value
 if ($listDefinitionsForResource -notcontains $MetricAlertRuleConditionSignalName)

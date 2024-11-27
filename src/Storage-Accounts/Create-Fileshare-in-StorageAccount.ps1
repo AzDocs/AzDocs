@@ -1,10 +1,10 @@
 [CmdletBinding()]
 param (
-    [Alias("FileshareStorageAccountResourceGroupname")]
+    [Alias('FileshareStorageAccountResourceGroupname')]
     [Parameter(Mandatory)][string] $StorageAccountResourceGroupname,
-    [Alias("FileshareStorageAccountName")]
+    [Alias('FileshareStorageAccountName')]
     [Parameter(Mandatory)][string] $StorageAccountName,
-    [Alias("ShareName")]
+    [Alias('ShareName')]
     [Parameter(Mandatory)][string] $FileshareName,
     # Diagnostic settings
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,

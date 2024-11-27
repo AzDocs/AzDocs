@@ -47,7 +47,8 @@ type clientAffinePropertiesType = {
 }
 
 @description('Enumerates the possible values for the status of a messaging entity.')
-type statusType = 'Active'
+type statusType =
+  | 'Active'
   | 'Creating'
   | 'Deleting'
   | 'Disabled'

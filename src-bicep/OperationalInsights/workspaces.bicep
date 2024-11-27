@@ -98,10 +98,12 @@ param enableDataExport bool = false
 @description('Workspace capping daily quota in GB. -1 means unlimited.')
 param workspaceCappingDailyQuotaGb int = -1
 
-var unionedSku = union({
+var unionedSku = union(
+  {
     name: sku
   },
-  capacityReservationLevel == -1 ? {} : { capacityReservationLevel: capacityReservationLevel })
+  capacityReservationLevel == -1 ? {} : { capacityReservationLevel: capacityReservationLevel }
+)
 
 // ===================================== Resources =====================================
 @description('Upsert the Log Analytics Workspace with the given parameters.')

@@ -15,7 +15,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Write-Warning 'This script is deprecated. Please use the Create-Application-Insights-Extension-for-FunctionApps-codeless.ps1 instead.'
-Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+Write-Host '##vso[task.complete result=SucceededWithIssues;]'
 
 # Create Web App
 & "$PSScriptRoot\Create-Application-Insights-Extension-for-FunctionApps-codeless.ps1" @PSBoundParameters

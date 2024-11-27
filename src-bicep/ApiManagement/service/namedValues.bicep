@@ -64,17 +64,20 @@ resource namedValue 'Microsoft.ApiManagement/service/namedValues@2023-03-01-prev
   parent: apimService
   name: namedValuesName
   properties: {
-    displayName: replace((namedValuesDisplayName),' ', '')
+    displayName: replace((namedValuesDisplayName), ' ', '')
     tags: tags
-    secret: !empty(secretIdentifier)? true: isNamedValueSecret
-    value: (empty(namedValuesValue) && empty(secretIdentifier)) ? namedValuesName : empty(namedValuesValue) ? null : namedValuesValue
-    keyVault: empty(secretIdentifier) ? null :{
-      identityClientId: empty(userAssignedIdentityId) ? null : userAssignedIdentityId
-      secretIdentifier: secretIdentifier
-    }
+    secret: !empty(secretIdentifier) ? true : isNamedValueSecret
+    value: (empty(namedValuesValue) && empty(secretIdentifier))
+      ? namedValuesName
+      : empty(namedValuesValue) ? null : namedValuesValue
+    keyVault: empty(secretIdentifier)
+      ? null
+      : {
+          identityClientId: empty(userAssignedIdentityId) ? null : userAssignedIdentityId
+          secretIdentifier: secretIdentifier
+        }
   }
 }
-
 
 @description('The resource id of the named value.')
 output namedValueResourceId string = namedValue.id

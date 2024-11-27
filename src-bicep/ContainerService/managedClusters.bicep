@@ -316,18 +316,21 @@ Example:
   'fdfd:fdfd:0:2::/64'
 ]
 ''')
-param networkProfilePodCidrs array = !empty(ipv6PodCidr) ? [ networkProfilePodCidr, ipv6PodCidr ] : [ networkProfilePodCidr ]
+param networkProfilePodCidrs array = !empty(ipv6PodCidr)
+  ? [networkProfilePodCidr, ipv6PodCidr]
+  : [networkProfilePodCidr]
 
 @description('''
 The ipv6 servicecidr for a dual-stack aks cluster.
 Example:
 'fdfd:fdfd:0:3::/108'
-'''
-)
+''')
 param ipv6ServiceCidr string = ''
 
 @description('One IPv4 CIDR is expected for single-stack networking. Two CIDRs, one for each IP family (IPv4/IPv6), is expected for dual-stack networking. They must not overlap with any Subnet IP ranges')
-param serviceCidrs array = !empty(ipv6ServiceCidr) ? [ networkProfileServiceCidr, ipv6ServiceCidr ] : [ networkProfileServiceCidr ]
+param serviceCidrs array = !empty(ipv6ServiceCidr)
+  ? [networkProfileServiceCidr, ipv6ServiceCidr]
+  : [networkProfileServiceCidr]
 
 @description('''
 IP families are used to determine single-stack or dual-stack clusters. For single-stack, the expected value is IPv4.
@@ -502,7 +505,8 @@ param oidcIssuerProfile bool = false
 param enableInternalAppRouting bool = true
 
 // ===================================== Variables =====================================
-var aks_addons = union({
+var aks_addons = union(
+  {
     azurepolicy: {
       config: {
         version: !empty(azurepolicy) ? 'v2' : null
@@ -516,38 +520,53 @@ var aks_addons = union({
       }
       enabled: azureKeyvaultSecretsProviderEnabled
     }
-    openServiceMesh: !openServiceMeshAddon ? null : {
-      enabled: openServiceMeshAddon
-      config: {}
-    }
-    ACCSGXDevicePlugin: !sgxPlugin ? null : {
-      enabled: sgxPlugin
-      config: {}
-    }
-  }, omsagent && !empty(logAnalyticsWorkspaceResourceId) ? {
-    omsagent: {
-      enabled: true
-      config: union({
-          logAnalyticsWorkspaceResourceID: logAnalyticsWorkspaceResourceId
-        }, omsagentUseAADAuth ? { useAADAuth: 'true' } : {}
-      )
-    }
-  } : {}
+    openServiceMesh: !openServiceMeshAddon
+      ? null
+      : {
+          enabled: openServiceMeshAddon
+          config: {}
+        }
+    ACCSGXDevicePlugin: !sgxPlugin
+      ? null
+      : {
+          enabled: sgxPlugin
+          config: {}
+        }
+  },
+  omsagent && !empty(logAnalyticsWorkspaceResourceId)
+    ? {
+        omsagent: {
+          enabled: true
+          config: union(
+            {
+              logAnalyticsWorkspaceResourceID: logAnalyticsWorkspaceResourceId
+            },
+            omsagentUseAADAuth ? { useAADAuth: 'true' } : {}
+          )
+        }
+      }
+    : {}
 )
 
 @description('The private DNS Zone Name for the private AKS cluster.')
 var privateDnsZoneName = 'privatelink.westeurope.azmk8s.io'
 
 @description('Sets the private dns zone id if provided')
-var aksPrivateDnsZone = privateClusterDnsMethod == 'privateDnsZone' ? (!empty(privateDnsZone.id) ? privateDnsZone.id : 'system') : privateClusterDnsMethod
+var aksPrivateDnsZone = privateClusterDnsMethod == 'privateDnsZone'
+  ? (!empty(privateDnsZone.id) ? privateDnsZone.id : 'system')
+  : privateClusterDnsMethod
 
-var kubeletidentity = !empty(userAssignedManagedIdentityName) ? {
-  resourceId: aksUim.id
-  clientId: aksUim.properties.clientId
-  objectId: aksUim.properties.principalId
-} : {}
+var kubeletidentity = !empty(userAssignedManagedIdentityName)
+  ? {
+      resourceId: aksUim.id
+      clientId: aksUim.properties.clientId
+      objectId: aksUim.properties.principalId
+    }
+  : {}
 
-var logAnalyticsWorkspaceName = !empty(logAnalyticsWorkspaceResourceId) ? last(split(logAnalyticsWorkspaceResourceId, '/')) : ''
+var logAnalyticsWorkspaceName = !empty(logAnalyticsWorkspaceResourceId)
+  ? last(split(logAnalyticsWorkspaceResourceId, '/'))
+  : ''
 
 // ===================================== Existing Resources =====================================
 @description('''
@@ -585,26 +604,30 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-previ
     name: 'Base'
     tier: aksClusterSkuTier
   }
-  identity: !empty(userAssignedManagedIdentityName) ? {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${aksUim.id}': {}
-    }
-  } : {
-    type: 'SystemAssigned'
-  }
+  identity: !empty(userAssignedManagedIdentityName)
+    ? {
+        type: 'UserAssigned'
+        userAssignedIdentities: {
+          '${aksUim.id}': {}
+        }
+      }
+    : {
+        type: 'SystemAssigned'
+      }
   properties: {
     kubernetesVersion: aksKubernetesVersion
     dnsPrefix: empty(aksFqdnSubdomain) ? dnsPrefix : null
     fqdnSubdomain: enablePrivateCluster ? aksFqdnSubdomain : ''
-    ingressProfile: enableInternalAppRouting ? {
-      webAppRouting: {
-        enabled: true
-        nginx: {
-          defaultIngressControllerType: 'Internal'
+    ingressProfile: enableInternalAppRouting
+      ? {
+          webAppRouting: {
+            enabled: true
+            nginx: {
+              defaultIngressControllerType: 'Internal'
+            }
+          }
         }
-      }
-    } : null
+      : null
     agentPoolProfiles: [
       {
         name: 'system'
@@ -632,11 +655,13 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-previ
         }
       }
     ]
-    workloadAutoScalerProfile: kedaAddon ? {
-      keda: {
-        enabled: kedaAddon
-      }
-    } : null
+    workloadAutoScalerProfile: kedaAddon
+      ? {
+          keda: {
+            enabled: kedaAddon
+          }
+        }
+      : null
     #disable-next-line BCP035
     linuxProfile: !empty(vmssPublicKey) ? linuxProfile : null
     addonProfiles: !empty(aks_addons) ? aks_addons : {}
@@ -650,14 +675,16 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-previ
       networkPluginMode: networkProfileNetworkPlugin == 'azure' ? networkPluginMode : ''
       loadBalancerSku: 'Standard'
       networkPolicy: networkPolicy
-      loadBalancerProfile: networkProfileOutboundType == 'userDefinedRouting' ? null : {
-        managedOutboundIPs: {
-          count: managedOutboundIPsIPv4
-          countIPv6: !contains(networkProfileIpFamilies, 'IPv6') ? 0 : managedOutboundIPsIPv6
-        }
-        allocatedOutboundPorts: loadBalancerProfileAllocatedOutboundPorts
-        idleTimeoutInMinutes: networkProfileloadBalancerProfileIdleTimeoutInMinutes
-      }
+      loadBalancerProfile: networkProfileOutboundType == 'userDefinedRouting'
+        ? null
+        : {
+            managedOutboundIPs: {
+              count: managedOutboundIPsIPv4
+              countIPv6: !contains(networkProfileIpFamilies, 'IPv6') ? 0 : managedOutboundIPsIPv6
+            }
+            allocatedOutboundPorts: loadBalancerProfileAllocatedOutboundPorts
+            idleTimeoutInMinutes: networkProfileloadBalancerProfileIdleTimeoutInMinutes
+          }
       podCidr: networkProfilePodCidr
       serviceCidr: networkProfileServiceCidr
       dnsServiceIP: networkProfileDnsServiceIP
@@ -666,41 +693,55 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-previ
       serviceCidrs: serviceCidrs
       ipFamilies: networkProfileIpFamilies
     }
-    aadProfile: aadProfileManaged ? {
-      managed: true
-      enableAzureRBAC: aadProfileEnableAzureRBAC
-      adminGroupObjectIDs: !empty(aadProfileAdminGroupObjectIDs) ? aadProfileAdminGroupObjectIDs : null
-    } : null
+    aadProfile: aadProfileManaged
+      ? {
+          managed: true
+          enableAzureRBAC: aadProfileEnableAzureRBAC
+          adminGroupObjectIDs: !empty(aadProfileAdminGroupObjectIDs) ? aadProfileAdminGroupObjectIDs : null
+        }
+      : null
     autoUpgradeProfile: { upgradeChannel: upgradeChannel }
     #disable-next-line BCP036
-    apiServerAccessProfile: !empty(authorizedIPRanges) ? {
-      authorizedIPRanges: authorizedIPRanges
-    } : {
-      enablePrivateCluster: enablePrivateCluster
-      privateDNSZone: enablePrivateCluster ? aksPrivateDnsZone : ''
-      enablePrivateClusterPublicFQDN: aksPrivateDnsZone == 'none' ? true : enablePrivateClusterPublicFQDN
-      enableVnetIntegration: !empty(apiServerSubnetId)
-      subnetId: !empty(apiServerSubnetId) ? apiServerSubnetId : null
-    }
-    identityProfile: !empty(kubeletidentity) ? {
-      kubeletidentity: kubeletidentity
-    } : {}
+    apiServerAccessProfile: !empty(authorizedIPRanges)
+      ? {
+          authorizedIPRanges: authorizedIPRanges
+        }
+      : {
+          enablePrivateCluster: enablePrivateCluster
+          privateDNSZone: enablePrivateCluster ? aksPrivateDnsZone : ''
+          enablePrivateClusterPublicFQDN: aksPrivateDnsZone == 'none' ? true : enablePrivateClusterPublicFQDN
+          enableVnetIntegration: !empty(apiServerSubnetId)
+          subnetId: !empty(apiServerSubnetId) ? apiServerSubnetId : null
+        }
+    identityProfile: !empty(kubeletidentity)
+      ? {
+          kubeletidentity: kubeletidentity
+        }
+      : {}
     disableLocalAccounts: disableLocalAccounts
     securityProfile: {
-      defender: defenderForContainers ? {
-        logAnalyticsWorkspaceResourceId: !empty(logAnalyticsWorkspaceResourceId) ? logAnalyticsWorkspaceResourceId : null
-        securityMonitoring: {
-          enabled: defenderForContainers
-        }
-      } : {}
-      workloadIdentity: !workloadIdentity ? null : {
-        enabled: workloadIdentity
-      }
+      defender: defenderForContainers
+        ? {
+            logAnalyticsWorkspaceResourceId: !empty(logAnalyticsWorkspaceResourceId)
+              ? logAnalyticsWorkspaceResourceId
+              : null
+            securityMonitoring: {
+              enabled: defenderForContainers
+            }
+          }
+        : {}
+      workloadIdentity: !workloadIdentity
+        ? null
+        : {
+            enabled: workloadIdentity
+          }
     }
     storageProfile: {
-      blobCSIDriver: blobCSIDriver ? {
-        enabled: blobCSIDriver
-      } : null
+      blobCSIDriver: blobCSIDriver
+        ? {
+            enabled: blobCSIDriver
+          }
+        : null
       diskCSIDriver: {
         enabled: diskCSIDriver
       }
@@ -719,10 +760,12 @@ resource aksDiags 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = i
   scope: aksCluster
   properties: {
     workspaceId: logAnalyticsWorkspaceResourceId
-    logs: [for aksDiagCategory in aksDiagCategories: {
-      category: aksDiagCategory
-      enabled: diagnosticSettingsLogsEnabled
-    }]
+    logs: [
+      for aksDiagCategory in aksDiagCategories: {
+        category: aksDiagCategory
+        enabled: diagnosticSettingsLogsEnabled
+      }
+    ]
     metrics: [
       {
         category: 'AllMetrics'
@@ -800,7 +843,7 @@ resource sysLog 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (!empty
           ]
           name: 'sysLogsDataSource'
 
-          streams: [ 'Microsoft-Syslog' ]
+          streams: ['Microsoft-Syslog']
         }
       ]
     }
@@ -860,4 +903,6 @@ output aksClusterName string = aksCluster.name
 @description('The objectid of the identity of the AKS cluster created.')
 output kubeletObjectId string = any(aksCluster.properties.identityProfile.kubeletidentity).objectId
 @description('The resource id of the subnet the pool is deployed in.')
-output aksClusterSubnetId string = !empty(aksSubnetName) ? first(filter(aksCluster.properties.agentPoolProfiles, x => x.name == 'system'))!.vnetSubnetID : ''
+output aksClusterSubnetId string = !empty(aksSubnetName)
+  ? first(filter(aksCluster.properties.agentPoolProfiles, x => x.name == 'system'))!.vnetSubnetID
+  : ''

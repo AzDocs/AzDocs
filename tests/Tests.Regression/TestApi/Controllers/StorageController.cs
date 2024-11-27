@@ -44,7 +44,7 @@ namespace TestApi.Controllers
             var storageUrl = new Uri($"https://{Environment.GetEnvironmentVariable("StorageAccount")}.blob.core.windows.net");
             var storageClient = new BlobServiceClient(storageUrl, new DefaultAzureCredential());
             var containerClient = storageClient.GetBlobContainerClient($"{Environment.GetEnvironmentVariable("BlobContainer")}");
-            
+
             string blobName = "test.txt";
             BlobClient blobClient = containerClient.GetBlobClient(blobName); // Get a reference to a blob
 
@@ -54,7 +54,7 @@ namespace TestApi.Controllers
                 var assembly = Assembly.GetExecutingAssembly();
                 var resourceName = assembly.GetManifestResourceNames().Single(str => str.EndsWith(blobName));
                 using Stream stream = assembly.GetManifestResourceStream(resourceName);
-                
+
                 await blobClient.UploadAsync(stream, true);
             }
             catch (Exception ex)

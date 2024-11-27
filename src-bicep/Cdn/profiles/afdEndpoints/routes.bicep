@@ -69,7 +69,7 @@ param supportedProtocols array = [
 ]
 
 @description('Specifies the route patterns of the rule.')
-param routePatternsToMatch array = [ '/*' ]
+param routePatternsToMatch array = ['/*']
 
 @description('Specifies the protocol this rule will use when forwarding traffic to backends.')
 @allowed([

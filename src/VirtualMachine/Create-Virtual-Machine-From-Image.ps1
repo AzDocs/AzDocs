@@ -34,7 +34,7 @@ $existingVirtualMachines = Invoke-Executable az vm list --resource-group $Virtua
 $virtualMachinesNamesToCreate = @()
 for ($i = 1; $i -le $VirtualMachineTotalCount; $i++)
 {
-    $virtualMachinesName = "{0}{1:d2}" -f $VirtualMachineBaseName, $i 
+    $virtualMachinesName = '{0}{1:d2}' -f $VirtualMachineBaseName, $i 
     if ($existingVirtualMachines.Name -notcontains $virtualMachinesName )
     {
         Write-Host "Need to create '$virtualMachinesName'"
@@ -44,7 +44,7 @@ for ($i = 1; $i -le $VirtualMachineTotalCount; $i++)
 
 Write-Host "Number of Virtual Machines to create $($virtualMachinesNamesToCreate.Length)"
 
-$virtualMachinesNamesToCreate | ForEach-Object -parallel {
+$virtualMachinesNamesToCreate | ForEach-Object -Parallel {
     Set-Location $using:PWD
     Import-Module "$using:PSScriptRoot\..\AzDocs.Common" -Force
     
@@ -64,7 +64,7 @@ $virtualMachinesNamesToCreate | ForEach-Object -parallel {
         $ResourceTags += "$using:ResourceTagForVirtualMachineName=$virtualMachineName"
     }
 
-    Invoke-Executable az vm create --resource-group $using:VirtualMachineResourceGroupName --name $virtualMachineName --image $using:VirtualMachineImageName --size $using:VirtualMachineSizeSku  --storage-sku $using:VirtualMachineStorageSku --admin-username $using:VirtualMachineAdminUsername --admin-password $using:VirtualMachineAdminPassword --authentication-type password --nics $nic.NewNIC.id --assign-identity [system] --enable-agent $true @optionalParameters --only-show-errors --tags ${$ResourceTags}
+    Invoke-Executable az vm create --resource-group $using:VirtualMachineResourceGroupName --name $virtualMachineName --image $using:VirtualMachineImageName --size $using:VirtualMachineSizeSku --storage-sku $using:VirtualMachineStorageSku --admin-username $using:VirtualMachineAdminUsername --admin-password $using:VirtualMachineAdminPassword --authentication-type password --nics $nic.NewNIC.id --assign-identity [system] --enable-agent $true @optionalParameters --only-show-errors --tags ${$ResourceTags}
 
     Write-Host "Virtual Machine created: '$virtualMachineName'"
 }

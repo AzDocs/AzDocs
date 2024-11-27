@@ -4,7 +4,7 @@ param (
     [Parameter(Mandatory)][string] $AppServicePlanResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceResourceGroupName,
     [Parameter(Mandatory)][string] $AppServiceName,
-    [Alias("LogAnalyticsWorkspaceName")]
+    [Alias('LogAnalyticsWorkspaceName')]
     [Parameter(Mandatory)][string] $LogAnalyticsWorkspaceResourceId,
     [Parameter()][string] $AppServiceRunTime,
     [Parameter()][string] $AppServiceNumberOfInstances = 2,
@@ -25,15 +25,15 @@ param (
     [Parameter()][string] $GatewayWhitelistRulePriority = 20,
 
     # Private Endpoint
-    [Alias("VnetResourceGroupName")]
+    [Alias('VnetResourceGroupName')]
     [Parameter()][string] $AppServicePrivateEndpointVnetResourceGroupName,
-    [Alias("VnetName")]
+    [Alias('VnetName')]
     [Parameter()][string] $AppServicePrivateEndpointVnetName,
-    [Alias("ApplicationPrivateEndpointSubnetName")]
+    [Alias('ApplicationPrivateEndpointSubnetName')]
     [Parameter()][string] $AppServicePrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
-    [Alias("PrivateDnsZoneName")]
-    [Parameter()][string] $AppServicePrivateDnsZoneName = "privatelink.azurewebsites.net",
+    [Alias('PrivateDnsZoneName')]
+    [Parameter()][string] $AppServicePrivateDnsZoneName = 'privatelink.azurewebsites.net',
 
     # Optional remaining arguments. This is a fix for being able to pass down parameters in an easy way using @PSBoundParameters in Create-Web-App-with-App-Service-Plan-Windows.ps1
     [Parameter(ValueFromRemainingArguments)][string[]] $Remaining
@@ -46,7 +46,7 @@ Import-Module "$PSScriptRoot\..\AzDocs.Common" -Force
 Write-Header -ScopedPSCmdlet $PSCmdlet
 
 Write-Warning 'This script is deprecated. Please use the Create-Web-App.ps1 instead.'
-Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+Write-Host '##vso[task.complete result=SucceededWithIssues;]'
 
 # Create Web App
 & "$PSScriptRoot\Create-Web-App.ps1" @PSBoundParameters

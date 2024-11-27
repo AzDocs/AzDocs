@@ -26,7 +26,6 @@ targetScope = 'subscription'
 @description('the resource id of the log analytics workspace.')
 param logAnalyticsWorkspaceResourceId string
 
-
 resource autoProvisioningWorkspaceSettings 'Microsoft.Security/workspaceSettings@2017-08-01-preview' = {
   name: 'default'
   properties: {

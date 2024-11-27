@@ -52,7 +52,7 @@ Assert-TLSVersion -TlsVersion $RedisInstanceMinimalTlsVersion
 # Assert if chosen for VNet Whitelisting, the tier is premium
 if (($RedisInstanceVNetIntegrationVnetName -and $RedisInstanceVNetIntegrationSubnetName -and $RedisInstanceVNetIntegrationVnetResourceGroupName) -and $RedisInstanceSkuName -ne 'Premium')
 {
-    throw "The Redis Instance can only be tied to a Virtual Network when using the Premium tier. Please change your RedisInstanceSkuName to Premium or pick a different networking option."
+    throw 'The Redis Instance can only be tied to a Virtual Network when using the Premium tier. Please change your RedisInstanceSkuName to Premium or pick a different networking option.'
 }
 
 $additionalParameters = @()
@@ -105,24 +105,24 @@ if (!$redisInstance)
 }
 else
 {
-    Write-Host "Redis cache already exists, updating.."
+    Write-Host 'Redis cache already exists, updating..'
     # When enabling the NonSslPort, public network access is enabled
     if ($redisInstance.privateEndpointConnections)
     {
-        Write-Host "This redis cache has private endpoints, updating.."
+        Write-Host 'This redis cache has private endpoints, updating..'
         if (($redisInstance.publicNetworkAccess -eq 'Enabled') -and !$RedisInstanceEnableNonSslPort)
         {
             # Disabling NonSslPort and the public network access back to false
             Invoke-Executable az redis update --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --set "enableNonSslPort=$RedisInstanceEnableNonSslPort"
             WaitForRedisProvisioningToBeDone -RedisInstanceName $RedisInstanceName -RedisInstanceResourceGroupName $RedisInstanceResourceGroupName
-            Invoke-Executable az redis update --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --set "publicNetworkAccess=Disabled"
+            Invoke-Executable az redis update --name $RedisInstanceName --resource-group $RedisInstanceResourceGroupName --set 'publicNetworkAccess=Disabled'
         }
     }
     else
     {
         if ($RedisInstanceEnableNonSslPort)
         {
-            Write-Host "You are enabling the non ssl port for this instance. This is NOT recommended."
+            Write-Host 'You are enabling the non ssl port for this instance. This is NOT recommended.'
         }
 
         WaitForRedisProvisioningToBeDone -RedisInstanceName $RedisInstanceName -RedisInstanceResourceGroupName $RedisInstanceResourceGroupName
