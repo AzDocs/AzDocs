@@ -92,7 +92,7 @@ Creating an AKS cluster with the given specs.
 | loadBalancerProfileAllocatedOutboundPorts | int | <input type="checkbox"> | Value between 0-64000 | <pre>0</pre> | The desired number of allocated SNAT ports per VM. Allowed values are in the range of 1 to 64000 (inclusive).<br>The default value is 0 which results in that Azure dynamically allocates the ports. |
 | diagnosticSettingsLogsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine if you want to enable logcategories in diagnostic settings. |
 | diagnosticSettingsMetricsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine if you want to enable metrics in diagnostic settings. |
-| omsagentUseAADAuth | bool | <input type="checkbox"> | None | <pre>false</pre> | Container insights for Azure Kubernetes Service (AKS) cluster using managed identity towards the log analytics workspace. |
+| omsagentUseAADAuth | bool | <input type="checkbox"> | None | <pre>true</pre> | Container insights for Azure Kubernetes Service (AKS) cluster using managed identity towards the log analytics workspace. |
 | workloadIdentity | bool | <input type="checkbox"> | None | <pre>false</pre> | Workload identity enables Kubernetes applications to access Azure cloud resources securely with Azure AD. See [link](https://aka.ms/aks/wi) for more details |
 | oidcIssuerProfile | bool | <input type="checkbox"> | None | <pre>false</pre> | The OpenID Connect provider issuer profile of the Managed Cluster, used with the workloadIdentity. See [link](https://learn.microsoft.com/en-us/azure/aks/use-oidc-issuer) |
 | enableInternalAppRouting | bool | <input type="checkbox"> | None | <pre>true</pre> | Enables app routing using an internal NGINX ingress controller |
