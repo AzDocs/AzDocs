@@ -493,7 +493,7 @@ param diagnosticSettingsLogsEnabled bool = false
 param diagnosticSettingsMetricsEnabled bool = false
 
 @description('Container insights for Azure Kubernetes Service (AKS) cluster using managed identity towards the log analytics workspace.')
-param omsagentUseAADAuth bool = false
+param omsagentUseAADAuth bool = true
 
 @description('Workload identity enables Kubernetes applications to access Azure cloud resources securely with Azure AD. See [link](https://aka.ms/aks/wi) for more details')
 param workloadIdentity bool = false
