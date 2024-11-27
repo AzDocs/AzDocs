@@ -378,6 +378,9 @@ param customErrorpage502Url string = ''
 @description('Optional array of private link configurations. For object structure, please refer to the [Bicep resource definition](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewayprivatelinkconfiguration).')
 param privateLinkConfigurations array = []
 
+@description('Optional array for extended frontend IP configurations. For object structure, please refer to the [Bicep resource definition](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-bicep#applicationgatewayfrontendipconfiguration).')
+param extendedFrontendIpConfigurations array = []
+
 // ===================================== Variables =====================================
 @description('Building up the Backend Address Pools based on ezApplicationGatewayEntrypoints')
 var ezApplicationGatewayBackendAddressPools = [
@@ -950,7 +953,9 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' =
     }
     customErrorConfigurations: customErrorConfigurations
     gatewayIPConfigurations: unifiedGatewayIPConfigurations
-    frontendIPConfigurations: frontendIpConfigurations
+    frontendIPConfigurations: empty(extendedFrontendIpConfigurations)
+      ? frontendIpConfigurations
+      : union(frontendIpConfigurations, extendedFrontendIpConfigurations)
     frontendPorts: frontendPorts
     backendAddressPools: unifiedBackendAddressPools
     backendHttpSettingsCollection: unifiedBackendHttpSettingsCollection
