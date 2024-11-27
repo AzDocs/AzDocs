@@ -408,7 +408,7 @@ var ezApplicationGatewayBackendHttpSettingsCollection = [for entryPoint in ezApp
       pickHostNameFromBackendAddress: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName) ? false : true
       hostName: contains(entryPoint, 'backendSettingsOverrideHostName') && !empty(entryPoint.backendSettingsOverrideHostName) ? entryPoint.backendSettingsOverrideHostName : ''
       affinityCookieName: replace(ezApplicationGatewayEntrypointsAfinityCookieNameName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-'))
-      requestTimeout: contains(entryPoint, 'backendSettingsOverrideRequestTimeout') && !empty(entryPoint.backendSettingsOverrideRequestTimeout) ? entryPoint.backendSettingsOverrideRequestTimeout : 30
+      requestTimeout: contains(entryPoint, 'backendSettingsOverrideRequestTimeout') && entryPoint.backendSettingsOverrideRequestTimeout != null && entryPoint.backendSettingsOverrideRequestTimeout >= 1 ? entryPoint.backendSettingsOverrideRequestTimeout : 30
       probe: {
         id: resourceId(subscription().subscriptionId, az.resourceGroup().name, 'Microsoft.Network/applicationGateways/probes', applicationGatewayName, replace(ezApplicationGatewayEntrypointsProbeName, '<entrypointHostName>', replace(replace(entryPoint.entrypointHostName, '-', '--'), '.', '-')))
       }
