@@ -752,26 +752,15 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-07-02-previ
         enabled: snapshotController
       }
     }
-  }
-}
-
-resource aksDiags 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId) && omsagent) {
-  name: 'aksDiags'
-  scope: aksCluster
-  properties: {
-    workspaceId: logAnalyticsWorkspaceResourceId
-    logs: [
-      for aksDiagCategory in aksDiagCategories: {
-        category: aksDiagCategory
-        enabled: diagnosticSettingsLogsEnabled
+    azureMonitorProfile: !empty(logAnalyticsWorkspaceResourceId) ? {
+      metrics: {
+        enabled: true
       }
-    ]
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: diagnosticSettingsMetricsEnabled
+      containerInsights: {
+        enabled: true
+        logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
       }
-    ]
+    } : null
   }
 }
 
@@ -780,35 +769,12 @@ resource sysLog 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (!empty
   location: location
   kind: 'Linux'
   properties: {
-    dataFlows: [
-      {
-        destinations: [
-          'ciworkspace'
-        ]
-        streams: [
-          'Microsoft-Syslog'
-          'Microsoft-ContainerInsights-Group-Default'
-        ]
-      }
-    ]
     dataSources: {
-      extensions: [
-        {
-          streams: [
-            'Microsoft-ContainerInsights-Group-Default'
-          ]
-          extensionName: 'ContainerInsights'
-          extensionSettings: {
-            dataCollectionSettings: {
-              interval: '1m'
-              namespaceFilteringMode: 'Off'
-            }
-          }
-          name: 'ContainerInsightsExtension'
-        }
-      ]
       syslog: [
         {
+          streams: [
+            'Microsoft-Syslog'
+          ]
           facilityNames: [
             'auth'
             'authpriv'
@@ -842,8 +808,38 @@ resource sysLog 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (!empty
             'Emergency'
           ]
           name: 'sysLogsDataSource'
-
-          streams: ['Microsoft-Syslog']
+        }
+      ]
+      extensions: [
+        {
+          name: 'ContainerInsightsExtension'
+          streams: [
+            'Microsoft-ContainerLog'
+            'Microsoft-ContainerLogV2'
+            'Microsoft-KubeEvents'
+            'Microsoft-KubePodInventory'
+            'Microsoft-KubeNodeInventory'
+            'Microsoft-KubePVInventory'
+            'Microsoft-KubeServices'
+            'Microsoft-KubeMonAgentEvents'
+            'Microsoft-InsightsMetrics'
+            'Microsoft-ContainerInventory'
+            'Microsoft-ContainerNodeInventory'
+            'Microsoft-Perf'
+          ]
+          extensionSettings: {
+            dataCollectionSettings: {
+              interval: '1m'
+              namespaceFilteringMode: 'Off'
+              namespaces: [
+                'kube-system'
+                'gatekeeper-system'
+                'azure-arc'
+              ]
+              enableContainerLogV2: true
+            }
+          }
+          extensionName: 'ContainerInsights'
         }
       ]
     }
@@ -855,6 +851,28 @@ resource sysLog 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (!empty
         }
       ]
     }
+    dataFlows: [
+      {
+        destinations: [
+          'ciworkspace'
+        ]
+        streams: [
+          'Microsoft-ContainerLog'
+          'Microsoft-ContainerLogV2'
+          'Microsoft-KubeEvents'
+          'Microsoft-KubePodInventory'
+          'Microsoft-KubeNodeInventory'
+          'Microsoft-KubePVInventory'
+          'Microsoft-KubeServices'
+          'Microsoft-KubeMonAgentEvents'
+          'Microsoft-InsightsMetrics'
+          'Microsoft-ContainerNodeInventory'
+          'Microsoft-Perf'
+          'Microsoft-Syslog'
+          'Microsoft-ContainerInventory'
+        ]
+      }
+    ]
   }
 }
 
