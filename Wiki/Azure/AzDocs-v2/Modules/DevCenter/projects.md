@@ -26,7 +26,8 @@ This module creates a Dev Center project in an existing Dev Center.
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
-| devCenterProject | string | The resource ID of the project created in the Dev Center. |
+| devCenterProjectResourceId | string | The resource ID of the project created in the Dev Center. |
+| devCenterProjectName | string | The name of the project created in the Dev Center. |
 
 ## Examples
 <pre>

@@ -2,8 +2,9 @@
 .SYNOPSIS
 Creating a Managed DevOps pool.
 .DESCRIPTION
-This module creates a managed devops pool with the given specs. If you want to use with a BYO NetworkProfile, the App 'DevOpsInfrastructure' needs to have Network rights on the subnet.
-The account that runs the creation of this pool needs to have DevOps Organisation Pool Administrator rights otherwise you will receive the error: Failed to provision agent pool.
+This module creates a managed devops pool with the given specs. If you want to use with a BYO NetworkProfile, the App 'DevOpsInfrastructure' needs to have network rights on the subnet.
+The account that runs the creation of this pool needs to have DevOps Organisation Pool Administrator rights otherwise you will receive the error: Failed to provision agent pool. Go to the AzureDevOps administrator to help you with this.
+Make sure the required DevCenter resource and the DevCenter project exist before running this module.
 See also the [quickstart](https://learn.microsoft.com/en-us/azure/devops/managed-devops-pools/quickstart-azure-portal?view=azure-devops) for prerequisites.
 .EXAMPLE
 <pre>
@@ -13,10 +14,35 @@ module devopspools 'br:contosoregistry.azurecr.io/devopsinfrastructure/pools:lat
     managedDevOpsPoolName: mydevopspool
     devCenterProjectName: mydevcenterproject
     azureDevOpsOrganizationName: myazuredevops
+    images: [
+      {
+        wellKnownImageName: 'ubuntu-22.04/latest'
+        aliases: [
+          'ubuntu-22.04'
+        ]
+        buffer: '*'
+      }
+    ]
+  }
   }
 }
 </pre>
 <p>Creates a devops pool with the given specs</p>
+.EXAMPLE
+<pre>
+module devopspools 'br:contosoregistry.azurecr.io/devopsinfrastructure/pools:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 52), 'mandevpools')
+  params: {
+    managedDevOpsPoolName: mydevopspool
+    devCenterProjectName: mydevcenterproject
+    azureDevOpsOrganizationName: myazuredevops
+    virtualNetworkName: virtualNetworkName
+    subnetName: subnetName
+    virtualNetworkResourceGroupName: virtualNetworkResourceGroupName
+  }
+}
+</pre>
+<p>Creates a devops pool in your own networking</p>
 .LINKS
 - [ARM Microsoft.DevOpsInfrastructure](https://learn.microsoft.com/en-us/azure/devops/managed-devops-pools/quickstart-arm-template?view=azure-devops)
 */
@@ -24,7 +50,7 @@ module devopspools 'br:contosoregistry.azurecr.io/devopsinfrastructure/pools:lat
 @description('The location of the resource. Defaults to the resourcegroups location.')
 param location string = resourceGroup().location
 
-@description('The name of the managed devops pool to upsert.')
+@description('The name of the managed devops pool to upsert. It needs to be globally unique.')
 param managedDevOpsPoolName string
 
 @description('The name of the existing Dev Center project.')
@@ -43,42 +69,51 @@ param subnetName string = ''
 param userAssignedManagedIdentityName string = ''
 
 @description('''
-The images to use for the pool. See for more info: [information](https://learn.microsoft.com/en-us/azure/devops/managed-devops-pools/configure-images?view=azure-devops&tabs=azure-portal).
+Required. The VM images of the machines in the pool. See for more info: [information](https://learn.microsoft.com/en-us/azure/devops/managed-devops-pools/configure-images?view=azure-devops&tabs=azure-portal).
 Example:
-[
-  {
-    resourceId: '/Subscriptions/${az.subscription().subscriptionId}/Providers/Microsoft.Compute/Locations/${location}/Publishers/canonical/ArtifactTypes/VMImage/Offers/0001-com-ubuntu-server-focal/Skus/20_04-lts-gen2/versions/latest'
-    aliases: []
-    buffer: '*'
-  }
-  {
-    resourceId: '/subscriptions/${remoteSubscriptionId}/resourceGroups/${remoteResourceGroupName}/providers/Microsoft.Compute/galleries/${galleryName}/images/ubuntu22/versions/latest'
-    aliases: []
-    buffer: '*'
-  }
-  {
-    aliases: [
-      'ubuntu-22.04'
+    images: [
+      {
+        wellKnownImageName: 'ubuntu-22.04/latest'
+        aliases: [
+          'ubuntu-22.04'
+        ]
+        buffer: '*'
+      }
+      {
+        aliases: ['windows-2022', 'windows-latest']
+        buffer: '*'
+        wellKnownImageName: 'windows-2022/latest'
+      }
+    ],
+    images: [
+      {
+        resourceId: '/Subscriptions/${az.subscription().subscriptionId}/Providers/Microsoft.Compute/Locations/${location}/Publishers/canonical/ArtifactTypes/VMImage/Offers/0001-com-ubuntu-server-focal/Skus/20_04-lts-gen2/versions/latest'
+        aliases: []
+        buffer: '*'
+      }
+      {
+        resourceId: '/subscriptions/${remoteSubscriptionId}/resourceGroups/${remoteResourceGroupName}/providers/Microsoft.Compute/galleries/${galleryName}/images/ubuntu22/versions/latest'
+        aliases: []
+        buffer: '*'
+      }
     ]
-    buffer: '*'
-    wellKnownImageName: 'ubuntu-22.04/latest'
-  }
-]
 ''')
-param managedDevOpsPoolImages array = [
-  {
-    aliases: [
-      'ubuntu-22.04'
-    ]
-    buffer: '*'
-    wellKnownImageName: 'ubuntu-22.04/latest'
-  }
-  {
-    aliases: ['windows-2022', 'windows-latest']
-    buffer: '*'
-    wellKnownImageName: 'windows-2022/latest'
-  }
-]
+param managedDevOpsPoolImages imageType[]
+
+@export()
+type imageType = {
+  @description('Optional. List of aliases to reference the image by.')
+  aliases: string[]?
+
+  @description('Optional. The percentage of the buffer to be allocated to this image.')
+  buffer: string?
+
+  @description('Conditional. The image to use from a well-known set of images made available to customers. Required if `resourceId` is not set.')
+  wellKnownImageName: string?
+
+  @description('Conditional. The specific resource id of the marketplace or compute gallery image. Required if `wellKnownImageName` is not set.')
+  resourceId: string?
+}
 
 @description('The permissions profile for the AzureDevOps pool in the project.')
 @allowed([
@@ -194,7 +229,7 @@ var initialAzureDevOpsOrganization = [
 @description('The total of AzureDevOps organizations to add the pool to.')
 var azureDevOpsOrganizations = union(initialAzureDevOpsOrganization, additionalAzureDevOpsOrganizations)
 
-@description('The resourceId of the subnet to integrate the devops pool in. This subnet needs to be delegated to Microsoft.DevOpsInfrastructure/pools.')
+@description('The resourceId of the subnet to integrate the devops pool in. All machines created in the pool will be put in this subnet. This subnet needs to be delegated to Microsoft.DevOpsInfrastructure/pools.')
 var subnetResourceId = (empty(virtualNetworkName) || empty(subnetName))
   ? ''
   : resourceId(
@@ -209,12 +244,12 @@ var userAssignedIdentity = (!empty(userAssignedManagedIdentityName))
   ? resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', userAssignedManagedIdentityName)
   : ''
 
-// ================================================= Resources =================================================
-resource devCenterProject 'Microsoft.DevCenter/projects@2024-02-01' existing = {
-  name: devCenterProjectName
-}
+@description('The resourceId of the existing Dev Center project the pool belongs to.')
+var devCenterProjectResourceId = resourceId('Microsoft.DevCenter/projects', devCenterProjectName)
 
-resource managedDevOpsPool 'Microsoft.DevOpsInfrastructure/pools@2024-04-04-preview' = {
+
+// ================================================= Resources =================================================
+resource managedDevOpsPool 'Microsoft.DevOpsInfrastructure/pools@2024-10-19' = {
   name: managedDevOpsPoolName
   location: location
   tags: {}
@@ -230,7 +265,7 @@ resource managedDevOpsPool 'Microsoft.DevOpsInfrastructure/pools@2024-04-04-prev
       }
   properties: {
     agentProfile: agentScalingProfile
-    devCenterProjectResourceId: devCenterProject.id
+    devCenterProjectResourceId: devCenterProjectResourceId
     fabricProfile: {
       sku: {
         name: agentSkuName

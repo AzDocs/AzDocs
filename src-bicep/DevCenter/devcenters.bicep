@@ -56,7 +56,7 @@ param identity IdentityType = {
 }
 
 // ================================================= Resources =================================================
-resource devCenter 'Microsoft.DevCenter/devcenters@2024-07-01-preview' = {
+resource devCenter 'Microsoft.DevCenter/devcenters@2024-02-01' = {
   name: devcenterName
   location: location
   tags: tags
@@ -66,3 +66,6 @@ resource devCenter 'Microsoft.DevCenter/devcenters@2024-07-01-preview' = {
 
 @description('The resource ID of the Dev Center.')
 output devCenterId string = devCenter.id
+
+@description('The name of the Dev Center.')
+output devCenterName string = devCenter.name

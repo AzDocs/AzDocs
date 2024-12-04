@@ -55,7 +55,7 @@ param identity IdentityType = {
 param maxDevBoxesPerUser int?
 
 // ================================================= Resources =================================================
-resource devCenter 'Microsoft.DevCenter/devcenters@2024-07-01-preview' existing = {
+resource devCenter 'Microsoft.DevCenter/devcenters@2024-02-01' existing = {
   name: devCenterName
 }
 
@@ -71,4 +71,7 @@ resource devCenterProject 'Microsoft.DevCenter/projects@2024-02-01' = {
 }
 
 @description('The resource ID of the project created in the Dev Center.')
-output devCenterProject string = devCenterProject.id
+output devCenterProjectResourceId string = devCenterProject.id
+
+@description('The name of the project created in the Dev Center.')
+output devCenterProjectName string = devCenterProject.name

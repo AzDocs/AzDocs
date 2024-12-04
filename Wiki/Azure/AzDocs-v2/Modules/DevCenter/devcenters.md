@@ -25,6 +25,7 @@ This module creates a managed devops pool with the given specs.
 | Name | Type | Description |
 | -- |  -- | -- |
 | devCenterId | string | The resource ID of the Dev Center. |
+| devCenterName | string | The name of the Dev Center. |
 
 ## Examples
 <pre>
