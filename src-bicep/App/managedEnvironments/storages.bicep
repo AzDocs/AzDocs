@@ -41,10 +41,10 @@ param storageAccountFileShareName string
 @description('Since you need to use a shareName (Azure File Share Storage), accessMode should be set to either ReadWrite or ReadOnly.')
 param storagesAccessMode string = 'ReadWrite'
 
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' existing = {
   name: managedEnvironmentName
 
-  resource managedEnvironmentStorages 'storages@2022-03-01' = {
+  resource managedEnvironmentStorages 'storages@2024-03-01' = {
     name: storagesName
     properties: {
       azureFile: {

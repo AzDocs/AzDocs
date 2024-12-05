@@ -8,27 +8,35 @@ If you want to create private container apps the vnetconfiguration internal prop
 .EXAMPLE
 <pre>
 module managedEnvironment 'br:contosoregistry.azurecr.io/app/managedenvironments:latest' = {
-  name: managedEnvironmentName
+  name: format('{0}-{1}', take('${deployment().name}', 52), 'cae')
   params: {
-    managedEnvironmentName: managedEnvironmentName
+    managedEnvironmentName: cae-me-dev
     location: location
-    daprAIInstrumentationKey: appInsights.outputs.appInsightsInstrumentationKey
-    logAnalyticsConfiguration: {
-      customerId: LAW.outputs.logAnalyticsWorkspaceCustomerId
-      sharedKey: LAW.outputs.logAnalyticsWorkspacePrimaryKey
-    }
-    vnetConfiguration: {
-      dockerBridgeCidr: '10.3.0.1/16'
-      infrastructureSubnetId: containerInfraSubnetResourceId
-      internal: true
-      platformReservedCidr: '10.2.0.0/16'
-      platformReservedDnsIP: '10.2.0.2'
-      runtimeSubnetId: containerSubnetResourceId
-    }
   }
 }
 </pre>
-<p>Creates a container App managed environment with the name managedEnvironmentName</p>
+<p>Creates a container App managed environment with the name 'cae-me-dev' with the 'Consumption only' Environment Type, not Vnet integrated.</p>
+.EXAMPLE
+<pre>
+module managedEnvironment 'br:contosoregistry.azurecr.io/app/managedenvironments:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 52), 'cae')
+  params: {
+    managedEnvironmentName: managedEnvironmentName
+    location: location
+    vnetConfigurationInternal: true
+    workloadProfiles: [
+      {
+        name: 'Dedicated-D4'
+        workloadProfileType: 'D4'
+        MinimumCount: 1
+        MaximumCount: 2
+      }
+    ]
+    containerInfraSubnetResourceId: '/subscriptions/aab80d35-e4a6-4c34-9c93-57a78545c8zz/resourceGroups/platform-dev/providers/Microsoft.Network/virtualNetworks/vnet-mysub-dev/subnets/snet-cae-dev'
+  }
+}
+</pre>
+<p>Creates an internal container App managed environment with the name managedEnvironmentName in your own subnet.</p>
 .LINKS
 - [Bicep Microsoft.App managedEnvironments](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments?pivots=deployment-language-bicep)
 */
@@ -50,7 +58,7 @@ Example:
   SecondTag: another value
 }
 ''')
-param tags object = {}
+param tags object?
 
 @description('Whether or not this Managed Environment is zone-redundant. If this is true, you must set the vnetConfiguration object.')
 param managedEnvironmentZoneRedundant bool = false
@@ -69,30 +77,12 @@ This subnet must be in the same Vnet as the subnet defined in runtimeSubnetId wh
 param containerInfraSubnetResourceId string = ''
 
 @description('''
-Vnet configuration for the managed environment. If Zone Redundancy is true or (vnetConfiguration)Internal is true, this must be filled.
-See for more information https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments?pivots=deployment-language-bicep#vnetconfiguration
-Example:
-{
-  dockerBridgeCidr: '10.3.0.1/16'
-  infrastructureSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, infraSubnetName)
-  internal: true
-  platformReservedCidr: '10.2.0.0/16'
-  platformReservedDnsIP: '10.2.0.2'
-  runtimeSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, runtimeSubnetName)
-}
-''')
-param vnetConfiguration object = {
-  infrastructureSubnetId: vnetConfigurationInternal ? containerInfraSubnetResourceId : ''
-  internal: vnetConfigurationInternal
-}
-
-@description('''
 Cluster configuration which enables the log daemon to export app logs to a destination.
 If 'log-analytics' is the value, you should provide valid values for the logAnalyticsConfiguration object for customerId and SharedKey.
 Example:
  'log-analytics'
 ''')
-param appLogsConfigurationDestination string = ''
+param appLogsConfigurationDestination string = 'azure-monitor'
 
 @description('''
 The Instrumentation key for the AppInsights workspace.
@@ -121,6 +111,8 @@ param logAnalyticsConfiguration object = {}
 @description('''
 Workload profiles configured for the Managed Environment for workloads to run on.
 If you create an empty array, a Consumption plan will be used, else a Consumption + Dedicated plan will be used and the workflow profile is enabled.
+A dedicated workload profile supports user defined routes (UDR), egress through NAT Gateway, and creating private endpoints on the container app environment. The minimum required subnet size is /27.
+A consumption profile does not support user defined routes (UDR), egress through NAT Gateway, peering through a remote gateway, or other custom egress. The minimum required subnet size is /23.
 You can create more workload profile later on.
 Example:
 [
@@ -143,10 +135,55 @@ Possibility to provide custom resourcegroup for the infrastructure resources of 
 Should not pre-exist or deployment will fail.
 If not provided, the resourcegroup will be named: ME_<managedEnvironmentName>_<containerAppsName>_<locationName>, eg. ME_my-environment_my-container-apps_westeurope.
 ''')
-param infrastructureResourceGroup string = 'MC_ME_${managedEnvironmentName}'
+param infrastructureResourceGroupName string = take('MC_ME_${managedEnvironmentName}', 61)
 
-#disable-next-line BCP081 //preview version used because of support byo vnet with /27 subnet with workload profiles
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-11-01-preview' = {
+@description('''
+Conditional. CIDR notation IP range assigned to the Docker bridge network. 
+It must not overlap with any other provided IP ranges and can only be used when the environment is deployed into a virtual network. 
+If not provided, it will be set with a default value by the platform. Required if zoneRedundant is set to true to make the resource WAF compliant.
+Example:
+'100.64.0.0/16'
+''')
+param dockerBridgeCidr string = ''
+
+@description('''
+Conditional. IP range in CIDR notation that can be reserved for environment infrastructure IP addresses. 
+It must not overlap with any other provided IP ranges and can only be used when the environment is deployed into a virtual network.
+If not provided, it will be set with a default value by the platform. Required if zoneRedundant is set to true to make the resource WAF compliant.
+Example:
+'100.65.0.0/16'
+ ''')
+param platformReservedCidr string = ''
+
+@description('''
+Conditional. An IP address from the IP range defined by "platformReservedCidr" that will be reserved for the internal DNS server. 
+It must not be the first address in the range and can only be used when the environment is deployed into a virtual network. 
+If not provided, it will be set with a default value by the platform. Required if zoneRedundant is set to true to make the resource WAF compliant.
+Example:
+'100.65.0.10'
+''')
+param platformReservedDnsIP string = ''
+
+@description('Optional. Password of the certificate used by the custom domain.')
+@secure()
+param certificatePassword string = ''
+
+@description('Optional. Certificate to use for the custom domain. PFX or PEM.')
+@secure()
+param certificateValue string = ''
+
+@description('Optional. DNS suffix for the environment domain.')
+param dnsSuffix string = ''
+
+@description('Optional. Whether or not to encrypt peer traffic.')
+param peerTrafficEncryption bool = false
+
+@description('Peer authentication settings for the Managed Environment.')
+param peerAuthenticationEnabled bool = false
+
+
+//================================================= Resources =================================================
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: managedEnvironmentName
   location: location
   tags: tags
@@ -156,18 +193,44 @@ resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-11-01-previe
     daprConfiguration: {}
     appLogsConfiguration: {
       destination: appLogsConfigurationDestination
-      logAnalyticsConfiguration: logAnalyticsConfiguration
+      logAnalyticsConfiguration: (appLogsConfigurationDestination == 'log-analytics') ? logAnalyticsConfiguration : null
     }
-    vnetConfiguration: vnetConfiguration
-    workloadProfiles: workloadProfiles
+    peerTrafficConfiguration: {
+      encryption: {
+        enabled: peerTrafficEncryption
+      }
+    }
+    vnetConfiguration: {
+      internal: vnetConfigurationInternal
+      infrastructureSubnetId: !empty(containerInfraSubnetResourceId) ? containerInfraSubnetResourceId : null
+      dockerBridgeCidr: !empty(containerInfraSubnetResourceId) ? dockerBridgeCidr : null
+      platformReservedCidr: empty(workloadProfiles) && !empty(containerInfraSubnetResourceId)
+        ? platformReservedCidr
+        : null
+      platformReservedDnsIP: empty(workloadProfiles) && !empty(containerInfraSubnetResourceId)
+        ? platformReservedDnsIP
+        : null
+    }
+    workloadProfiles: !empty(workloadProfiles) ? workloadProfiles : null
     zoneRedundant: managedEnvironmentZoneRedundant
     kedaConfiguration: {}
-    customDomainConfiguration: {}
-    infrastructureResourceGroup: infrastructureResourceGroup
+    customDomainConfiguration: {
+      certificatePassword: certificatePassword
+      certificateValue: !empty(certificateValue) ? certificateValue : null
+      dnsSuffix: dnsSuffix
+    }
+    infrastructureResourceGroup: infrastructureResourceGroupName
+    peerAuthentication: {
+      mtls: {
+        enabled: peerAuthenticationEnabled
+      }
+    }
   }
 }
 
+// ================================================= Outputs =================================================
 @description('Output of the resource id of the management environment')
 output managedEnvironmentResourceId string = managedEnvironment.id
+
 @description('Output of the name of the management environment')
 output managedEnvironmentName string = managedEnvironment.name

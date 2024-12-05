@@ -119,10 +119,10 @@ param daprComponentScope array = []
 @maxLength(260)
 param managedEnvironmentName string
 
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' existing = {
   name: managedEnvironmentName
 
-  resource daprComponent 'daprComponents@2022-03-01' = {
+  resource daprComponent 'daprComponents@2024-03-01' = {
     name: daprComponentName
     properties: {
       componentType: daprComponentType
