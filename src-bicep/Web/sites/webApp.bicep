@@ -341,6 +341,12 @@ param vnetContentShareEnabled bool = false
 @description('Determine whether to enable WebSockets for app (default: false).')
 param webSocketsEnabled bool = false
 
+@description('The TLS version to use for the app service. Default is 1.3')
+type tlsVersionType = '1.2' | '1.3'
+
+@description('The TLS version to use for the app service. Default is 1.3')
+param tlsVersion tlsVersionType = '1.3'
+
 // ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this appservice instance. This app service plan should be pre-existing.')
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
@@ -391,6 +397,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     vnetContentShareEnabled: vnetContentShareEnabled
     siteConfig: union(
       {
+        tlsVersion: tlsVersion
         cors: empty(cors) ? null : cors
         healthCheckPath: empty(healthCheckPath) ? null : healthCheckPath
         vnetRouteAllEnabled: vnetRouteAllEnabled
@@ -462,6 +469,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     vnetContentShareEnabled: vnetContentShareEnabled
     siteConfig: union(
       {
+        tlsVersion: tlsVersion
         cors: empty(cors) ? null : cors
         vnetRouteAllEnabled: vnetRouteAllEnabled
         alwaysOn: alwaysOn
