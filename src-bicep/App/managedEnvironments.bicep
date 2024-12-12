@@ -64,9 +64,9 @@ param tags object?
 param managedEnvironmentZoneRedundant bool = false
 
 @description('''
-Boolean indicating if the environment only has an internal load balancer and does not have a public static IP resource.
-You must provide infrastructureSubnetId if the value is set to true.
-When true, the endpoint is an internal load balancer, when false: the hosted apps are exposed on an internet-accessible IP address
+Depending on your virtual IP configuration, you can control whether your container app environment allows public ingress or ingress only from within your VNet.
+You must provide a infrastructureSubnetId if the value is set to true.
+When true, the endpoint of the environment is an internal load balancer, when false: the hosted apps are exposed on an internet-accessible public IP address.
 ''')
 param vnetConfigurationInternal bool = false
 
@@ -234,3 +234,9 @@ output managedEnvironmentResourceId string = managedEnvironment.id
 
 @description('Output of the name of the management environment')
 output managedEnvironmentName string = managedEnvironment.name
+
+@description('Output the private DNS zone of the management environment')
+output privateDnsZoneName string = managedEnvironment.properties.defaultDomain
+
+@description('Output the static IP of the management environment')
+output managedEnvironmentStaticIp string = managedEnvironment.properties.staticIp

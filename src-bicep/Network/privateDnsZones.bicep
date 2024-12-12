@@ -33,27 +33,27 @@ param privateDnsZoneName string
 param registrationEnabled bool = false
 
 @description('''
-The id of the virtual network you want to create the private endpoint in. Should be pre-existing.
+The id of the virtual network you want to link to. Should be pre-existing.
 Example:
 '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}'
 ''')
-param virtualNetworkResourceId string
+param virtualNetworkResourceId string = ''
 
 @description('''
 The name of the virtual network link in the DNS Zone.
 After you create a private DNS zone in Azure, you will need to link a virtual network to it.
 A virtual network can be linked to private DNS zone as a registration (autoregistration true) or as a resolution virtual network (autoregistration false).
 ''')
-@minLength(1)
+@minLength(0)
 @maxLength(80)
-param privateDnsLinkName string
+param privateDnsLinkName string = ''
 
 @description('Upsert the privateDnsZone')
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: privateDnsZoneName
   location: 'global'
 
-  resource virtualNetworkLink 'virtualNetworkLinks@2020-06-01' = {
+  resource virtualNetworkLink 'virtualNetworkLinks@2024-06-01' = if(!empty(privateDnsLinkName)) {
     name: privateDnsLinkName
     location: 'global'
     properties: {
@@ -67,3 +67,6 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
 
 @description('The Resource ID of the upserted Private DNS Zone.')
 output privateDnsZoneResourceId string = privateDnsZone.id
+
+@description('The name of the upserted Private DNS Zone.')
+output privateDnsZoneName string = privateDnsZone.name

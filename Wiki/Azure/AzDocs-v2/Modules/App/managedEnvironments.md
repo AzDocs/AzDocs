@@ -17,7 +17,7 @@ If you want to create private container apps the vnetconfiguration internal prop
 | managedEnvironmentName | string | <input type="checkbox"> | Length between 2-260 | <pre>'cae-&#36;{uniqueString(resourceGroup().id)}'</pre> | The name for the managed Environment for the Container App. |
 | tags | object? | <input type="checkbox" checked> | None | <pre></pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | managedEnvironmentZoneRedundant | bool | <input type="checkbox"> | None | <pre>false</pre> | Whether or not this Managed Environment is zone-redundant. If this is true, you must set the vnetConfiguration object. |
-| vnetConfigurationInternal | bool | <input type="checkbox"> | None | <pre>false</pre> | Boolean indicating if the environment only has an internal load balancer and does not have a public static IP resource.<br>You must provide infrastructureSubnetId if the value is set to true.<br>When true, the endpoint is an internal load balancer, when false: the hosted apps are exposed on an internet-accessible IP address |
+| vnetConfigurationInternal | bool | <input type="checkbox"> | None | <pre>false</pre> | Depending on your virtual IP configuration, you can control whether your container app environment allows public ingress or ingress only from within your VNet.<br>You must provide a infrastructureSubnetId if the value is set to true.<br>When true, the endpoint of the environment is an internal load balancer, when false: the hosted apps are exposed on an internet-accessible public IP address. |
 | containerInfraSubnetResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | When vnetConfigurationInternal is true, it specifies the resource id of the subnet for Infrastructure components for the Container App.<br>This subnet must be in the same Vnet as the subnet defined in runtimeSubnetId when defined. It must be pre-existing. |
 | appLogsConfigurationDestination | string | <input type="checkbox"> | None | <pre>'azure-monitor'</pre> | Cluster configuration which enables the log daemon to export app logs to a destination.<br>If 'log-analytics' is the value, you should provide valid values for the logAnalyticsConfiguration object for customerId and SharedKey.<br>Example:<br>&nbsp;&nbsp;'log-analytics' |
 | daprAIInstrumentationKey | string | <input type="checkbox"> | None | <pre>''</pre> | The Instrumentation key for the AppInsights workspace.<br>Example:<br>applicationInsights.properties.InstrumentationKey |
@@ -39,6 +39,8 @@ If you want to create private container apps the vnetconfiguration internal prop
 | -- |  -- | -- |
 | managedEnvironmentResourceId | string | Output of the resource id of the management environment |
 | managedEnvironmentName | string | Output of the name of the management environment |
+| privateDnsZoneName | string | Output the private DNS zone of the management environment |
+| managedEnvironmentStaticIp | string | Output the static IP of the management environment |
 
 ## Examples
 <pre>
