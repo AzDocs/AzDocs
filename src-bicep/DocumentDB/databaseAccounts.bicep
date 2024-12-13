@@ -92,8 +92,16 @@ Make sure to pass an array of objects with the following properties:
 - resourceGroupName: The name of the resourcegroup the vnet is in.
 - vnetName: The name of the vnet.
 - subnetName: The name of the subnet.
+- subscriptionId: The subscription id of the vnet. (optional)
 ''')
-param subnetsToWhitelist array = []
+param subnetsToWhitelist Subnet[] = []
+
+type Subnet = {
+  resourceGroupName: string
+  vnetName: string
+  subnetName: string
+  subscriptionId: string?
+}
 
 @allowed([
   'Tls'
@@ -157,7 +165,7 @@ param diagnosticSettingsMetricsCategories array = [
 
 var virtualNetworkRules = [
   for subnet in subnetsToWhitelist: {
-    id: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${subnet.resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${subnet.vnetName}/subnets/${subnet.subnetName}'
+    id: '/subscriptions/${subnet.?subscriptionId ?? subscription().subscriptionId}/resourceGroups/${subnet.resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${subnet.vnetName}/subnets/${subnet.subnetName}'
   }
 ]
 
