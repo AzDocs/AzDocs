@@ -40,6 +40,7 @@ This module creates a document db account with the given specs.
 | -- |  -- | -- |
 | documentEndpoint | string | Outputting the documentendpoint of the DocumentDB account. |
 | primaryConnectionString | string | Outputting the primary connectionstring of the DocumentDB account. |
+| resourceId | string | Outputting the resource ID of the DocumentDB account. |
 
 ## Examples
 <pre>

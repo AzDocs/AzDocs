@@ -209,3 +209,5 @@ resource databaseAccountDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-
 output documentEndpoint string = databaseAccount.properties.documentEndpoint
 @description('Outputting the primary connectionstring of the DocumentDB account.')
 output primaryConnectionString string = databaseAccount.listConnectionStrings().connectionStrings[0].connectionString
+@description('Outputting the resource ID of the DocumentDB account.')
+output resourceId string = databaseAccount.id
