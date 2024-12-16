@@ -69,6 +69,8 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | webAppStagingSlotPrincipalId | string | The principal id of the identity running this webapp\'s staging slot |
 | webAppResourceName | string | The resource name of the webapp. |
 | webAppStagingSlotResourceName | string | The resource name of the webapp\'s staging slot. |
+| webAppResourceId | string | The resource id of the webapp. |
+| webAppStagingSlotResourceId | string | The resource id of the webapp\'s staging slot. |
 
 ## Examples
 <pre>

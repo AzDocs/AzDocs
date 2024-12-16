@@ -572,3 +572,7 @@ output webAppStagingSlotPrincipalId string = deploySlot
 output webAppResourceName string = webApp.name
 @description('The resource name of the webapp\'s staging slot.')
 output webAppStagingSlotResourceName string = deploySlot ? webAppStagingSlot.name : ''
+@description('The resource id of the webapp.')
+output webAppResourceId string = webApp.id
+@description('The resource id of the webapp\'s staging slot.')
+output webAppStagingSlotResourceId string = deploySlot ? webAppStagingSlot.id: ''
