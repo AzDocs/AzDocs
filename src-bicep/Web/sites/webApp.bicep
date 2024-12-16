@@ -153,6 +153,9 @@ param scmIpSecurityRestrictions array = [
   }
 ]
 
+@description('SCM(kudu) IP security restrictions for the SCM entrypoint for the staging slot. Defaults to closing down the appservice SCM instance for all connections. For object format, please refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#ipsecurityrestriction).')
+param stagingSlotScmIpSecurityRestrictions array = scmIpSecurityRestrictions
+
 @description('''
 Identity to use for Key Vault Reference authentication. If you want to use a user assigned managed identity to access a keyvault using a keyvault reference, 
 you need to set this to the resource id of the user assigned managed identity.
@@ -474,7 +477,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
         vnetRouteAllEnabled: vnetRouteAllEnabled
         alwaysOn: alwaysOn
         ipSecurityRestrictions: ipSecurityRestrictions
-        scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
+        scmIpSecurityRestrictionsUseMain: stagingSlotScmIpSecurityRestrictions
         ftpsState: ftpsState
         http20Enabled: http20Enabled
         use32BitWorkerProcess: use32BitWorkerProcess
