@@ -65,7 +65,7 @@ param clientId string
 
 @allowed([
   'ADAL'
-  'MSAL'
+  'MSAL-2'
 ])
 @description('The client library to be used in the developer portal. Only applies to AAD and AAD B2C Identity Provider.')
 param clientLibrary string?
