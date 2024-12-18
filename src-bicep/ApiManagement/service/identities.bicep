@@ -4,8 +4,8 @@ Register or modify an identity provider in Api Management Service.
 .DESCRIPTION
 Register a new or modify an identity provider (for exampl AAD) in Api Management Service.
 <pre>
-module diagnostics 'br:contosoregistry.azurecr.io/service/groups.bicep' = {
-  name: format('{0}-{1}', take('${deployment().name}', 58), 'groups')
+module diagnostics 'br:contosoregistry.azurecr.io/service/identities.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 58), 'identities')
   params: {
     allowedTenants: allowedTenants
     apiManagementServiceName: 'apim-irma-${environentType}'
