@@ -32,6 +32,7 @@ param (
     [Parameter()][ValidateSet('Sql', 'Cassandra', 'MongoDB', 'Gremlin', 'Table')][string] $CosmosDbPrivateEndpointGroupId,
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Parameter()][string] $CosmosDbAccountPrivateDnsZoneName,
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
 
     # VNet Whitelisting
     [Parameter()][string] $ApplicationVnetResourceGroupName,
@@ -259,7 +260,7 @@ if ($CosmosDbPrivateEndpointVnetResourceGroupName -and $CosmosDbPrivateEndpointV
     $CosmosDbPrivateEndpointName = "$($CosmosDbAccountName)-pvtcms"
 
     # Add Private endpoint
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $cosmosDbPrivateEndpointSubnetId -PrivateEndpointName $CosmosDbPrivateEndpointName -PrivateEndpointResourceGroupName $CosmosDbAccountResourceGroupName -TargetResourceId $cosmosResource.id -PrivateEndpointGroupId $CosmosDbPrivateEndpointGroupId -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $CosmosDbAccountPrivateDnsZoneName -PrivateDnsLinkName "$($CosmosDbPrivateEndpointVnetName)-cms"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $cosmosDbPrivateEndpointSubnetId -PrivateEndpointName $CosmosDbPrivateEndpointName -PrivateEndpointResourceGroupName $CosmosDbAccountResourceGroupName -TargetResourceId $cosmosResource.id -PrivateEndpointGroupId $CosmosDbPrivateEndpointGroupId -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $CosmosDbAccountPrivateDnsZoneName -PrivateDnsLinkName "$($CosmosDbPrivateEndpointVnetName)-cms" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 ####################################### DIAGNOSTIC SETTINGS #########################################

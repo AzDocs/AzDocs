@@ -16,6 +16,7 @@ param (
     [Parameter()][string] $ServiceBusNamespacePrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Parameter()][string] $ServiceBusNamespacePrivateDnsZoneName = 'privatelink.servicebus.windows.net',
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
 
     [Parameter()][bool] $ServiceBusNamespaceZoneRedundancy = $false,
     [Parameter()][ValidateSet(1, 2, 4, 8)][int] $ServiceBusNamespaceCapacityInMessageUnits = 1,
@@ -125,7 +126,7 @@ if ($ServiceBusNamespacePrivateEndpointVnetName -and $ServiceBusNamespacePrivate
     $serviceBusNamespacePrivateEndpointName = "$($ServiceBusNamespaceName)-pvtsbns"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $serviceBusNamespacePrivateEndpointSubnetId -PrivateEndpointName $serviceBusNamespacePrivateEndpointName -PrivateEndpointResourceGroupName $ServiceBusNamespaceResourceGroupName -TargetResourceId $serviceBusNamespace.id -PrivateEndpointGroupId namespace -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ServiceBusNamespacePrivateDnsZoneName -PrivateDnsLinkName "$($ServiceBusNamespacePrivateEndpointVnetName)-servicebusnamespace"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $serviceBusNamespacePrivateEndpointSubnetId -PrivateEndpointName $serviceBusNamespacePrivateEndpointName -PrivateEndpointResourceGroupName $ServiceBusNamespaceResourceGroupName -TargetResourceId $serviceBusNamespace.id -PrivateEndpointGroupId namespace -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ServiceBusNamespacePrivateDnsZoneName -PrivateDnsLinkName "$($ServiceBusNamespacePrivateEndpointVnetName)-servicebusnamespace" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 # Enable diagnostic settings for servicebus namespace

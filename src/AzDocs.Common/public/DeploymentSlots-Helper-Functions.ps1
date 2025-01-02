@@ -29,6 +29,7 @@ function New-DeploymentSlot
         [Parameter()][string] $ResourcePrivateEndpointSubnetName,
         [Parameter()][string] $DNSZoneResourceGroupName,
         [Parameter()][string] $ResourcePrivateDnsZoneName,
+        [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
 
         # Diagnostic settings
         [Parameter()][System.Object[]] $DiagnosticSettingsLogs,
@@ -111,7 +112,7 @@ function New-DeploymentSlot
         $parentResourceId = (Invoke-Executable az $AppType show --ids $resourceSlotId | ConvertFrom-Json).id
  
         # Add private endpoint & Setup Private DNS
-        Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $resourcePrivateEndpointSubnetId -PrivateEndpointName $resourcePrivateEndpointName -PrivateEndpointResourceGroupName $ResourceResourceGroupName -TargetResourceId $parentResourceId -PrivateEndpointGroupId "sites-$ResourceDeploymentSlotName" -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ResourcePrivateDnsZoneName -PrivateDnsLinkName "$($ResourcePrivateEndpointVnetName)-appservice"
+        Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $resourcePrivateEndpointSubnetId -PrivateEndpointName $resourcePrivateEndpointName -PrivateEndpointResourceGroupName $ResourceResourceGroupName -TargetResourceId $parentResourceId -PrivateEndpointGroupId "sites-$ResourceDeploymentSlotName" -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ResourcePrivateDnsZoneName -PrivateDnsLinkName "$($ResourcePrivateEndpointVnetName)-appservice" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
     }
     
     # Disable public acces, if it's not public

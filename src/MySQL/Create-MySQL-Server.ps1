@@ -23,6 +23,7 @@ param (
     [Parameter()][string] $MySqlServerPrivateEndpointSubnetName,
     [Parameter()][string] $MySqlServerPrivateDnsZoneName = 'privatelink.mysql.database.azure.com',
     [Parameter()][string] $DNSZoneResourceGroupName,
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
@@ -88,7 +89,7 @@ if ($MySqlServerPrivateEndpointVnetResourceGroupName -and $MySqlServerPrivateEnd
     $sqlServerPrivateEndpointName = "$($MySqlServerName)-pvtmysql"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sqlServerPrivateEndpointSubnetId -PrivateEndpointName $sqlServerPrivateEndpointName -PrivateEndpointResourceGroupName $MySqlServerResourceGroupName -TargetResourceId $mySqlServerResourceId -PrivateEndpointGroupId mysqlServer -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $MySqlServerPrivateDnsZoneName -PrivateDnsLinkName "$($MySqlServerPrivateEndpointVnetName)-mysql"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sqlServerPrivateEndpointSubnetId -PrivateEndpointName $sqlServerPrivateEndpointName -PrivateEndpointResourceGroupName $MySqlServerResourceGroupName -TargetResourceId $mySqlServerResourceId -PrivateEndpointGroupId mysqlServer -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $MySqlServerPrivateDnsZoneName -PrivateDnsLinkName "$($MySqlServerPrivateEndpointVnetName)-mysql" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 if ($ApplicationVnetResourceGroupName -and $ApplicationVnetName -and $ApplicationSubnetName)

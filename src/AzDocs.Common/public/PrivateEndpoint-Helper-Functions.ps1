@@ -48,7 +48,8 @@ function Add-PrivateEndpoint
         [Parameter(Mandatory)][string] $PrivateEndpointGroupId,
         [Parameter(Mandatory)][string] $DNSZoneResourceGroupName,
         [Parameter(Mandatory)][string] $PrivateDnsZoneName,
-        [Parameter(Mandatory)][string] $PrivateDnsLinkName
+        [Parameter(Mandatory)][string] $PrivateDnsLinkName,
+        [Parameter(Mandatory)][bool] $SkipDnsZoneConfiguration
     )
 
     Write-Header -ScopedPSCmdlet $PSCmdlet
@@ -91,7 +92,9 @@ function Add-PrivateEndpoint
     Invoke-Executable az network private-endpoint create --name $PrivateEndpointName --resource-group $PrivateEndpointResourceGroupName --subnet $PrivateEndpointSubnetId --connection-name "$PrivateEndpointName-$vnetName-$privateEndpointSubnetName" --private-connection-resource-id $TargetResourceId --group-id $PrivateEndpointGroupId
 
     # Create Private DNS zone & set it up
-    Add-DnsZone -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $PrivateDnsZoneName -PrivateDnsLinkName $PrivateDnsLinkName -PrivateEndpointVnetId $PrivateEndpointVnetId
+    if (!$SkipDnsZoneConfiguration) {
+        Add-DnsZone -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $PrivateDnsZoneName -PrivateDnsLinkName $PrivateDnsLinkName -PrivateEndpointVnetId $PrivateEndpointVnetId
+    }
 
     # === BEGIN Removal of the old deprecated setup. ===
     $dashedPrivateDnsZoneName = Get-DashedDomainname -DomainName $PrivateDnsZoneName
@@ -117,12 +120,14 @@ function Add-PrivateEndpoint
     # === END Removal of the old deprecated setup. ===
 
     # Connect the DNS Zone to the Private Endpoint to be able to resolve this endpoint within the VNET
-    $dnsZoneId = (Invoke-Executable az network private-dns zone show --resource-group $DNSZoneResourceGroupName --name $PrivateDnsZoneName | ConvertFrom-Json).id
+    if (!$SkipDnsZoneConfiguration) {
+        $dnsZoneId = (Invoke-Executable az network private-dns zone show --resource-group $DNSZoneResourceGroupName --name $PrivateDnsZoneName | ConvertFrom-Json).id
     
-    Write-Host "Creating private-endpoint dns-zone-group with dnsZoneId: $dnsZoneId"
-    Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $PrivateEndpointResourceGroupName --endpoint-name $PrivateEndpointName --name 'dnsgroupname' --private-dns-zone $dnsZoneId --zone-name $dashedPrivateDnsZoneName
-    Write-Host "Created private-endpoint dns-zone-group with dnsZoneId: $dnsZoneId"
-
+        Write-Host "Creating private-endpoint dns-zone-group with dnsZoneId: $dnsZoneId"
+        Invoke-Executable az network private-endpoint dns-zone-group create --resource-group $PrivateEndpointResourceGroupName --endpoint-name $PrivateEndpointName --name 'dnsgroupname' --private-dns-zone $dnsZoneId --zone-name $dashedPrivateDnsZoneName
+        Write-Host "Created private-endpoint dns-zone-group with dnsZoneId: $dnsZoneId"
+    }
+    
     Write-Footer -ScopedPSCmdlet $PSCmdlet
 }
 

@@ -20,6 +20,7 @@ param (
     [Parameter()][string] $PrivateEndpointGroupId = 'registry',
     [Alias('PrivateDnsZoneName')]
     [Parameter()][string] $ContainerRegistryPrivateDnsZoneName = 'privatelink.azurecr.io',
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
@@ -72,7 +73,7 @@ if ($ContainerRegistryPrivateEndpointVnetName -and $ContainerRegistryPrivateEndp
     $containerRegistryPrivateEndpointName = "$($ContainerRegistryName)-pvtacr-$($PrivateEndpointGroupId)"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $containerRegistryPrivateEndpointSubnetId -PrivateEndpointName $containerRegistryPrivateEndpointName -PrivateEndpointResourceGroupName $ContainerRegistryResourceGroupName -TargetResourceId $containerRegistryId -PrivateEndpointGroupId $PrivateEndpointGroupId -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ContainerRegistryPrivateDnsZoneName -PrivateDnsLinkName "$($ContainerRegistryPrivateEndpointVnetName)-acr"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $containerRegistryPrivateEndpointSubnetId -PrivateEndpointName $containerRegistryPrivateEndpointName -PrivateEndpointResourceGroupName $ContainerRegistryResourceGroupName -TargetResourceId $containerRegistryId -PrivateEndpointGroupId $PrivateEndpointGroupId -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $ContainerRegistryPrivateDnsZoneName -PrivateDnsLinkName "$($ContainerRegistryPrivateEndpointVnetName)-acr" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 # VNET Whitelisting

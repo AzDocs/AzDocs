@@ -41,6 +41,7 @@ param (
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias('PrivateDnsZoneName')]
     [Parameter()][string] $AppServicePrivateDnsZoneName = 'privatelink.azurewebsites.net',
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
     
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
@@ -210,7 +211,7 @@ if ($AppServicePrivateEndpointVnetResourceGroupName -and $AppServicePrivateEndpo
     $appServicePrivateEndpointName = "$($AppServiceName)-pvtapp"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $applicationPrivateEndpointSubnetId -PrivateEndpointName $appServicePrivateEndpointName -PrivateEndpointResourceGroupName $AppServiceResourceGroupName -TargetResourceId $webAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $AppServicePrivateDnsZoneName -PrivateDnsLinkName "$($AppServicePrivateEndpointVnetName)-appservice"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $applicationPrivateEndpointSubnetId -PrivateEndpointName $appServicePrivateEndpointName -PrivateEndpointResourceGroupName $AppServiceResourceGroupName -TargetResourceId $webAppId -PrivateEndpointGroupId sites -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $AppServicePrivateDnsZoneName -PrivateDnsLinkName "$($AppServicePrivateEndpointVnetName)-appservice" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet

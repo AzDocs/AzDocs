@@ -30,7 +30,8 @@ param (
     [Parameter()][string] $PostgreSqlServerPrivateEndpointSubnetName,
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias('PrivateDnsZoneName')]
-    [Parameter()][string] $PostgreSqlServerPrivateDnsZoneName = 'privatelink.postgres.database.azure.com', 
+    [Parameter()][string] $PostgreSqlServerPrivateDnsZoneName = 'privatelink.postgres.database.azure.com',
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
 
     [Parameter()][System.Object[]] $ResourceTags,
 
@@ -114,7 +115,7 @@ if ($PostgreSqlServerPrivateEndpointVnetResourceGroupName -and $PostgreSqlServer
     $sqlServerPrivateEndpointName = "$($PostgreSqlServerName)-pvtpsql"
     
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sqlServerPrivateEndpointSubnetId -PrivateEndpointName $sqlServerPrivateEndpointName -PrivateEndpointResourceGroupName $PostgreSqlServerResourceGroupName -TargetResourceId $postgreSqlServerId -PrivateEndpointGroupId postgresqlServer -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $PostgreSqlServerPrivateDnsZoneName -PrivateDnsLinkName "$($PostgreSqlServerPrivateEndpointVnetName)-psql"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sqlServerPrivateEndpointSubnetId -PrivateEndpointName $sqlServerPrivateEndpointName -PrivateEndpointResourceGroupName $PostgreSqlServerResourceGroupName -TargetResourceId $postgreSqlServerId -PrivateEndpointGroupId postgresqlServer -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $PostgreSqlServerPrivateDnsZoneName -PrivateDnsLinkName "$($PostgreSqlServerPrivateEndpointVnetName)-psql" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 # Add diagnostic settings to PostgreSQL server

@@ -23,6 +23,7 @@ param (
     [Parameter()][bool] $KeyvaultPurgeProtectionEnabled = $true,
     [Parameter()][string][ValidateSet('Premium', 'Standard')] $KeyvaultSku = 'Standard',
     [Parameter()][int][ValidateRange(7, 90)] $KeyvaultRetentionInDays = 90,
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
 
     # Forcefully agree to this resource to be spun up to be publicly available
     [Parameter()][switch] $ForcePublic,
@@ -132,7 +133,7 @@ if ($KeyvaultPrivateEndpointVnetResourceGroupName -and $KeyvaultPrivateEndpointV
     $keyVaultPrivateEndpointName = "$($KeyvaultName)-pvtkv"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $keyvaultPrivateEndpointSubnetId -PrivateEndpointName $keyVaultPrivateEndpointName -PrivateEndpointResourceGroupName $KeyvaultResourceGroupName -TargetResourceId $keyvaultId -PrivateEndpointGroupId vault -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $KeyvaultPrivateDnsZoneName -PrivateDnsLinkName "$($KeyvaultPrivateEndpointVnetName)-keyvault"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $keyvaultPrivateEndpointSubnetId -PrivateEndpointName $keyVaultPrivateEndpointName -PrivateEndpointResourceGroupName $KeyvaultResourceGroupName -TargetResourceId $keyvaultId -PrivateEndpointGroupId vault -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $KeyvaultPrivateDnsZoneName -PrivateDnsLinkName "$($KeyvaultPrivateEndpointVnetName)-keyvault" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 # VNET Whitelisting

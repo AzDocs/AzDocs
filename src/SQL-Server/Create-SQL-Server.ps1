@@ -22,6 +22,7 @@ param (
     [Parameter()][string] $DNSZoneResourceGroupName,
     [Alias('PrivateDnsZoneName')]
     [Parameter()][string] $SqlServerPrivateDnsZoneName = 'privatelink.database.windows.net',
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
 
     # Diagnostics
     [Alias('LogAnalyticsWorkspaceId')]
@@ -132,7 +133,7 @@ if ($SqlServerPrivateEndpointVnetResourceGroupName -and $SqlServerPrivateEndpoin
     $sqlServerPrivateEndpointName = "$($SqlServerName)-pvtsql"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sqlServerPrivateEndpointSubnetId -PrivateEndpointName $sqlServerPrivateEndpointName -PrivateEndpointResourceGroupName $SqlServerResourceGroupName -TargetResourceId $sqlServerId -PrivateEndpointGroupId sqlServer -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $SqlServerPrivateDnsZoneName -PrivateDnsLinkName "$($SqlServerPrivateEndpointVnetName)-sql"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $sqlServerPrivateEndpointSubnetId -PrivateEndpointName $sqlServerPrivateEndpointName -PrivateEndpointResourceGroupName $SqlServerResourceGroupName -TargetResourceId $sqlServerId -PrivateEndpointGroupId sqlServer -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $SqlServerPrivateDnsZoneName -PrivateDnsLinkName "$($SqlServerPrivateEndpointVnetName)-sql" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 

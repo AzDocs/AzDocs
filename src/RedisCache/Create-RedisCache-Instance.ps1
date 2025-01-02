@@ -16,6 +16,7 @@ param (
     [Parameter()][string] $RedisInstancePrivateEndpointSubnetName,
     [Parameter()][string] $RedisInstancePrivateDnsZoneName = 'privatelink.redis.cache.windows.net',
     [Parameter()][string] $DNSZoneResourceGroupName,
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false,
 
     # VNet Integration
     [Parameter()][string] $RedisInstanceVNetIntegrationVnetName,
@@ -150,7 +151,7 @@ if ($RedisInstancePrivateEndpointVnetResourceGroupName -and $RedisInstancePrivat
     $redisInstancePrivateEndpointName = "$($RedisInstanceName)-pvtredis"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $redisInstancePrivateEndpointSubnetId -PrivateEndpointName $redisInstancePrivateEndpointName -PrivateEndpointResourceGroupName $RedisInstanceResourceGroupName -TargetResourceId $redisInstanceResourceId -PrivateEndpointGroupId redisCache -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $RedisInstancePrivateDnsZoneName -PrivateDnsLinkName "$($RedisInstancePrivateEndpointVnetName)-redis"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $vnetId -PrivateEndpointSubnetId $redisInstancePrivateEndpointSubnetId -PrivateEndpointName $redisInstancePrivateEndpointName -PrivateEndpointResourceGroupName $RedisInstanceResourceGroupName -TargetResourceId $redisInstanceResourceId -PrivateEndpointGroupId redisCache -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $RedisInstancePrivateDnsZoneName -PrivateDnsLinkName "$($RedisInstancePrivateEndpointVnetName)-redis" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 # Add diagnostic settings to RedisCache server

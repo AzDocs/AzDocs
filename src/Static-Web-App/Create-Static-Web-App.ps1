@@ -10,8 +10,8 @@ param (
     [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $StaticWebAppPrivateEndpointVnetResourceGroupName,
     [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $StaticWebAppPrivateEndpointVnetName,
     [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $StaticWebAppPrivateEndpointSubnetName,
-    [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $DNSZoneResourceGroupName
-   
+    [Parameter(ParameterSetName = 'PrivateEndpoint', Mandatory)][string] $DNSZoneResourceGroupName,
+    [Parameter()][bool] $SkipDnsZoneConfiguration = $false
 )
 
 #region ===BEGIN IMPORTS===
@@ -82,7 +82,7 @@ if ($StaticWebAppPrivateEndpointVnetResourceGroupName -and $StaticWebAppPrivateE
     $StaticWebAppPrivateEndpointName = "$StaticWebAppName-pvt$abbrStaticWebApp"
 
     # Add private endpoint & Setup Private DNS
-    Add-PrivateEndpoint -PrivateEndpointVnetId $VnetSubnetIdentifiers.VnetIdentifier -PrivateEndpointSubnetId $VnetSubnetIdentifiers.SubnetIdentifier -PrivateEndpointName $StaticWebAppPrivateEndpointName -PrivateEndpointResourceGroupName $StaticWebAppResourceGroupName -TargetResourceId $staticWebApp.id -PrivateEndpointGroupId 'staticSites' -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $staticWebAppPrivateDnsZoneName -PrivateDnsLinkName "$StaticWebAppPrivateEndpointVnetName-$abbrStaticWebApp"
+    Add-PrivateEndpoint -PrivateEndpointVnetId $VnetSubnetIdentifiers.VnetIdentifier -PrivateEndpointSubnetId $VnetSubnetIdentifiers.SubnetIdentifier -PrivateEndpointName $StaticWebAppPrivateEndpointName -PrivateEndpointResourceGroupName $StaticWebAppResourceGroupName -TargetResourceId $staticWebApp.id -PrivateEndpointGroupId 'staticSites' -DNSZoneResourceGroupName $DNSZoneResourceGroupName -PrivateDnsZoneName $staticWebAppPrivateDnsZoneName -PrivateDnsLinkName "$StaticWebAppPrivateEndpointVnetName-$abbrStaticWebApp" -SkipDnsZoneConfiguration $SkipDnsZoneConfiguration
 }
 
 Write-Footer -ScopedPSCmdlet $PSCmdlet
