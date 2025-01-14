@@ -157,7 +157,6 @@ type ApplicationGatewaySku = {
     | 'WAF_v2'
   tier: 'Basic' | 'Standard' | 'Standard_v2' | 'WAF' | 'WAF_v2'
   family: 'Generation_1' | 'Generation_2' | null
-  capacity: int?
 }
 
 @description('SKU of the application gateway resource. For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysku).')
@@ -944,7 +943,6 @@ var sku = {
   name: applicationGatewaySku.name
   tier: applicationGatewaySku.tier
   family: contains(generation1TierList, applicationGatewaySku.tier) ? 'Generation_1' : 'Generation_2'
-  capacity: applicationGatewaySku.capacity ?? null
 }
 
 // ===================================== Resources =====================================
