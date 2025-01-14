@@ -145,10 +145,26 @@ param applicationGatewayPublicIpName string
 @maxLength(80)
 param applicationGatewayWebApplicationFirewallPolicyName string
 
+type ApplicationGatewaySku = {
+  name:
+    | 'Basic'
+    | 'Standard_Large'
+    | 'Standard_Medium'
+    | 'Standard_Small'
+    | 'Standard_v2'
+    | 'WAF_Large'
+    | 'WAF_Medium'
+    | 'WAF_v2'
+  tier: 'Basic' | 'Standard' | 'Standard_v2' | 'WAF' | 'WAF_v2'
+  family: 'Generation_1' | 'Generation_2' | null
+  capacity: int?
+}
+
 @description('SKU of the application gateway resource. For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysku).')
-param applicationGatewaySku object = {
+param applicationGatewaySku ApplicationGatewaySku = {
   name: 'WAF_v2'
   tier: 'WAF_v2'
+  family: 'Generation_2'
 }
 
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
@@ -919,6 +935,18 @@ var customErrorConfigurations = union(
     : []
 )
 
+var generation1TierList = [
+  'Standard'
+  'WAF'
+]
+
+var sku = {
+  name: applicationGatewaySku.name
+  tier: applicationGatewaySku.tier
+  family: contains(generation1TierList, applicationGatewaySku.tier) ? 'Generation_1' : 'Generation_2'
+  capacity: applicationGatewaySku.capacity ?? null
+}
+
 // ===================================== Resources =====================================
 @description('Static website if http needs to be redirected to https and no fqdn is supplied with `FqdnToRedirect`')
 module swaRedirect '../Web/staticSites.bicep' = if (redirectHttpToHttps && empty(fqdnToRedirect)) {
@@ -940,16 +968,16 @@ resource applicationGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2022-01
 }
 
 @description('Upsert the Application Gateway with the given parameters.')
-resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' = {
+resource applicationGateway 'Microsoft.Network/applicationGateways@2024-05-01' = {
   name: applicationGatewayName
   tags: tags
   location: location
   identity: identity
   properties: {
-    sku: applicationGatewaySku
+    sku: sku
     autoscaleConfiguration: {
       minCapacity: minCapacity
-      maxCapacity: maxCapacity
+      maxCapacity: max(maxCapacity, minCapacity)
     }
     customErrorConfigurations: customErrorConfigurations
     gatewayIPConfigurations: unifiedGatewayIPConfigurations

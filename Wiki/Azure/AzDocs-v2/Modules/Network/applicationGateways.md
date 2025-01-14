@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+## User Defined Types
+| Name | Type | Discriminator | Description
+| -- |  -- | -- | -- |
+| <a id="ApplicationGatewaySku">ApplicationGatewaySku</a>  | <pre>{</pre> |  |  | 
+
 ## Synopsis
 Creating an application gateway 
 
@@ -26,7 +31,7 @@ Creating an application gateway
 | cookieBasedAffinity | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Cookie based affinity. |
 | applicationGatewayPublicIpName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | The resourcename of the public ip which will be used for the frontend ip of this application gateway. This should be pre-existing. |
 | applicationGatewayWebApplicationFirewallPolicyName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | The resourcename of the Web Application Firewall policy name which will be used for this Application Gateway. This should be pre-existing. |
-| applicationGatewaySku | object | <input type="checkbox"> | None | <pre>{<br>  name: 'WAF_v2'<br>  tier: 'WAF_v2'<br>}</pre> | SKU of the application gateway resource. For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysku). |
+| applicationGatewaySku | [ApplicationGatewaySku](#ApplicationGatewaySku) | <input type="checkbox"> | None | <pre>{<br>  name: 'WAF_v2'<br>  tier: 'WAF_v2'<br>  family: 'Generation_2'<br>}</pre> | SKU of the application gateway resource. For object structure, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?tabs=bicep#applicationgatewaysku). |
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings). |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to the [Bicep resource definition](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings). |
