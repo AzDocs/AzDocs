@@ -10,3 +10,4 @@ Target Scope: resourceGroup
 | spokeVNetSubscriptionId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The ID of the subscription where the Spoke VNet resides in. This is the VNet you are trying to attach to the central hub. |
 | spokeEnvironmentType | string | <input type="checkbox" checked> | Length between 3-4 | <pre></pre> | The environment type of the subscription where the Spoke VNet resides in. For example: `dev`, `acc`, `prd`. This is the VNet you are trying to attach to the central hub. |
 | hubVNetName | string | <input type="checkbox" checked> | Length between 2-64 | <pre></pre> | The name of the Hub VNet. This is the VNet which acts as the central Hub in the Hub/spoke model. |
+| spokeVNetNameInfix | string | <input type="checkbox"> | Length between 0-2 | <pre>''</pre> | An optional infix to add to the VNet name in the name of the peering: vnet-purpose-<infix>-env |

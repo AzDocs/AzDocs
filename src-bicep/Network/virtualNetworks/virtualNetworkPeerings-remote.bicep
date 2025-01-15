@@ -21,9 +21,14 @@ param spokeEnvironmentType string
 @minLength(2)
 @maxLength(64)
 param hubVNetName string
+@description('An optional infix to add to the VNet name in the name of the peering: vnet-purpose-<infix>-env')
+@maxLength(2)
+param spokeVNetNameInfix string = ''
 
 @description('Make sure to have a basename for the peering name for the spoke side. This is needed to avoid names which get too long without cutting the wrong information.')
-var spokeBaseNameForPeeringName = take(replace(spokeVNetName, '-${spokeEnvironmentType}', ''), 34)
+var spokeBaseNameForPeeringName = empty(spokeVNetNameInfix)
+  ? take(replace(spokeVNetName, '-${spokeEnvironmentType}', ''), 34)
+  : '${take(replace(spokeVNetName, '-${spokeEnvironmentType}', ''), 31)}-${spokeVNetNameInfix}'
 @description('Make sure to have a basename for the peering name for the hub side. This is needed to avoid names which get too long without cutting the wrong information.')
 var hubVnetNameForPeeringName = take(hubVNetName, 37)
 
