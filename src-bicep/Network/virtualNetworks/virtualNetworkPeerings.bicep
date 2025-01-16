@@ -62,9 +62,13 @@ resource vNetPeering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2
   }
 }
 
+var remotePeeringName = empty(hubSpokeVNetNameInfix)
+  ? format('{0}-{1}', take('${deployment().name}', 50), 'remotePeering')
+  : format('{0}-{1}-{2}', take('${deployment().name}', 47), hubSpokeVNetNameInfix, 'remotePeering')
+
 @description('Upsert the Hub\'s VNet with the desired peering information.')
 module remotePeering 'virtualNetworkPeerings-remote.bicep' = {
-  name: format('{0}-{1}', take('${deployment().name}', 50), 'remotePeering')
+  name: remotePeeringName
   scope: az.resourceGroup(hubVNetSubscriptionId, hubVNetResourceGroupName)
   params: {
     hubVNetName: hubVNetName
