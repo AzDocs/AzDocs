@@ -58,6 +58,8 @@ param containerDeleteRetentionPolicy object = {
   enabled: true
 }
 
+
+// ================================================= Resources =================================================
 @description('Fetch the existing storage account.')
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: storageAccountName
