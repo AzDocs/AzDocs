@@ -3,10 +3,10 @@
 Target Scope: resourceGroup
 
 ## Synopsis
-Creating an AppService Plan Instance: WebApp, FunctionApp, etc
+Creating a serverfarms (AppService Plan) instance with the given specs.
 
 ## Description
-Creating an AppService Plan Instance: WebApp, FunctionApp etc. with the given specs.
+Creating a serverfarms (AppService Plan) instance with the given specs.
 
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
@@ -18,6 +18,7 @@ Creating an AppService Plan Instance: WebApp, FunctionApp etc. with the given sp
 | appServicePlanPerSiteScaling | bool | <input type="checkbox"> | None | <pre>true</pre> | If true, apps assigned to this App Service plan can be scaled independently.<br>If false, apps assigned to this App Service plan will scale to all instances of the plan. |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
 | appServicePlanMaximumElasticWorkerCount | int? | <input type="checkbox" checked> | None | <pre></pre> | Maximum number of total workers allowed for this ElasticScaleEnabled App Service Plan |
+| zoneRedundant | bool | <input type="checkbox"> | None | <pre>false</pre> | If set to true, this App Service Plan will perform availability zone balancing. |
 
 ## Outputs
 | Name | Type | Description |
@@ -31,18 +32,12 @@ Creating an AppService Plan Instance: WebApp, FunctionApp etc. with the given sp
 module webApp 'br:contosoregistry.azurecr.io/web/serverfarms:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 53), 'serverfarms')
   params: {
-    appServicePlanMaximumElasticWorkerCount: appServicePlanMaximumElasticWorkerCount
-    appServicePlanName: appServicePlanName
-    appServicePlanOsType: appServicePlanOsType
-    appServicePlanPerSiteScaling: appServicePlanPerSiteScaling
-    appServicePlanSku: appServicePlanSku
-    location: resourceLocation
-    tags: tags
+    appServicePlanName: 'AspName'
   }
 }
 </pre>
 <p>Creates a WebApp with the name 'webAppName'</p>
 
 ## Links
-- [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)<br>
+- [Bicep Microsoft.Web Serverfarms ](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/serverfarms?pivots=deployment-language-bicep)<br>
 - [Azure App Service Kind](https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
