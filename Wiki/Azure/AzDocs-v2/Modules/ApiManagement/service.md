@@ -31,7 +31,7 @@ module apim 'br:contosoregistry.azurecr.io/apimanagement/service.bicep' = {<br>
 | -- |  -- | -- | -- | -- | -- |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the key vault should be created. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
-| apiManagementServiceName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the API Management service instance. |
+| apiManagementServiceName | string | <input type="checkbox" checked> | Length between 1-50 | <pre></pre> | The name of the API Management service instance. |
 | publisherEmail | string | <input type="checkbox" checked> | Length between 3-* | <pre></pre> | The email address of the owner/administrator of the API Management service instance. This should be a valid notation for an email address. |
 | publisherName | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The name of the owner of the API Management service instance. This can be the name of your organization for use in the developer portal and e-mail notifications. |
 | notificationSenderEmail | string | <input type="checkbox"> | None | <pre>''</pre> | The email address from which the notification will be sent. This should be a valid notation for an email address. |

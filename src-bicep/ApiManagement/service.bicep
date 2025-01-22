@@ -39,6 +39,8 @@ Example:
 param tags object = {}
 
 @description('The name of the API Management service instance.')
+@minLength(1)
+@maxLength(50)
 param apiManagementServiceName string
 
 @description('The email address of the owner/administrator of the API Management service instance. This should be a valid notation for an email address.')
