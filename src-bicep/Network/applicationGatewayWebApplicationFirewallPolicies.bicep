@@ -17,6 +17,9 @@ param managedRuleSets array = [
   }
 ]
 
+@description('The maximum request body size in megabytes. The default is 100.')
+param fileUploadLimitInMb int = 100
+
 @description('''
 Sometimes WAF might block a request that you want to allow for your application. WAF exclusion lists allow you to omit certain request attributes from a WAF evaluation. The rest of the request is evaluated as normal, please refer to [the docs](https://learn.microsoft.com/en-us/azure/web-application-firewall/ag/application-gateway-waf-configuration?tabs=bicep).
 <details>
@@ -37,7 +40,7 @@ param exclusions array = []
 param policySettings object = {
   requestBodyCheck: true
   maxRequestBodySizeInKb: 128
-  fileUploadLimitInMb: 100
+  fileUploadLimitInMb: fileUploadLimitInMb
   state: 'Enabled'
   mode: 'Prevention'
 }
