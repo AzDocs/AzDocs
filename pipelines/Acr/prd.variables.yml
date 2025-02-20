@@ -1,5 +1,5 @@
 variables:
   # ===================== Subscription deployment details =====================
   # The Azure DevOps Service Connection to use for deploying the resources to Azure
-  AzureDevOpsServiceConnectionName: "<todo>"
+  AzureDevOpsServiceConnectionName: "$(Prd-AzureDevOpsServiceConnectionName)"
   registryName: "acrazdocsprd"
