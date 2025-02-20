@@ -68,5 +68,5 @@ jobs:
                 scriptType: "pscore"
                 scriptLocation: "scriptPath"
                 scriptPath: "scripts/Upload-BicepModules.ps1"
-                arguments: "-RegistryName ${{ variables.registryName }} -DebugMode $${{ parameters.DebugMode }}"
+                arguments: "-RegistryName ${{ variables.registryName }} -DebugMode $${{ parameters.DebugMode }} -DocumentationURI $(DocumentationURI)"
                 powerShellErrorActionPreference: continue
