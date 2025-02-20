@@ -40,7 +40,7 @@ jobs:
         ${{ if eq(parameters.EnvironmentType, 'prd') }}:
           value: "${{ variables.AzureDevOpsServiceConnectionName }}"
         ${{ else }}:
-          value: "${{ variables.Nonprd-PipelineEnvironment }}"
+          value: "$(variables.Nonprd-PipelineEnvironment)"
 
     environment:
       name: "${{ variables.PipelineEnvironment }}"
