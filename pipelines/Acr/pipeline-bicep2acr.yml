@@ -40,7 +40,7 @@ jobs:
         ${{ if eq(parameters.EnvironmentType, 'prd') }}:
           value: "${{ variables.AzureDevOpsServiceConnectionName }}"
         ${{ else }}:
-          value: "KPN-Shared-${{ parameters.EnvironmentType }}"
+          value: "<todo>"
 
     environment:
       name: "${{ variables.PipelineEnvironment }}"

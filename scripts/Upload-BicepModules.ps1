@@ -36,7 +36,7 @@ param(
   [int]$NrOfParallelProcesses = 4,
 
   [parameter()]
-  [string] $DocumentationURI = 'https://dev.azure.com/kpn/Azure%20Documentation/_git/Upstream.Azure.PlatformProvisioning?path=/Wiki/Azure/AzDocs-v2/Modules'
+  [string] $DocumentationURI
   
 )
 

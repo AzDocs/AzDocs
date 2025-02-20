@@ -1,5 +1,5 @@
 variables:
   # ===================== Subscription deployment details =====================
   # The Azure DevOps Service Connection to use for deploying the resources to Azure
-  AzureDevOpsServiceConnectionName: "kpn-azure4kpn-prd_azdocs-prd"
+  AzureDevOpsServiceConnectionName: "<todo>"
   registryName: "acrazdocsprd"
