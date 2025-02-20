@@ -1,26 +1,20 @@
 /*
 .SYNOPSIS
-Creating an AppService Plan Instance: WebApp, FunctionApp, etc
+Creating a serverfarms (AppService Plan) instance with the given specs.
 .DESCRIPTION
-Creating an AppService Plan Instance: WebApp, FunctionApp etc. with the given specs.
+Creating a serverfarms (AppService Plan) instance with the given specs.
 .EXAMPLE
 <pre>
 module webApp 'br:contosoregistry.azurecr.io/web/serverfarms:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 53), 'serverfarms')
   params: {
-    appServicePlanMaximumElasticWorkerCount: appServicePlanMaximumElasticWorkerCount
-    appServicePlanName: appServicePlanName
-    appServicePlanOsType: appServicePlanOsType
-    appServicePlanPerSiteScaling: appServicePlanPerSiteScaling
-    appServicePlanSku: appServicePlanSku
-    location: resourceLocation
-    tags: tags
+    appServicePlanName: 'AspName'
   }
 }
 </pre>
 <p>Creates a WebApp with the name 'webAppName'</p>
 .LINKS
-- [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)
+- [Bicep Microsoft.Web Serverfarms ](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/serverfarms?pivots=deployment-language-bicep)
 - [Azure App Service Kind](https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
 */
 
@@ -75,9 +69,13 @@ param location string = resourceGroup().location
 @description('Maximum number of total workers allowed for this ElasticScaleEnabled App Service Plan')
 param appServicePlanMaximumElasticWorkerCount int?
 
+@description('If set to true, this App Service Plan will perform availability zone balancing.')
+param zoneRedundant bool = false
+
+
 // ================================================= Resources =================================================
 @description('Upsert the app service plan with the given parameters.')
-resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
   name: appServicePlanName
   location: location
   tags: tags
@@ -85,6 +83,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
     reserved: appServicePlanOsType == 'linux' ? true : false //According to MS Docs: If Linux app service plan true, false otherwise.
     perSiteScaling: appServicePlanPerSiteScaling
     maximumElasticWorkerCount: appServicePlanMaximumElasticWorkerCount ?? 1 // Only required if the app service plan is a elastic plan (function app). Default to 1.
+    zoneRedundant: zoneRedundant
   }
   sku: appServicePlanSku
   kind: appServicePlanOsType

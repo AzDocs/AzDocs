@@ -942,7 +942,9 @@ var generation1TierList = [
 var sku = {
   name: applicationGatewaySku.name
   tier: applicationGatewaySku.tier
-  family: contains(generation1TierList, applicationGatewaySku.tier) ? 'Generation_1' : 'Generation_2'
+  family: applicationGatewaySku.family ?? (contains(generation1TierList, applicationGatewaySku.tier)
+    ? 'Generation_1'
+    : 'Generation_2')
 }
 
 // ===================================== Resources =====================================

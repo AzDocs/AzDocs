@@ -15,7 +15,7 @@ module synapsews 'br:contosoregistry.azurecr.io/synapse/workspaces:latest' = {
     createDevEndpointPe: true
     privateEndpointDevSubnetName: 'privateendpointsubnet'
     privateEndpointVirtualNetworkResourceGroupName: 'sharedservices-rg'
-    privateEndpointVirtualNetworkName: 'kpn-shared-dev-001-vnet'
+    privateEndpointVirtualNetworkName: 'myvnetname'
   }
 }
 </pre>

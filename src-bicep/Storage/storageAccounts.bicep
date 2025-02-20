@@ -264,7 +264,7 @@ var resourceAccessRules = [
 ]
 
 @description('Setting up the networkAcls and add rules if any are defined.')
-var networkAcls = empty(virtualNetworkRules) && empty(ipRules) && empty(resourceAccessRules)
+var networkAcls = empty(virtualNetworkRules) && empty(ipRules) && empty(resourceAccessRules) && allowBypassAcl == 'None'
   ? {
       defaultAction: 'Allow'
     }
