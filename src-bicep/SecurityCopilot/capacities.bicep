@@ -9,11 +9,13 @@ param capacityName string
 @maxValue(100)
 param numberOfUnits int = 1
 
+@description('Whether to allow or not allow')
 type isAllowed = 'NotAllowed' | 'Allowed'
 
 @description('Whether to allow cross-geo compute')
 param crossGeoCompute isAllowed = 'NotAllowed'
 
+@description('Valid location of the capacity')
 type locations = 'westeurope' | 'australiaeast' | 'eastus' | 'uksouth'
 
 @description('Location of the capacity')
@@ -38,4 +40,5 @@ resource capacity 'Microsoft.SecurityCopilot/capacities@2023-12-01-preview' = {
   }
 }
 
+@description('ID of the capacity')
 output capacityId string = capacity.id
