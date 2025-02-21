@@ -9,11 +9,15 @@ param capacityName string
 @maxValue(100)
 param numberOfUnits int = 1
 
+type isAllowed = 'NotAllowed' | 'Allowed'
+
 @description('Whether to allow cross-geo compute')
-param crossGeoCompute 'NotAllowed' | 'Allowed' = 'NotAllowed'
+param crossGeoCompute isAllowed = 'NotAllowed'
+
+type locations = 'westeurope' | 'australiaeast' | 'eastus' | 'uksouth'
 
 @description('Location of the capacity')
-param location 'westeurope' | 'australiaeast' | 'eastus' | 'uksouth' = 'westeurope'
+param location locations = 'westeurope'
 
 var locationGeoMap = {
   westeurope: 'EU'
