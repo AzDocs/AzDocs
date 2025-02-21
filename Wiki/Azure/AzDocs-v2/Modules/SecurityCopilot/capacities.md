@@ -5,8 +5,8 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="isAllowed">isAllowed</a>  | <pre>'NotAllowed' &#124; 'Allowed'</pre> |  |  | 
-| <a id="locations">locations</a>  | <pre>'westeurope' &#124; 'australiaeast' &#124; 'eastus' &#124; 'uksouth'</pre> |  |  | 
+| <a id="isAllowed">isAllowed</a>  | <pre>'NotAllowed' &#124; 'Allowed'</pre> |  | Whether to allow or not allow | 
+| <a id="locations">locations</a>  | <pre>'westeurope' &#124; 'australiaeast' &#124; 'eastus' &#124; 'uksouth'</pre> |  | Valid location of the capacity | 
 
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
@@ -19,4 +19,4 @@ Target Scope: resourceGroup
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
-| capacityId | string |  |
+| capacityId | string | ID of the capacity |
