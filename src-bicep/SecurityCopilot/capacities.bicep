@@ -1,3 +1,35 @@
+/*
+.SYNOPSIS
+Creating Security Copilot SCU's (Security compute units).
+.DESCRIPTION
+Microsoft Security Copilot (Security Copilot) is a generative AI-powered security solution that helps increase the efficiency and capabilities of defenders to improve security outcomes at machine speed and scale.
+.EXAMPLE
+<pre>
+module vm 'br:contosoregistry.azurecr.io/securitycopilot/capacities:latest' = {
+  name: 'deployment-scu'
+  scope: resourceGroup
+  params: {
+    capacityName: 'copilot-capacity-dev'
+  }
+}
+</pre>
+<p>Creates a SCU (single one) for security copilot in west europe only</p>
+.EXAMPLE
+<pre>
+module vm 'br:contosoregistry.azurecr.io/securitycopilot/capacities:latest' = {
+  name: 'deployment-scus'
+  scope: resourceGroup
+  params: {
+    capacityName: 'copilot-capacity-dev'
+    numberOfUnits: 3
+  }
+}
+</pre>
+<p>Creates 3 SCU's for security copilot in west europe only</p>
+.LINKS
+- [Microsoft Security Copilot](https://learn.microsoft.com/en-us/copilot/security/)
+- [Provision with azure first](https://learn.microsoft.com/en-us/copilot/security/get-started-security-copilot#option-2-provision-capacity-in-azure)
+*/
 
 @description('Name of the capacity')
 @minLength(3)
