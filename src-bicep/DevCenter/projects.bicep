@@ -55,11 +55,11 @@ param identity IdentityType = {
 param maxDevBoxesPerUser int?
 
 // ================================================= Resources =================================================
-resource devCenter 'Microsoft.DevCenter/devcenters@2024-02-01' existing = {
+resource devCenter 'Microsoft.DevCenter/devcenters@2024-10-01-preview' existing = {
   name: devCenterName
 }
 
-resource devCenterProject 'Microsoft.DevCenter/projects@2024-02-01' = {
+resource devCenterProject 'Microsoft.DevCenter/projects@2024-10-01-preview' = {
   name: devCenterProjectName
   location: location
   identity: identity
@@ -67,6 +67,7 @@ resource devCenterProject 'Microsoft.DevCenter/projects@2024-02-01' = {
     description: devCenterProjectDescription
     devCenterId: devCenter.id
     maxDevBoxesPerUser: maxDevBoxesPerUser ?? null
+    displayName: devCenterProjectName
   }
 }
 

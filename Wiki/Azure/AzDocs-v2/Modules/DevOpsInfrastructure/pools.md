@@ -38,8 +38,8 @@ See also the [quickstart](https://learn.microsoft.com/en-us/azure/devops/managed
 | azureDevOpsOrganizationName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the initial existing Azure DevOps to configure the pools in. |
 | azureDevOpsProjects | array | <input type="checkbox"> | None | <pre>[]</pre> | The AzureDevOps projects to add the pool to. Empty array means all projects. |
 | maximumConcurrencyPoolSize | int | <input type="checkbox"> | Value between 1-10000 | <pre>2</pre> | Defines how many VM resources can be created at any given time. |
-| organizationProfileOrganizationsParallelism | int | <input type="checkbox"> | None | <pre>1</pre> | How many pools can run in parallel when using multiple AzureDevOps organizations. <br>Also the sum of parallelism for all organizations must equal the max pool size (maximumConcurrencyPoolSize). |
-| additionalAzureDevOpsOrganizations | additionalAzureDevOpsOrganizationsType | <input type="checkbox"> | None | <pre>[]</pre> | The additional AzureDevOps organizations to add the pool to.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;url: 'https://dev.azure.com/azureDevOpsOrganizationName'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;projects: []<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parallelism: 1 //dependent on the total number of organizations<br>&nbsp;&nbsp;&nbsp;}<br>] |
+| organizationProfileOrganizationsParallelism | int | <input type="checkbox"> | None | <pre>1</pre> | How many machines can be created at maximum in this organization out of the maximumConcurrency of the pool.  |
+| additionalAzureDevOpsOrganizations | additionalAzureDevOpsOrganizationsType | <input type="checkbox"> | None | <pre>[]</pre> | The additional AzureDevOps organizations to add the pool to.<br>Example:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;url: 'https://dev.azure.com/azureDevOpsOrganizationName'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;projects: []<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parallelism: 1<br>&nbsp;&nbsp;&nbsp;}<br>] |
 
 ## Examples
 <pre>

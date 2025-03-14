@@ -55,13 +55,48 @@ param identity IdentityType = {
   type: 'SystemAssigned'
 }
 
+@description('The display name of the Dev Center.')
+param devCenterDisplayName string = devcenterName
+
+@description('The status of the Microsoft Hosted Network.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param microsoftHostedNetworkEnableStatus string = 'Enabled'
+
+@description('The status of the Catalog Item Sync.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param catalogItemSyncEnableStatus string = 'Disabled'
+
+@description('The status of the Azure Monitor Agent.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param installAzureMonitorAgentEnableStatus string = 'Disabled'
+
 // ================================================= Resources =================================================
-resource devCenter 'Microsoft.DevCenter/devcenters@2024-02-01' = {
+resource devCenter 'Microsoft.DevCenter/devcenters@2024-10-01-preview' = {
   name: devcenterName
   location: location
   tags: tags
   identity: identity
-  properties: {}
+  properties: {
+    displayName: devCenterDisplayName
+    networkSettings: {
+      microsoftHostedNetworkEnableStatus: microsoftHostedNetworkEnableStatus
+    }
+    projectCatalogSettings: {
+      catalogItemSyncEnableStatus: catalogItemSyncEnableStatus
+    }
+    devBoxProvisioningSettings: {
+      installAzureMonitorAgentEnableStatus: installAzureMonitorAgentEnableStatus
+    }
+  }
 }
 
 @description('The resource ID of the Dev Center.')
