@@ -54,12 +54,15 @@ param identity IdentityType = {
 @description('When provided, allows to restrict how many dev boxes each developer can create in a project.')
 param maxDevBoxesPerUser int?
 
+@description('Indicates catalog item types that can be synced. Should contain a string array containing any of EnvironmentDefinition and ImageDefinition.')
+param catalogItemSyncTypes array?
+
 // ================================================= Resources =================================================
 resource devCenter 'Microsoft.DevCenter/devcenters@2024-10-01-preview' existing = {
   name: devCenterName
 }
 
-resource devCenterProject 'Microsoft.DevCenter/projects@2024-10-01-preview' = {
+resource devCenterProject 'Microsoft.DevCenter/projects@2024-08-01-preview' = {
   name: devCenterProjectName
   location: location
   identity: identity
@@ -68,6 +71,9 @@ resource devCenterProject 'Microsoft.DevCenter/projects@2024-10-01-preview' = {
     devCenterId: devCenter.id
     maxDevBoxesPerUser: maxDevBoxesPerUser ?? null
     displayName: devCenterProjectName
+    catalogSettings: {
+      catalogItemSyncTypes: catalogItemSyncTypes ?? []
+    }
   }
 }
 
