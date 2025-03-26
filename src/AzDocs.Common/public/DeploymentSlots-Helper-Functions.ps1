@@ -51,7 +51,7 @@ function New-DeploymentSlot
     }
 
     # Create deployment slot
-    Invoke-Executable az $AppType deployment slot create --resource-group $ResourceResourceGroupName --name $ResourceName --slot $ResourceDeploymentSlotName --set httpsOnly=true
+    Invoke-Executable az $AppType deployment slot create --resource-group $ResourceResourceGroupName --name $ResourceName --slot $ResourceDeploymentSlotName
     
 
     # Stop immediately if desired
