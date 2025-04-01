@@ -34,7 +34,8 @@ param registrationEnabled bool = false
 
 @description('''
 The resolution policy on the virtual network link. Only applicable for virtual network links to privatelink zones, and for A,AAAA,CNAME queries. 
-When set to 'NxDomainRedirect', Azure DNS resolver falls back to public resolution if private dns query resolution results in non-existent domain response.''')
+When set to 'NxDomainRedirect', Azure DNS resolver falls back to public resolution if private dns query resolution results in non-existent domain response.
+''')
 param resolutionPolicy 'Default' | 'NxDomainRedirect' = 'Default'
 
 @description('''
