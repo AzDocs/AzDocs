@@ -66,7 +66,7 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
     location: 'global'
     properties: {
       registrationEnabled: registrationEnabled
-      resolutionPolicy: resolutionPolicy
+      resolutionPolicy: startsWith(privateDnsZoneName, 'privatelink') ? resolutionPolicy : null
       virtualNetwork: {
         id: virtualNetworkResourceId
       }
