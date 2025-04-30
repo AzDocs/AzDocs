@@ -61,6 +61,9 @@ param operationResponses array
 @minLength(1)
 param operationUrlTemplate string
 
+@description('The template parameters of the operation.')
+param templateParameters array
+
 //------------------------------------------------------------------------------------
 // Resources
 //------------------------------------------------------------------------------------
@@ -86,6 +89,7 @@ resource operation 'Microsoft.ApiManagement/service/apis/operations@2023-09-01-p
       queryParameters: operationRequestQueryParameters
     }
     responses: operationResponses
+    templateParameters: templateParameters
   }
 }
 

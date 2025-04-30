@@ -37,6 +37,7 @@ module apiOperation 'resource.operation.bicep' = {<br>
 | operationRequestDescription | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The request description of the operation. |
 | operationResponses | array | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The responses of the operation. |
 | operationUrlTemplate | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The URL template of the operation. |
+| templateParameters | array | <input type="checkbox" checked> | None | <pre></pre> | The template parameters of the operation. |
 
 ## Outputs
 | Name | Type | Description |
