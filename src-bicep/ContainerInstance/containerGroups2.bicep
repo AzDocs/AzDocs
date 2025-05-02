@@ -64,7 +64,7 @@ param containers container[] // At least one container is required
 
 //@description('The containers within the container group.')
 type container = {
-  @description('The name of the container.')
+  //@description('The name of the container.')
   @minLength(1)
   name: string
 
@@ -73,7 +73,7 @@ type container = {
     // @description('The command to be executed within the container.')
     // command: containerCommand[] // Command to run inside the container (overrides container entrypoint)
 
-    @description('The command to be executed within the container.')
+    //@description('The command to be executed within the container.')
     command: string[] // Command to run inside the container (overrides container entrypoint)
 
     // @description('The environment variables for the container.')
