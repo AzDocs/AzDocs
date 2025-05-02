@@ -7,6 +7,7 @@ Target Scope: resourceGroup
 | -- |  -- | -- | -- |
 | <a id="container">container</a>  | <pre>{</pre> |  | An array of container definitions for the container group. | 
 | <a id="containerCommand">containerCommand</a>  | <pre>string</pre> |  | Represents a command to be executed in a container. Must be a non-empty string. | 
+| <a id="environmentVariable">environmentVariable</a>  | <pre>{</pre> |  |  | 
 
 ## Synopsis
 Provisioning an Azure Container Instance
