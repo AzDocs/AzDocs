@@ -9,6 +9,10 @@ Target Scope: resourceGroup
 | <a id="containerCommand">containerCommand</a>  | <pre>string</pre> |  | Represents a command to be executed in a container. Must be a non-empty string. | 
 | <a id="environmentVariable">environmentVariable</a>  | <pre>{</pre> |  | An optional array of environment variables to be set for the container instance. | 
 | <a id="containerProbe">containerProbe</a>  | <pre>{</pre> |  | The container probe configuration used to define liveness, readiness, or startup probes for the container instance. | 
+| <a id="containerPort">containerPort</a>  | <pre>{</pre> |  | An optional array of container port objects that define the ports to be exposed by the container instance. | 
+| <a id="resourceRequirements">resourceRequirements</a>  | <pre>{</pre> |  | The resource requirements of the container instance. | 
+| <a id="securityContextDefinition">securityContextDefinition</a>  | <pre>{</pre> |  | The container security properties. | 
+| <a id="volumeMount">volumeMount</a>  | <pre>{</pre> |  | The volume mounts available to the container instance. | 
 
 ## Synopsis
 Provisioning an Azure Container Instance
