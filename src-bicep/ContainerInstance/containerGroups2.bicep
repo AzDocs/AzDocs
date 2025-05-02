@@ -48,6 +48,10 @@ module aci 'br:contosoregistry.azurecr.io/containerinstance/containergroups:late
 */
 
 // ================================================= Parameters =================================================
+@description('The name of the Azure Container Instance.')
+@minLength(1)
+param containerInstanceName string // Name must be unique within the resource group
+
 @description('An array of container definitions for the container group.')
 param containers container[] // At least one container is required
 
@@ -244,3 +248,4 @@ type volumeMount = {
 }
 
 output containers array = containers
+output containerInstanceName string = containerInstanceName
