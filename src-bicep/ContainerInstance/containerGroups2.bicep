@@ -62,7 +62,6 @@ module aci 'br:contosoregistry.azurecr.io/containerinstance/containergroups:late
 @description('An array of container definitions for the container group.')
 param containers container[] // At least one container is required
 
-@description('A custom type representing a person with a name and age.')
 type myType = {
   @description('Name of the person.')
   name: string
