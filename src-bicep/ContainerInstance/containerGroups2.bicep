@@ -55,6 +55,7 @@ param containerInstanceName string
 @description('An array of container definitions for the container group.')
 param containers container[]
 
+@description('The definition of a container within the container group.')
 type container = {
   @description('The name of the container.')
   @minLength(1)
@@ -63,28 +64,28 @@ type container = {
   @description('The properties of the container.')
   properties: {
     @description('The command to be executed within the container.')
-    command: containerCommand[] // Command to run inside the container (overrides container entrypoint)
+    command: containerCommand[]
 
     @description('The environment variables for the container.')
-    environmentVariables: environmentVariable[]? // Optional environment variables
+    environmentVariables: environmentVariable[]?
 
     @description('The liveness probe configuration for the container.')
-    livenessProbe: containerProbe? // Health check to determine if container is alive
+    livenessProbe: containerProbe?
 
     @description('The ports to be exposed by the container.')
-    ports: containerPort[]? // Container ports to expose
+    ports: containerPort[]?
 
     @description('The readiness probe configuration for the container.')
-    readinessProbe: containerProbe? // Health check to determine if container is ready to serve traffic
+    readinessProbe: containerProbe?
 
     @description('The resource requirements for the container.')
-    resources: resourceRequirements // CPU, memory, and optional GPU requirements
+    resources: resourceRequirements
 
     @description('The security context for the container.')
-    securityContext: securityContextDefinition? // Security settings for the container
+    securityContext: securityContextDefinition?
 
     @description('The volume mounts for the container.')
-    volumeMounts: volumeMount[]? // Volumes to be mounted inside the container
+    volumeMounts: volumeMount[]?
   }
 }
 
