@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="container">container</a>  | <pre>{</pre> |  | An array of container definitions for the container group. | 
+| <a id="container">container</a>  | <pre>{</pre> |  |  | 
 | <a id="containerCommand">containerCommand</a>  | <pre>string</pre> |  | Represents a command to be executed in a container. Must be a non-empty string. | 
 | <a id="environmentVariable">environmentVariable</a>  | <pre>{</pre> |  | An optional array of environment variables to be set for the container instance. | 
 | <a id="containerProbe">containerProbe</a>  | <pre>{</pre> |  | The container probe configuration used to define liveness, readiness, or startup probes for the container instance. | 
@@ -20,10 +20,17 @@ Provisioning an Azure Container Instance
 ## Description
 Provisioning an Azure Container Instance.
 
+## Parameters
+| Name | Type | Required | Validation | Default value | Description |
+| -- |  -- | -- | -- | -- | -- |
+| containerInstanceName | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The name of the Azure Container Instance. |
+| containers | container[] | <input type="checkbox" checked> | None | <pre></pre> | An array of container definitions for the container group. |
+
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
 | containers | array |  |
+| containerInstanceName | string |  |
 
 ## Examples
 <pre>
