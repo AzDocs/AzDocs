@@ -66,6 +66,21 @@ type container = {
 
     @description('The liveness probe configuration for the container.')
     livenessProbe: containerProbe? // Health check to determine if container is alive
+
+    @description('The ports to be exposed by the container.')
+    ports: containerPort[]? // Container ports to expose
+
+    @description('The readiness probe configuration for the container.')
+    readinessProbe: containerProbe? // Health check to determine if container is ready to serve traffic
+
+    @description('The resource requirements for the container.')
+    resources: resourceRequirements // CPU, memory, and optional GPU requirements
+
+    @description('The security context for the container.')
+    securityContext: securityContextDefinition? // Security settings for the container
+
+    @description('The volume mounts for the container.')
+    volumeMounts: volumeMount[]? // Volumes to be mounted inside the container
   }
 }
 
@@ -135,6 +150,97 @@ type containerProbe = {
 
   @description('The timeout seconds.')
   timeoutSeconds: int
+}
+
+@description('An optional array of container port objects that define the ports to be exposed by the container instance.')
+type containerPort = {
+  @description('The port number exposed within the container group.')
+  @minValue(1)
+  @maxValue(65535)
+  port: int
+
+  @description('The protocol associated with the port.')
+  protocol: 'TCP' | 'UDP'
+}
+
+@description('The resource requirements of the container instance.')
+type resourceRequirements = {
+  @description('The resource limits or maximum of this container instance.')
+  limits: {
+    @description('The CPU core count for the container instance.')
+    cpu: int
+
+    @description('The GPU resource requirements for the container instance.')
+    gpu: {
+      @description('The count of the GPU resource.')
+      count: int
+
+      @description('The SKU of the GPU resource.')
+      sku: 'K80' | 'P100' | 'V100'
+    }?
+
+    @description('The memory size in GB for the container instance.')
+    memoryInGB: int
+  }?
+
+  @description('The resource requests of this container instance.')
+  requests: {
+    @description('The CPU core count for the container instance.')
+    cpu: int
+
+    @description('The GPU resource requirements for the container instance.')
+    gpu: {
+      @description('The number of GPUs required.')
+      count: int
+
+      @description('The SKU of the GPU.')
+      sku: string
+    }?
+
+    @description('The memory size in GB for the container instance.')
+    memoryInGB: int
+  }
+}
+
+@description('The container security properties.')
+type securityContextDefinition = {
+  @description('A boolean value indicating whether the init process can elevate its privileges.')
+  allowPrivilegeEscalation: bool
+
+  @description('The capabilities to add or drop from a container.')
+  capabilities: {
+    @description('The capabilities to add to the container.')
+    add: string[]
+
+    @description('The capabilities to drop from the container.')
+    drop: string[]
+  }
+
+  @description('The flag to determine if the container permissions is elevated to Privileged.')
+  privileged: bool
+
+  @description('Sets the User GID for the container.')
+  runAsGroup: int
+
+  @description('Sets the User UID for the container.')
+  runAsUser: int
+
+  @description('A base64 encoded string containing the contents of the JSON in the seccomp profile.')
+  seccompProfile: string
+}
+
+@description('The volume mounts available to the container instance.')
+type volumeMount = {
+  @description('The path within the container where the volume should be mounted. Must not contain colon (:).')
+  @minLength(1)
+  mountPath: string
+
+  @description('The name of the volume mount.')
+  @minLength(1)
+  name: string
+
+  @description('The flag indicating whether the volume mount is read-only.')
+  readOnly: bool
 }
 
 output containers array = containers
