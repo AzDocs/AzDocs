@@ -14,7 +14,7 @@ Target Scope: resourceGroup
 | <a id="resourceRequirements">resourceRequirements</a>  | <pre>{</pre> |  | The resource requirements of the container instance. | 
 | <a id="securityContextDefinition">securityContextDefinition</a>  | <pre>{</pre> |  | The container security properties. | 
 | <a id="volumeMount">volumeMount</a>  | <pre>{</pre> |  | The volume mounts available to the container instance. | 
-| <a id="containerGroupDiagnostics">containerGroupDiagnostics</a>  | <pre>{</pre> |  |  | 
+| <a id="containerGroupDiagnostics">containerGroupDiagnostics</a>  | <pre>{</pre> |  | The diagnostics configuration for the container group, including log analytics settings. | 
 | <a id="logAnalytics">logAnalytics</a>  | <pre>{</pre> |  | The diagnostic information for a container group. | 
 | <a id="dnsConfiguration">dnsConfiguration</a>  | <pre>{</pre> |  | The DNS config information for a container group. | 
 | <a id="encryptionProperties">encryptionProperties</a>  | <pre>{</pre> |  | The encryption properties for a container group. | 
