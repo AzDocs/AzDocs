@@ -18,7 +18,7 @@ Target Scope: resourceGroup
 | <a id="logAnalytics">logAnalytics</a>  | <pre>{</pre> |  | The diagnostic information for a container group. | 
 | <a id="dnsConfiguration">dnsConfiguration</a>  | <pre>{</pre> |  | The DNS config information for a container group. | 
 | <a id="encryptionProperties">encryptionProperties</a>  | <pre>{</pre> |  | The encryption properties for a container group. | 
-| <a id="deploymentExtensionSpec">deploymentExtensionSpec</a>  | <pre>{</pre> |  | extensions used by virtual kubelet | 
+| <a id="deploymentExtensionSpec">deploymentExtensionSpec</a>  | <pre>{</pre> |  | Specifies the deployment extension configuration. | 
 | <a id="imageRegistryCredential">imageRegistryCredential</a>  | <pre>{</pre> |  | The image registry credentials by which the container group is created from. | 
 | <a id="ipAddress">ipAddress</a>  | <pre>{</pre> |  | The IP address type of the container group. | 
 | <a id="secretReference">secretReference</a>  | <pre>{</pre> |  | The secret references that will be referenced within the container group. | 
