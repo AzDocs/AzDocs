@@ -60,11 +60,31 @@ type container = {
   properties: {
     @description('The command to be executed within the container.')
     command: containerCommand[] // Command to run inside the container (overrides container entrypoint)
+
+    @description('The environment variables for the container.')
+    environmentVariables: environmentVariable[]? // Optional environment variables
   }
 }
 
 @description('Represents a command to be executed in a container. Must be a non-empty string.')
 @minLength(1)
 type containerCommand = string
+
+//@description('An optional array of environment variables to be set for the container instance.')
+type environmentVariable = {
+  @description('The name of the resource. Must be at least 1 character long.')
+  @minLength(1)
+  name: string
+
+  @description('A sensitive value that should be passed in as a secure parameter.')
+  @secure()
+  secureValue: string?
+
+  @description('A reference to the secure value.')
+  secureValueReference: string?
+
+  @description('A non-sensitive value.')
+  value: string?
+}
 
 output containers array = containers
