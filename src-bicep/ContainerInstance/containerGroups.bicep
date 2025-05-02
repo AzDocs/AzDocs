@@ -296,6 +296,7 @@ param identity object = {
 @description('Specifies the Log Analytics configuration for the container instance.')
 param containerInstanceLogAnalytics containerGroupDiagnostics?
 
+@description('The diagnostics configuration for the container group, including log analytics settings.')
 type containerGroupDiagnostics = {
   @description('Container group log analytics information.')
   logAnalytics: logAnalytics
