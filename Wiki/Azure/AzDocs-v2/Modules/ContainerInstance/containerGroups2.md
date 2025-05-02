@@ -5,6 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
+| <a id="myType">myType</a>  | <pre>{</pre> |  | An array of container definitions for the container group. | 
 | <a id="container">container</a>  | <pre>{</pre> |  |  | 
 
 ## Synopsis
