@@ -63,6 +63,7 @@ type container = {
   }
 }
 
+@description('Represents a command to be executed in a container. Must be a non-empty string.')
 @minLength(1)
 type containerCommand = string
 
