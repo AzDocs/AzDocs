@@ -5,8 +5,8 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="myType">myType</a>  | <pre>{</pre> |  |  | 
-| <a id="container">container</a>  | <pre>{</pre> |  |  | 
+| <a id="container">container</a>  | <pre>{</pre> |  | An array of container definitions for the container group. | 
+| <a id="containerCommand">containerCommand</a>  | <pre>string</pre> |  |  | 
 
 ## Synopsis
 Provisioning an Azure Container Instance
@@ -17,7 +17,7 @@ Provisioning an Azure Container Instance.
 ## Outputs
 | Name | Type | Description |
 | -- |  -- | -- |
-| containers | container[] |  |
+| containers | array |  |
 
 ## Examples
 <pre>
