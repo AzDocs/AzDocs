@@ -14,7 +14,7 @@ Provisioning an Azure Container Instance.
 - Security features including encryption and secrets management
 .EXAMPLE
 <pre>
-module winvmruncmd 'br:contosoregistry.azurecr.io/containerinstance/containergroups:latest' = {
+module aci 'br:contosoregistry.azurecr.io/containerinstance/containergroups:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 48), 'containergroups')
   params: {
     ccePolicy: ccePolicy
