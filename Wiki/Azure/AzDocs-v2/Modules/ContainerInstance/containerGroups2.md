@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="container">container</a>  | <pre>{</pre> |  |  | 
+| <a id="container">container</a>  | <pre>{</pre> |  | The definition of a container within the container group. | 
 | <a id="containerCommand">containerCommand</a>  | <pre>string</pre> |  | Represents a command to be executed in a container. Must be a non-empty string. | 
 | <a id="environmentVariable">environmentVariable</a>  | <pre>{</pre> |  | An optional array of environment variables to be set for the container instance. | 
 | <a id="containerProbe">containerProbe</a>  | <pre>{</pre> |  | The container probe configuration used to define liveness, readiness, or startup probes for the container instance. | 
