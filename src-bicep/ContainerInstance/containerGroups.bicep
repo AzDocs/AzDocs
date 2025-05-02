@@ -372,7 +372,7 @@ type encryptionProperties = {
 @description('An array of deployment extension specifications for the container instance.')
 param containerInstanceDeploymentExtension deploymentExtensionSpec[]?
 
-@description('extensions used by virtual kubelet')
+@description('Specifies the deployment extension configuration.')
 type deploymentExtensionSpec = {
   @description('Name of the extension.')
   name: string
