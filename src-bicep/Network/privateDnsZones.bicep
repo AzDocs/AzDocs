@@ -17,6 +17,25 @@ TODO
 }
 </pre>
 <p>Creates a private DNS zone with the name private DNS zone name.</p>
+.EXAMPLE
+<pre>
+module dnszone  'br:contosoregistry.azurecr.io/network/privatednszones:latest' ={
+  name: '${deployment().name}-dnszone'
+  params: {
+    privateDnsLinkName: 'kvprivdnslinkname'
+    VirtualNetworkLinks: [
+      {
+        privateDnsLinkName: 'privatelink${environment().suffixes.keyvaultDns}'
+        virtualNetworkResourceId: '${subscription().id}/resourceGroups/${platformResourceGroupName}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}'
+      }
+    ]
+    
+  }
+}
+TODO
+}
+</pre>
+<p>Creates a private DNS zone with the name private DNS zone name.</p>
 .LINKS
 - [BICEP Private DNS zone](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/privatednszones?pivots=deployment-language-bicep)
 */
@@ -56,22 +75,56 @@ A virtual network can be linked to private DNS zone as a registration (autoregis
 @maxLength(80)
 param privateDnsLinkName string = ''
 
+@description('''
+For adding virtual network links to the private DNS zone.
+''')
+type virtualNetworkLinkType = {
+  @minLength(0)
+  @maxLength(80)
+  privateDnsLinkName: string
+  registrationEnabled: bool?
+  resolutionPolicy: ResolutionPolicyType?
+  virtualNetworkResourceId: string
+}
+
+@description('''
+If you need multiple network links you can use this property to add multiple links in one go.
+''')
+param VirtualNetworkLinks virtualNetworkLinkType[] = []
+
+var allLinks = union(
+  VirtualNetworkLinks,
+  !empty(privateDnsLinkName)
+    ? [
+        {
+          privateDnsLinkName: privateDnsLinkName
+          registrationEnabled: registrationEnabled
+          resolutionPolicy: resolutionPolicy
+          virtualNetworkResourceId: virtualNetworkResourceId
+        }
+      ]
+    : []
+)
+
 @description('Upsert the privateDnsZone')
 resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: privateDnsZoneName
   location: 'global'
 
-  resource virtualNetworkLink 'virtualNetworkLinks@2024-06-01' = if(!empty(privateDnsLinkName)) {
-    name: privateDnsLinkName
-    location: 'global'
-    properties: {
-      registrationEnabled: registrationEnabled
-      resolutionPolicy: startsWith(privateDnsZoneName, 'privatelink') ? resolutionPolicy : null
-      virtualNetwork: {
-        id: virtualNetworkResourceId
+  @batchSize(1)
+  resource virtualNetworkLink 'virtualNetworkLinks@2024-06-01' = [
+    for link in allLinks: if (!empty(link.privateDnsLinkName)) {
+      name: link.privateDnsLinkName
+      location: 'global'
+      properties: {
+        registrationEnabled: link.registrationEnabled ?? false
+        resolutionPolicy: startsWith(privateDnsZoneName, 'privatelink') ? link.resolutionPolicy : null
+        virtualNetwork: {
+          id: link.virtualNetworkResourceId
+        }
       }
     }
-  }
+  ]
 }
 
 @description('The Resource ID of the upserted Private DNS Zone.')
