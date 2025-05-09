@@ -111,8 +111,9 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: privateDnsZoneName
   location: 'global'
 
+  @batchSize(1)
   resource virtualNetworkLink 'virtualNetworkLinks@2024-06-01' = [
-    for link in allLinks: if (!empty(privateDnsLinkName)) {
+    for link in allLinks: if (!empty(link.privateDnsLinkName)) {
       name: link.privateDnsLinkName
       location: 'global'
       properties: {
