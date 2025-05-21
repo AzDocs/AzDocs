@@ -29,6 +29,7 @@ Add an Azure Firewall to the resource group. The firewall policy is optional and
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
 | firewallPolicyResourceGroupName | string | <input type="checkbox"> | None | <pre>resourceGroup().name</pre> | The resourcegroup name where the Azure Firewall Policy resource can be found. By default it can be found in the same resource group as the Azure Firewall. |
 | autoscaleConfiguration | object | <input type="checkbox"> | None | <pre>{<br>  maxCapacity: null<br>  minCapacity: null<br>}</pre> | Properties to provide a custom autoscale configuration to this azure firewall. Constraints: Min value for both = 2 |
+| hubIPAddresses | object | <input type="checkbox"> | None | <pre>{<br>  privateIPAddress: 'string'<br>  publicIPs: {<br>    addresses: [<br>      {<br>        address: 'string'<br>      }<br>    ]<br>    count: 1<br>  }<br>}</pre> | IP addresses associated with AzureFirewall. |
 
 ## Outputs
 | Name | Type | Description |
