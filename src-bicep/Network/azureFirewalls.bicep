@@ -113,6 +113,24 @@ param autoscaleConfiguration object = {
   minCapacity: null
 }
 
+@description('The virtualHub to which the firewall belongs.')
+param virtualHub { id: string? } = {
+  id: 'string'
+}
+
+@description('IP addresses associated with AzureFirewall.')
+param hubIPAddresses object = {
+  privateIPAddress: 'string'
+  publicIPs: {
+    addresses: [
+      {
+        address: 'string'
+      }
+    ]
+    count: 1
+  }
+}
+
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' existing = {
   name: firewallPolicyName
   scope: resourceGroup(firewallPolicyResourceGroupName)
@@ -128,11 +146,25 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2024-05-01' = {
       tier: AzureFirewallSkuTier
     }
     threatIntelMode: threatIntelMode
+    virtualHub: empty(virtualHub)
+      ? null
+      : {
+          id: virtualHub.?id
+        }
     additionalProperties: {}
     firewallPolicy: empty(firewallPolicyName)
       ? null
       : {
           id: firewallPolicy.id
+        }
+    hubIPAddresses: empty(hubIPAddresses)
+      ? null
+      : {
+          privateIPAddress: hubIPAddresses.privateIPAddress
+          publicIPs: {
+            addresses: hubIPAddresses.publicIPs.addresses
+            count: hubIPAddresses.publicIPs.count
+          }
         }
     ipConfigurations: azureFirewallIpConfigurations
     networkRuleCollections: networkRuleCollections
