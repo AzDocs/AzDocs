@@ -107,12 +107,18 @@ param diagnosticSettingsMetricsCategories array = [
 @description('The resourcegroup name where the Azure Firewall Policy resource can be found. By default it can be found in the same resource group as the Azure Firewall.')
 param firewallPolicyResourceGroupName string = resourceGroup().name
 
+@description('Properties to provide a custom autoscale configuration to this azure firewall. Constraints: Min value for both = 2')
+param autoscaleConfiguration object = {
+  maxCapacity: null
+  minCapacity: null
+}
+
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' existing = {
   name: firewallPolicyName
   scope: resourceGroup(firewallPolicyResourceGroupName)
 }
 
-resource azureFirewall 'Microsoft.Network/azureFirewalls@2023-05-01' = {
+resource azureFirewall 'Microsoft.Network/azureFirewalls@2024-05-01' = {
   name: azureFirewallName
   location: location
   tags: tags
@@ -132,12 +138,13 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2023-05-01' = {
     networkRuleCollections: networkRuleCollections
     applicationRuleCollections: applicationRuleCollections
     natRuleCollections: natRuleCollections
+    autoscaleConfiguration: autoscaleConfiguration
   }
   zones: !empty(availabilityZones) ? availabilityZones : null
 }
 
-@description('Upsert the diagnostics for this keyvault.')
-resource keyvaultDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
+@description('Upsert the diagnostics for this firewall.')
+resource firewallDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
   name: diagnosticsName
   scope: azureFirewall
   properties: {
