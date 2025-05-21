@@ -28,6 +28,7 @@ Add an Azure Firewall to the resource group. The firewall policy is optional and
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings. |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings |
 | firewallPolicyResourceGroupName | string | <input type="checkbox"> | None | <pre>resourceGroup().name</pre> | The resourcegroup name where the Azure Firewall Policy resource can be found. By default it can be found in the same resource group as the Azure Firewall. |
+| autoscaleConfiguration | object | <input type="checkbox"> | None | <pre>{<br>  maxCapacity: null<br>  minCapacity: null<br>}</pre> | Properties to provide a custom autoscale configuration to this azure firewall. Constraints: Min value for both = 2 |
 
 ## Outputs
 | Name | Type | Description |
