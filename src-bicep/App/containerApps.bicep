@@ -609,7 +609,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
 
 // ================================================= Outputs =================================================
 @description('Output of the FQDN of the container App.')
-output containerAppFQDN string = containerApp.properties.configuration.ingress.fqdn
+output containerAppFQDN string = containerApp.properties.configuration.ingress.?fqdn ?? ''
 
 @description('The principal ID of the system assigned identity.')
 output systemAssignedMIPrincipalId string = containerApp.?identity.?principalId ?? ''
