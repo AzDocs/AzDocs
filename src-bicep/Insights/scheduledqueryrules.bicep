@@ -104,6 +104,17 @@ PT1H is 1 hour
 param windowSize string = 'PT5M'
 
 @description('''
+If specified (in [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations)) then overrides the query time range (default is WindowSize*NumberOfEvaluationPeriods). Relevant only for rules of the kind LogAlert.
+The format for this string is P<days>DT<hours>H<minutes>M<seconds>S. You always need to mention de T if something the time is needed.
+for example:
+P2D is 2 days
+P5DT5M is 5 days and 5 minutes
+PT5M is 5 minutes
+PT1H is 1 hour
+''')
+param overrideQueryTimeRange string?
+
+@description('''
 The criteria to alert. The AllOf: [] is required and it cannot be empty.
 For options & formatting please refer to [scheduledqueryrulecriteria](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/scheduledqueryrules?pivots=deployment-language-bicep#scheduledqueryrulecriteria).
 Example:
@@ -253,6 +264,7 @@ resource scheduledQueryRule 'Microsoft.Insights/scheduledQueryRules@2023-03-15-p
     skipQueryValidation: skipQueryValidation
     targetResourceTypes: targetResourceTypes
     windowSize: windowSize
+    overrideQueryTimeRange: overrideQueryTimeRange
   }
 }
 
