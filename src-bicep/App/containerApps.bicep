@@ -195,6 +195,19 @@ Example:
 param dapr object = {}
 
 @description('''
+Optional. Settings for Managed Identities that are assigned to the Container App. If a Managed Identity is not specified here, default settings will be used.
+For object format, refer to [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/2025-01-01/containerapps?pivots=deployment-language-bicep#identitysettings).
+Example:
+[
+  {
+    identity: '/subscriptions/<subscriptionId>/resourcegroups/<resourcegroupname>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<userassignedmanagedidentityname>'
+    lifecycle: 'All'
+  }
+]
+''')
+param identitySettings array = []
+
+@description('''
 ActiveRevisionsMode controls how active revisions are handled for the Container app:
 {list}{item}Multiple: multiple revisions can be active.{/item}{item}Single: Only one revision can be active at a time.Revision weights can not be used in this mode.
 ''')
@@ -311,6 +324,17 @@ param service object = {}
 
 @description('Optional. Max inactive revisions a Container App can have.')
 param maxInactiveRevisions int = 0
+
+@description('''
+Optional. Runtime configuration for the Container App.
+Example:
+{
+  java: {
+    enableMetrics: true
+  }
+}
+''')
+param runtime object = {}
 
 @description('''
 Required. List of container definitions for the Container App.
@@ -522,6 +546,12 @@ scaleRules: [
 ''')
 param scaleRules array = []
 
+@description('Optional. The cooldown period in seconds. Defaults to 300 seconds if not set.')
+param scaleCooldownPeriod int = 300
+
+@description('Optional. The polling interval in seconds. Defaults to 30 seconds if not set.')
+param scalePollingInterval int = 30
+
 @description('Optional. List of container app services bound to the app.')
 param serviceBinds serviceBind[]?
 
@@ -540,7 +570,7 @@ resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' exist
 }
 
 @description('The container app resource')
-resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
+resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
   name: containerAppName
   location: location
   tags: tags
@@ -550,6 +580,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
     configuration: {
       activeRevisionsMode: activeRevisionsMode
       dapr: dapr
+      identitySettings: !empty(identitySettings) ? identitySettings : null
       ingress: disableIngress
         ? null
         : {
@@ -590,6 +621,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       maxInactiveRevisions: maxInactiveRevisions
       registries: !empty(registries) ? registries : null
       secrets: secretList
+      runtime: !empty(runtime) ? runtime : null
     }
     template: {
       containers: containers
@@ -598,6 +630,8 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       scale: {
         maxReplicas: scaleMaxReplicas
         minReplicas: scaleMinReplicas
+        cooldownPeriod: scaleCooldownPeriod
+        pollingInterval: scalePollingInterval
         rules: !empty(scaleRules) ? scaleRules : null
       }
       serviceBinds: (includeAddOns && !empty(serviceBinds)) ? serviceBinds : null
