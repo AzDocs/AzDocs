@@ -117,7 +117,14 @@ param skuName string = 'basic'
 param replicaCount int = 1
 
 @description('The number of partitions in the search service; if specified, it can be 1, 2, 3, 4, 6, or 12. Values greater than 1 are only valid for standard skus.')
-@allowed([1, 2, 3, 4, 6, 12])
+@allowed([
+  1
+  2
+  3
+  4
+  6
+  12
+])
 param partitionCount int = 1
 
 // Validate that partition count > 1 is only allowed for standard SKUs

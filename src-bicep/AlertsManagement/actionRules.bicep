@@ -59,7 +59,7 @@ See https://learn.microsoft.com/en-us/azure/templates/microsoft.alertsmanagement
 Scopes are the resources that the alert processing rule will apply to. The rule will only apply to alerts that are generated from these resources.
 Scopes are specified as resource IDs. For example, the scope for a virtual machine would be: `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{virtualMachineName}`.
 ''')
-param scopes array = [subscription().id]
+param scopes string[] = [subscription().id]
 
 @description('''Conditions on which alerts will be filtered.
 Example:
@@ -81,8 +81,19 @@ If the severity of the alert does not match any of these values, the alert will 
 param conditions Condition[]?
 
 type Condition = {
-  field: string
-  operator: string
+  field:
+    | 'AlertContext'
+    | 'AlertRuleId'
+    | 'AlertRuleName'
+    | 'Description'
+    | 'MonitorCondition'
+    | 'MonitorService'
+    | 'Severity'
+    | 'SignalType'
+    | 'TargetResource'
+    | 'TargetResourceGroup'
+    | 'TargetResourceType'
+  operator: 'Contains' | 'DoesNotContain' | 'Equals' | 'NotEquals'
   values: string[]
 }
 
@@ -104,11 +115,21 @@ The action type can be one of the following:
   - actionGroupIds: An array of action group IDs to be added to the alert processing rule.
 - `RemoveAllActionGroups`: Removes all action groups from the alert processing rule.
 ''')
-param actions array = [
+param actions ActionType[] = [
   {
     actionType: 'RemoveAllActionGroups'
   }
 ]
+
+@discriminator('actionType')
+type ActionType = ActionTypeRemoveAllActionGroups | ActionTypeAddActionGroups
+type ActionTypeRemoveAllActionGroups = {
+  actionType: 'RemoveAllActionGroups'
+}
+type ActionTypeAddActionGroups = {
+  actionType: 'AddActionGroups'
+  actionGroupIds: string[]
+}
 
 @description('''
 Defines the schedule for the alert processing rule.
@@ -143,13 +164,30 @@ type Schedule = {
   effectiveFrom: string?
   effectiveUntil: string?
   timeZone: string
-  recurrences: {
-    recurrenceType: 'Weekly' | 'Daily' | 'Monthly'
-    daysOfWeek: string[]?
-    startTime: string
-    endTime: string
-  }[]
+  recurrences: Recurrence[]
 }
+
+@discriminator('recurrenceType')
+type Recurrence = DailyRecurrence | monthlyRecurrence | WeeklyRecurrence 
+
+type DailyRecurrence = {
+  recurrenceType: 'Daily'
+  startTime: string
+  endTime: string
+}
+type monthlyRecurrence = {
+  recurrenceType: 'Monthly'
+  startTime: string
+  endTime: string
+}
+type WeeklyRecurrence = {
+  recurrenceType: 'Weekly'
+  daysOfWeek: DayOfTheWeek[]
+  startTime: string
+  endTime: string
+}
+
+type DayOfTheWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'
 
 @description('Optional. Indicates if the given action rule is enabled or disabled.')
 param enabled bool = true
