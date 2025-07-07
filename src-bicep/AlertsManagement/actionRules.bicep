@@ -123,6 +123,7 @@ param actions ActionType[] = [
 
 @discriminator('actionType')
 type ActionType = ActionTypeRemoveAllActionGroups | ActionTypeAddActionGroups
+
 type ActionTypeRemoveAllActionGroups = {
   actionType: 'RemoveAllActionGroups'
 }
@@ -157,6 +158,8 @@ In this example:
 - The rule is active from April 4, 2025, to April 5, 2025.
 - The time zone is set to UTC.
 - The rule recurs weekly on weekdays (Monday to Friday).
+
+The effectiveFrom and effectiveUntil properties must follow the following regex pattern: ^(?:(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}(?:\.\d+)?))$.
 ''')
 param schedule Schedule?
 
@@ -168,23 +171,26 @@ type Schedule = {
 }
 
 @discriminator('recurrenceType')
-type Recurrence = DailyRecurrence | monthlyRecurrence | WeeklyRecurrence 
+type Recurrence = DailyRecurrence | MonthlyRecurrence | WeeklyRecurrence
 
 type DailyRecurrence = {
   recurrenceType: 'Daily'
   startTime: string
   endTime: string
 }
-type monthlyRecurrence = {
-  recurrenceType: 'Monthly'
-  startTime: string
-  endTime: string
-}
+
 type WeeklyRecurrence = {
   recurrenceType: 'Weekly'
   daysOfWeek: DayOfTheWeek[]
   startTime: string
   endTime: string
+}
+
+type MonthlyRecurrence = {
+  recurrenceType: 'Monthly'
+  startTime: string
+  endTime: string
+  daysOfMonth: int[]
 }
 
 type DayOfTheWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'
