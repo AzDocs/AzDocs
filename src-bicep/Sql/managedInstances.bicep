@@ -82,7 +82,20 @@ param administrators managedInstanceExternalAdministratorType?
 param authenticationMetadata string?
 
 @description('Collation of the managed instance.')
-param collation string?
+@allowed([
+  'Arabic_100_CI_AS'
+  'Chinese_PRC_CI_AS'
+  'Cyrillic_General_100_CI_AS'
+  'Finnish_Swedish_100_CI_AS'
+  'Japanese_CI_AS'
+  'Latin1_General_100_CI_AS'
+  'Latin1_General_100_CS_AS'
+  'SQL_Latin1_General_CP1_CI_AS'
+  'Latin1_General_BIN'
+  'Latin1_General_CI_AS'
+  'Latin1_General_CS_AS'
+])
+param collation string
 
 @description('Specifies the internal format of instance databases specific to the SQL engine version.')
 @allowed(['AlwaysUpToDate', 'SQLServer2022'])
@@ -100,7 +113,7 @@ param identity object = {
   type: 'SystemAssigned'
 }
 
-@description('The Id of the instance pool this managed server belongs to.')
+@description('The Id of the instance pool this managed server belongs to. Id must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/instancePools/{instancePoolName}')
 param instancePoolId string?
 
 @description('Whether or not this is a GPv2 variant of General Purpose edition.')
@@ -116,7 +129,7 @@ param licenseType string?
 @description('Specifies the Azure location where the resource should be created.')
 param location string = resourceGroup().location
 
-@description('Specifies maintenance configuration id to apply to this managed instance.')
+@description('Specifies maintenance configuration id to apply to this managed instance. Id must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/maintenanceConfigurations/{maintenanceConfigurationName}')
 param maintenanceConfigurationId string?
 
 @description('Specifies the mode of database creation. Default: Regular instance creation. Restore: Creates an instance by restoring a set of backups to specific point in time. RestorePointInTime and SourceManagedInstanceId must be specified.')
@@ -133,7 +146,7 @@ param minimalTlsVersion string = '1.2'
 @allowed(['Freemium', 'Regular'])
 param pricingModel string?
 
-@description('The resource id of a user assigned identity to be used by default.')
+@description('The resource id of a user assigned identity to be used by default. Must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{userAssignedIdentityName}')
 param primaryUserAssignedIdentityId string?
 
 @description('Connection type used for connecting to the instance.')
@@ -160,7 +173,14 @@ param sku skuType
 @description('Name of the SQL Managed Instance resource')
 param sqlManagedInstanceName string
 
-@description('The resource identifier of the source managed instance associated with create operation of this instance.')
+@description('''
+The resource identifier of the source managed instance to restore from when using PointInTimeRestore mode.
+This parameter is required when managedInstanceCreateMode is set to 'PointInTimeRestore'.
+Must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/managedInstances/{managedInstanceName}
+
+For cross-instance restores, both source and target instances must be in the same region.
+For cross-subscription restores, both subscriptions must be in the same tenant.
+''')
 param sourceManagedInstanceId string?
 
 @description('Storage IOps. Minimum value: 300. Maximum value: 80000. Increments of 1 IOps allowed only. Maximum value depends on the selected hardware family and number of vCores.')
@@ -189,7 +209,9 @@ Example:
 ''')
 param tags object = {}
 
-@description('Id of the timezone. Allowed values are timezones supported by Windows.')
+@description('''Id of the timezone. Allowed values are timezones supported by Windows.
+
+A list of available timezones can be found [here](https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/sql-managed-instance-timezones).''')
 param timezoneId string?
 
 @description('Total memory in MB. Minimum value: 7168. Maximum value: 891328. Increments of 1 MB allowed only. Maximum value depends on the selected hardware family and number of vCores.')
@@ -245,14 +267,14 @@ type servicePrincipalType = {
 type skuType = {
   @minValue(1)
   @description('''
-  Number of vCores for the SQL Managed Instance. This is the primary property to set the compute capacity of the instance.
-  
-  For `Gen5`, valid values are typically `4, 8, 16, 24, or 32` vCores.
-  
-  For G8IM and G8IH, the range and increments may differ.
-  
-  Allowed values for General Purpose: 8, 16, 24, 32, 40, 64, 80
-  Allowed values for Business Critical: 8, 16, 24, 32, 40, 64, 80''')
+Number of vCores for the SQL Managed Instance. This is the primary property to set the compute capacity of the instance.
+
+For `Gen5`, valid values are typically `4, 8, 16, 24, or 32` vCores.
+
+For G8IM and G8IH, the range and increments may differ.
+
+Allowed values for General Purpose: 8, 16, 24, 32, 40, 64, 80
+Allowed values for Business Critical: 8, 16, 24, 32, 40, 64, 80''')
   capacity: int
 
   @description('If the service has different generations of hardware, for the same SKU, then that can be captured here. `Optional`')
