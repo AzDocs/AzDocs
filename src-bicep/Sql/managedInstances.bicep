@@ -183,7 +183,20 @@ For cross-subscription restores, both subscriptions must be in the same tenant.
 ''')
 param sourceManagedInstanceId string?
 
-@description('Storage IOps. Minimum value: 300. Maximum value: 80000. Increments of 1 IOps allowed only. Maximum value depends on the selected hardware family and number of vCores.')
+@description('''Storage IOps for SQL Managed Instance. Valid ranges depend on SKU, tier, and vCore count:
+
+General Purpose tier (GP_Gen5, GP_G8IM, GP_G8IH):
+- Minimum: 1536 IOps for all vCore counts
+- Maximum: Scales with vCores (6400 for 4 vCores, 12800 for 8 vCores, 25600 for 16 vCores, 38400 for 24 vCores, 51200 for 32 vCores, 64000 for 40 vCores, 80000 for 64+ vCores)
+- Recommended: 30-40% of maximum (3000 for 8 vCores, 5000 for 16 vCores, etc.)
+
+Business Critical tier (BC_Gen5, BC_G8IM, BC_G8IH):
+- Minimum: 1536 IOps for all vCore counts
+- Maximum: 4000 IOps per vCore (16000 for 4 vCores, 32000 for 8 vCores, 64000 for 16 vCores, etc.)
+- Recommended: 50% of maximum (8000 for 4 vCores, 16000 for 8 vCores, etc.)
+
+Note: While the type definition allows 300-80000 IOps for flexibility, Azure enforces the limits above at deployment time.
+''')
 @minValue(300)
 @maxValue(80000)
 param storageIOps int?
