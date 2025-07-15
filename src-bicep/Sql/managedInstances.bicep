@@ -79,7 +79,7 @@ param administrators managedInstanceExternalAdministratorType?
 
 @description('The managed instance\'s authentication metadata lookup mode.')
 @allowed(['AzureAD', 'Paired', 'Windows'])
-param authenticationMetadata string?
+param authenticationMetadata string = 'AzureAD'
 
 @description('Collation of the managed instance.')
 @allowed([
@@ -95,7 +95,7 @@ param authenticationMetadata string?
   'Latin1_General_CI_AS'
   'Latin1_General_CS_AS'
 ])
-param collation string
+param collation string = 'Latin1_General_CI_AS'
 
 @description('Specifies the internal format of instance databases specific to the SQL engine version.')
 @allowed(['AlwaysUpToDate', 'SQLServer2022'])
@@ -108,8 +108,8 @@ param dnsZonePartner string?
 @allowed(['Active', 'Passive'])
 param hybridSecondaryUsage string?
 
-@description('Managed service identity to use for this App Service Instance. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).')
-param identity object = {
+@description('The Azure Active Directory identity of the managed instance. Defaults to a system assigned managed identity.')
+param identity resourceIdentityType = {
   type: 'SystemAssigned'
 }
 
@@ -136,12 +136,6 @@ param maintenanceConfigurationId string?
 @allowed(['Default', 'PointInTimeRestore'])
 param managedInstanceCreateMode string?
 
-@description('Minimal TLS version. Allowed values: \'1.2\'')
-@allowed([
-  '1.2'
-])
-param minimalTlsVersion string = '1.2'
-
 @description('Pricing model of Managed Instance.')
 @allowed(['Freemium', 'Regular'])
 param pricingModel string?
@@ -151,14 +145,14 @@ param primaryUserAssignedIdentityId string?
 
 @description('Connection type used for connecting to the instance.')
 @allowed(['Default', 'Proxy', 'Redirect'])
-param proxyOverride string?
+param proxyOverride string = 'Default'
 
 @description('Whether or not the public data endpoint is enabled.')
 param publicDataEndpointEnabled bool?
 
 @description('The storage account type to be used to store backups for this instance. The options are Local (LocallyRedundantStorage), Zone (ZoneRedundantStorage), Geo (GeoRedundantStorage) and GeoZone(GeoZoneRedundantStorage)')
 @allowed(['Geo', 'GeoZone', 'Local', 'Zone'])
-param requestedBackupStorageRedundancy string?
+param requestedBackupStorageRedundancy string = 'Local'
 
 @description('Specifies the point in time (ISO8601 format) of the source database that will be restored to create the new database.')
 param restorePointInTime string?
@@ -224,8 +218,8 @@ param tags object = {}
 
 @description('''Id of the timezone. Allowed values are timezones supported by Windows.
 
-A list of available timezones can be found [here](https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/sql-managed-instance-timezones).''')
-param timezoneId string?
+A list of available timezones can be found [here](https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/timezones-overview?view=azuresql).''')
+param timezoneId string = 'UTC'
 
 @description('Total memory in MB. Minimum value: 7168. Maximum value: 891328. Increments of 1 MB allowed only. Maximum value depends on the selected hardware family and number of vCores.')
 @minValue(7168)
@@ -236,6 +230,18 @@ param totalMemoryMB int?
 param zoneRedundant bool?
 
 // ================================================= Custom Types =================================================
+@description('The Azure Active Directory identity of the managed instance.')
+type resourceIdentityType = {
+  @description('The identity type. Set this to \'SystemAssigned\' in order to automatically create and assign an Azure Active Directory principal for the resource.')
+  type: 'None' | 'SystemAssigned' | 'SystemAssigned,UserAssigned' | 'UserAssigned'
+
+  @description('The resource ids of the user assigned identities to use. The key is the resource ID of the user-assigned identity and the value is an empty object.')
+  userAssignedIdentities: {
+    @description('User assigned identity resource ID.')
+    *: {}
+  }?
+}
+
 @description('The Azure Active Directory administrator type for SQL Managed Instance.')
 type managedInstanceExternalAdministratorType = {
   @description('Type of the server administrator. Must be `ActiveDirectory`.')
@@ -322,7 +328,7 @@ resource sqlManagedInstance 'Microsoft.Sql/managedInstances@2024-05-01-preview' 
     // Database configuration
     collation: collation
     databaseFormat: databaseFormat
-    minimalTlsVersion: minimalTlsVersion
+    minimalTlsVersion: '1.2'
 
     // Networking configuration
     dnsZonePartner: dnsZonePartner
