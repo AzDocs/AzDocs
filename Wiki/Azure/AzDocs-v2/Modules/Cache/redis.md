@@ -48,6 +48,7 @@ Creates an Azure Cache for Redis instance with the given specs.
 | -- |  -- | -- |
 | redisCacheName | string | Output the resource name for this Azure Cache for Redis instance. |
 | redisCacheResourceId | string | Output the resource id of this Azure Cache for Redis instance. |
+| redisCachePrincipalId | string | Output the principal id of the managed identity for this Azure Cache for Redis instance. |
 
 ## Examples
 <pre>
