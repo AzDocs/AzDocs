@@ -5,6 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
+| <a id="resourceIdentityType">resourceIdentityType</a>  | <pre>{</pre> |  | The Azure Active Directory identity of the managed instance. | 
 | <a id="managedInstanceExternalAdministratorType">managedInstanceExternalAdministratorType</a>  | <pre>{</pre> |  | The Azure Active Directory administrator type for SQL Managed Instance. | 
 | <a id="skuFamily">skuFamily</a>  | <pre>'Gen5' &#124; 'G8IM' &#124; 'G8IH'</pre> |  | The SKU family for the SQL Managed Instance. This defines the generation and type of hardware used. | 
 | <a id="skuName">skuName</a>  | <pre>'GP_Gen5' &#124; 'GP_G8IM' &#124; 'GP_G8IH' &#124; 'BC_Gen5' &#124; 'BC_G8IM' &#124; 'BC_G8IH'</pre> |  | The SKU for the SQL Managed Instance. This defines the performance and capacity characteristics of the instance. | 
@@ -24,12 +25,12 @@ Creating a SQL Managed Instance with the given specifications.
 | administratorLogin | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The username for the SQL Managed Instance administrator login. |
 | administratorLoginPassword | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | Password for the SQL Managed Instance administrator login |
 | administrators | managedInstanceExternalAdministratorType? | <input type="checkbox" checked> | None | <pre></pre> | The Azure Active Directory administrator of the SQL Managed Instance. This can only be used at instance create time. |
-| authenticationMetadata | string? | <input type="checkbox" checked> | None | <pre></pre> | The managed instance\'s authentication metadata lookup mode. |
-| collation | string | <input type="checkbox" checked> | `'Arabic_100_CI_AS'` or `'Chinese_PRC_CI_AS'` or `'Cyrillic_General_100_CI_AS'` or `'Finnish_Swedish_100_CI_AS'` or `'Japanese_CI_AS'` or `'Latin1_General_100_CI_AS'` or `'Latin1_General_100_CS_AS'` or `'SQL_Latin1_General_CP1_CI_AS'` or `'Latin1_General_BIN'` or `'Latin1_General_CI_AS'` or `'Latin1_General_CS_AS'` | <pre></pre> | Collation of the managed instance. |
+| authenticationMetadata | string | <input type="checkbox"> | None | <pre>'AzureAD'</pre> | The managed instance\'s authentication metadata lookup mode. |
+| collation | string | <input type="checkbox"> | `'Arabic_100_CI_AS'` or `'Chinese_PRC_CI_AS'` or `'Cyrillic_General_100_CI_AS'` or `'Finnish_Swedish_100_CI_AS'` or `'Japanese_CI_AS'` or `'Latin1_General_100_CI_AS'` or `'Latin1_General_100_CS_AS'` or `'SQL_Latin1_General_CP1_CI_AS'` or `'Latin1_General_BIN'` or `'Latin1_General_CI_AS'` or `'Latin1_General_CS_AS'` | <pre>'Latin1_General_CI_AS'</pre> | Collation of the managed instance. |
 | databaseFormat | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies the internal format of instance databases specific to the SQL engine version. |
 | dnsZonePartner | string? | <input type="checkbox" checked> | None | <pre></pre> | The resource id of another managed instance whose DNS zone this managed instance will share after creation. |
 | hybridSecondaryUsage | string? | <input type="checkbox" checked> | None | <pre></pre> | Hybrid secondary usage. Possible values are \'Active\' (default value) and \'Passive\' (customer uses the secondary as Passive DR). |
-| identity | object | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | Managed service identity to use for this App Service Instance. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity). |
+| identity | resourceIdentityType | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | The Azure Active Directory identity of the managed instance. Defaults to a system assigned managed identity. |
 | instancePoolId | string? | <input type="checkbox" checked> | None | <pre></pre> | The Id of the instance pool this managed server belongs to. Id must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/instancePools/{instancePoolName} |
 | isGeneralPurposeV2 | bool? | <input type="checkbox" checked> | None | <pre></pre> | Whether or not this is a GPv2 variant of General Purpose edition. |
 | keyId | string? | <input type="checkbox" checked> | None | <pre></pre> | A CMK URI of the key to use for encryption. |
@@ -37,12 +38,11 @@ Creating a SQL Managed Instance with the given specifications.
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. |
 | maintenanceConfigurationId | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies maintenance configuration id to apply to this managed instance. Id must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/maintenanceConfigurations/{maintenanceConfigurationName} |
 | managedInstanceCreateMode | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies the mode of database creation. Default: Regular instance creation. Restore: Creates an instance by restoring a set of backups to specific point in time. RestorePointInTime and SourceManagedInstanceId must be specified. |
-| minimalTlsVersion | string | <input type="checkbox"> | `'1.2'` | <pre>'1.2'</pre> | Minimal TLS version. Allowed values: \'1.2\' |
 | pricingModel | string? | <input type="checkbox" checked> | None | <pre></pre> | Pricing model of Managed Instance. |
 | primaryUserAssignedIdentityId | string? | <input type="checkbox" checked> | None | <pre></pre> | The resource id of a user assigned identity to be used by default. Must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{userAssignedIdentityName} |
-| proxyOverride | string? | <input type="checkbox" checked> | None | <pre></pre> | Connection type used for connecting to the instance. |
+| proxyOverride | string | <input type="checkbox"> | None | <pre>'Default'</pre> | Connection type used for connecting to the instance. |
 | publicDataEndpointEnabled | bool? | <input type="checkbox" checked> | None | <pre></pre> | Whether or not the public data endpoint is enabled. |
-| requestedBackupStorageRedundancy | string? | <input type="checkbox" checked> | None | <pre></pre> | The storage account type to be used to store backups for this instance. The options are Local (LocallyRedundantStorage), Zone (ZoneRedundantStorage), Geo (GeoRedundantStorage) and GeoZone(GeoZoneRedundantStorage) |
+| requestedBackupStorageRedundancy | string | <input type="checkbox"> | None | <pre>'Local'</pre> | The storage account type to be used to store backups for this instance. The options are Local (LocallyRedundantStorage), Zone (ZoneRedundantStorage), Geo (GeoRedundantStorage) and GeoZone(GeoZoneRedundantStorage) |
 | restorePointInTime | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies the point in time (ISO8601 format) of the source database that will be restored to create the new database. |
 | servicePrincipal | servicePrincipalType? | <input type="checkbox" checked> | None | <pre></pre> | The managed instance\'s service principal. |
 | sku | skuType | <input type="checkbox" checked> | None | <pre></pre> | Managed instance SKU. Allowed values for sku.name: `GP_Gen5, GP_G8IM, GP_G8IH, BC_Gen5, BC_G8IM, BC_G8IH` |
@@ -53,7 +53,7 @@ Creating a SQL Managed Instance with the given specifications.
 | storageThroughputMBps | int? | <input type="checkbox" checked> | None | <pre></pre> | Storage throughput MBps parameter is not supported in the instance create/update operation. |
 | subnetId | string? | <input type="checkbox" checked> | None | <pre></pre> | Subnet resource ID for the managed instance. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs. Resource may inherit tags from the ResourceGroup instead.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
-| timezoneId | string? | <input type="checkbox" checked> | None | <pre></pre> |  |
+| timezoneId | string | <input type="checkbox"> | None | <pre>'UTC'</pre> |  |
 | totalMemoryMB | int? | <input type="checkbox" checked> | Value between 7168-891328 | <pre></pre> | Total memory in MB. Minimum value: 7168. Maximum value: 891328. Increments of 1 MB allowed only. Maximum value depends on the selected hardware family and number of vCores. |
 | zoneRedundant | bool? | <input type="checkbox" checked> | None | <pre></pre> | Whether or not the multi-az is enabled. |
 
