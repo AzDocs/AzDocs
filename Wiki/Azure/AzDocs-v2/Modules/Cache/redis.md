@@ -43,6 +43,12 @@ Creates an Azure Cache for Redis instance with the given specs.
 | preferredDataPersistenceAuthMethod | string | <input type="checkbox"> | `'SAS'` or `'ManagedIdentity'` | <pre>'ManagedIdentity'</pre> | Preferred auth method to communicate to storage account used for data persistence, specify SAS or ManagedIdentity, default value is ManagedIdentity |
 | storageSubscriptionId | string | <input type="checkbox"> | None | <pre>subscription().subscriptionId</pre> | SubscriptionId of the storage account for persistence (aof/rdb) using ManagedIdentity. Defaults to the current subscription ID. |
 
+## Outputs
+| Name | Type | Description |
+| -- |  -- | -- |
+| redisCacheName | string | Output the resource name for this Azure Cache for Redis instance. |
+| redisCacheResourceId | string | Output the resource id of this Azure Cache for Redis instance. |
+
 ## Examples
 <pre>
 module webApp 'br:contosoregistry.azurecr.io/cache/redis:latest' = {
