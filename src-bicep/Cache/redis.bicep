@@ -119,7 +119,7 @@ Setting up roleassignments for the resource.
 Example:
  [
   {
-    roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' //Website Contributor
+    roleDefinitionId: 'e0f68234-74aa-48ed-b826-c38b57376e17' // Redis Cache Contributor (Lets you manage Redis caches, but not access to them.)
     principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'
     principalType: 'ServicePrincipal'
   }
