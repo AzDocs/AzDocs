@@ -184,6 +184,30 @@ param preferredDataPersistenceAuthMethod string = 'ManagedIdentity'
 @description('SubscriptionId of the storage account for persistence (aof/rdb) using ManagedIdentity. Defaults to the current subscription ID.')
 param storageSubscriptionId string = subscription().subscriptionId
 
+// Only add vars if they're needed to prevent variables from failing with invalid values such as null.
+var redisConfiguration = union(
+  {
+    'aad-enabled': enableEntraBasedAuthentication ? 'true' : 'false'
+    'preferred-data-persistence-auth-method': preferredDataPersistenceAuthMethod
+    'storage-subscription-id': storageSubscriptionId
+  },
+  aofBackupEnabled == true
+    ? {
+        'aof-backup-enabled': 'true'
+        'aof-storage-connection-string-0': aofStorageConnectionString0
+        'aof-storage-connection-string-1': aofStorageConnectionString1
+      }
+    : {},
+  rdbBackupEnabled == true
+    ? {
+        'rdb-backup-enabled': 'true'
+        'rdb-storage-connection-string': rdbStorageConnectionString
+        'rdb-backup-frequency': '${rdbBackupFrequency}'
+        'rdb-backup-max-snapshot-count': '${rdbBackupMaxSnapshotCount}'
+      }
+    : {}
+)
+
 @description('Upsert the Redis cache and potential VNet integration with the given parameters.')
 resource redisCache 'Microsoft.Cache/redis@2024-11-01' = {
   identity: identity
@@ -200,18 +224,7 @@ resource redisCache 'Microsoft.Cache/redis@2024-11-01' = {
       family: redisCacheFamily
       name: redisCacheSKU
     }
-    redisConfiguration: {
-      'aad-enabled': enableEntraBasedAuthentication ? 'true' : 'false'
-      'aof-backup-enabled': aofBackupEnabled ? 'true' : 'false'
-      'aof-storage-connection-string-0': aofStorageConnectionString0
-      'aof-storage-connection-string-1': aofStorageConnectionString1
-      'rdb-backup-enabled': rdbBackupEnabled ? 'true' : 'false'
-      'rdb-backup-frequency': '${rdbBackupFrequency}'
-      'rdb-backup-max-snapshot-count': '${rdbBackupMaxSnapshotCount}'
-      'rdb-storage-connection-string': rdbStorageConnectionString
-      'preferred-data-persistence-auth-method': preferredDataPersistenceAuthMethod
-      'storage-subscription-id': storageSubscriptionId
-    }
+    redisConfiguration: redisConfiguration
   }
   tags: tags
 }
@@ -243,3 +256,5 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-prev
 output redisCacheName string = redisCache.name
 @description('Output the resource id of this Azure Cache for Redis instance.')
 output redisCacheResourceId string = redisCache.id
+@description('Output the principal id of the managed identity for this Azure Cache for Redis instance.')
+output redisCachePrincipalId string = redisCache.identity.principalId
