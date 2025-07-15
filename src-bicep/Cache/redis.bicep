@@ -12,7 +12,6 @@ module webApp 'br:contosoregistry.azurecr.io/cache/redis:latest' = {
     redisCacheSKU: redisCacheSKU
     redisCacheFamily: redisCacheFamily
     redisCacheCapacity: redisCacheCapacity
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
   }
 }
 </pre>
@@ -21,6 +20,33 @@ module webApp 'br:contosoregistry.azurecr.io/cache/redis:latest' = {
 - [Bicep Microsoft.Cache redis](https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redis?pivots=deployment-language-bicep)
 - [Quickstart: Create an Azure Cache for Redis using Bicep](https://learn.microsoft.com/en-us/azure/redis/redis-cache-bicep-provision?tabs=CLI)
 */
+
+// ================================================= Imports =================================================
+import { diagnosticLogCategory, diagnosticMetricCategory } from '../_common/diagnosticTypes.bicep'
+
+// ================================================= User-Defined Types =================================================
+type roleAssignmentType = {
+  @description('Required. The role to assign. You can provide either the display name of the role definition, the role definition GUID, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'.')
+  roleDefinitionIdOrName: string
+
+  @description('Required. The principal ID of the principal (user/group/identity) to assign the role to.')
+  principalId: string
+
+  @description('Optional. The principal type of the assigned principal ID.')
+  principalType: ('ServicePrincipal' | 'Group' | 'User' | 'ForeignGroup' | 'Device')?
+
+  @description('Optional. The description of the role assignment.')
+  description: string?
+
+  @description('Optional. The conditions on the role assignment. This limits the resources it can be assigned to. e.g.: @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:ContainerName] StringEqualsIgnoreCase "foo_storage_container".')
+  condition: string?
+
+  @description('Optional. Version of the condition.')
+  conditionVersion: '2.0'?
+
+  @description('Optional. The Resource Id of the delegated managed identity resource.')
+  delegatedManagedIdentityResourceId: string?
+}
 
 // ================================================= Parameters =================================================
 @description('Specifies the Azure location where the resource should be created.')
@@ -59,28 +85,36 @@ param identity object = {
 @description('The full resource ID of a subnet in a virtual network to deploy the Redis cache in. Example format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/Microsoft.{Network|ClassicNetwork}/VirtualNetworks/vnet1/subnets/subnet1')
 param subnetId string?
 
-@description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
+@description('The azure resource id of the log analytics workspace to log any diagnostics to.')
 @minLength(0)
-param logAnalyticsWorkspaceResourceId string
+param logAnalyticsWorkspaceResourceId string?
 
 @description('The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`.')
 @minLength(1)
 @maxLength(260)
 param diagnosticsName string = 'AzurePlatformCentralizedLogging'
 
-@description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
-param diagnosticSettingsLogsCategories array = [
+@description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
+param diagnosticSettingsLogsCategories diagnosticLogCategory[] = [
   {
     categoryGroup: 'allLogs'
     enabled: true
+    retentionPolicy: {
+      days: 7
+      enabled: true
+    }
   }
 ]
 
-@description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings).')
-param diagnosticSettingsMetricsCategories array = [
+@description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings).')
+param diagnosticSettingsMetricsCategories diagnosticMetricCategory[] = [
   {
-    categoryGroup: 'AllMetrics'
+    category: 'AllMetrics'
     enabled: true
+    retentionPolicy: {
+      days: 7
+      enabled: true
+    }
   }
 ]
 
@@ -118,7 +152,7 @@ Example:
   }
 ]
 ''')
-param roleAssignments array = []
+param roleAssignments roleAssignmentType[] = []
 
 @description('Specifies whether the aof backup is enabled')
 param aofBackupEnabled bool = false
@@ -171,6 +205,10 @@ param preferredDataPersistenceAuthMethod string = 'ManagedIdentity'
 @description('SubscriptionId of the storage account for persistence (aof/rdb) using ManagedIdentity. Defaults to the current subscription ID.')
 param storageSubscriptionId string = subscription().subscriptionId
 
+// ================================================= Variables =================================================
+@description('The family for the sku. C = Basic/Standard, P = Premium.')
+var redisCacheFamily = redisCacheSKU == 'Premium' ? 'P' : 'C'
+
 // Only add vars if they're needed to prevent variables from failing with invalid values such as null.
 var redisConfiguration = union(
   {
@@ -195,9 +233,22 @@ var redisConfiguration = union(
     : {}
 )
 
-@description('The family for the sku. C = Basic/Standard, P = Premium.')
-var redisCacheFamily = redisCacheSKU == 'Premium' ? 'P' : 'C'
+// This will cause deployment to fail if the specified capacity is not supported for the given SKU.
+var validateCapacity = redisCacheSKU == 'Premium' && redisCacheCapacity > 0 && redisCacheCapacity < 6
+  ? true
+  : fail('redisCacheCapacity must be between 1 and 5 (inclusive) when the SKU is set to Premium. Selected capacity: ${redisCacheCapacity}')
 
+var builtInRoleNames = {
+  Contributor: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+  Owner: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')
+  Reader: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
+  'Redis Cache Contributor': subscriptionResourceId(
+    'Microsoft.Authorization/roleDefinitions',
+    'e0f68234-74aa-48ed-b826-c38b57376e17'
+  )
+}
+
+// ================================================= Resources =================================================
 @description('Upsert the Redis cache and potential VNet integration with the given parameters.')
 resource redisCache 'Microsoft.Cache/redis@2024-11-01' = {
   identity: identity
@@ -210,7 +261,7 @@ resource redisCache 'Microsoft.Cache/redis@2024-11-01' = {
     publicNetworkAccess: publicNetworkAccess
     subnetId: subnetId
     sku: {
-      capacity: redisCacheCapacity
+      capacity: validateCapacity ? redisCacheCapacity : redisCacheCapacity // This ensures validation is evaluated
       family: redisCacheFamily
       name: redisCacheSKU
     }
@@ -230,21 +281,32 @@ resource redisCacheDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@202
   }
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [
-  for assignment in roleAssignments: {
-    name: guid(redisCache.name, assignment.RoleDefinitionId, assignment.principalId)
-    scope: redisCache
+resource redisCacheRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for (roleAssignment, index) in roleAssignments: {
+    name: guid(redisCache.id, roleAssignment.principalId, roleAssignment.roleDefinitionIdOrName)
     properties: {
-      roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '${assignment.roleDefinitionId}')
-      principalId: assignment.principalId
-      principalType: assignment.principalType
+      roleDefinitionId: contains(builtInRoleNames, roleAssignment.?roleDefinitionIdOrName)
+        ? builtInRoleNames[roleAssignment.roleDefinitionIdOrName]
+        : contains(roleAssignment.roleDefinitionIdOrName, '/providers/Microsoft.Authorization/roleDefinitions/')
+            ? roleAssignment.roleDefinitionIdOrName
+            : subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleAssignment.roleDefinitionIdOrName)
+      principalId: roleAssignment.principalId
+      description: roleAssignment.?description
+      principalType: roleAssignment.?principalType
+      condition: roleAssignment.?condition
+      conditionVersion: !empty(roleAssignment.?condition) ? (roleAssignment.?conditionVersion ?? '2.0') : null // Must only be set if condtion is set
+      delegatedManagedIdentityResourceId: roleAssignment.?delegatedManagedIdentityResourceId
     }
+    scope: redisCache
   }
 ]
 
+// ================================================= Outputs =================================================
 @description('Output the resource name for this Azure Cache for Redis instance.')
 output redisCacheName string = redisCache.name
+
 @description('Output the resource id of this Azure Cache for Redis instance.')
 output redisCacheResourceId string = redisCache.id
+
 @description('Output the principal id of the managed identity for this Azure Cache for Redis instance.')
 output redisCachePrincipalId string = redisCache.identity.principalId
