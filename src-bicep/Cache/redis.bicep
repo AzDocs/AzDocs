@@ -238,3 +238,8 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-prev
     }
   }
 ]
+
+@description('Output the resource name for this storage account.')
+output redisCacheName string = redisCache.name
+@description('Output the resource id of this storage account.')
+output redisCacheResourceId string = redisCache.id
