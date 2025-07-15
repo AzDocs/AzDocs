@@ -39,13 +39,6 @@ param redisCacheName string
 ])
 param redisCacheSKU string
 
-@description('Specify the family for the sku. C = Basic/Standard, P = Premium.')
-@allowed([
-  'C'
-  'P'
-])
-param redisCacheFamily string
-
 @description('Specify the size of the new Azure Redis Cache instance. Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4, 5)')
 @allowed([
   0
@@ -92,7 +85,7 @@ param diagnosticSettingsMetricsCategories array = [
 ]
 
 @description('Authentication to Redis through access keys is disabled when set as true. Default value is false.')
-param disableAccessKeyAuthentication bool = false
+param disableAccessKeyAuthentication bool = true
 
 @description('Specifies whether Entra/AAD based authentication has been enabled or disabled for the cache. Default is true.')
 param enableEntraBasedAuthentication bool = true
@@ -126,12 +119,6 @@ Example:
 ]
 ''')
 param roleAssignments array = []
-
-@description('The TLS version to use for the Redis cache. Default is 1.2')
-type tlsVersionType = '1.2'
-
-@description('The TLS version to use for the Redis cache. Default is 1.2')
-param tlsVersion tlsVersionType = '1.2'
 
 @description('Specifies whether the aof backup is enabled')
 param aofBackupEnabled bool = false
@@ -208,6 +195,9 @@ var redisConfiguration = union(
     : {}
 )
 
+@description('The family for the sku. C = Basic/Standard, P = Premium.')
+var redisCacheFamily = redisCacheSKU == 'Premium' ? 'P' : 'C'
+
 @description('Upsert the Redis cache and potential VNet integration with the given parameters.')
 resource redisCache 'Microsoft.Cache/redis@2024-11-01' = {
   identity: identity
@@ -216,7 +206,7 @@ resource redisCache 'Microsoft.Cache/redis@2024-11-01' = {
   properties: {
     disableAccessKeyAuthentication: disableAccessKeyAuthentication
     enableNonSslPort: false
-    minimumTlsVersion: tlsVersion
+    minimumTlsVersion: '1.2'
     publicNetworkAccess: publicNetworkAccess
     subnetId: subnetId
     sku: {
