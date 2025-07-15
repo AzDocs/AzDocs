@@ -322,18 +322,20 @@ func verifyStorageIOps(
   storageIops == null
     ? null
     // Business Critical tier: minimum 16,000 IOps (4000 IOps/vCore × 4 vCores minimum)
+    // Reference: https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/resource-limits#iops
     : skuName == 'BC_Gen5' || skuName == 'BC_G8IM' || skuName == 'BC_G8IH'
         ? storageIops! < 16000
-            ? fail('Storage IOps for Business Critical tier must be at least 16000 (4000 IOps/vCore x 4 vCores minimum).')
+            ? fail('Storage IOps for Business Critical tier must be at least 16000 (4000 IOps/vCore x 4 vCores minimum). See: https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/resource-limits#iops')
             : storageIops! > (skuCapacity * 4000)
-                ? fail('Storage IOps for Business Critical tier cannot exceed ${skuCapacity * 4000} (4000 IOps/vCore x ${skuCapacity} vCores).')
+                ? fail('Storage IOps for Business Critical tier cannot exceed ${skuCapacity * 4000} (4000 IOps/vCore x ${skuCapacity} vCores). See: https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/resource-limits#iops')
                 : storageIops!
         // General Purpose tier: minimum 300 IOps, maximum varies by vCore count (1600 IOps/vCore up to 80,000 max)
+        // Reference: https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/resource-limits#iops
         : skuName == 'GP_Gen5' || skuName == 'GP_G8IM' || skuName == 'GP_G8IH'
             ? storageIops! < 300
-                ? fail('Storage IOps for General Purpose tier must be at least 300.')
+                ? fail('Storage IOps for General Purpose tier must be at least 300. See: https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/resource-limits#iops')
                 : storageIops! > min(skuCapacity * 1600, 80000)
-                    ? fail('Storage IOps for General Purpose tier cannot exceed ${min(skuCapacity * 1600, 80000)} (1600 IOps/vCore x ${skuCapacity} vCores, capped at 80,000).')
+                    ? fail('Storage IOps for General Purpose tier cannot exceed ${min(skuCapacity * 1600, 80000)} (1600 IOps/vCore x ${skuCapacity} vCores, capped at 80,000). See: https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/resource-limits#iops')
                     : storageIops!
             // Unknown SKU - pass through with warning
             : storageIops!
