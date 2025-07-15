@@ -180,19 +180,19 @@ param sourceManagedInstanceId string?
 @description('''Storage IOps for SQL Managed Instance. Valid ranges depend on SKU, tier, and vCore count:
 
 General Purpose tier (GP_Gen5, GP_G8IM, GP_G8IH):
-- Minimum: 1536 IOps for all vCore counts
+- Minimum: 500 IOps per file (varies by storage size and configuration)
 - Maximum: Scales with vCores (6400 for 4 vCores, 12800 for 8 vCores, 25600 for 16 vCores, 38400 for 24 vCores, 51200 for 32 vCores, 64000 for 40 vCores, 80000 for 64+ vCores)
 - Recommended: 30-40% of maximum (3000 for 8 vCores, 5000 for 16 vCores, etc.)
 
 Business Critical tier (BC_Gen5, BC_G8IM, BC_G8IH):
-- Minimum: 1536 IOps for all vCore counts
-- Maximum: 4000 IOps per vCore (16000 for 4 vCores, 32000 for 8 vCores, 64000 for 16 vCores, etc.)
+- Minimum: 16000 IOps (4000 × 4 vCores minimum)
+- Maximum: 4000 IOps per vCore (16000 for 4 vCores, 32000 for 8 vCores, 64000 for 16 vCores, 128000 for 32 vCores, 160000 for 40 vCores, 320000 for 80 vCores)
 - Recommended: 50% of maximum (8000 for 4 vCores, 16000 for 8 vCores, etc.)
 
-Note: While the type definition allows 300-80000 IOps for flexibility, Azure enforces the limits above at deployment time.
+Note: Azure enforces the actual limits at deployment time. See https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/resource-limits for current limits.
 ''')
 @minValue(300)
-@maxValue(80000)
+@maxValue(320000)
 param storageIOps int?
 
 @description('Storage size in GB. Minimum value: 32. Maximum value: 16384. Increments of 32 GB allowed only. Maximum value depends on the selected hardware family and number of vCores.')
@@ -309,6 +309,35 @@ Allowed values for Business Critical: 8, 16, 24, 32, 40, 64, 80''')
   tier: skuTier
 }
 
+// ================================================= Functions =================================================
+func verifyStorageIOps(
+  // The storage IOps value to verify (optional/nullable)
+  storageIops int?,
+  // SQL MI SKU name (GP_Gen5, BC_Gen5, etc.)
+  skuName string,
+  // Number of vCores
+  skuCapacity int
+) int? =>
+  // If storageIops is null (not provided), return null
+  storageIops == null
+    ? null
+    // Business Critical tier: minimum 16,000 IOps (4000 IOps/vCore × 4 vCores minimum)
+    : skuName == 'BC_Gen5' || skuName == 'BC_G8IM' || skuName == 'BC_G8IH'
+        ? storageIops! < 16000
+            ? fail('Storage IOps for Business Critical tier must be at least 16000 (4000 IOps/vCore x 4 vCores minimum).')
+            : storageIops! > (skuCapacity * 4000)
+                ? fail('Storage IOps for Business Critical tier cannot exceed ${skuCapacity * 4000} (4000 IOps/vCore x ${skuCapacity} vCores).')
+                : storageIops!
+        // General Purpose tier: minimum 300 IOps, maximum varies by vCore count (1600 IOps/vCore up to 80,000 max)
+        : skuName == 'GP_Gen5' || skuName == 'GP_G8IM' || skuName == 'GP_G8IH'
+            ? storageIops! < 300
+                ? fail('Storage IOps for General Purpose tier must be at least 300.')
+                : storageIops! > min(skuCapacity * 1600, 80000)
+                    ? fail('Storage IOps for General Purpose tier cannot exceed ${min(skuCapacity * 1600, 80000)} (1600 IOps/vCore x ${skuCapacity} vCores, capped at 80,000).')
+                    : storageIops!
+            // Unknown SKU - pass through with warning
+            : storageIops!
+
 // ================================================= Resources =================================================
 resource sqlManagedInstance 'Microsoft.Sql/managedInstances@2024-05-01-preview' = {
   identity: identity
@@ -345,7 +374,7 @@ resource sqlManagedInstance 'Microsoft.Sql/managedInstances@2024-05-01-preview' 
     pricingModel: pricingModel
 
     // Storage configuration
-    storageIOps: storageIOps
+    storageIOps: verifyStorageIOps(storageIOps, sku.name, sku.capacity)
     storageSizeInGB: storageSizeInGB
     storageThroughputMBps: storageThroughputMBps
 
