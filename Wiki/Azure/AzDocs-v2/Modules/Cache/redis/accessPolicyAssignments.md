@@ -1,4 +1,4 @@
-﻿# redisAccessPolicyAssignments
+﻿# accessPolicyAssignments
 
 Target Scope: resourceGroup
 
