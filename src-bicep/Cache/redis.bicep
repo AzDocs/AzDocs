@@ -10,7 +10,6 @@ module webApp 'br:contosoregistry.azurecr.io/cache/redis:latest' = {
   params: {
     redisCacheName: redisCacheName
     redisCacheSKU: redisCacheSKU
-    redisCacheFamily: redisCacheFamily
     redisCacheCapacity: redisCacheCapacity
   }
 }
