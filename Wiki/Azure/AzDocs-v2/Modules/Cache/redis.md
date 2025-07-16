@@ -5,7 +5,6 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="roleAssignmentType">roleAssignmentType</a>  | <pre>{</pre> |  |  | 
 | <a id="accessPolicyAssignmentType">accessPolicyAssignmentType</a>  | <pre>{</pre> |  |  | 
 
 ## Synopsis
@@ -31,7 +30,7 @@ Creates an Azure Cache for Redis instance with the given specs.
 | enableEntraBasedAuthentication | bool | <input type="checkbox"> | None | <pre>true</pre> | Specifies whether Entra/AAD based authentication has been enabled or disabled for the cache. Default is true. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs. Resource may inherit tags from the ResourceGroup instead.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | publicNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled`. |
-| roleAssignments | roleAssignmentType[] | <input type="checkbox"> | None | <pre>[]</pre> | Setting up role assignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roleDefinitionId: 'e0f68234-74aa-48ed-b826-c38b57376e17' // Redis Cache Contributor (Lets you manage Redis caches, but not access to them.)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalType: 'ServicePrincipal'<br>&nbsp;&nbsp;&nbsp;}<br>] |
+| roleAssignments | roleAssignment[] | <input type="checkbox"> | None | <pre>[]</pre> | Setting up role assignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roleDefinitionId: 'e0f68234-74aa-48ed-b826-c38b57376e17' // Redis Cache Contributor (Lets you manage Redis caches, but not access to them.)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalType: 'ServicePrincipal'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | accessPolicyAssignments | accessPolicyAssignmentType[] | <input type="checkbox"> | None | <pre>[]</pre> | Setting up access policy assignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;accessPolicyName: 'Data Reader'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalIdAlias: 'principal-alias'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | aofBackupEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Specifies whether the aof backup is enabled |
 | rdbBackupEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Specifies whether the rdb backup is enabled |
