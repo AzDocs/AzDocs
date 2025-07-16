@@ -281,8 +281,8 @@ resource redisCacheDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@202
 }
 
 resource redisCacheRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
-  for (roleAssignment, index) in roleAssignments: {
-    name: guid(redisCache.id, roleAssignment.principalId, roleAssignment.roleDefinitionIdOrName)
+  for roleAssignment in roleAssignments: {
+    name: uniqueString(redisCache.id, roleAssignment.principalId, roleAssignment.roleDefinitionIdOrName)
     properties: {
       roleDefinitionId: contains(builtInRoleNames, roleAssignment.?roleDefinitionIdOrName)
         ? builtInRoleNames[roleAssignment.roleDefinitionIdOrName]
