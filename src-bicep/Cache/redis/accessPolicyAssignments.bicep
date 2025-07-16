@@ -25,7 +25,7 @@ module roleKeyVault 'br:contosoregistry.azurecr.io/cache/redisaccesspolicyassign
 @maxLength(60)
 param redisCacheName string
 
-@description('The name of the access policy that is being assigned. Built-in are: Data Reader, Data Contributor or Data Owner')
+@description('The name of the access policy that is being assigned. Built-in are: Data Reader, Data Contributor and Data Owner')
 param accessPolicyName string
 
 @description('Object Id to assign access policy to.')
