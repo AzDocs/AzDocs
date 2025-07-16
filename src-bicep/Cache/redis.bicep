@@ -47,6 +47,19 @@ type roleAssignmentType = {
   delegatedManagedIdentityResourceId: string?
 }
 
+type accessPolicyAssignmentType = {
+  @description('The name of the access policy that is being assigned. Built-in are: Data Reader, Data Contributor or Data Owner')
+  accessPolicyName: string
+
+  @description('Object Id to assign access policy to.')
+  @minLength(36)
+  @maxLength(36)
+  principalId: string
+
+  @description('User friendly name for object id. Also represents username for token based authentication.')
+  principalIdAlias: string
+}
+
 // ================================================= Parameters =================================================
 @description('Specifies the Azure location where the resource should be created.')
 param location string = resourceGroup().location
@@ -133,7 +146,7 @@ param tags object = {}
 param publicNetworkAccess string = 'Disabled'
 
 @description('''
-Setting up roleassignments for the resource.
+Setting up role assignments for the resource.
 Example:
  [
   {
@@ -144,6 +157,19 @@ Example:
 ]
 ''')
 param roleAssignments roleAssignmentType[] = []
+
+@description('''
+Setting up access policy assignments for the resource.
+Example:
+ [
+  {
+    accessPolicyName: 'Data Reader'
+    principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'
+    principalIdAlias: 'principal-alias'
+  }
+]
+''')
+param accessPolicyAssignments accessPolicyAssignmentType[] = []
 
 @description('Specifies whether the aof backup is enabled')
 param aofBackupEnabled bool = false
@@ -289,6 +315,18 @@ resource redisCacheRoleAssignments 'Microsoft.Authorization/roleAssignments@2022
       delegatedManagedIdentityResourceId: roleAssignment.?delegatedManagedIdentityResourceId
     }
     scope: redisCache
+  }
+]
+
+resource redisAccessPolicyAssignments 'Microsoft.Cache/Redis/accessPolicyAssignments@2024-11-01' = [
+  for accessPolicyAssignment in accessPolicyAssignments: {
+    name: uniqueString(redisCache.id, accessPolicyAssignment.accessPolicyName, accessPolicyAssignment.principalId)
+    parent: redisCache
+    properties: {
+      accessPolicyName: accessPolicyAssignment.accessPolicyName
+      objectId: accessPolicyAssignment.principalId
+      objectIdAlias: accessPolicyAssignment.principalIdAlias
+    }
   }
 ]
 
