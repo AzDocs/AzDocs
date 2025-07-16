@@ -6,7 +6,6 @@ Target Scope: resourceGroup
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
 | <a id="columnType">columnType</a>  | <pre>{</pre> |  |  | 
-| <a id="roleAssignmentType">roleAssignmentType</a>  | <pre>{</pre> |  |  | 
 
 ## Synopsis
 Creating a custom table in an existing Log Analytics Workspace.
@@ -53,7 +52,7 @@ module tableinlaw 'br:contosoregistry.azurecr.io/operationalinsights/workspaces/
 | retentionInDays | int | <input type="checkbox"> | Value between -1-730 | <pre>-1</pre> | Optional. The table retention in days, between 4 and 730. Setting this property to -1 will default to the workspace retention. |
 | searchResults | object | <input type="checkbox"> | None | <pre>{}</pre> | Optional. Parameters of the search job that initiated this table. |
 | totalRetentionInDays | int | <input type="checkbox"> | Value between -1-2555 | <pre>-1</pre> | Optional. The table total retention in days, between 4 and 2555. Setting this property to -1 will default to table retention. |
-| roleAssignments | roleAssignmentType | <input type="checkbox" checked> | None | <pre></pre> | Optional. Array of role assignments to create on the table. |
+| roleAssignments | roleAssignment[] | <input type="checkbox"> | None | <pre>[]</pre> | Optional. Array of role assignments to create on the table. |
 
 ## Outputs
 | Name | Type | Description |

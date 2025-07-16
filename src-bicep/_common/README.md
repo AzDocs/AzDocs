@@ -4,6 +4,26 @@ This folder contains shared user-defined types that can be imported and used acr
 
 ## Available Type Libraries
 
+### `authorizationTypes.bicep`
+
+Contains common types for Azure authorization resources:
+
+- **`roleAssignment`**: Configuration for a role assignment
+
+**Usage Example:**
+
+```bicep
+import { roleAssignment } from '../_common/authorizationTypes.bicep'
+
+param roleAssignments roleAssignment[] = [
+  {
+    roleDefinitionIdOrName: 'Storage Blob Data Contributor'
+    principalId: principalId
+    principalType: 'ServicePrincipal'
+  }
+]
+```
+
 ### `diagnosticTypes.bicep`
 
 Contains common types for Azure Monitor diagnostic settings:
@@ -77,3 +97,4 @@ When adding new common types:
 - [Bicep User-Defined Types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-data-types)
 - [Azure Monitor Diagnostic Settings](https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?pivots=deployment-language-bicep)
 - [Azure Network Security](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups?pivots=deployment-language-bicep)
+- [Azure Role Assignment](https://learn.microsoft.com/en-us/azure/templates/microsoft.authorization/roleassignments?pivots=deployment-language-bicep)
