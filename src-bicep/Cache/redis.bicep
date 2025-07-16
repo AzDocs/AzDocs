@@ -98,10 +98,6 @@ param diagnosticSettingsLogsCategories diagnosticLogCategory[] = [
   {
     categoryGroup: 'allLogs'
     enabled: true
-    retentionPolicy: {
-      days: 7
-      enabled: true
-    }
   }
 ]
 
@@ -110,10 +106,6 @@ param diagnosticSettingsMetricsCategories diagnosticMetricCategory[] = [
   {
     category: 'AllMetrics'
     enabled: true
-    retentionPolicy: {
-      days: 7
-      enabled: true
-    }
   }
 ]
 

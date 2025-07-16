@@ -38,7 +38,6 @@ param principalIdAlias string
 
 @description('Fetch the existing key vault for the role assignment scope in the next step.')
 resource redisCache 'Microsoft.Cache/redis@2024-11-01' existing = {
-  scope: resourceGroup()
   name: redisCacheName
 }
 
