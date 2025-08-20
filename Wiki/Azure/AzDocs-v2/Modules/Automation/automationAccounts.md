@@ -13,3 +13,10 @@ Target Scope: resourceGroup
 | publicNetworkAccess | bool | <input type="checkbox"> | None | <pre>false</pre> | Indicates whether traffic on the non-ARM endpoint (Webhook/Agent) is allowed from the public internet |
 | encryption | object | <input type="checkbox"> | None | <pre>{<br>  identity: {}<br>  keySource: 'Microsoft.Automation'<br>}</pre> | Set the encryption properties for the automation account<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;identity: {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userAssignedIdentity: any()<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;keySource: 'Microsoft.Keyvault'<br>&nbsp;&nbsp;&nbsp;keyVaultProperties: {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keyName: 'string'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keyvaultUri: 'string'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keyVersion: 'string'<br>&nbsp;&nbsp;&nbsp;}<br>} |
 | sku | object | <input type="checkbox"> | None | <pre>{<br>  capacity: null<br>  family: null<br>  name: 'Basic'<br>}</pre> | Sets the SKU of the automation account<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;capacity: null<br>&nbsp;&nbsp;&nbsp;family: null<br>&nbsp;&nbsp;&nbsp;name: 'Free'<br>} |
+
+## Outputs
+| Name | Type | Description |
+| -- |  -- | -- |
+| automationAccountId | string | The resource ID of the Automation Account |
+| automationAccountName | string | The name of the Automation Account |
+| automationAccountUrl | string | The URL of the Automation Account |

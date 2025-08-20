@@ -90,3 +90,10 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' 
     sku: sku
   }
 }
+
+@description('The resource ID of the Automation Account')
+output automationAccountId string = automationAccount.id
+@description('The name of the Automation Account')
+output automationAccountName string = automationAccount.name
+@description('The URL of the Automation Account')
+output automationAccountUrl string = automationAccount.properties.automationHybridServiceUrl
