@@ -58,6 +58,31 @@ param containerDeleteRetentionPolicy object = {
   enabled: true
 }
 
+@description('''
+  CORS (Cross-Origin Resource Sharing) settings for the storage account.
+  {
+      corsRules: [
+        {
+          allowedOrigins: [
+            'https://contosoregistry.io'
+          ]
+          allowedMethods: [
+            'DELETE'
+            'GET'
+            'OPTIONS'
+          ]
+          maxAgeInSeconds: 0
+          exposedHeaders: [
+            ''
+          ]
+          allowedHeaders: [
+            ''
+          ]
+        }
+      ]
+    }
+''')
+param cors object = {}
 
 // ================================================= Resources =================================================
 @description('Fetch the existing storage account.')
@@ -74,6 +99,7 @@ resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01
     changeFeed: changeFeed
     deleteRetentionPolicy: deleteRetentionPolicy
     containerDeleteRetentionPolicy: containerDeleteRetentionPolicy
+    cors: cors
   }
 }
 
