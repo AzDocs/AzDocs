@@ -16,7 +16,6 @@ The Maintenance Configuration Assignment resource is a child resource of the Mai
 | maintenanceConfigurationName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the existing maintenance configuration. |
 | maintenanceConfigurationResourceGroupName | string | <input type="checkbox" checked> | None | <pre></pre> | The resource group name of the existing maintenance configuration. |
 | maintenanceConfigurationAssignmentName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the maintenance configuration assignment. |
-| subscriptionId | string | <input type="checkbox"> | None | <pre>subscription().id</pre> | The subscription id of the subscription you want to assign the dynamic scope to with the filters. |
 | osTypes | array | <input type="checkbox"> | `'windows'` or `'linux'` | <pre>[<br>  'windows'<br>  'linux'<br>]</pre> | The OS types of the resources you want to apply the maintenance configuration to. |
 | locations | array | <input type="checkbox"> | None | <pre>[<br>  'westeurope'<br>]</pre> | Filter of the location of the resources you want to apply the maintenance configuration to. |
 | resourceGroupsToApplyTo | array | <input type="checkbox"> | None | <pre>[]</pre> | Filter of the resource groups of the resources you want to apply the maintenance configuration to. |
