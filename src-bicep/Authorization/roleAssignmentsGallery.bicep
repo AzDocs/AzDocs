@@ -1,3 +1,4 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
 Configuring role assignment for the Gallery
@@ -28,16 +29,8 @@ param roleDefinitionIdOrName string
 @description('Required. The resource ID of the resource to apply the role assignment to.')
 param resourceId string
 
-@description('Optional. The principal type of the assigned principal ID.')
-@allowed([
-  'ServicePrincipal'
-  'Group'
-  'User'
-  'ForeignGroup'
-  'Device'
-  ''
-])
-param principalType string = ''
+@description('The type of principal you want to assign the role to.')
+param principalType PrincipalType
 
 @description('Optional. The description of the role assignment.')
 param roleAssignmentDescription string = ''

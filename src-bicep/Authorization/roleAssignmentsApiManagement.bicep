@@ -1,3 +1,4 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
 Configuring role assignment for API Management Service.
@@ -32,14 +33,7 @@ param roleDefinitionId string
 param principalId string
 
 @description('The type of principal you want to assign the role to.')
-@allowed([
-  'Device'
-  'ForeignGroup'
-  'Group'
-  'ServicePrincipal'
-  'User'
-])
-param principalType string
+param principalType PrincipalType
 
 @description('''
 Character limit: 1-50

@@ -1,3 +1,4 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
 Configuring role assignment for Azure Search Service
@@ -33,19 +34,7 @@ param roleDefinitionId string
 param principalId string
 
 @description('The type of principal you want to assign the role to.')
-@allowed([
-  'User'
-  'Group'
-  'ServicePrincipal'
-  'Unknown'
-  'DirectoryRoleTemplate'
-  'ForeignGroup'
-  'Application'
-  'MSI'
-  'DirectoryObjectOrGroup'
-  'Everyone'
-])
-param principalType string = 'ServicePrincipal'
+param principalType PrincipalType
 
 @description('The name of the Azure Search Service to assign the permissions on. This Search Service should already exist.')
 @minLength(2)

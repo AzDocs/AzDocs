@@ -23,7 +23,7 @@ type roleAssignment = {
   principalId: string
 
   @description('Optional. The principal type of the assigned principal ID.')
-  principalType: ('ServicePrincipal' | 'Group' | 'User' | 'ForeignGroup' | 'Device')?
+  principalType: PrincipalType?
 
   @description('Optional. The description of the role assignment.')
   description: string?
@@ -37,3 +37,17 @@ type roleAssignment = {
   @description('Optional. The Resource Id of the delegated managed identity resource.')
   delegatedManagedIdentityResourceId: string?
 }
+
+@export()
+@description('The type of principal that can be assigned a role.')
+type PrincipalType =
+  | 'User'
+  | 'Group'
+  | 'ServicePrincipal'
+  | 'Unknown'
+  | 'DirectoryRoleTemplate'
+  | 'ForeignGroup'
+  | 'Application'
+  | 'MSI'
+  | 'DirectoryObjectOrGroup'
+  | 'Everyone'

@@ -1,3 +1,4 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
 Configuring role assignment for the App Configuration
@@ -26,19 +27,7 @@ module roleAppConfiguration 'br:contosoregistry.azurecr.io/authorization/roleAss
 param principalId string
 
 @description('The type of principal you want to assign the role to.')
-@allowed([
-  'User'
-  'Group'
-  'ServicePrincipal'
-  'Unknown'
-  'DirectoryRoleTemplate'
-  'ForeignGroup'
-  'Application'
-  'MSI'
-  'DirectoryObjectOrGroup'
-  'Everyone'
-])
-param principalType string = 'ServicePrincipal'
+param principalType PrincipalType
 
 @description('The name of the App Configuration store to assign the permissions on. This App Configuration store should already exist.')
 @minLength(5)

@@ -1,14 +1,14 @@
 import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
-Assigns a role on subscription level.
+Assigns a role on managementgroup level.
 .DESCRIPTION
-Assigns a RBAC role on subscription level to a principal.
+Assigns a RBAC role on managementgroup level to a principal.
 .EXAMPLE
 <pre>
-module azureKubernetesServiceContributorRoleToDfcPolicyAssignmentUserAssignedManagedIdentity '../AzDocs/src-bicep/Authorization/roleAssignmentsSubscription.bicep' = {
+module azureKubernetesServiceContributorRoleToDfcPolicyAssignmentUserAssignedManagedIdentity '../AzDocs/src-bicep/Authorization/roleAssignmentsManagementGroup.bicep' = {
   name: format('{0}-{1}', take('${deployment().name}', 46), 'akscontrole')
-  scope: subscription()
+  scope: managementGroup(<managementGroupId>)
   params: {
     principalId: dfcPolicyAssignmentUserAssignedManagedIdentity.outputs.userManagedIdentityPrincipalId
     principalType: 'ServicePrincipal'
@@ -16,13 +16,13 @@ module azureKubernetesServiceContributorRoleToDfcPolicyAssignmentUserAssignedMan
   }
 }
 </pre>
-<p>Assigns the role Azure Kubernetes Service Contributor Role to the Principal on subscription level.</p>
+<p>Assigns the role Azure Kubernetes Service Contributor Role to the Principal on managementgroup level.</p>
 .LINKS
 - [Bicep Microsoft.Authorization roleAssignments](https://learn.microsoft.com/en-us/azure/templates/microsoft.authorization/roleassignments?pivots=deployment-language-bicep)
 */
 
 // ================================================= Parameters =================================================
-targetScope = 'subscription'
+targetScope = 'managementGroup'
 
 @description('The AAD Object ID of the pricipal you want to assign the role to.')
 @minLength(36)
@@ -64,13 +64,13 @@ param roleDefinitionId string
 
 @description('Fetch the role based on the given roleDefinitionId. See [documentation](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles)')
 resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
-  scope: subscription()
+  scope: managementGroup()
   name: roleDefinitionId
 }
 
 @description('Upsert the role to the chosen principal.')
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(subscription().id, principalId, roleDefinition.id)
+  name: guid(managementGroup().id, roleDefinition.id, principalId)
   properties: {
     roleDefinitionId: roleDefinition.id
     principalId: principalId

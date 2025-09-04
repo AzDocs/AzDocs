@@ -2,8 +2,8 @@ metadata name = 'Cognitive Services'
 metadata description = 'This module deploys a Cognitive Service.'
 
 // ================================================= Imports =================================================
-import { diagnosticLogCategory, diagnosticMetricCategory } from '../_common/diagnosticTypes.bicep'
-import { virtualNetworkRule, ipRule } from '../_common/networkTypes.bicep'
+import { diagnosticLogCategory, diagnosticMetricCategory } from '../Common/diagnosticTypes.bicep'
+import { virtualNetworkRule, ipRule } from '../Common/networkTypes.bicep'
 
 /*
 .SYNOPSIS

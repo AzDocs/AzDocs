@@ -1,3 +1,4 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
 Assign a role on the servicebus namespace scope to a identity
@@ -32,19 +33,7 @@ module roleAssignment 'br:contosoregistry.azurecr.io/authorization/roleAssignmen
 param principalId string
 
 @description('The type of principal you want to assign the role to.')
-@allowed([
-  'User'
-  'Group'
-  'ServicePrincipal'
-  'Unknown'
-  'DirectoryRoleTemplate'
-  'ForeignGroup'
-  'Application'
-  'MSI'
-  'DirectoryObjectOrGroup'
-  'Everyone'
-])
-param principalType string = 'ServicePrincipal'
+param principalType PrincipalType
 
 @description('The name of the Storage Account to assign the permissions on. This Storage Account should already exist.')
 @minLength(3)

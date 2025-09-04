@@ -21,8 +21,8 @@ module webApp 'br:contosoregistry.azurecr.io/cache/redis:latest' = {
 */
 
 // ================================================= Imports =================================================
-import { diagnosticLogCategory, diagnosticMetricCategory } from '../_common/diagnosticTypes.bicep'
-import { roleAssignment } from '../_common/authorizationTypes.bicep'
+import { diagnosticLogCategory, diagnosticMetricCategory } from '../Common/diagnosticTypes.bicep'
+import { roleAssignment } from '../Common/authorizationTypes.bicep'
 
 // ================================================= User-Defined Types =================================================
 type accessPolicyAssignmentType = {

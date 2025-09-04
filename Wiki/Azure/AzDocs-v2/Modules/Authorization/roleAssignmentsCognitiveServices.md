@@ -13,7 +13,7 @@ This module is used for creating role assignments for existing Azure Cognitive S
 | -- |  -- | -- | -- | -- | -- |
 | roleDefinitionId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The roledefinition ID you want to assign. |
 | principalId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The AAD Object ID of the pricipal you want to assign the role to. |
-| principalType | string | <input type="checkbox"> | `'User'` or `'Group'` or `'ServicePrincipal'` or `'Unknown'` or `'DirectoryRoleTemplate'` or `'ForeignGroup'` or `'Application'` or `'MSI'` or `'DirectoryObjectOrGroup'` or `'Everyone'` | <pre>'ServicePrincipal'</pre> | The type of principal you want to assign the role to. |
+| principalType | PrincipalType | <input type="checkbox" checked> | None | <pre></pre> | The type of principal you want to assign the role to. |
 | cognitiveServicesAccountName | string | <input type="checkbox" checked> | Length between 2-64 | <pre></pre> | The name of the Cognitive Services account to assign the permissions on. This Cognitive Services account should already exist. |
 
 ## Examples

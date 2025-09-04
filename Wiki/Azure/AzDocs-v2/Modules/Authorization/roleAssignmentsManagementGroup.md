@@ -1,12 +1,12 @@
-﻿# roleAssignmentsSubscription
+﻿# roleAssignmentsManagementGroup
 
-Target Scope: subscription
+Target Scope: managementGroup
 
 ## Synopsis
-Assigns a role on subscription level.
+Assigns a role on managementgroup level.
 
 ## Description
-Assigns a RBAC role on subscription level to a principal.
+Assigns a RBAC role on managementgroup level to a principal.
 
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
@@ -21,9 +21,9 @@ Assigns a RBAC role on subscription level to a principal.
 
 ## Examples
 <pre>
-module azureKubernetesServiceContributorRoleToDfcPolicyAssignmentUserAssignedManagedIdentity '../AzDocs/src-bicep/Authorization/roleAssignmentsSubscription.bicep' = {
+module azureKubernetesServiceContributorRoleToDfcPolicyAssignmentUserAssignedManagedIdentity '../AzDocs/src-bicep/Authorization/roleAssignmentsManagementGroup.bicep' = {
   name: format('{0}-{1}', take('${deployment().name}', 46), 'akscontrole')
-  scope: subscription()
+  scope: managementGroup(<managementGroupId>)
   params: {
     principalId: dfcPolicyAssignmentUserAssignedManagedIdentity.outputs.userManagedIdentityPrincipalId
     principalType: 'ServicePrincipal'
@@ -31,7 +31,7 @@ module azureKubernetesServiceContributorRoleToDfcPolicyAssignmentUserAssignedMan
   }
 }
 </pre>
-<p>Assigns the role Azure Kubernetes Service Contributor Role to the Principal on subscription level.</p>
+<p>Assigns the role Azure Kubernetes Service Contributor Role to the Principal on managementgroup level.</p>
 
 ## Links
 - [Bicep Microsoft.Authorization roleAssignments](https://learn.microsoft.com/en-us/azure/templates/microsoft.authorization/roleassignments?pivots=deployment-language-bicep)

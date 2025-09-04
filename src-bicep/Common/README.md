@@ -13,7 +13,7 @@ Contains common types for Azure authorization resources:
 **Usage Example:**
 
 ```bicep
-import { roleAssignment } from '../_common/authorizationTypes.bicep'
+import { roleAssignment } from '../Common/authorizationTypes.bicep'
 
 param roleAssignments roleAssignment[] = [
   {
@@ -34,7 +34,7 @@ Contains common types for Azure Monitor diagnostic settings:
 **Usage Example:**
 
 ```bicep
-import { diagnosticLogCategory, diagnosticMetricCategory } from '../_common/diagnosticTypes.bicep'
+import { diagnosticLogCategory, diagnosticMetricCategory } from '../Common/diagnosticTypes.bicep'
 
 param diagnosticSettingsLogsCategories diagnosticLogCategory[] = [
   {
@@ -58,7 +58,7 @@ Contains common types for network access controls:
 **Usage Example:**
 
 ```bicep
-import { virtualNetworkRule, ipRule } from '../_common/networkTypes.bicep'
+import { virtualNetworkRule, ipRule } from '../Common/networkTypes.bicep'
 
 param virtualNetworkRules virtualNetworkRule[] = [
   {

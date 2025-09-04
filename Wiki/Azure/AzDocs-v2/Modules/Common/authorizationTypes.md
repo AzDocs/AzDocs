@@ -6,6 +6,7 @@ Target Scope: resourceGroup
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
 | <a id="roleAssignment">roleAssignment</a>  | <pre>{</pre> |  | Role assignment resource options | 
+| <a id="PrincipalType">PrincipalType</a>  | <pre></pre> |  | The type of principal that can be assigned a role. | 
 
 ## Synopsis
 Common authorization resource types

@@ -1,3 +1,4 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
 Assign a role on the servicebus topic scope to a identity
@@ -40,7 +41,7 @@ type principalTypes =
 param principalId string
 
 @description('The type of principal you want to assign the role to.')
-param principalType principalTypes = 'ServicePrincipal'
+param principalType PrincipalType
 
 @description('The name of the Service bus namespace to assign the permissions on. This Service bus namespace should already exist.')
 @minLength(6)

@@ -34,7 +34,7 @@ module tableinlaw 'br:contosoregistry.azurecr.io/operationalinsights/workspaces/
 */
 
 // ================================================= Imports =================================================
-import { roleAssignment } from '../../_common/authorizationTypes.bicep'
+import { roleAssignment } from '../../Common/authorizationTypes.bicep'
 
 // ===================================== Parameters =====================================
 @description('Required. The name of the table.')

@@ -1,3 +1,4 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
 Configuring role assignment for the Acr
@@ -40,14 +41,8 @@ param containerRegistryName string
 @maxLength(36)
 param principalId string
 
-@allowed([
-  'Device'
-  'ForeignGroup'
-  'Group'
-  'ServicePrincipal'
-  'User'
-])
-param principalType string
+@description('The type of principal you want to assign the role to.')
+param principalType PrincipalType
 
 // variables
 var roleIds = {

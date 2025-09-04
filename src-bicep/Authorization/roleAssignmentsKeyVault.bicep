@@ -1,3 +1,4 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
 Configuring role assignment for the Key Vault
@@ -32,14 +33,7 @@ param roleDefinitionId string
 param principalId string
 
 @description('The type of principal you want to assign the role to.')
-@allowed([
-  'Device'
-  'ForeignGroup'
-  'Group'
-  'ServicePrincipal'
-  'User'
-])
-param principalType string
+param principalType PrincipalType
 
 @description('The name of the Storage Account to assign the permissions on. This Storage Account should already exist.')
 @minLength(3)

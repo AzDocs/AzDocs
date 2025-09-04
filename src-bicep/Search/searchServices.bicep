@@ -2,8 +2,8 @@ metadata name = 'Azure Search Service'
 metadata description = 'This module deploys an Azure Search Service.'
 
 // ================================================= Imports =================================================
-import { diagnosticLogCategory, diagnosticMetricCategory } from '../_common/diagnosticTypes.bicep'
-import { ipRule } from '../_common/networkTypes.bicep'
+import { diagnosticLogCategory, diagnosticMetricCategory } from '../Common/diagnosticTypes.bicep'
+import { ipRule } from '../Common/networkTypes.bicep'
 
 // ================================================= User-Defined Types =================================================
 @description('Azure AD or API key authentication option for data plane')
