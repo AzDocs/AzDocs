@@ -7,10 +7,10 @@ param principalId string
 @description('The type of principal you want to assign the role to.')
 param principalType PrincipalType
 
-@description('The name of the Azure Automation Account to assign the permissions on. This Automation Account should already be existing.')
+@description('The name of the Azure Action Group to assign the permissions on. This Action Group should already be existing.')
 @minLength(6)
 @maxLength(50)
-param automationAccountName string
+param actionGroupName string
 
 @description('The roledefinition ID you want to assign. This defaults to the Automation Account Operator Role.')
 @minLength(36)
@@ -18,8 +18,8 @@ param automationAccountName string
 param roleDefinitionId string = 'd3881f73-407a-4167-8283-e981cbba0404'
 
 @description('Fetch the existing automation account for the role assignment scope in the next step.')
-resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' existing = {
-  name: automationAccountName
+resource actionGroup 'Microsoft.Insights/actionGroups@2024-10-01-preview' existing = {
+  name: actionGroupName
 }
 
 @description('Fetch the role based on the given roleDefinitionId. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles')
@@ -30,8 +30,8 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-prev
 
 @description('Upsert the role with the given parameters')
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
-  name: guid(automationAccount.id, principalId, roleDefinitionId)
-  scope: automationAccount
+  name: guid(actionGroup.id, principalId, roleDefinitionId)
+  scope: actionGroup
   properties: {
     principalId: principalId
     roleDefinitionId: roleDefinition.id
