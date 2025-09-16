@@ -77,7 +77,9 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     principalType: principalType
     condition: empty(roleAssignmentCondition) ? null : roleAssignmentCondition
     conditionVersion: empty(roleAssignmentCondition) ? null : roleAssignmentConditionVersion
-    delegatedManagedIdentityResourceId: delegatedManagedIdentityResourceId
+    delegatedManagedIdentityResourceId: !empty(delegatedManagedIdentityResourceId)
+        ? delegatedManagedIdentityResourceId
+        : null
     description: roleAssignmentDescription
   }
 }
