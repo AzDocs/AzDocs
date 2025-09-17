@@ -33,20 +33,22 @@ module principalAssignments 'br/azdocs:kusto/clusters/principalAssignments:lates
 - [Bicep Microsoft.Kusto clusters/principalAssignments](https://learn.microsoft.com/en-us/azure/templates/microsoft.kusto/clusters/principalassignments?pivots=deployment-language-bicep)
 */
 
-
 @description('The name of the Kusto cluster to which the principal will be assigned.')
 param clusterName string
 
 @description('The name of the principal assignment. For example the principal name with role.')
-param principalAssignmentsName string 
+param principalAssignmentsName string
 
 @description('The principal ID assigned to the cluster principal. It can be a user email, application ID, or security group name.')
 param principalId string
 
 type PrincipalType = 'App' | 'Group' | 'User'
+
+@description('The type of principal being assigned. Possible values include: "App", "Group", "User".')
 param principalType PrincipalType
 
 type RoleType = 'AllDatabasesAdmin' | 'AllDatabasesMonitor' | 'AllDatabasesViewer'
+
 @description('Cluster principal role.')
 param role RoleType
 
