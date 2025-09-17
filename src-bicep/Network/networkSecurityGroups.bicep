@@ -18,28 +18,6 @@ param diagnosticsName string = 'AzurePlatformCentralizedLogging'
 @minLength(0)
 param logAnalyticsWorkspaceResourceId string = ''
 
-@description('The name of the networkwatcher for this Virtual Network. This should be pre-existing.')
-@minLength(1)
-@maxLength(80)
-param networkWatcherName string
-
-@description('The name of the resourcegroup where the networkwatcher (for the Virtual Network) resides in. This should be pre-existing.')
-@minLength(1)
-@maxLength(90)
-param networkWatcherResourceGroupName string = az.resourceGroup().name
-
-@description('''
-The name of the NSG flow log (dianostics).
-You can use the following placeholders which will be replaced by their respective values:
-  - <networkSecurityGroupName> will be translated in the value you use for the `networkSecurityGroupName` parameter.
-''')
-@minLength(3)
-@maxLength(45)
-param nsgFlowLogResourceName string = 'nfl-<networkSecurityGroupName>'
-
-@description('The resourceid for the storage account to log the NSG flow logs to. This should be pre-existing.')
-param nsgFlowLogStorageAccountResourceId string
-
 @description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings.')
 param diagnosticSettingsLogsCategories array = [
   {
@@ -47,19 +25,6 @@ param diagnosticSettingsLogsCategories array = [
     enabled: true
   }
 ]
-
-@description('The interval in minutes which would decide how frequently TA service should do flow analytics.')
-param flowLogTrafficAnalyticsInterval int = 10
-
-@description('''
-Parameters that define the retention policy for flow log. See the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2021-08-01/networkwatchers/flowlogs?pivots=deployment-language-bicep#retentionpolicyparameters).
-days: Number of days to retain flow log records.
-enabled:	Flag to enable/disable retention.
-''')
-param flowLogRetentionPolicy object = {
-  days: 0
-  enabled: true
-}
 
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
@@ -71,12 +36,6 @@ Example:
 ''')
 param tags object = {}
 
-@description('The azure resource id of the log analytics workspace to log the flowlogs to.')
-@minLength(0)
-param trafficAnalyticsLogAnalyticsWorkspaceResourceId string
-
-@description('Enable Traffic Analytics.')
-param networkWatcherFlowAnalyticsConfiguration bool = true
 
 @description('Upsert the NSG with the given parameters.')
 resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
@@ -95,25 +54,6 @@ resource nsgDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
   properties: {
     workspaceId: logAnalyticsWorkspaceResourceId
     logs: diagnosticSettingsLogsCategories
-  }
-}
-
-@description('Upsert the NSG Flow logs with the given parameters.')
-module nsgFlowLog 'networkWatchers/flowLogs.bicep' = {
-  name: take(format('{0}-{1}', take('${deployment().name}', 33), '${networkSecurityGroupName}fl'), 64)
-  scope: az.resourceGroup(az.subscription().subscriptionId, networkWatcherResourceGroupName)
-  params: {
-    networkWatcherName: networkWatcherName
-    location: location
-    tags: tags
-    trafficAnalyticsLogAnalyticsWorkspaceResourceId: trafficAnalyticsLogAnalyticsWorkspaceResourceId
-    networkSecurityGroupName: networkSecurityGroupName
-    networkSecurityGroupResourceId: nsg.id
-    nsgFlowLogStorageAccountResourceId: nsgFlowLogStorageAccountResourceId
-    nsgFlowLogResourceName: nsgFlowLogResourceName
-    trafficAnalyticsInterval: flowLogTrafficAnalyticsInterval
-    retentionPolicy: flowLogRetentionPolicy
-    networkWatcherFlowAnalyticsConfiguration: networkWatcherFlowAnalyticsConfiguration
   }
 }
 
