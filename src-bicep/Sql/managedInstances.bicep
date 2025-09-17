@@ -77,9 +77,10 @@ param administratorLoginPassword string
 @description('The Azure Active Directory administrator of the SQL Managed Instance. This can only be used at instance create time.')
 param administrators managedInstanceExternalAdministratorType?
 
+
+type authenticationMetadatatype = 'AzureAD'| 'Paired'| 'Windows'
 @description('The managed instance\'s authentication metadata lookup mode.')
-@allowed(['AzureAD', 'Paired', 'Windows'])
-param authenticationMetadata string = 'AzureAD'
+param authenticationMetadata authenticationMetadatatype = 'AzureAD'
 
 @description('Collation of the managed instance.')
 @allowed([
@@ -97,9 +98,10 @@ param authenticationMetadata string = 'AzureAD'
 ])
 param collation string = 'Latin1_General_CI_AS'
 
+type databaseFormatType = 'AlwaysUpToDate'| 'SQLServer2022'
+
 @description('Specifies the internal format of instance databases specific to the SQL engine version.')
-@allowed(['AlwaysUpToDate', 'SQLServer2022'])
-param databaseFormat string?
+param databaseFormat databaseFormatType?
 
 @description('The resource id of another managed instance whose DNS zone this managed instance will share after creation.')
 param dnsZonePartner string?
@@ -136,23 +138,26 @@ param maintenanceConfigurationId string?
 @allowed(['Default', 'PointInTimeRestore'])
 param managedInstanceCreateMode string?
 
+type pricingModelType = 'Freemium' | 'Regular'
+
 @description('Pricing model of Managed Instance.')
-@allowed(['Freemium', 'Regular'])
-param pricingModel string?
+param pricingModel pricingModelType?
 
 @description('The resource id of a user assigned identity to be used by default. Must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{userAssignedIdentityName}')
 param primaryUserAssignedIdentityId string?
 
+type proxyOverrideType = 'Default' | 'Proxy' | 'Redirect'
+
 @description('Connection type used for connecting to the instance.')
-@allowed(['Default', 'Proxy', 'Redirect'])
-param proxyOverride string = 'Default'
+param proxyOverride proxyOverrideType = 'Default'
 
 @description('Whether or not the public data endpoint is enabled.')
 param publicDataEndpointEnabled bool?
 
+type requestedBackupStorageRedundancyType = 'Geo' | 'GeoZone' | 'Local' | 'Zone'
+
 @description('The storage account type to be used to store backups for this instance. The options are Local (LocallyRedundantStorage), Zone (ZoneRedundantStorage), Geo (GeoRedundantStorage) and GeoZone(GeoZoneRedundantStorage)')
-@allowed(['Geo', 'GeoZone', 'Local', 'Zone'])
-param requestedBackupStorageRedundancy string = 'Local'
+param requestedBackupStorageRedundancy requestedBackupStorageRedundancyType = 'Local'
 
 @description('Specifies the point in time (ISO8601 format) of the source database that will be restored to create the new database.')
 param restorePointInTime string?

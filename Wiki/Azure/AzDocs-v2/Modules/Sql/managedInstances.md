@@ -5,6 +5,11 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
+| <a id="authenticationMetadatatype">authenticationMetadatatype</a>  | <pre>'AzureAD'&#124; 'Paired'&#124; 'Windows'</pre> |  |  | 
+| <a id="databaseFormatType">databaseFormatType</a>  | <pre>'AlwaysUpToDate'&#124; 'SQLServer2022'</pre> |  |  | 
+| <a id="pricingModelType">pricingModelType</a>  | <pre>'Freemium' &#124; 'Regular'</pre> |  |  | 
+| <a id="proxyOverrideType">proxyOverrideType</a>  | <pre>'Default' &#124; 'Proxy' &#124; 'Redirect'</pre> |  |  | 
+| <a id="requestedBackupStorageRedundancyType">requestedBackupStorageRedundancyType</a>  | <pre>'Geo' &#124; 'GeoZone' &#124; 'Local' &#124; 'Zone'</pre> |  |  | 
 | <a id="resourceIdentityType">resourceIdentityType</a>  | <pre>{</pre> |  | The Azure Active Directory identity of the managed instance. | 
 | <a id="managedInstanceExternalAdministratorType">managedInstanceExternalAdministratorType</a>  | <pre>{</pre> |  | The Azure Active Directory administrator type for SQL Managed Instance. | 
 | <a id="skuFamily">skuFamily</a>  | <pre>'Gen5' &#124; 'G8IM' &#124; 'G8IH'</pre> |  | The SKU family for the SQL Managed Instance. This defines the generation and type of hardware used. | 
@@ -25,9 +30,9 @@ Creating a SQL Managed Instance with the given specifications.
 | administratorLogin | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The username for the SQL Managed Instance administrator login. |
 | administratorLoginPassword | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | Password for the SQL Managed Instance administrator login |
 | administrators | managedInstanceExternalAdministratorType? | <input type="checkbox" checked> | None | <pre></pre> | The Azure Active Directory administrator of the SQL Managed Instance. This can only be used at instance create time. |
-| authenticationMetadata | string | <input type="checkbox"> | None | <pre>'AzureAD'</pre> | The managed instance\'s authentication metadata lookup mode. |
+| authenticationMetadata | authenticationMetadatatype | <input type="checkbox"> | None | <pre>'AzureAD'</pre> | The managed instance\'s authentication metadata lookup mode. |
 | collation | string | <input type="checkbox"> | `'Arabic_100_CI_AS'` or `'Chinese_PRC_CI_AS'` or `'Cyrillic_General_100_CI_AS'` or `'Finnish_Swedish_100_CI_AS'` or `'Japanese_CI_AS'` or `'Latin1_General_100_CI_AS'` or `'Latin1_General_100_CS_AS'` or `'SQL_Latin1_General_CP1_CI_AS'` or `'Latin1_General_BIN'` or `'Latin1_General_CI_AS'` or `'Latin1_General_CS_AS'` | <pre>'Latin1_General_CI_AS'</pre> | Collation of the managed instance. |
-| databaseFormat | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies the internal format of instance databases specific to the SQL engine version. |
+| databaseFormat | databaseFormatType? | <input type="checkbox" checked> | None | <pre></pre> | Specifies the internal format of instance databases specific to the SQL engine version. |
 | dnsZonePartner | string? | <input type="checkbox" checked> | None | <pre></pre> | The resource id of another managed instance whose DNS zone this managed instance will share after creation. |
 | hybridSecondaryUsage | string? | <input type="checkbox" checked> | None | <pre></pre> | Hybrid secondary usage. Possible values are \'Active\' (default value) and \'Passive\' (customer uses the secondary as Passive DR). |
 | identity | resourceIdentityType | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | The Azure Active Directory identity of the managed instance. Defaults to a system assigned managed identity. |
@@ -38,11 +43,11 @@ Creating a SQL Managed Instance with the given specifications.
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. |
 | maintenanceConfigurationId | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies maintenance configuration id to apply to this managed instance. Id must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/maintenanceConfigurations/{maintenanceConfigurationName} |
 | managedInstanceCreateMode | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies the mode of database creation. Default: Regular instance creation. Restore: Creates an instance by restoring a set of backups to specific point in time. RestorePointInTime and SourceManagedInstanceId must be specified. |
-| pricingModel | string? | <input type="checkbox" checked> | None | <pre></pre> | Pricing model of Managed Instance. |
+| pricingModel | pricingModelType? | <input type="checkbox" checked> | None | <pre></pre> | Pricing model of Managed Instance. |
 | primaryUserAssignedIdentityId | string? | <input type="checkbox" checked> | None | <pre></pre> | The resource id of a user assigned identity to be used by default. Must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{userAssignedIdentityName} |
-| proxyOverride | string | <input type="checkbox"> | None | <pre>'Default'</pre> | Connection type used for connecting to the instance. |
+| proxyOverride | proxyOverrideType | <input type="checkbox"> | None | <pre>'Default'</pre> | Connection type used for connecting to the instance. |
 | publicDataEndpointEnabled | bool? | <input type="checkbox" checked> | None | <pre></pre> | Whether or not the public data endpoint is enabled. |
-| requestedBackupStorageRedundancy | string | <input type="checkbox"> | None | <pre>'Local'</pre> | The storage account type to be used to store backups for this instance. The options are Local (LocallyRedundantStorage), Zone (ZoneRedundantStorage), Geo (GeoRedundantStorage) and GeoZone(GeoZoneRedundantStorage) |
+| requestedBackupStorageRedundancy | requestedBackupStorageRedundancyType | <input type="checkbox"> | None | <pre>'Local'</pre> | The storage account type to be used to store backups for this instance. The options are Local (LocallyRedundantStorage), Zone (ZoneRedundantStorage), Geo (GeoRedundantStorage) and GeoZone(GeoZoneRedundantStorage) |
 | restorePointInTime | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies the point in time (ISO8601 format) of the source database that will be restored to create the new database. |
 | servicePrincipal | servicePrincipalType? | <input type="checkbox" checked> | None | <pre></pre> | The managed instance\'s service principal. |
 | sku | skuType | <input type="checkbox" checked> | None | <pre></pre> | Managed instance SKU. Allowed values for sku.name: `GP_Gen5, GP_G8IM, GP_G8IH, BC_Gen5, BC_G8IM, BC_G8IH` |
