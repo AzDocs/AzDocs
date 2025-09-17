@@ -37,6 +37,9 @@ module principalAssignments 'br/azdocs:kusto/clusters/principalAssignments:lates
 @description('The name of the Kusto cluster to which the principal will be assigned.')
 param clusterName string
 
+@description('The name of the principal assignment. For example the principal name with role.')
+param principalAssignmentsName string 
+
 @description('The principal ID assigned to the cluster principal. It can be a user email, application ID, or security group name.')
 param principalId string
 
@@ -56,7 +59,7 @@ resource cluster 'Microsoft.Kusto/clusters@2024-04-13' existing = {
 
 resource principalAssignment 'Microsoft.Kusto/clusters/principalAssignments@2024-04-13' = {
   parent: cluster 
-  name: 'string'
+  name: principalAssignmentsName
   properties: { 
     principalId: principalId
     principalType: principalType
