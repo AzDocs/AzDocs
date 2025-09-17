@@ -18,8 +18,9 @@ This module is used for assigning a principal to a Kusto cluster with a specific
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | clusterName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the Kusto cluster to which the principal will be assigned. |
+| principalAssignmentsName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the principal assignment. For example the principal name with role. |
 | principalId | string | <input type="checkbox" checked> | None | <pre></pre> | The principal ID assigned to the cluster principal. It can be a user email, application ID, or security group name. |
-| principalType | PrincipalType | <input type="checkbox" checked> | None | <pre></pre> |  |
+| principalType | PrincipalType | <input type="checkbox" checked> | None | <pre></pre> | The type of principal being assigned. Possible values include: "App", "Group", "User". |
 | role | RoleType | <input type="checkbox" checked> | None | <pre></pre> | Cluster principal role. |
 | tenantId | string? | <input type="checkbox" checked> | None | <pre></pre> | The tenant ID of the principal. If not provided, the tenant ID of the current subscription will be used. |
 
