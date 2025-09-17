@@ -41,10 +41,12 @@ param clusterName string
 @description('The principal ID assigned to the cluster principal. It can be a user email, application ID, or security group name.')
 param principalId string
 
-param principalType 'App' | 'Group' | 'User'
+type PrincipalType = 'App' | 'Group' | 'User'
+param principalType PrincipalType
 
+type RoleType = 'AllDatabasesAdmin' | 'AllDatabasesMonitor' | 'AllDatabasesViewer'
 @description('Cluster principal role.')
-param role 'AllDatabasesAdmin' | 'AllDatabasesMonitor' | 'AllDatabasesViewer'
+param role RoleType
 
 @description('The tenant ID of the principal. If not provided, the tenant ID of the current subscription will be used.')
 param tenantId string?
