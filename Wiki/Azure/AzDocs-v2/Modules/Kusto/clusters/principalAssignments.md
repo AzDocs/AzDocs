@@ -40,9 +40,8 @@ module principalAssignments 'br/azdocs:kusto/clusters/principalAssignments:lates
   } 
 }
 </pre>
-<p> This example assigns a user principal with the email '
+<p> This example assigns a user principal with the email '</p>
 <pre>
-
 module principalAssignments 'br/azdocs:kusto/clusters/principalAssignments:latest' = {
   name: '${take(deployment().name, 61)}-pa'
   params:{
