@@ -14,7 +14,7 @@ This module is used for creating role assignments for an existing gallery.
 | principalIds | array | <input type="checkbox" checked> | None | <pre></pre> | Required. The IDs of the principals to assign the role to. |
 | roleDefinitionIdOrName | string | <input type="checkbox" checked> | None | <pre></pre> | Required. The name of the role to assign. If it cannot be found you can specify the role definition ID instead. |
 | resourceId | string | <input type="checkbox" checked> | None | <pre></pre> | Required. The resource ID of the resource to apply the role assignment to. |
-| principalType | string | <input type="checkbox"> | `'ServicePrincipal'` or `'Group'` or `'User'` or `'ForeignGroup'` or `'Device'` or `''` | <pre>''</pre> | Optional. The principal type of the assigned principal ID. |
+| principalType | PrincipalType | <input type="checkbox" checked> | None | <pre></pre> | The type of principal you want to assign the role to. |
 | roleAssignmentDescription | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. The description of the role assignment. |
 | condition | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. The conditions on the role assignment. This limits the resources it can be assigned to. e.g.: @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:ContainerName] StringEqualsIgnoreCase "foo_storage_container". |
 | conditionVersion | string | <input type="checkbox"> | `'2.0'` | <pre>'2.0'</pre> | Optional. Version of the condition. |

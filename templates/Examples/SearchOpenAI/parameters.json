@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namePrefix": {
+      "value": "mycompany-rag"
+    },
+    "environmentName": {
+      "value": "dev"
+    },
+    "location": {
+      "value": "westeurope"
+    },
+    "tags": {
+      "value": {
+        "Environment": "development",
+        "Service": "RAG-Platform",
+        "Project": "AI-Search",
+        "Owner": "DataTeam"
+      }
+    },
+    "searchServiceSku": {
+      "value": "basic"
+    },
+    "semanticSearch": {
+      "value": "free"
+    },
+    "logAnalyticsWorkspaceResourceId": {
+      "value": "/subscriptions/{subscription-id}/resourceGroups/{log-analytics-rg}/providers/Microsoft.OperationalInsights/workspaces/{workspace-name}"
+    }
+  }
+}

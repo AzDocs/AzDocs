@@ -13,7 +13,7 @@ This module is used for creating role assignments for existing Application Insig
 | -- |  -- | -- | -- | -- | -- |
 | roleDefinitionId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The roledefinition ID you want to assign. |
 | principalId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The AAD Object ID of the pricipal you want to assign the role to. |
-| principalType | string | <input type="checkbox" checked> | `'Device'` or `'ForeignGroup'` or `'Group'` or `'ServicePrincipal'` or `'User'` | <pre></pre> | The type of principal you want to assign the role to. |
+| principalType | PrincipalType | <input type="checkbox" checked> | None | <pre></pre> | The type of principal you want to assign the role to. |
 | appInsightsName | string | <input type="checkbox" checked> | Length between 1-50 | <pre></pre> | The name of the Application Insights instance. |
 
 ## Examples

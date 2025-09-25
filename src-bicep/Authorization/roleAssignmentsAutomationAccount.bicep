@@ -1,22 +1,11 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 @description('The AAD Object ID of the pricipal you want to assign the role to.')
 @minLength(36)
 @maxLength(36)
 param principalId string
 
 @description('The type of principal you want to assign the role to.')
-@allowed([
-  'User'
-  'Group'
-  'ServicePrincipal'
-  'Unknown'
-  'DirectoryRoleTemplate'
-  'ForeignGroup'
-  'Application'
-  'MSI'
-  'DirectoryObjectOrGroup'
-  'Everyone'
-])
-param principalType string = 'ServicePrincipal'
+param principalType PrincipalType
 
 @description('The name of the Azure Automation Account to assign the permissions on. This Automation Account should already be existing.')
 @minLength(6)
