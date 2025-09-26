@@ -9,6 +9,7 @@ Target Scope: resourceGroup
 | <a id="natRuleCollectionType">natRuleCollectionType</a>  | <pre>{</pre> |  | The type for a NAT rule collection. | 
 | <a id="applicationRuleCollectionType">applicationRuleCollectionType</a>  | <pre>{</pre> |  | The type for an application rule collection. | 
 | <a id="networkRuleCollectionType">networkRuleCollectionType</a>  | <pre>{</pre> |  | The type for a network rule collection. | 
+| <a id="additionalPublicIpConfigurationType">additionalPublicIpConfigurationType</a>  | <pre>{</pre> |  | The type for additional public IP configurations. | 
 
 ## Synopsis
 Azure Firewall module for Bicep - Enhanced version with backwards compatibility.<br>
@@ -50,7 +51,7 @@ MIGRATION PATH:<br>
 | azureFirewallIpConfigurations | array | <input type="checkbox"> | None | <pre>[]</pre> | The ipconfigurations in the Azure Firewall based on one or more Public Ips and a subnet. |
 | virtualNetworkResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Conditional. Shared services Virtual Network resource ID. The virtual network ID containing AzureFirewallSubnet. If a Public IP is not provided, then the Public IP that is created as part of this module will be applied with the subnet provided in this variable. Required if `virtualHubId` is empty. |
 | publicIPResourceID | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. The Public IP resource ID to associate to the AzureFirewallSubnet. If empty, then the Public IP that is created as part of this module will be applied to the AzureFirewallSubnet. |
-| additionalPublicIpConfigurations | array | <input type="checkbox"> | None | <pre>[]</pre> | Optional. This is to add any additional Public IP configurations on top of the Public IP with subnet IP configuration. |
+| additionalPublicIpConfigurations | additionalPublicIpConfigurationType[] | <input type="checkbox"> | None | <pre>[]</pre> | Optional. This is to add any additional Public IP configurations on top of the Public IP with subnet IP configuration. |
 | publicIPAddressObject | object | <input type="checkbox"> | None | <pre>{}</pre> | Optional. Specifies the properties of the Public IP to create and be used by the Firewall, if no existing public IP was provided. |
 | managementIPResourceID | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. The Management Public IP resource ID to associate to the AzureFirewallManagementSubnet. If empty, then the Management Public IP that is created as part of this module will be applied to the AzureFirewallManagementSubnet. |
 | managementIPAddressObject | object | <input type="checkbox"> | None | <pre>{}</pre> | Optional. Specifies the properties of the Management Public IP to create and be used by Azure Firewall. If it\'s not provided and managementIPResourceID is empty, a \'-mip\' suffix will be appended to the Firewall\'s name. |
