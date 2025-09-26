@@ -247,6 +247,16 @@ type networkRuleCollectionType = {
   }
 }
 
+@export()
+@description('The type for additional public IP configurations.')
+type additionalPublicIpConfigurationType = {
+  @description('Required. Name of the IP configuration.')
+  name: string
+
+  @description('Optional. Resource ID of an existing public IP address to use.')
+  publicIPAddressResourceId: string?
+}
+
 // =============== //
 //   Parameters   //
 // =============== //
@@ -287,7 +297,7 @@ param virtualNetworkResourceId string = ''
 param publicIPResourceID string = ''
 
 @description('Optional. This is to add any additional Public IP configurations on top of the Public IP with subnet IP configuration.')
-param additionalPublicIpConfigurations array = []
+param additionalPublicIpConfigurations additionalPublicIpConfigurationType[] = []
 
 @description('Optional. Specifies the properties of the Public IP to create and be used by the Firewall, if no existing public IP was provided.')
 param publicIPAddressObject object = {}
@@ -454,9 +464,9 @@ var additionalPublicIpConfigurationsVar = [
   for ipConfiguration in additionalPublicIpConfigurations: {
     name: ipConfiguration.name
     properties: {
-      publicIPAddress: contains(ipConfiguration, 'publicIPAddressResourceId')
+      publicIPAddress: ipConfiguration.?publicIPAddressResourceId != null
         ? {
-            id: ipConfiguration.publicIPAddressResourceId
+            id: ipConfiguration.?publicIPAddressResourceId
           }
         : null
     }
