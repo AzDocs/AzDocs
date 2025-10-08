@@ -206,6 +206,9 @@ param httpsOnly bool = true
 @description('True to enable client affinity; false to stop sending session affinity cookies, which route client requests in the same session to the same instance. Default is true.')
 param clientAffinityEnabled bool = true
 
+@description('True to override client affinity cookie domain with X-Forwarded-Host request header. False to use default domain. Default is false.')
+param clientAffinityProxyEnabled bool = false
+
 @description('Virtual Network `route all` enabled. This causes all outbound traffic to have Virtual Network Network Security Groups (nsg) and User Defined Routes applied.')
 param vnetRouteAllEnabled bool = false
 
@@ -382,7 +385,7 @@ var linuxSiteConfig = appServicePlan.kind == 'linux'
   : {}
 
 @description('Upsert the webApp and potential VNet integration with the given parameters.')
-resource webApp 'Microsoft.Web/sites@2022-09-01' = {
+resource webApp 'Microsoft.Web/sites@2024-11-01' = {
   name: appServiceName
   location: location
   kind: webAppKind
@@ -392,12 +395,15 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     serverFarmId: appServicePlan.id
     httpsOnly: httpsOnly
     clientAffinityEnabled: clientAffinityEnabled
+    clientAffinityProxyEnabled: clientAffinityProxyEnabled
     clientCertEnabled: clientCertEnabled
     clientCertMode: empty(clientCertMode) ? null : clientCertMode
     publicNetworkAccess: publicNetworkAccess
     keyVaultReferenceIdentity: keyVaultReferenceIdentity
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
-    vnetContentShareEnabled: vnetContentShareEnabled
+    outboundVnetRouting: {
+      contentShareTraffic: vnetContentShareEnabled
+    }
     siteConfig: union(
       {
         tlsVersion: tlsVersion
@@ -456,7 +462,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
-resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySlot) {
+resource webAppStagingSlot 'Microsoft.Web/sites/slots@2024-11-01' = if (deploySlot) {
   parent: webApp
   name: 'staging'
   location: location
@@ -468,8 +474,11 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     httpsOnly: httpsOnly
     publicNetworkAccess: publicNetworkAccess
     clientAffinityEnabled: clientAffinityEnabled
+    clientAffinityProxyEnabled: clientAffinityProxyEnabled
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
-    vnetContentShareEnabled: vnetContentShareEnabled
+    outboundVnetRouting: {
+      contentShareTraffic: vnetContentShareEnabled
+    }
     siteConfig: union(
       {
         tlsVersion: tlsVersion
