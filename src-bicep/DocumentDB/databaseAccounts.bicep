@@ -23,7 +23,7 @@ module documentDb 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts:lat
         subnetName: 'MyFirstSubnet'
       }
     ]
-    logAnalyticsWorkspaceResourceId: '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyFirstResourceGroup/providers/Microsoft.OperationalInsights/workspaces/MyFirstLogAnalyticsWorkspace'
+    logAnalyticsWorkspaceResourceId: '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyFirstResourceGroup/providers/Microsoft.OperationalInsights/workspaces/MyFirstLogAnalytics'
     tags: {
       environment: 'dev'
     }
@@ -32,7 +32,7 @@ module documentDb 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts:lat
 </pre>
 <p>Creates a documentdb with the given specs</p>
 .LINKS
-- [Bicep Microsoft.DocumentDB databaseAccounts](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts)
+- [Bicep Microsoft.DocumentDB databaseAccounts](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/2025-04-15/databaseaccounts)
 */
 
 @minLength(3)
@@ -59,11 +59,30 @@ param locations array = [
 @description('The kind of the DocumentDB account. Defaults to GlobalDocumentDB.')
 param documentDbKind string = 'GlobalDocumentDB'
 
-@description('The backup policy for this DocumentDB. Defaults to continuous backup for 7 days.')
+@allowed([
+  '3.2'
+  '3.6'
+  '4.0'
+  '4.2'
+  '5.0'
+  '6.0'
+  '7.0'
+])
+@description('MongoDB server version. Only applicable when documentDbKind is MongoDB. Defaults to 7.0.')
+param mongoDbServerVersion string = '7.0'
+
+@allowed([
+  'Continuous7Days'
+  'Continuous30Days'
+])
+@description('The continuous backup tier for this DocumentDB. Defaults to Continuous7Days.')
+param continuousBackupTier string = 'Continuous7Days'
+
+@description('The backup policy for this DocumentDB. Defaults to continuous backup with the specified tier.')
 param backupPolicy object = {
   type: 'Continuous'
   continuousModeProperties: {
-    tier: 'Continuous7Days'
+    tier: continuousBackupTier
   }
 }
 
@@ -142,6 +161,15 @@ param totalThroughputLimit int = 1000
 @description('Enable free tier for the DocumentDB account. Defaults to false.')
 param enableFreeTier bool = false
 
+@description('Enable burst capacity for the DocumentDB account. Defaults to false.')
+param enableBurstCapacity bool = false
+
+@description('Enable partition merge for the DocumentDB account. Defaults to false.')
+param enablePartitionMerge bool = false
+
+@description('Enable per-region per-partition autoscale for the DocumentDB account. Defaults to false.')
+param enablePerRegionPerPartitionAutoscale bool = false
+
 @description('The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`.')
 @minLength(1)
 @maxLength(260)
@@ -170,14 +198,14 @@ var virtualNetworkRules = [
 ]
 
 @description('Upserting the DocumentDB account.')
-resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
+resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' = {
   name: documentDbName
-  kind: documentDbKind
   location: location
   tags: tags
   identity: identity
+  kind: documentDbKind
   properties: {
-    databaseAccountOfferType: 'Standard' // only Standard exists?
+    databaseAccountOfferType: 'Standard' // only Standard exists
     consistencyPolicy: consistencyPolicy
     locations: locations
     virtualNetworkRules: virtualNetworkRules
@@ -186,6 +214,12 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
     minimalTlsVersion: minimalTlsVersion
     publicNetworkAccess: publicNetworkAccess
     enableFreeTier: enableFreeTier
+    enableBurstCapacity: enableBurstCapacity
+    enablePartitionMerge: enablePartitionMerge
+    enablePerRegionPerPartitionAutoscale: enablePerRegionPerPartitionAutoscale
+    apiProperties: documentDbKind == 'MongoDB' ? {
+      serverVersion: mongoDbServerVersion
+    } : null
     capacity: {
       totalThroughputLimit: totalThroughputLimit
     }
@@ -196,8 +230,8 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
 
 @description('Upsert the diagnostics for this keyvault.')
 resource databaseAccountDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
-  name: diagnosticsName
   scope: databaseAccount
+  name: diagnosticsName
   properties: {
     workspaceId: logAnalyticsWorkspaceResourceId
     logs: diagnosticSettingsLogsCategories
@@ -207,7 +241,5 @@ resource databaseAccountDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-
 
 @description('Outputting the documentendpoint of the DocumentDB account.')
 output documentEndpoint string = databaseAccount.properties.documentEndpoint
-@description('Outputting the primary connectionstring of the DocumentDB account.')
-output primaryConnectionString string = databaseAccount.listConnectionStrings().connectionStrings[0].connectionString
 @description('Outputting the resource ID of the DocumentDB account.')
 output resourceId string = databaseAccount.id

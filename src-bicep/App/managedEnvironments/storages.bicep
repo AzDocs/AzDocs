@@ -18,7 +18,7 @@ module storages 'br:contosoregistry.azurecr.io/app/managedenvironments/storages:
 </pre>
 <p>Creates a storages resource</p>
 .LINKS
-- [Bicep Microsoft.App/managedEnvironments storages](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments/storages?pivots=deployment-language-bicep)
+- [Bicep Microsoft.App/managedEnvironments storages](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/2025-01-01/managedenvironments/storages?pivots=deployment-language-bicep)
 */
 
 // ================================================= Parameters =================================================
@@ -28,7 +28,14 @@ param managedEnvironmentName string
 @description('The name for the storages resource')
 param storagesName string = 'azurefilestorage'
 
-@description('The account key to use on the storage account')
+@description('The type of storage to use: AzureFile (with account key) or NfsAzureFile (NFS v3 protocol)')
+@allowed([
+  'AzureFile'
+  'NfsAzureFile'
+])
+param storageType string = 'AzureFile'
+
+@description('The account key to use on the storage account (required for AzureFile type)')
 @secure()
 param storageAccountKey string
 
@@ -41,15 +48,21 @@ param storageAccountFileShareName string
 @description('Since you need to use a shareName (Azure File Share Storage), accessMode should be set to either ReadWrite or ReadOnly.')
 param storagesAccessMode string = 'ReadWrite'
 
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' existing = {
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' existing = {
   name: managedEnvironmentName
 
-  resource managedEnvironmentStorages 'storages@2024-03-01' = {
+  resource managedEnvironmentStorages 'storages@2025-01-01' = {
     name: storagesName
-    properties: {
+    properties: storageType == 'AzureFile' ? {
       azureFile: {
         accountKey: storageAccountKey
         accountName: storageAccountName
+        shareName: storageAccountFileShareName
+        accessMode: storagesAccessMode
+      }
+    } : {
+      nfsAzureFile: {
+        server: storageAccountName
         shareName: storageAccountFileShareName
         accessMode: storagesAccessMode
       }

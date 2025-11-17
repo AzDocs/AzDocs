@@ -87,5 +87,5 @@ module searchServiceWithAAD 'br:contosoregistry.azurecr.io/search/searchservices
 </pre>
 
 ## Links
-- [Bicep Microsoft.Search searchServices](https://learn.microsoft.com/en-us/azure/templates/microsoft.search/searchservices?pivots=deployment-language-bicep)<br>
+- [Bicep Microsoft.Search searchServices](https://learn.microsoft.com/en-us/azure/templates/microsoft.search/2025-05-01/searchservices?pivots=deployment-language-bicep)<br>
 - [Azure Cognitive Search](https://learn.microsoft.com/en-us/azure/search/)

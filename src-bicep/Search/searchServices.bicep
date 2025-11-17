@@ -68,7 +68,7 @@ module searchServiceWithAAD 'br:contosoregistry.azurecr.io/search/searchservices
 }
 </pre>
 .LINKS
-- [Bicep Microsoft.Search searchServices](https://learn.microsoft.com/en-us/azure/templates/microsoft.search/searchservices?pivots=deployment-language-bicep)
+- [Bicep Microsoft.Search searchServices](https://learn.microsoft.com/en-us/azure/templates/microsoft.search/2025-05-01/searchservices?pivots=deployment-language-bicep)
 - [Azure Cognitive Search](https://learn.microsoft.com/en-us/azure/search/)
 */
 
@@ -126,17 +126,6 @@ param replicaCount int = 1
   12
 ])
 param partitionCount int = 1
-
-// Validate that partition count > 1 is only allowed for standard SKUs
-var isStandardSku = contains(
-  ['standard', 'standard2', 'standard3', 'storage_optimized_l1', 'storage_optimized_l2'],
-  skuName
-)
-
-// This will cause deployment to fail if partition count > 1 and SKU is not standard
-var validatePartitionCount = partitionCount > 1 && !isStandardSku
-  ? fail('Partition count greater than 1 is only valid for standard SKUs (standard, standard2, standard3, storage_optimized_l1, storage_optimized_l2). Current SKU: ${skuName}, Partition Count: ${partitionCount}')
-  : true
 
 @description('Whether public network access is allowed for this resource.')
 @allowed([
@@ -235,7 +224,7 @@ param diagnosticSettingsMetricsCategories diagnosticMetricCategory[] = [
 
 // ================================================= Resources =================================================
 @description('Create the Search Service')
-resource searchService 'Microsoft.Search/searchServices@2025-02-01-Preview' = {
+resource searchService 'Microsoft.Search/searchServices@2025-05-01' = {
   name: searchServiceName
   location: location
   tags: tags
@@ -245,7 +234,7 @@ resource searchService 'Microsoft.Search/searchServices@2025-02-01-Preview' = {
   identity: identity
   properties: {
     replicaCount: replicaCount
-    partitionCount: validatePartitionCount ? partitionCount : partitionCount // This ensures validation is evaluated
+    partitionCount: partitionCount
     hostingMode: hostingMode
     publicNetworkAccess: publicNetworkAccess
     networkRuleSet: {

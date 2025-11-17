@@ -17,7 +17,7 @@ module agentpool 'br:contosoregistry.azurecr.io/containerregistry/registries/age
 </pre>
 <p>Creates an agentpool of the containerregistry type</p>
 .LINKS
-- [Bicep Microsoft.ContainerRegistry registries agentpools](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries/agentpools?pivots=deployment-language-bicep)
+- [Bicep Microsoft.ContainerRegistry registries agentpools](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/2025-03-01-preview/registries/agentpools?pivots=deployment-language-bicep)
 */
 
 // ================================================= Parameters =================================================
@@ -58,15 +58,15 @@ param agentPoolOsType string = 'Linux'
 param agentPoolTier string = 'S1'
 
 @description('The already existing container registry.')
-resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
+resource acr 'Microsoft.ContainerRegistry/registries@2025-04-01' existing = {
   name: acrName
 }
 
-resource acrPool 'Microsoft.ContainerRegistry/registries/agentPools@2019-06-01-preview' = {
+resource acrPool 'Microsoft.ContainerRegistry/registries/agentPools@2025-03-01-preview' = {
+  parent: acr
   name: acrAgentPoolName
   location: location
   tags: tags
-  parent: acr
   properties: {
     count: agentPoolMachineCount
     os: agentPoolOsType

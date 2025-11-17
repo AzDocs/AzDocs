@@ -37,7 +37,7 @@ module acr 'br:acrazdocsprd.azurecr.io/containerregistry/registries:2024.06.07.1
 </pre>
 <p>Creates an acr with the name containerRegistryName</p>
 .LINKS
-- [Bicep Microsoft.ContainerRegistry registries](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep)
+- [Bicep Microsoft.ContainerRegistry registries](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/2025-04-01/registries?pivots=deployment-language-bicep)
 - [azureADAuthenticationAsArmPolicy](https://www.azadvertizer.net/azpolicyadvertizer/42781ec6-6127-4c30-bdfa-fb423a0047d3.html)
 - [quarantinePolicy](https://github.com/Azure/acr/tree/main/docs/preview/quarantine)
 - [quarantinePolicy](https://samcogan.com/image-quarantine-in-azure-container-registry/)
@@ -161,7 +161,7 @@ param networkRuleSet object = empty(ipRules)
 var enableNetworkRuleSet = skuName == 'Premium'
 
 @description('Upsert the azure container registry instance.')
-resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
+resource registry 'Microsoft.ContainerRegistry/registries@2025-04-01' = {
   name: containerRegistryName
   location: location
   tags: tags

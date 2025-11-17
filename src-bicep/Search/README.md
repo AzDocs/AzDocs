@@ -46,7 +46,7 @@ module searchService 'br:contosoregistry.azurecr.io/search/searchservices:latest
     replicaCount: 2
     partitionCount: 2
     semanticSearch: 'standard'
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: 'disabled'
     logAnalyticsWorkspaceResourceId: '/subscriptions/.../workspaces/logs'
     tags: {
       Environment: 'production'
@@ -64,7 +64,7 @@ module searchService 'br:contosoregistry.azurecr.io/search/searchservices:latest
   params: {
     searchServiceName: 'mysearch-secure'
     skuName: 'standard'
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'enabled'
     ipRules: [
       {
         value: '203.0.113.0/24'
@@ -73,7 +73,7 @@ module searchService 'br:contosoregistry.azurecr.io/search/searchservices:latest
         value: '198.51.100.1'
       }
     ]
-    networkRuleSetBypass: 'AzurePortal'
+    networkRuleSetBypass: 'AzureServices'
   }
 }
 ```
@@ -89,24 +89,26 @@ module searchService 'br:contosoregistry.azurecr.io/search/searchservices:latest
 | `skuName`             | string | No       | `basic`                 | Pricing tier (free, basic, standard, etc.)    |
 | `replicaCount`        | int    | No       | `1`                     | Number of replicas (1-12)                     |
 | `partitionCount`      | int    | No       | `1`                     | Number of partitions (1, 2, 3, 4, 6, 12)      |
-| `publicNetworkAccess` | string | No       | `Enabled`               | Enable/disable public access                  |
+| `publicNetworkAccess` | string | No       | `disabled`              | Enable/disable/securedByPerimeter             |
 | `semanticSearch`      | string | No       | `free`                  | Semantic search tier (disabled/free/standard) |
-| `disableLocalAuth`    | bool   | No       | `false`                 | Disable API key authentication                |
-| `hostingMode`         | string | No       | `default`               | Hosting mode (default/highDensity)            |
+| `disableLocalAuth`       | bool   | No       | `true`                  | Disable API key authentication                |
+| `authenticationOptions`  | object | No       | -                       | Authentication options (aadOrApiKey/apiKeyOnly) |
+| `hostingMode`            | string | No       | `default`               | Hosting mode (default/highDensity)            |
+| `identity`               | object | No       | `{type: 'SystemAssigned'}` | Managed identity configuration             |
 
 ### Network Security Parameters
 
 | Parameter              | Type   | Required | Default | Description                          |
 | ---------------------- | ------ | -------- | ------- | ------------------------------------ |
 | `ipRules`              | array  | No       | `[]`    | Array of IP rules for access control |
-| `networkRuleSetBypass` | string | No       | `None`  | Bypass options (None/AzurePortal)    |
+| `networkRuleSetBypass` | string | No       | `None`  | Bypass options (None/AzureServices)  |
 
 ### Encryption Parameters
 
-| Parameter                         | Type   | Required | Default       | Description                        |
-| --------------------------------- | ------ | -------- | ------------- | ---------------------------------- |
-| `encryptionWithCmkEnforcement`    | string | No       | `Unspecified` | Customer-managed key enforcement   |
-| `disabledDataExfiltrationOptions` | array  | No       | `[]`          | Disabled data exfiltration options |
+| Parameter                        | Type   | Required | Default       | Description                         |
+| -------------------------------- | ------ | -------- | ------------- | ----------------------------------- |
+| `encryptionWithCmkEnforcement`   | string | No       | `Unspecified` | Customer-managed key enforcement    |
+| `dataExfiltrationProtections`    | array  | No       | `[]`          | Data exfiltration protection config |
 
 ## SKU Tiers and Limits
 
@@ -162,11 +164,12 @@ Azure Cognitive Search offers semantic search capabilities:
 
 ## Outputs
 
-| Output                    | Type   | Description                        |
-| ------------------------- | ------ | ---------------------------------- |
-| `searchServiceName`       | string | Name of the created search service |
-| `searchServiceResourceId` | string | Resource ID of the search service  |
-| `searchServiceEndpoint`   | string | HTTPS endpoint URL                 |
+| Output                     | Type   | Description                                  |
+| -------------------------- | ------ | -------------------------------------------- |
+| `searchServiceName`        | string | Name of the created search service           |
+| `searchServiceResourceId`  | string | Resource ID of the search service            |
+| `searchServiceEndpoint`    | string | HTTPS endpoint URL                           |
+| `searchServicePrincipalId` | string | Principal ID of system-assigned identity     |
 
 **Note**: Admin and query keys are not exposed as outputs for security reasons. Use Azure CLI, PowerShell, or REST API to retrieve keys when needed.
 

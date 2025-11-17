@@ -1,8 +1,8 @@
 /*
 .SYNOPSIS
-Creating a Azure ContainerApp
+Creating an Azure ContainerApp
 .DESCRIPTION
-Creating a container app with the given specs.
+Creating an container app with the given specs.
 .EXAMPLE
 <pre>
 module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
@@ -37,7 +37,7 @@ module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
 </pre>
 <p>Creates a container app with the name ca-nginxcontainerapp'</p>
 .LINKS
-- [Bicep Microsoft.App containerApps](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps?pivots=deployment-language-bicep)
+- [Bicep Microsoft.App containerApps](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/2025-01-01/containerapps?pivots=deployment-language-bicep)
 */
 
 // ================================================= Parameters =================================================
@@ -138,8 +138,8 @@ type corsPolicyType = {
   @description('Optional. Specifies the content for the access-control-allow-methods header.')
   allowedMethods: string[]?
 
-  @description('Optional. Specifies the content for the access-control-allow-origins header.')
-  allowedOrigins: string[]?
+  @description('Required. Specifies the content for the access-control-allow-origins header.')
+  allowedOrigins: string[]
 
   @description('Optional. Specifies the content for the access-control-expose-headers header.')
   exposeHeaders: string[]?
@@ -201,7 +201,6 @@ Example:
 [
   {
     identity: '/subscriptions/<subscriptionId>/resourcegroups/<resourcegroupname>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<userassignedmanagedidentityname>'
-    lifecycle: 'All'
   }
 ]
 ''')
@@ -209,11 +208,12 @@ param identitySettings array = []
 
 @description('''
 ActiveRevisionsMode controls how active revisions are handled for the Container app:
-{list}{item}Multiple: multiple revisions can be active.{/item}{item}Single: Only one revision can be active at a time.Revision weights can not be used in this mode.
+{list}{item}Single: Only one revision can be active at a time. Traffic weights cannot be used. This is the default.{/item}{item}Multiple: Multiple revisions can be active, including optional traffic weights and labels.{/item}{item}Labels: Only revisions with labels are active. Traffic weights can be applied to labels.{/item}{/list}
 ''')
 @allowed([
   'Single'
   'Multiple'
+  'Labels'
 ])
 param activeRevisionsMode string = 'Single'
 
@@ -250,8 +250,6 @@ Examples:
 ''')
 @secure()
 param secrets object = {}
-
-var secretList = !empty(secrets) ? secrets.secureList : []
 
 @description('User friendly suffix that is appended to the revision name')
 param revisionSuffix string = ''
@@ -344,7 +342,7 @@ Example:
     image: 'nginx'
     name: 'nginxcontainerapp'
     resources: {
-      cpu: '0.5'
+      cpu: 1
       memory: '1.0Gi'
     }
   },
@@ -352,7 +350,7 @@ Example:
   image: 'myacr.azurecr.io/customimagecontainerapp:latest'
   name: 'customimagecontainerapp'
   resources: {
-    cpu: '0.5'
+    cpu: 1
     memory: '1.0Gi'
   }
 },
@@ -360,7 +358,7 @@ Example:
   image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
   name: 'simple-hello-world-container'
   resources: {
-    cpu: '0.5'
+    cpu: 1
     memory: '1.0Gi'
   }
 },
@@ -388,7 +386,7 @@ Example:
   ]
   name: 'someprivatedockerhubimage'
   resources: {
-    cpu: '0.5'
+    cpu: 1
     memory: '1.0Gi'
   }
  }
@@ -419,10 +417,18 @@ type container = {
   probes: containerAppProbe[]?
 
   @description('Required. Container resource requirements.Total CPU and memory for all containers defined in a Container App must add up to allowed CPU - Memory combinations like [cpu: 0.25, memory: 0.5Gi]')
-  resources: object
+  resources: containerResources
 
   @description('Optional. Container volume mounts.')
   volumeMounts: volumeMount[]?
+}
+
+type containerResources = {
+  @description('Required. Required CPU in cores, e.g. 1, 2, 4. Must be an integer value.')
+  cpu: int
+
+  @description('Required. Required memory, e.g. "0.5Gi", "1Gi", "2Gi"')
+  memory: string
 }
 
 type environmentVar = {
@@ -493,8 +499,8 @@ type containerAppProbeHttpGet = {
   @description('Optional. HTTP headers to set in the request.')
   httpHeaders: containerAppProbeHttpGetHeadersItem[]?
 
-  @description('Required. Path to access on the HTTP server.')
-  path: string
+  @description('Optional. Path to access on the HTTP server.')
+  path: string?
 
   @description('Required. Name or number of the port to access on the container.')
   port: int
@@ -556,16 +562,19 @@ param scalePollingInterval int = 30
 param serviceBinds serviceBind[]?
 
 type serviceBind = {
-  @description('Required. The name of the service.')
-  name: string
+  @description('Optional. Name of the service bind.')
+  name: string?
 
-  @description('Required. The service ID.')
-  serviceId: string
+  @description('Optional. Resource id of the target service.')
+  serviceId: string?
 }
+
+var secretList = !empty(secrets) ? secrets.secureList : []
+
 // ================================================= Resources =================================================
 
 @description('the managed environment of the container app. Should be pre-existing')
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' existing = {
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' existing = {
   name: managedEnvironmentName
 }
 
@@ -573,8 +582,8 @@ resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' exist
 resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
   name: containerAppName
   location: location
-  tags: tags
   identity: identity
+  tags: tags
   properties: {
     managedEnvironmentId: managedEnvironment.id
     configuration: {

@@ -77,7 +77,7 @@ module acr 'br:acrazdocsprd.azurecr.io/containerregistry/registries:2024.06.07.1
 <p>Creates an acr with the name containerRegistryName</p>
 
 ## Links
-- [Bicep Microsoft.ContainerRegistry registries](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep)<br>
+- [Bicep Microsoft.ContainerRegistry registries](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/2025-04-01/registries?pivots=deployment-language-bicep)<br>
 - [azureADAuthenticationAsArmPolicy](https://www.azadvertizer.net/azpolicyadvertizer/42781ec6-6127-4c30-bdfa-fb423a0047d3.html)<br>
 - [quarantinePolicy](https://github.com/Azure/acr/tree/main/docs/preview/quarantine)<br>
 - [quarantinePolicy](https://samcogan.com/image-quarantine-in-azure-container-registry/)<br>

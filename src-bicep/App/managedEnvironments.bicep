@@ -38,7 +38,7 @@ module managedEnvironment 'br:contosoregistry.azurecr.io/app/managedenvironments
 </pre>
 <p>Creates an internal container App managed environment with the name managedEnvironmentName in your own subnet.</p>
 .LINKS
-- [Bicep Microsoft.App managedEnvironments](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments?pivots=deployment-language-bicep)
+- [Bicep Microsoft.App managedEnvironments](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/2025-01-01/managedenvironments?pivots=deployment-language-bicep)
 */
 
 // ================================================= Parameters =================================================
@@ -85,17 +85,11 @@ Example:
 param appLogsConfigurationDestination string = 'azure-monitor'
 
 @description('''
-The Instrumentation key for the AppInsights workspace.
+Application Insights connection string used by Dapr to export Service to Service communication telemetry.
 Example:
-applicationInsights.properties.InstrumentationKey
+applicationInsights.properties.ConnectionString
 ''')
-param daprAIInstrumentationKey string = ''
-
-@description('''
-The Instrumentation key for the AppInsights workspace.
-Example:
-applicationInsights.properties.InstrumentationKey
-''')
+@secure()
 param daprAIConnectionString string = ''
 
 @description('''
@@ -183,14 +177,12 @@ param peerAuthenticationEnabled bool = false
 
 
 //================================================= Resources =================================================
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' = {
   name: managedEnvironmentName
   location: location
   tags: tags
   properties: {
-    daprAIInstrumentationKey: daprAIInstrumentationKey
-    daprAIConnectionString: daprAIConnectionString
-    daprConfiguration: {}
+    daprAIConnectionString: !empty(daprAIConnectionString) ? daprAIConnectionString : null
     appLogsConfiguration: {
       destination: appLogsConfigurationDestination
       logAnalyticsConfiguration: (appLogsConfigurationDestination == 'log-analytics') ? logAnalyticsConfiguration : null
@@ -213,7 +205,6 @@ resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
     }
     workloadProfiles: !empty(workloadProfiles) ? workloadProfiles : null
     zoneRedundant: managedEnvironmentZoneRedundant
-    kedaConfiguration: {}
     customDomainConfiguration: {
       certificatePassword: certificatePassword
       certificateValue: !empty(certificateValue) ? certificateValue : null

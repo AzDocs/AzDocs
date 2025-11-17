@@ -44,7 +44,7 @@ module dapr 'br:contosoregistry.azurecr.io/app/managedenvironments/daprcomponent
 </pre>
 <p>Creates a dapr component with the name MyFirstDaprComponent</p>
 .LINKS
-- [Bicep Microsoft.App/managedEnvironments daprComponent](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments/daprcomponents?pivots=deployment-language-bicep)
+- [Bicep Microsoft.App/managedEnvironments daprComponent](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/2025-01-01/managedenvironments/daprcomponents?pivots=deployment-language-bicep)
 */
 
 // ================================================= Parameters =================================================
@@ -114,15 +114,18 @@ In the Container App resource, the daprId should match the scopes property withi
 ''')
 param daprComponentScope array = []
 
+@description('Optional: Name of a Dapr component to retrieve component secrets from')
+param secretStoreComponent string = ''
+
 @description('The name for the managed Environment for the Container App.')
 @minLength(2)
 @maxLength(260)
 param managedEnvironmentName string
 
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' existing = {
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' existing = {
   name: managedEnvironmentName
 
-  resource daprComponent 'daprComponents@2024-03-01' = {
+  resource daprComponents 'daprComponents@2025-01-01' = {
     name: daprComponentName
     properties: {
       componentType: daprComponentType
@@ -132,6 +135,7 @@ resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' exist
       secrets: daprSecrets
       metadata: daprMetadata
       scopes: daprComponentScope
+      secretStoreComponent: !empty(secretStoreComponent) ? secretStoreComponent : null
     }
   }
 }

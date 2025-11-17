@@ -20,6 +20,7 @@ It is a runtime that helps build resilient, stateless, and stateful microservice
 | daprComponentIgnoreErrors | bool | <input type="checkbox"> | None | <pre>true</pre> | Boolean describing if the component errors are ignored. |
 | daprComponentInitTimeout | string | <input type="checkbox"> | None | <pre>'5s'</pre> | Initialization timeout |
 | daprComponentScope | array | <input type="checkbox"> | None | <pre>[]</pre> | Name(s) of container app(s) that can use this Dapr component.<br>In the Container App resource, the daprId should match the scopes property within the dapr component being defined. |
+| secretStoreComponent | string | <input type="checkbox"> | None | <pre>''</pre> | Optional: Name of a Dapr component to retrieve component secrets from |
 | managedEnvironmentName | string | <input type="checkbox" checked> | Length between 2-260 | <pre></pre> | The name for the managed Environment for the Container App. |
 
 ## Examples
@@ -63,4 +64,4 @@ module dapr 'br:contosoregistry.azurecr.io/app/managedenvironments/daprcomponent
 <p>Creates a dapr component with the name MyFirstDaprComponent</p>
 
 ## Links
-- [Bicep Microsoft.App/managedEnvironments daprComponent](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments/daprcomponents?pivots=deployment-language-bicep)
+- [Bicep Microsoft.App/managedEnvironments daprComponent](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/2025-01-01/managedenvironments/daprcomponents?pivots=deployment-language-bicep)

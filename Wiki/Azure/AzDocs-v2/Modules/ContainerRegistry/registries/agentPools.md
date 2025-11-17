@@ -35,4 +35,4 @@ module agentpool 'br:contosoregistry.azurecr.io/containerregistry/registries/age
 <p>Creates an agentpool of the containerregistry type</p>
 
 ## Links
-- [Bicep Microsoft.ContainerRegistry registries agentpools](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries/agentpools?pivots=deployment-language-bicep)
+- [Bicep Microsoft.ContainerRegistry registries agentpools](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/2025-03-01-preview/registries/agentpools?pivots=deployment-language-bicep)

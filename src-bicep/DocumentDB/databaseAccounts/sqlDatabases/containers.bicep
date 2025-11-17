@@ -17,7 +17,7 @@ module container 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts/sqld
 </pre>
 <p>Creates a documentdb container with the given specs</p>
 .LINKS
-- [Bicep Microsoft.DocumentDB/databaseAccounts/sqlDatabases containers](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts/sqldatabases/containers?pivots=deployment-language-bicep)
+- [Bicep Microsoft.DocumentDB/databaseAccounts/sqlDatabases containers](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/2025-04-15/databaseaccounts/sqldatabases/containers?pivots=deployment-language-bicep)
 */
 
 @description('The name of the DocumentDB account.')
@@ -62,6 +62,36 @@ param conflictResolutionPolicy object = {
 @description('The options for the container.')
 param options object = {}
 
+@description('Specifies the location for all resources.')
+param location string = resourceGroup().location
+
+@description('Enum to indicate the mode of resource creation. Default or Restore.')
+param createMode string = 'Default'
+
+@description('Parameters to indicate the information about the restore. Only used when createMode is Restore.')
+param restoreParameters object = {}
+
+@description('Analytical TTL. Enables analytical storage when set to a value other than 0. -1 for infinite retention.')
+param analyticalStorageTtl int = 0
+
+@description('Default time to live in seconds. -1 for infinity, items do not expire by default.')
+param defaultTtl int = -1
+
+@description('List of computed properties for server-side calculations.')
+param computedProperties array = []
+
+@description('Client encryption policy for the container.')
+param clientEncryptionPolicy object = {}
+
+@description('Full-text search policy for the container.')
+param fullTextPolicy object = {}
+
+@description('Unique key policy configuration for uniqueness constraints.')
+param uniqueKeyPolicy object = {}
+
+@description('Vector embedding policy for AI/vector search capabilities.')
+param vectorEmbeddingPolicy object = {}
+
 @description('''
     The tag object.
     For example (in YAML):
@@ -78,15 +108,25 @@ param options object = {}
 ''')
 param tags object = {}
 
-resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-04-15' = {
+resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2025-04-15' = {
   name: '${documentDbName}/${databaseName}/${containerName}'
+  location: location
   tags: tags
   properties: {
     resource: {
       id: containerName
+      createMode: createMode
       partitionKey: partitionKey
       indexingPolicy: indexingPolicy
       conflictResolutionPolicy: conflictResolutionPolicy
+      restoreParameters: createMode == 'Restore' && !empty(restoreParameters) ? restoreParameters : null
+      analyticalStorageTtl: analyticalStorageTtl
+      defaultTtl: defaultTtl
+      computedProperties: !empty(computedProperties) ? computedProperties : null
+      clientEncryptionPolicy: !empty(clientEncryptionPolicy) ? clientEncryptionPolicy : null
+      fullTextPolicy: !empty(fullTextPolicy) ? fullTextPolicy : null
+      uniqueKeyPolicy: !empty(uniqueKeyPolicy) ? uniqueKeyPolicy : null
+      vectorEmbeddingPolicy: !empty(vectorEmbeddingPolicy) ? vectorEmbeddingPolicy : null
     }
     options: options
   }
