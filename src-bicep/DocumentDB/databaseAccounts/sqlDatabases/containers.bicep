@@ -60,7 +60,7 @@ param conflictResolutionPolicy object = {
 }
 
 @description('The options for the container.')
-param options object = {}
+param options object?
 
 @description('Specifies the location for all resources.')
 param location string = resourceGroup().location
@@ -69,7 +69,7 @@ param location string = resourceGroup().location
 param createMode string = 'Default'
 
 @description('Parameters to indicate the information about the restore. Only used when createMode is Restore.')
-param restoreParameters object = {}
+param restoreParameters object?
 
 @description('Analytical TTL. Enables analytical storage when set to a value other than 0. -1 for infinite retention.')
 param analyticalStorageTtl int = 0
@@ -78,16 +78,16 @@ param analyticalStorageTtl int = 0
 param defaultTtl int = -1
 
 @description('List of computed properties for server-side calculations.')
-param computedProperties array = []
+param computedProperties array?
 
 @description('Client encryption policy for the container.')
-param clientEncryptionPolicy object = {}
+param clientEncryptionPolicy object?
 
 @description('Full-text search policy for the container.')
-param fullTextPolicy object = {}
+param fullTextPolicy object?
 
 @description('Unique key policy configuration for uniqueness constraints.')
-param uniqueKeyPolicy object = {}
+param uniqueKeyPolicy object?
 
 @description('Vector embedding policy for AI/vector search capabilities.')
 param vectorEmbeddingPolicy object?
@@ -122,13 +122,13 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
       restoreParameters: createMode == 'Restore' && !empty(restoreParameters) ? restoreParameters : null
       analyticalStorageTtl: analyticalStorageTtl
       defaultTtl: defaultTtl
-      computedProperties: !empty(computedProperties) ? computedProperties : null
-      clientEncryptionPolicy: !empty(clientEncryptionPolicy) ? clientEncryptionPolicy : null
-      fullTextPolicy: !empty(fullTextPolicy) ? fullTextPolicy : null
-      uniqueKeyPolicy: !empty(uniqueKeyPolicy) ? uniqueKeyPolicy : null
+      ...(computedProperties != null ? { computedProperties: computedProperties } : {})
+      ...(clientEncryptionPolicy != null ? { clientEncryptionPolicy: clientEncryptionPolicy } : {})
+      ...(fullTextPolicy != null ? { fullTextPolicy: fullTextPolicy } : {})
+      ...(uniqueKeyPolicy != null ? { uniqueKeyPolicy: uniqueKeyPolicy } : {})
       ...(vectorEmbeddingPolicy != null ? { vectorEmbeddingPolicy: vectorEmbeddingPolicy } : {})
     }
-    options: options
+    ...(options != null ? { options: options } : {})
   }
 }
 
