@@ -90,7 +90,7 @@ param fullTextPolicy object = {}
 param uniqueKeyPolicy object = {}
 
 @description('Vector embedding policy for AI/vector search capabilities.')
-param vectorEmbeddingPolicy object = {}
+param vectorEmbeddingPolicy object?
 
 @description('''
     The tag object.

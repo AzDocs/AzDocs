@@ -27,7 +27,7 @@ Creates a document db container.
 | clientEncryptionPolicy | object | <input type="checkbox"> | None | <pre>{}</pre> | Client encryption policy for the container. |
 | fullTextPolicy | object | <input type="checkbox"> | None | <pre>{}</pre> | Full-text search policy for the container. |
 | uniqueKeyPolicy | object | <input type="checkbox"> | None | <pre>{}</pre> | Unique key policy configuration for uniqueness constraints. |
-| vectorEmbeddingPolicy | object | <input type="checkbox"> | None | <pre>{}</pre> | Vector embedding policy for AI/vector search capabilities. |
+| vectorEmbeddingPolicy | object? | <input type="checkbox" checked> | None | <pre></pre> | Vector embedding policy for AI/vector search capabilities. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The tag object.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For example (in YAML):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationID: 1234<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationName: MyCmdbAppName<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationOwner: myproductowner@company.com<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AppTechOwner: myteam@company.com<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BillingIdentifier: 123456<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BusinessUnit: MyBusinessUnit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CostType: Application<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EnvironmentType: dev<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PipelineBuildNumber: 2022.08.02-main<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PipelineRunUrl: https://dev.azure.com/org/TeamProject/_build/results?buildId=1234&view=results |
 
 ## Outputs
