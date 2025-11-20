@@ -21,8 +21,8 @@ Creates a document db container.
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the location for all resources. |
 | createMode | string | <input type="checkbox"> | None | <pre>'Default'</pre> | Enum to indicate the mode of resource creation. Default or Restore. |
 | restoreParameters | object? | <input type="checkbox" checked> | None | <pre></pre> | Parameters to indicate the information about the restore. Only used when createMode is Restore. |
-| analyticalStorageTtl | int | <input type="checkbox"> | None | <pre>0</pre> | Analytical TTL. Enables analytical storage when set to a value other than 0. -1 for infinite retention. |
-| defaultTtl | int | <input type="checkbox"> | None | <pre>-1</pre> | Default time to live in seconds. -1 for infinity, items do not expire by default. |
+| analyticalStorageTtl | int? | <input type="checkbox" checked> | None | <pre></pre> | Analytical TTL. Enables analytical storage when set to a value other than 0. -1 for infinite retention. |
+| defaultTtl | int? | <input type="checkbox" checked> | None | <pre></pre> | Default time to live in seconds. -1 for infinity, items do not expire by default. |
 | computedProperties | array? | <input type="checkbox" checked> | None | <pre></pre> | List of computed properties for server-side calculations. |
 | clientEncryptionPolicy | object? | <input type="checkbox" checked> | None | <pre></pre> | Client encryption policy for the container. |
 | fullTextPolicy | object? | <input type="checkbox" checked> | None | <pre></pre> | Full-text search policy for the container. |

@@ -72,10 +72,10 @@ param createMode string = 'Default'
 param restoreParameters object?
 
 @description('Analytical TTL. Enables analytical storage when set to a value other than 0. -1 for infinite retention.')
-param analyticalStorageTtl int = 0
+param analyticalStorageTtl int?
 
 @description('Default time to live in seconds. -1 for infinity, items do not expire by default.')
-param defaultTtl int = -1
+param defaultTtl int?
 
 @description('List of computed properties for server-side calculations.')
 param computedProperties array?
@@ -120,8 +120,8 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
       indexingPolicy: indexingPolicy
       conflictResolutionPolicy: conflictResolutionPolicy
       restoreParameters: createMode == 'Restore' && !empty(restoreParameters) ? restoreParameters : null
-      analyticalStorageTtl: analyticalStorageTtl
-      defaultTtl: defaultTtl
+      ...(analyticalStorageTtl != null ? { analyticalStorageTtl: analyticalStorageTtl } : {})
+      ...(defaultTtl != null ? { defaultTtl: defaultTtl } : {})
       ...(computedProperties != null ? { computedProperties: computedProperties } : {})
       ...(clientEncryptionPolicy != null ? { clientEncryptionPolicy: clientEncryptionPolicy } : {})
       ...(fullTextPolicy != null ? { fullTextPolicy: fullTextPolicy } : {})
