@@ -126,7 +126,7 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
       clientEncryptionPolicy: !empty(clientEncryptionPolicy) ? clientEncryptionPolicy : null
       fullTextPolicy: !empty(fullTextPolicy) ? fullTextPolicy : null
       uniqueKeyPolicy: !empty(uniqueKeyPolicy) ? uniqueKeyPolicy : null
-      vectorEmbeddingPolicy: !empty(vectorEmbeddingPolicy) ? vectorEmbeddingPolicy : null
+      ...(vectorEmbeddingPolicy != null ? { vectorEmbeddingPolicy: vectorEmbeddingPolicy } : {})
     }
     options: options
   }
