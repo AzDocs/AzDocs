@@ -1,6 +1,7 @@
 /*
 .SYNOPSIS
 Adds or updates a configuration setting on an existing Azure Database for MySQL Flexible Server.
+Can be found in the Server parameters section of the settings in the Azure portal for MySQL flexible servers.
 .DESCRIPTION
 This file declares the `configurations` child resource for a MySQL flexible server. Use this
 module to create or update a server-level configuration (name/value) on an existing flexible server.

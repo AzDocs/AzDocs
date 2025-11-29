@@ -1,6 +1,7 @@
 /*
 .SYNOPSIS
 Deploys an Azure Database for MySQL server and supporting network and firewall configuration.
+Use the childresource bicep files to add configurations, like EntraID authentication only, firewall rules, private endpoint connections, etc.
 .DESCRIPTION
 Creating a Azure Database for MySQL flexible server with the gives specs. 
 Server names, networking connectivity method, zone redundant HA and backup redundancy cannot be changed after server is created.
@@ -207,12 +208,12 @@ resource mySqlFlexibleServer 'Microsoft.DBforMySQL/flexibleServers@2024-12-30' =
     storage: storage
     backup: backup
     availabilityZone: availabilityZone != -1 ? string(availabilityZone) : ''
-    highAvailability: {
+    highAvailability: (skuTier != 'Burstable') ? {
       mode: highAvailability
       standbyAvailabilityZone: standByAvailabilityZone != -1 ? string(standByAvailabilityZone) : ''
-    }
+    } : null
     createMode: createMode
-    maintenanceWindow: !empty(maintenanceWindow)
+    maintenanceWindow: (skuTier != 'Burstable' && !empty(maintenanceWindow))
       ? {
           customWindow: maintenanceWindow.customWindow
           dayOfWeek: maintenanceWindow.customWindow == 'Enabled' ? maintenanceWindow.dayOfWeek : 0

@@ -63,7 +63,7 @@ resource mySqlFlexibleServer 'Microsoft.DBforMySQL/flexibleServers@2024-12-30' e
   name: mySqlFlexibleServerName
 }
 
-resource mySqlAdministrator 'Microsoft.DBforMySQL/flexibleServers/administrators@2025-06-01-preview' = {
+resource mySqlAdministrator 'Microsoft.DBforMySQL/flexibleServers/administrators@2024-12-30' = {
   parent: mySqlFlexibleServer
   name: 'ActiveDirectory'
   properties: {
