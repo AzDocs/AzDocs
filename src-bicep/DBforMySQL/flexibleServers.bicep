@@ -60,8 +60,10 @@ param mysqlAdminPassword string
 param publicNetworkAccess string = 'Disabled'
 
 @description('''
-Optional delegated subnet resource id for private network connectivity (e.g. /subscriptions/.../resourceGroups/.../providers/Microsoft.Network/virtualNetworks/.../subnets/...). 
+Optional delegated subnet resource id for private network connectivity.
+Only resources within the virtual network or a peered network to your server will have access. 
 If provided, the server will be associated with this subnet via the API (private connectivity). The subnet must be delegated to 'Microsoft.DBforMySQL/flexibleServers'.
+Firewall rules and public network access settings will be ignored when this property is provided.
 Example:
 delegatedSubnetResourceId: resourceId('Microsoft.Network/virtualNetworks/subnets', '<vnetName>', '<subnetName>')
 ''')
@@ -165,6 +167,15 @@ param maintenancePolicy object = {
 @description('MySQL database port')
 param mySqlDatabasePort int = 3306
 
+@allowed([
+  'Default'
+  'GeoRestore'
+  'PointInTimeRestore'
+  'Replica'
+])
+@description('Optional. The mode to create a new MySQL server.')
+param createMode string = 'Default'
+
 @description('Compute and storage redundancy options for the MySQL server.')
 var standByAvailabilityZone = {
   Disabled: -1
@@ -200,6 +211,7 @@ resource mySqlFlexibleServer 'Microsoft.DBforMySQL/flexibleServers@2024-12-30' =
       mode: highAvailability
       standbyAvailabilityZone: standByAvailabilityZone != -1 ? string(standByAvailabilityZone) : ''
     }
+    createMode: createMode
     maintenanceWindow: !empty(maintenanceWindow)
       ? {
           customWindow: maintenanceWindow.customWindow
