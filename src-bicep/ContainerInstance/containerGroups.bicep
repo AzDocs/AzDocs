@@ -587,22 +587,22 @@ param zones string[] = []
 
 // ================================================= Variables =================================================
 // Configure union of properties based on SKU and other parameters
-var basicProperties = {
-  containers: containers
-  diagnostics: containerInstanceLogAnalytics
-  encryptionProperties: containerInstanceEncryptionProperties
-  extensions: containerInstanceDeploymentExtension
-  imageRegistryCredentials: containerInstanceImageRegistryCredentials
-  initContainers: initContainers
-  ipAddress: containerInstanceIpAddress
-  osType: osType
-  priority: priority
-  restartPolicy: restartPolicy
-  secretReferences: containerInstanceSecretReferences
-  sku: sku
-  subnetIds: containerInstanceSubnetId
-  volumes: containerInstanceVolume
-}
+// var basicProperties = {
+//   containers: containers
+//   diagnostics: containerInstanceLogAnalytics
+//   encryptionProperties: containerInstanceEncryptionProperties
+//   extensions: containerInstanceDeploymentExtension
+//   imageRegistryCredentials: containerInstanceImageRegistryCredentials
+//   initContainers: initContainers
+//   ipAddress: containerInstanceIpAddress
+//   osType: osType
+//   priority: priority
+//   restartPolicy: restartPolicy
+//   secretReferences: containerInstanceSecretReferences
+//   sku: sku
+//   subnetIds: containerInstanceSubnetId
+//   volumes: containerInstanceVolume
+// }
 
 var confidentialComputeProperty = sku == 'Confidential'
   ? {
@@ -618,14 +618,38 @@ var dnsConfigProperty = !empty(containerInstanceSubnetId) && !empty(containerIns
     }
   : {}
 
-var properties = union(basicProperties, confidentialComputeProperty, dnsConfigProperty)
+// var properties = union(basicProperties, confidentialComputeProperty, dnsConfigProperty)
+
+
+
+
+
+var properties = {
+  volumes: containerInstanceVolume
+  containers: containers
+  diagnostics: containerInstanceLogAnalytics
+  encryptionProperties: containerInstanceEncryptionProperties
+  extensions: containerInstanceDeploymentExtension
+  imageRegistryCredentials: containerInstanceImageRegistryCredentials
+  initContainers: initContainers
+  ipAddress: containerInstanceIpAddress
+  osType: osType
+  priority: priority
+  restartPolicy: restartPolicy
+  secretReferences: containerInstanceSecretReferences
+  sku: sku
+  subnetIds: containerInstanceSubnetId
+}
+
+var propertiesFinal = union(properties, confidentialComputeProperty, dnsConfigProperty)
+
 
 // ================================================= Resource(s) =================================================
-resource containerInstance 'Microsoft.ContainerInstance/containerGroups@2024-10-01-preview' = {
+resource containerInstance 'Microsoft.ContainerInstance/containerGroups@2025-09-01' = {
   identity: identity
   location: location
   name: containerInstanceName
-  properties: properties
+  properties: propertiesFinal
   tags: tags
   zones: zones
 }
