@@ -213,6 +213,7 @@ param peerAuthenticationEnabled bool = false
 resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' = {
   name: managedEnvironmentName
   location: location
+  identity: identity
   tags: tags
   properties: {
     daprAIConnectionString: !empty(daprAIConnectionString) ? daprAIConnectionString : null
