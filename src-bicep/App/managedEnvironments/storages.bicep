@@ -35,7 +35,7 @@ module storages 'br:contosoregistry.azurecr.io/app/managedenvironments/storages:
 param managedEnvironmentName string
 
 @description('The name for the storages resource')
-param storagesName string = 'azurefilestorage'
+param storagesName string
 
 @description('The type of storage to use: AzureFile (with account key) or NfsAzureFile (NFS v3 protocol)')
 @allowed([
