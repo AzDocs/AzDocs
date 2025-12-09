@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+## User Defined Types
+| Name | Type | Discriminator | Description
+| -- |  -- | -- | -- |
+| <a id="IdentityType">IdentityType</a>  | <pre></pre> | type |  | 
+
 ## Synopsis
 Creating a Container App Environment.
 
@@ -16,6 +21,7 @@ If you want to create private container apps the vnetconfiguration internal prop
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
 | managedEnvironmentName | string | <input type="checkbox"> | Length between 2-260 | <pre>'cae-&#36;{uniqueString(resourceGroup().id)}'</pre> | The name for the managed Environment for the Container App. |
 | tags | object? | <input type="checkbox" checked> | None | <pre></pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+| identity | [IdentityType](#IdentityType) | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | Managed service identity to use for this configuration store. Defaults to a system assigned managed identity. <br>For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).<br>Example:<br>identity: {<br>&nbsp;&nbsp;&nbsp;type: 'None'<br>},<br>identity: {<br>&nbsp;&nbsp;&nbsp;type: 'UserAssigned'<br>&nbsp;&nbsp;&nbsp;userAssignedIdentities: {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'/subscriptions/<subscriptionId>/resourcegroups/<resourcegroupname>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<userassignedmanagedidentityname>': {}<br>&nbsp;&nbsp;&nbsp;}<br>} |
 | managedEnvironmentZoneRedundant | bool | <input type="checkbox"> | None | <pre>false</pre> | Whether or not this Managed Environment is zone-redundant. If this is true, you must set the vnetConfiguration object. |
 | vnetConfigurationInternal | bool | <input type="checkbox"> | None | <pre>false</pre> | Depending on your virtual IP configuration, you can control whether your container app environment allows public ingress or ingress only from within your VNet.<br>You must provide a infrastructureSubnetId if the value is set to true.<br>When true, the endpoint of the environment is an internal load balancer, when false: the hosted apps are exposed on an internet-accessible public IP address. |
 | containerInfraSubnetResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | When vnetConfigurationInternal is true, it specifies the resource id of the subnet for Infrastructure components for the Container App.<br>This subnet must be in the same Vnet as the subnet defined in runtimeSubnetId when defined. It must be pre-existing. |
