@@ -10,17 +10,11 @@ module storages 'br:contosoregistry.azurecr.io/app/managedenvironments/storages:
   params: {
     managedEnvironmentName: managedEnvironmentName
     storageAccountFileShareName: 'myfileshare'
-    // Option A: pass a plain account key (existing behavior)
-    // storageAccountKey: listKeys(resourceId('Microsoft.Storage/storageAccounts/', storageAccount.name), '2021-09-01').keys[0].value
-
-    // Option B: reference a Key Vault secret by supplying `accountKeyVaultProperties`.
-    // Expected shape: { identity: { type: 'UserAssigned', userAssignedIdentities: { '<id>': {} } } , keyVaultUrl: 'https://.../secrets/<secretName>' }
-    // Example below assumes you have a user-assigned identity available as `uami` and a Key Vault secret.
     accountKeyVaultProperties: {
-      identity: uami
+      identity: uami.id
       keyVaultUrl: 'https://mykv.vault.azure.net/secrets/myStorageKey'
     }
-    storageAccountName: daprStorageAccountName
+    storageAccountName: storageAccountName
     location: location
   }
 }
