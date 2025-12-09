@@ -60,6 +60,39 @@ Example:
 ''')
 param tags object?
 
+@description('''
+Managed service identity to use for this configuration store. Defaults to a system assigned managed identity. 
+For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).
+Example:
+identity: {
+  type: 'None'
+},
+identity: {
+  type: 'UserAssigned'
+  userAssignedIdentities: {
+    '/subscriptions/<subscriptionId>/resourcegroups/<resourcegroupname>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<userassignedmanagedidentityname>': {}
+  }
+}
+''')
+param identity IdentityType = {
+  type: 'SystemAssigned'
+}
+
+@discriminator('type')
+type IdentityType =
+  | {
+    type: 'SystemAssigned'
+  }
+  | {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      *: {}
+    }
+  }
+  | {
+    type: 'None'
+  }
+
 @description('Whether or not this Managed Environment is zone-redundant. If this is true, you must set the vnetConfiguration object.')
 param managedEnvironmentZoneRedundant bool = false
 
@@ -180,6 +213,7 @@ param peerAuthenticationEnabled bool = false
 resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' = {
   name: managedEnvironmentName
   location: location
+  identity: identity
   tags: tags
   properties: {
     daprAIConnectionString: !empty(daprAIConnectionString) ? daprAIConnectionString : null
