@@ -248,8 +248,7 @@ Examples:
   }
 ]
 ''')
-@secure()
-param secrets object = {}
+param secrets resourceInput<'Microsoft.App/containerApps@2025-01-01'>.properties.configuration.secrets  
 
 @description('User friendly suffix that is appended to the revision name')
 param revisionSuffix string = ''
@@ -569,8 +568,6 @@ type serviceBind = {
   serviceId: string?
 }
 
-var secretList = !empty(secrets) ? secrets.secureList : []
-
 // ================================================= Resources =================================================
 
 @description('the managed environment of the container app. Should be pre-existing')
@@ -629,7 +626,7 @@ resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
       service: (includeAddOns && !empty(service)) ? service : null
       maxInactiveRevisions: maxInactiveRevisions
       registries: !empty(registries) ? registries : null
-      secrets: secretList
+      secrets: secrets
       runtime: !empty(runtime) ? runtime : null
     }
     template: {
