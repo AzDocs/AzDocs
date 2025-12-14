@@ -656,3 +656,6 @@ output containerAppFQDN string = containerApp.properties.configuration.ingress.?
 
 @description('The principal ID of the system assigned identity.')
 output systemAssignedMIPrincipalId string = containerApp.?identity.?principalId ?? ''
+
+@description('The resource ID of the container App.')
+output containerAppResourceId string = containerApp.id
