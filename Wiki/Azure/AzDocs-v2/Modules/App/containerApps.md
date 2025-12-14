@@ -74,6 +74,7 @@ Creating an container app with the given specs.
 | -- |  -- | -- |
 | containerAppFQDN | string | Output of the FQDN of the container App. |
 | systemAssignedMIPrincipalId | string | The principal ID of the system assigned identity. |
+| containerAppResourceId | string | The resource ID of the container App. |
 
 ## Examples
 <pre>
