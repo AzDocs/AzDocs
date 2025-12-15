@@ -48,26 +48,46 @@ Example:
 param tags object = {}
 
 @description('The kind of application that this component refers to, used to customize UI.')
-@allowed(['web', 'ios', 'other', 'store', 'java', 'phone'])
+@allowed([
+  'web'
+  'ios'
+  'other'
+  'store'
+  'java'
+  'phone'
+])
 param kind string = 'web'
 
 @description('Type of application being monitored.')
-@allowed(['web', 'other'])
+@allowed([
+  'web'
+  'other'
+])
 param applicationType string = 'web'
 
 @description('Used by the Application Insights system to determine what kind of flow this component was created by.')
 param flowType string = 'Bluefield'
 
 @description('Indicates the flow of the ingestion.')
-@allowed(['ApplicationInsights', 'ApplicationInsightsWithDiagnosticSettings', 'LogAnalytics'])
+@allowed([
+  'ApplicationInsights'
+  'ApplicationInsightsWithDiagnosticSettings'
+  'LogAnalytics'
+])
 param ingestionMode string = 'LogAnalytics'
 
 @description('The network access type for accessing Application Insights ingestion.')
-@allowed(['Enabled', 'Disabled'])
+@allowed([
+  'Enabled'
+  'Disabled'
+])
 param publicNetworkAccessForIngestion string = 'Enabled'
 
 @description('The network access type for accessing Application Insights query.')
-@allowed(['Enabled', 'Disabled'])
+@allowed([
+  'Enabled'
+  'Disabled'
+])
 param publicNetworkAccessForQuery string = 'Enabled'
 
 @description('Describes what tool created this Application Insights component.')
