@@ -5,8 +5,8 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="authenticationMetadatatype">authenticationMetadatatype</a>  | <pre>'AzureAD'&#124; 'Paired'&#124; 'Windows'</pre> |  |  | 
-| <a id="databaseFormatType">databaseFormatType</a>  | <pre>'AlwaysUpToDate'&#124; 'SQLServer2022'</pre> |  |  | 
+| <a id="authenticationMetadatatype">authenticationMetadatatype</a>  | <pre>'AzureAD' &#124; 'Paired' &#124; 'Windows'</pre> |  |  | 
+| <a id="databaseFormatType">databaseFormatType</a>  | <pre>'AlwaysUpToDate' &#124; 'SQLServer2022'</pre> |  |  | 
 | <a id="pricingModelType">pricingModelType</a>  | <pre>'Freemium' &#124; 'Regular'</pre> |  |  | 
 | <a id="proxyOverrideType">proxyOverrideType</a>  | <pre>'Default' &#124; 'Proxy' &#124; 'Redirect'</pre> |  |  | 
 | <a id="requestedBackupStorageRedundancyType">requestedBackupStorageRedundancyType</a>  | <pre>'Geo' &#124; 'GeoZone' &#124; 'Local' &#124; 'Zone'</pre> |  |  | 
@@ -34,15 +34,15 @@ Creating a SQL Managed Instance with the given specifications.
 | collation | string | <input type="checkbox"> | `'Arabic_100_CI_AS'` or `'Chinese_PRC_CI_AS'` or `'Cyrillic_General_100_CI_AS'` or `'Finnish_Swedish_100_CI_AS'` or `'Japanese_CI_AS'` or `'Latin1_General_100_CI_AS'` or `'Latin1_General_100_CS_AS'` or `'SQL_Latin1_General_CP1_CI_AS'` or `'Latin1_General_BIN'` or `'Latin1_General_CI_AS'` or `'Latin1_General_CS_AS'` | <pre>'Latin1_General_CI_AS'</pre> | Collation of the managed instance. |
 | databaseFormat | databaseFormatType? | <input type="checkbox" checked> | None | <pre></pre> | Specifies the internal format of instance databases specific to the SQL engine version. |
 | dnsZonePartner | string? | <input type="checkbox" checked> | None | <pre></pre> | The resource id of another managed instance whose DNS zone this managed instance will share after creation. |
-| hybridSecondaryUsage | string? | <input type="checkbox" checked> | None | <pre></pre> | Hybrid secondary usage. Possible values are \'Active\' (default value) and \'Passive\' (customer uses the secondary as Passive DR). |
+| hybridSecondaryUsage | string? | <input type="checkbox" checked> | `'Active'` or `'Passive'` | <pre></pre> | Hybrid secondary usage. Possible values are \'Active\' (default value) and \'Passive\' (customer uses the secondary as Passive DR). |
 | identity | resourceIdentityType | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | The Azure Active Directory identity of the managed instance. Defaults to a system assigned managed identity. |
 | instancePoolId | string? | <input type="checkbox" checked> | None | <pre></pre> | The Id of the instance pool this managed server belongs to. Id must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/instancePools/{instancePoolName} |
 | isGeneralPurposeV2 | bool? | <input type="checkbox" checked> | None | <pre></pre> | Whether or not this is a GPv2 variant of General Purpose edition. |
 | keyId | string? | <input type="checkbox" checked> | None | <pre></pre> | A CMK URI of the key to use for encryption. |
-| licenseType | string? | <input type="checkbox" checked> | None | <pre></pre> | The license type. Possible values are \'LicenseIncluded\' (regular price inclusive of a new SQL license) and \'BasePrice\' (discounted AHB price for bringing your own SQL licenses). |
+| licenseType | string? | <input type="checkbox" checked> | `'BasePrice'` or `'LicenseIncluded'` | <pre></pre> | The license type. Possible values are \'LicenseIncluded\' (regular price inclusive of a new SQL license) and \'BasePrice\' (discounted AHB price for bringing your own SQL licenses). |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. |
 | maintenanceConfigurationId | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies maintenance configuration id to apply to this managed instance. Id must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/maintenanceConfigurations/{maintenanceConfigurationName} |
-| managedInstanceCreateMode | string? | <input type="checkbox" checked> | None | <pre></pre> | Specifies the mode of database creation. Default: Regular instance creation. Restore: Creates an instance by restoring a set of backups to specific point in time. RestorePointInTime and SourceManagedInstanceId must be specified. |
+| managedInstanceCreateMode | string? | <input type="checkbox" checked> | `'Default'` or `'PointInTimeRestore'` | <pre></pre> | Specifies the mode of database creation. Default: Regular instance creation. Restore: Creates an instance by restoring a set of backups to specific point in time. RestorePointInTime and SourceManagedInstanceId must be specified. |
 | pricingModel | pricingModelType? | <input type="checkbox" checked> | None | <pre></pre> | Pricing model of Managed Instance. |
 | primaryUserAssignedIdentityId | string? | <input type="checkbox" checked> | None | <pre></pre> | The resource id of a user assigned identity to be used by default. Must be in the format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{userAssignedIdentityName} |
 | proxyOverride | proxyOverrideType | <input type="checkbox"> | None | <pre>'Default'</pre> | Connection type used for connecting to the instance. |
