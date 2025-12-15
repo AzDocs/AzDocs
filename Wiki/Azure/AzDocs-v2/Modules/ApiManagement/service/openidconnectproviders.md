@@ -28,7 +28,7 @@ module diagnostics 'br:contosoregistry.azurecr.io/service/openidconnectproviders
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
-| apiManagementServiceName | string | <input type="checkbox" checked> | Length between 1-50 | <pre></pre> |  |
+| apiManagementServiceName | string | <input type="checkbox" checked> | Length between 1-50 | <pre></pre> | Valid characters: Alphanumerics and hyphens.<br><br>Start with letter and end with alphanumeric.<br><br>Resource name must be unique across Azure. |
 | clientId | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> |  |
 | clientSecret | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> |  |
 | description | string | <input type="checkbox" checked> | Length between 1-256 | <pre></pre> |  |

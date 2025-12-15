@@ -77,8 +77,7 @@ param administratorLoginPassword string
 @description('The Azure Active Directory administrator of the SQL Managed Instance. This can only be used at instance create time.')
 param administrators managedInstanceExternalAdministratorType?
 
-
-type authenticationMetadatatype = 'AzureAD'| 'Paired'| 'Windows'
+type authenticationMetadatatype = 'AzureAD' | 'Paired' | 'Windows'
 @description('The managed instance\'s authentication metadata lookup mode.')
 param authenticationMetadata authenticationMetadatatype = 'AzureAD'
 
@@ -98,7 +97,7 @@ param authenticationMetadata authenticationMetadatatype = 'AzureAD'
 ])
 param collation string = 'Latin1_General_CI_AS'
 
-type databaseFormatType = 'AlwaysUpToDate'| 'SQLServer2022'
+type databaseFormatType = 'AlwaysUpToDate' | 'SQLServer2022'
 
 @description('Specifies the internal format of instance databases specific to the SQL engine version.')
 param databaseFormat databaseFormatType?
@@ -107,7 +106,10 @@ param databaseFormat databaseFormatType?
 param dnsZonePartner string?
 
 @description('Hybrid secondary usage. Possible values are \'Active\' (default value) and \'Passive\' (customer uses the secondary as Passive DR).')
-@allowed(['Active', 'Passive'])
+@allowed([
+  'Active'
+  'Passive'
+])
 param hybridSecondaryUsage string?
 
 @description('The Azure Active Directory identity of the managed instance. Defaults to a system assigned managed identity.')
@@ -125,7 +127,10 @@ param isGeneralPurposeV2 bool?
 param keyId string?
 
 @description('The license type. Possible values are \'LicenseIncluded\' (regular price inclusive of a new SQL license) and \'BasePrice\' (discounted AHB price for bringing your own SQL licenses).')
-@allowed(['BasePrice', 'LicenseIncluded'])
+@allowed([
+  'BasePrice'
+  'LicenseIncluded'
+])
 param licenseType string?
 
 @description('Specifies the Azure location where the resource should be created.')
@@ -135,7 +140,10 @@ param location string = resourceGroup().location
 param maintenanceConfigurationId string?
 
 @description('Specifies the mode of database creation. Default: Regular instance creation. Restore: Creates an instance by restoring a set of backups to specific point in time. RestorePointInTime and SourceManagedInstanceId must be specified.')
-@allowed(['Default', 'PointInTimeRestore'])
+@allowed([
+  'Default'
+  'PointInTimeRestore'
+])
 param managedInstanceCreateMode string?
 
 type pricingModelType = 'Freemium' | 'Regular'

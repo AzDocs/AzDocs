@@ -25,10 +25,7 @@ module diagnostics 'br:contosoregistry.azurecr.io/service/openidconnectproviders
 */
 // ===================================== Parameters =====================================
 @sys.description('''
-Character limit: 1-50
-
-Valid characters:
-Alphanumerics and hyphens.
+Valid characters: Alphanumerics and hyphens.
 
 Start with letter and end with alphanumeric.
 
