@@ -5,7 +5,7 @@ Creating an Azure ContainerApp
 Creating an container app with the given specs.
 .EXAMPLE
 <pre>
-module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
+module containerApp 'br:contosoregistry.azurecr.io/app/containerapps:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 51), 'containerapp')
   params: {
     managedEnvironmentName: managedEnvironment.outputs.managedEnvironmentName
@@ -35,7 +35,7 @@ module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
   }
 }
 </pre>
-<p>Creates a container app with the name ca-nginxcontainerapp'</p>
+<p>Creates a container app with the name containerapp1'</p>
 .LINKS
 - [Bicep Microsoft.App containerApps](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/2025-01-01/containerapps?pivots=deployment-language-bicep)
 */
