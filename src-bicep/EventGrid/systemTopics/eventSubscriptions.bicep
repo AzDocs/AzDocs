@@ -66,7 +66,7 @@ param eventGridNamespaceName string
 param eventSubscriptionName string
 
 @description('Information about the destination where events have to be delivered for the event subscription. For objectstructure please visit the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.eventgrid/systemtopics/eventsubscriptions?pivots=deployment-language-bicep#eventsubscriptiondestination-objects).')
-param destination object = {}
+param destination resourceInput<'Microsoft.EventGrid/systemTopics/eventSubscriptions@2022-06-15'>.properties.destination = {}
 
 @description('Information about the destination where events have to be delivered for the event subscription. Uses the managed identity setup on the parent resource (namely, topic or domain) to acquire the authentication tokens being used during delivery / dead-lettering. For objectstructure please visit the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.eventgrid/systemtopics/eventsubscriptions?pivots=deployment-language-bicep#deliverywithresourceidentity).')
 param deliveryWithResourceIdentity object = {}
