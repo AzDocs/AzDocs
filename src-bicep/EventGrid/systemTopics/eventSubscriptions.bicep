@@ -65,6 +65,9 @@ param eventGridNamespaceName string
 @maxLength(64)
 param eventSubscriptionName string
 
+@description('Information about the destination where events have to be delivered for the event subscription. For objectstructure please visit the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.eventgrid/systemtopics/eventsubscriptions?pivots=deployment-language-bicep#eventsubscriptiondestination-objects).')
+param destination object = {}
+
 @description('Information about the destination where events have to be delivered for the event subscription. Uses the managed identity setup on the parent resource (namely, topic or domain) to acquire the authentication tokens being used during delivery / dead-lettering. For objectstructure please visit the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.eventgrid/systemtopics/eventsubscriptions?pivots=deployment-language-bicep#deliverywithresourceidentity).')
 param deliveryWithResourceIdentity object = {}
 
@@ -94,6 +97,7 @@ resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@
   parent: systemTopic
   properties: {
     deliveryWithResourceIdentity: deliveryWithResourceIdentity
+    destination: destination
     filter: filter
     eventDeliverySchema: eventDeliverySchema
     retryPolicy: {
