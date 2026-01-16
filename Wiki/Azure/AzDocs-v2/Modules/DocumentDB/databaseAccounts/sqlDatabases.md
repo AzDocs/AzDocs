@@ -14,6 +14,9 @@ Creates a document db database.
 | documentDbName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the Document DB account. |
 | databaseName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the database to upsert. |
 | options | object | <input type="checkbox"> | None | <pre>{}</pre> | The options for the database. |
+| location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the location for all resources. |
+| createMode | string | <input type="checkbox"> | None | <pre>'Default'</pre> | Enum to indicate the mode of resource creation. Default or Restore. |
+| restoreParameters | object | <input type="checkbox"> | None | <pre>{}</pre> | Parameters to indicate the information about the restore. Only used when createMode is Restore. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The tag object.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For example (in YAML):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationID: 1234<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationName: MyCmdbAppName<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationOwner: myproductowner@company.com<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AppTechOwner: myteam@company.com<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BillingIdentifier: 123456<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BusinessUnit: MyBusinessUnit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CostType: Application<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EnvironmentType: dev<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PipelineBuildNumber: 2022.08.02-main<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PipelineRunUrl: https://dev.azure.com/org/TeamProject/_build/results?buildId=1234&view=results |
 
 ## Outputs
@@ -41,4 +44,4 @@ module database 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts/sqlda
 <p>Creates a documentdb database with the given specs</p>
 
 ## Links
-- [Bicep Microsoft.DocumentDB/databaseAccounts sqlDatabases](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts/sqldatabases?pivots=deployment-language-bicep)
+- [Bicep Microsoft.DocumentDB/databaseAccounts sqlDatabases](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/2025-04-15/databaseaccounts/sqldatabases?pivots=deployment-language-bicep)

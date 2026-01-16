@@ -43,9 +43,6 @@ param maintenanceConfigurationResourceGroupName string
 @description('The name of the maintenance configuration assignment.')
 param maintenanceConfigurationAssignmentName string
 
-@description('The subscription id of the subscription you want to assign the dynamic scope to with the filters.')
-param subscriptionId string = subscription().id
-
 @description('The OS types of the resources you want to apply the maintenance configuration to.')
 @allowed([
   'windows'
@@ -89,7 +86,7 @@ resource maintenanceConfiguration 'Microsoft.Maintenance/maintenanceConfiguratio
 }
 
 resource configurationAssignment 'Microsoft.Maintenance/configurationAssignments@2023-04-01' = {
-  name: guid(maintenanceConfigurationAssignmentName)
+  name: maintenanceConfigurationAssignmentName
   properties: {
     filter: {
       locations: locations
@@ -99,6 +96,5 @@ resource configurationAssignment 'Microsoft.Maintenance/configurationAssignments
       tagSettings: tagSettingsToFilterOn
     }
     maintenanceConfigurationId: maintenanceConfiguration.id
-    resourceId: subscriptionId
   }
 }

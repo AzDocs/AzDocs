@@ -6,7 +6,8 @@ Target Scope: resourceGroup
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
 | <a id="publicCertifcate">publicCertifcate</a>  | <pre>{</pre> |  | Public certificates for Azure App Service for example intermediate and root certificates. See https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.web/web-app-public-certificate/azuredeploy.json [   {     name: 'TrustedRootCertificate'     blob: 'base64 encoded public certificate file'     publicCertificateLocation: 'LocalMachineMy'   } ] | 
-| <a id="tlsVersionType">tlsVersionType</a>  | <pre>'1.2' &#124; '1.3'</pre> |  | The TLS version to use for the app service. Default is 1.3 | 
+| <a id="tlsVersionType">tlsVersionType</a>  | <pre>'1.2' &#124; '1.3'</pre> |  | The TLS version to use for the app service. | 
+| <a id="tlsCipherSuite">tlsCipherSuite</a>  | <pre>'TLS_AES_256_GCM_SHA384' </pre> |  | The TLS cipher suite in order of most secure to least secure to use for the app service. | 
 
 ## Synopsis
 Creating an AppService Instance: WebApp, FunctionApp etc.
@@ -39,6 +40,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs. Resource may inherit tags from the ResourceGroup instead.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | httpsOnly | bool | <input type="checkbox"> | None | <pre>true</pre> | Configures a web site to accept only https requests. Issues redirect for http requests |
 | clientAffinityEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | True to enable client affinity; false to stop sending session affinity cookies, which route client requests in the same session to the same instance. Default is true. |
+| clientAffinityProxyEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | True to override client affinity cookie domain with X-Forwarded-Host request header. False to use default domain. Default is false. |
 | vnetRouteAllEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Virtual Network `route all` enabled. This causes all outbound traffic to have Virtual Network Network Security Groups (nsg) and User Defined Routes applied. |
 | alwaysOn | bool | <input type="checkbox"> | None | <pre>true</pre> | The `Always On` feature of Azure App Service, keeps the host process running.<br>This allows your site to be more responsive to request after significant idle periods.<br>Otherwise, once a request comes in, the App Service will have to cold boot and load into memory before responding to the request. |
 | scmIpSecurityRestrictionsUseMain | bool | <input type="checkbox"> | None | <pre>true</pre> | IP security restrictions for scm to use the same settings as main. |
@@ -59,7 +61,8 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | minimumElasticInstanceCount | int? | <input type="checkbox" checked> | None | <pre></pre> | Number of minimum instance count for a site. This setting only applies to the Elastic Plans. |
 | vnetContentShareEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine whether to enable VNet content share for app (default: false). Should be enabled for function app where both function app and storage account are in VNet. [link](https://docs.microsoft.com/en-us/azure/app-service/web-sites-integrate-with-vnet#vnet-content-share) |
 | webSocketsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine whether to enable WebSockets for app (default: false). |
-| tlsVersion | tlsVersionType | <input type="checkbox"> | None | <pre>'1.3'</pre> | The TLS version to use for the app service. Default is 1.3 |
+| tlsVersion | tlsVersionType | <input type="checkbox"> | None | <pre>'1.3'</pre> | The TLS version to use for the app service. |
+| minTlsCipherSuite | tlsCipherSuite | <input type="checkbox"> | None | <pre>'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'</pre> | The TLS cipher suite in order of most secure to least secure to use for the app service. |
 
 ## Outputs
 | Name | Type | Description |

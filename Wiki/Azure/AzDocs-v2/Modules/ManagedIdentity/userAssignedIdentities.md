@@ -2,6 +2,12 @@
 
 Target Scope: resourceGroup
 
+## Synopsis
+Creating a User Assigned Managed Identity.
+
+## Description
+This Bicep file provisions a userassigned managed identity with the specified name, location, and tags.
+
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
@@ -17,3 +23,21 @@ Target Scope: resourceGroup
 | userManagedIdentityClientId | string | The User Assigned Managed Identities Client ID. |
 | userManagedIdentityName | string | The User Assigned Managed Identities Resource name. |
 | userManagedIdentityObjectId | string | The User Assigned Managed Identities Object (principal) ID. |
+
+## Examples
+<pre>
+module userAssignedIdentity 'br:contosoregistry.azurecr.io/managedidentity/userassignedidentities:latest' = {
+  name: 'userAssignedIdentityDeployment'
+  params: {
+    userAssignedManagedIdentityName: 'myManagedIdentity'
+    tags: {
+      Environment: 'Development'
+      Project: 'ManagedIdentity'
+    }
+  }
+}
+</pre>
+<p>Creates a user assigned managed identity with the name myManagedIdentity</p>
+
+## Links
+- [Bicep Microsoft.ManagedIdentity userAssignedIdentities](https://learn.microsoft.com/en-us/azure/templates/microsoft.managedidentity/2024-11-30/userassignedidentities?pivots=deployment-language-bicep)

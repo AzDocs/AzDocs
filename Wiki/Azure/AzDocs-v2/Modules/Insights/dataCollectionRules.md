@@ -2,11 +2,6 @@
 
 Target Scope: resourceGroup
 
-## User Defined Types
-| Name | Type | Discriminator | Description
-| -- |  -- | -- | -- |
-| <a id="roleAssignmentType">roleAssignmentType</a>  | <pre>{</pre> |  |  | 
-
 ## Synopsis
 Creating a data collection rule.
 
@@ -24,7 +19,7 @@ Creating a data collection rule (DCR). Data collection rules (DCRs) are sets of 
 | destinations | object | <input type="checkbox" checked> | None | <pre></pre> | Required. Specification of destinations that can be used in data flows. |
 | kind | string | <input type="checkbox"> | `'Linux'` or `'Windows'` or `'Direct'` or `'WorkspaceTransforms'` or `'AgentDirectToStore'` or `'AgentSettings'` or `'PlatformTelemetry'` | <pre>'Linux'</pre> | The kind of the resource. In the Portal this is represented as Platform Type. Additional undocumented but supported values are: Direct, WorkspaceTransforms,AgentDirectToStore, AgentSettings, PlatformTelemetry. |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Optional. Location for all Resources. |
-| roleAssignments | [roleAssignmentType](#roleAssignmentType) | <input type="checkbox" checked> | None | <pre></pre> | Optional. Array of role assignments to create. |
+| roleAssignments | roleAssignment[] | <input type="checkbox"> | None | <pre>[]</pre> | Optional. Array of role assignments to create. |
 | streamDeclarations | object? | <input type="checkbox" checked> | None | <pre></pre> | Optional. Declaration of custom streams used in this rule. |
 | tags | object? | <input type="checkbox" checked> | None | <pre></pre> | Optional. Resource tags. |
 

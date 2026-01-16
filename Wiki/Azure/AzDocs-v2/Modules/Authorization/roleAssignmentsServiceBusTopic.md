@@ -17,7 +17,7 @@ Assign a role on the servicebus topic scope to a identity with the given specs.
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | principalId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The AAD Object ID of the pricipal you want to assign the role to. |
-| principalType | [principalTypes](#principalTypes) | <input type="checkbox"> | None | <pre>'ServicePrincipal'</pre> | The type of principal you want to assign the role to. |
+| principalType | PrincipalType | <input type="checkbox" checked> | None | <pre></pre> | The type of principal you want to assign the role to. |
 | serviceBusNamespaceName | string | <input type="checkbox" checked> | Length between 6-50 | <pre></pre> | The name of the Service bus namespace to assign the permissions on. This Service bus namespace should already exist. |
 | topicName | string | <input type="checkbox" checked> | Length between 1-260 | <pre></pre> | The name of the topic to assign the permissions on. This topic should already exist. |
 | roleDefinitionId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The roledefinition ID you want to assign. |

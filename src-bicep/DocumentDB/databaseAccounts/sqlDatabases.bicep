@@ -22,7 +22,7 @@ module database 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts/sqlda
 </pre>
 <p>Creates a documentdb database with the given specs</p>
 .LINKS
-- [Bicep Microsoft.DocumentDB/databaseAccounts sqlDatabases](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts/sqldatabases?pivots=deployment-language-bicep)
+- [Bicep Microsoft.DocumentDB/databaseAccounts sqlDatabases](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/2025-04-15/databaseaccounts/sqldatabases?pivots=deployment-language-bicep)
 */
 
 @description('The name of the Document DB account.')
@@ -33,6 +33,15 @@ param databaseName string
 
 @description('The options for the database.')
 param options object = {}
+
+@description('Specifies the location for all resources.')
+param location string = resourceGroup().location
+
+@description('Enum to indicate the mode of resource creation. Default or Restore.')
+param createMode string = 'Default'
+
+@description('Parameters to indicate the information about the restore. Only used when createMode is Restore.')
+param restoreParameters object = {}
 
 @description('''
     The tag object.
@@ -50,12 +59,15 @@ param options object = {}
 ''')
 param tags object = {}
 
-resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-04-15' = {
+resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2025-04-15' = {
   name: '${documentDbName}/${databaseName}'
+  location: location
   tags: tags
   properties: {
     resource: {
       id: databaseName
+      createMode: createMode
+      restoreParameters: createMode == 'Restore' && !empty(restoreParameters) ? restoreParameters : null
     }
     options: options
   }

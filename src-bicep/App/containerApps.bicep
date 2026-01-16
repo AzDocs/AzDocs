@@ -1,11 +1,11 @@
 /*
 .SYNOPSIS
-Creating a Azure ContainerApp
+Creating an Azure ContainerApp
 .DESCRIPTION
-Creating a container app with the given specs.
+Creating an container app with the given specs.
 .EXAMPLE
 <pre>
-module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
+module containerApp 'br:contosoregistry.azurecr.io/app/containerapps:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 51), 'containerapp')
   params: {
     managedEnvironmentName: managedEnvironment.outputs.managedEnvironmentName
@@ -35,9 +35,9 @@ module containerApp 'br:contosoregistry.azurecr.io/app/containerapps.bicep' = {
   }
 }
 </pre>
-<p>Creates a container app with the name ca-nginxcontainerapp'</p>
+<p>Creates a container app with the name containerapp1'</p>
 .LINKS
-- [Bicep Microsoft.App containerApps](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps?pivots=deployment-language-bicep)
+- [Bicep Microsoft.App containerApps](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/2025-01-01/containerapps?pivots=deployment-language-bicep)
 */
 
 // ================================================= Parameters =================================================
@@ -138,8 +138,8 @@ type corsPolicyType = {
   @description('Optional. Specifies the content for the access-control-allow-methods header.')
   allowedMethods: string[]?
 
-  @description('Optional. Specifies the content for the access-control-allow-origins header.')
-  allowedOrigins: string[]?
+  @description('Required. Specifies the content for the access-control-allow-origins header.')
+  allowedOrigins: string[]
 
   @description('Optional. Specifies the content for the access-control-expose-headers header.')
   exposeHeaders: string[]?
@@ -195,12 +195,25 @@ Example:
 param dapr object = {}
 
 @description('''
+Optional. Settings for Managed Identities that are assigned to the Container App. If a Managed Identity is not specified here, default settings will be used.
+For object format, refer to [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.app/2025-01-01/containerapps?pivots=deployment-language-bicep#identitysettings).
+Example:
+[
+  {
+    identity: '/subscriptions/<subscriptionId>/resourcegroups/<resourcegroupname>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<userassignedmanagedidentityname>'
+  }
+]
+''')
+param identitySettings array = []
+
+@description('''
 ActiveRevisionsMode controls how active revisions are handled for the Container app:
-{list}{item}Multiple: multiple revisions can be active.{/item}{item}Single: Only one revision can be active at a time.Revision weights can not be used in this mode.
+{list}{item}Single: Only one revision can be active at a time. Traffic weights cannot be used. This is the default.{/item}{item}Multiple: Multiple revisions can be active, including optional traffic weights and labels.{/item}{item}Labels: Only revisions with labels are active. Traffic weights can be applied to labels.{/item}{/list}
 ''')
 @allowed([
   'Single'
   'Multiple'
+  'Labels'
 ])
 param activeRevisionsMode string = 'Single'
 
@@ -235,10 +248,7 @@ Examples:
   }
 ]
 ''')
-@secure()
-param secrets object = {}
-
-var secretList = !empty(secrets) ? secrets.secureList : []
+param secrets resourceInput<'Microsoft.App/containerApps@2025-01-01'>.properties.configuration.secrets  
 
 @description('User friendly suffix that is appended to the revision name')
 param revisionSuffix string = ''
@@ -313,6 +323,17 @@ param service object = {}
 param maxInactiveRevisions int = 0
 
 @description('''
+Optional. Runtime configuration for the Container App.
+Example:
+{
+  java: {
+    enableMetrics: true
+  }
+}
+''')
+param runtime object = {}
+
+@description('''
 Required. List of container definitions for the Container App.
 Example:
 [
@@ -320,7 +341,7 @@ Example:
     image: 'nginx'
     name: 'nginxcontainerapp'
     resources: {
-      cpu: '0.5'
+      cpu: 1
       memory: '1.0Gi'
     }
   },
@@ -328,7 +349,7 @@ Example:
   image: 'myacr.azurecr.io/customimagecontainerapp:latest'
   name: 'customimagecontainerapp'
   resources: {
-    cpu: '0.5'
+    cpu: 1
     memory: '1.0Gi'
   }
 },
@@ -336,7 +357,7 @@ Example:
   image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
   name: 'simple-hello-world-container'
   resources: {
-    cpu: '0.5'
+    cpu: 1
     memory: '1.0Gi'
   }
 },
@@ -364,7 +385,7 @@ Example:
   ]
   name: 'someprivatedockerhubimage'
   resources: {
-    cpu: '0.5'
+    cpu: 1
     memory: '1.0Gi'
   }
  }
@@ -395,10 +416,18 @@ type container = {
   probes: containerAppProbe[]?
 
   @description('Required. Container resource requirements.Total CPU and memory for all containers defined in a Container App must add up to allowed CPU - Memory combinations like [cpu: 0.25, memory: 0.5Gi]')
-  resources: object
+  resources: containerResources
 
   @description('Optional. Container volume mounts.')
   volumeMounts: volumeMount[]?
+}
+
+type containerResources = {
+  @description('Required. Required CPU in cores, e.g. 1, 2, 4. Must be an integer value.')
+  cpu: int
+
+  @description('Required. Required memory, e.g. "0.5Gi", "1Gi", "2Gi"')
+  memory: string
 }
 
 type environmentVar = {
@@ -469,8 +498,8 @@ type containerAppProbeHttpGet = {
   @description('Optional. HTTP headers to set in the request.')
   httpHeaders: containerAppProbeHttpGetHeadersItem[]?
 
-  @description('Required. Path to access on the HTTP server.')
-  path: string
+  @description('Optional. Path to access on the HTTP server.')
+  path: string?
 
   @description('Required. Name or number of the port to access on the container.')
   port: int
@@ -522,34 +551,42 @@ scaleRules: [
 ''')
 param scaleRules array = []
 
+@description('Optional. The cooldown period in seconds. Defaults to 300 seconds if not set.')
+param scaleCooldownPeriod int = 300
+
+@description('Optional. The polling interval in seconds. Defaults to 30 seconds if not set.')
+param scalePollingInterval int = 30
+
 @description('Optional. List of container app services bound to the app.')
 param serviceBinds serviceBind[]?
 
 type serviceBind = {
-  @description('Required. The name of the service.')
-  name: string
+  @description('Optional. Name of the service bind.')
+  name: string?
 
-  @description('Required. The service ID.')
-  serviceId: string
+  @description('Optional. Resource id of the target service.')
+  serviceId: string?
 }
+
 // ================================================= Resources =================================================
 
 @description('the managed environment of the container app. Should be pre-existing')
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' existing = {
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' existing = {
   name: managedEnvironmentName
 }
 
 @description('The container app resource')
-resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
+resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
   name: containerAppName
   location: location
-  tags: tags
   identity: identity
+  tags: tags
   properties: {
     managedEnvironmentId: managedEnvironment.id
     configuration: {
       activeRevisionsMode: activeRevisionsMode
       dapr: dapr
+      identitySettings: !empty(identitySettings) ? identitySettings : null
       ingress: disableIngress
         ? null
         : {
@@ -589,7 +626,8 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       service: (includeAddOns && !empty(service)) ? service : null
       maxInactiveRevisions: maxInactiveRevisions
       registries: !empty(registries) ? registries : null
-      secrets: secretList
+      secrets: secrets
+      runtime: !empty(runtime) ? runtime : null
     }
     template: {
       containers: containers
@@ -598,6 +636,8 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       scale: {
         maxReplicas: scaleMaxReplicas
         minReplicas: scaleMinReplicas
+        cooldownPeriod: scaleCooldownPeriod
+        pollingInterval: scalePollingInterval
         rules: !empty(scaleRules) ? scaleRules : null
       }
       serviceBinds: (includeAddOns && !empty(serviceBinds)) ? serviceBinds : null
@@ -609,7 +649,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
 
 // ================================================= Outputs =================================================
 @description('Output of the FQDN of the container App.')
-output containerAppFQDN string = containerApp.properties.configuration.ingress.fqdn
+output containerAppFQDN string = containerApp.properties.configuration.ingress.?fqdn ?? ''
 
 @description('The principal ID of the system assigned identity.')
 output systemAssignedMIPrincipalId string = containerApp.?identity.?principalId ?? ''
+
+@description('The resource ID of the container App.')
+output containerAppResourceId string = containerApp.id

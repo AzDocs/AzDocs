@@ -193,8 +193,7 @@ param azureDevOpsProjects array = []
 param maximumConcurrencyPoolSize int = 2
 
 @description('''
-How many pools can run in parallel when using multiple AzureDevOps organizations. 
-Also the sum of parallelism for all organizations must equal the max pool size (maximumConcurrencyPoolSize).
+How many machines can be created at maximum in this organization out of the maximumConcurrency of the pool. 
 ''')
 param organizationProfileOrganizationsParallelism int = 1
 
@@ -210,7 +209,7 @@ Example:
   {
     url: 'https://dev.azure.com/azureDevOpsOrganizationName'
     projects: []
-    parallelism: 1 //dependent on the total number of organizations
+    parallelism: 1
   }
 ]
 ''')

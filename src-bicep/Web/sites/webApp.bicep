@@ -206,6 +206,9 @@ param httpsOnly bool = true
 @description('True to enable client affinity; false to stop sending session affinity cookies, which route client requests in the same session to the same instance. Default is true.')
 param clientAffinityEnabled bool = true
 
+@description('True to override client affinity cookie domain with X-Forwarded-Host request header. False to use default domain. Default is false.')
+param clientAffinityProxyEnabled bool = false
+
 @description('Virtual Network `route all` enabled. This causes all outbound traffic to have Virtual Network Network Security Groups (nsg) and User Defined Routes applied.')
 param vnetRouteAllEnabled bool = false
 
@@ -344,11 +347,34 @@ param vnetContentShareEnabled bool = false
 @description('Determine whether to enable WebSockets for app (default: false).')
 param webSocketsEnabled bool = false
 
-@description('The TLS version to use for the app service. Default is 1.3')
+@description('The TLS version to use for the app service.')
 type tlsVersionType = '1.2' | '1.3'
 
-@description('The TLS version to use for the app service. Default is 1.3')
+@description('The TLS version to use for the app service.')
 param tlsVersion tlsVersionType = '1.3'
+
+@description('The TLS cipher suite in order of most secure to least secure to use for the app service.')
+type tlsCipherSuite = 'TLS_AES_256_GCM_SHA384' 
+|'TLS_AES_128_GCM_SHA256'
+|'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+|'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+|'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+|'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+|'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'
+|'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'
+|'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'
+|'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA'
+|'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
+|'TLS_RSA_WITH_AES_256_GCM_SHA384'
+|'TLS_RSA_WITH_AES_128_GCM_SHA256'
+|'TLS_RSA_WITH_AES_256_CBC_SHA256'
+|'TLS_RSA_WITH_AES_128_CBC_SHA256'
+|'TLS_RSA_WITH_AES_256_CBC_SHA'
+|'TLS_RSA_WITH_AES_128_CBC_SHA'
+
+@description('The TLS cipher suite in order of most secure to least secure to use for the app service.')
+param minTlsCipherSuite tlsCipherSuite = 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+
 
 // ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this appservice instance. This app service plan should be pre-existing.')
@@ -382,7 +408,7 @@ var linuxSiteConfig = appServicePlan.kind == 'linux'
   : {}
 
 @description('Upsert the webApp and potential VNet integration with the given parameters.')
-resource webApp 'Microsoft.Web/sites@2022-09-01' = {
+resource webApp 'Microsoft.Web/sites@2025-03-01' = {
   name: appServiceName
   location: location
   kind: webAppKind
@@ -392,15 +418,19 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     serverFarmId: appServicePlan.id
     httpsOnly: httpsOnly
     clientAffinityEnabled: clientAffinityEnabled
+    clientAffinityProxyEnabled: clientAffinityProxyEnabled
     clientCertEnabled: clientCertEnabled
     clientCertMode: empty(clientCertMode) ? null : clientCertMode
     publicNetworkAccess: publicNetworkAccess
     keyVaultReferenceIdentity: keyVaultReferenceIdentity
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
-    vnetContentShareEnabled: vnetContentShareEnabled
+    outboundVnetRouting: {
+      contentShareTraffic: vnetContentShareEnabled
+    }
     siteConfig: union(
       {
         tlsVersion: tlsVersion
+        minTlsCipherSuite: minTlsCipherSuite
         cors: empty(cors) ? null : cors
         healthCheckPath: empty(healthCheckPath) ? null : healthCheckPath
         vnetRouteAllEnabled: vnetRouteAllEnabled
@@ -456,7 +486,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
 }
 
 @description('Upsert the stagingslot, appsettings, connectionstrings & potential VNet integration with the given parameters.')
-resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySlot) {
+resource webAppStagingSlot 'Microsoft.Web/sites/slots@2025-03-01' = if (deploySlot) {
   parent: webApp
   name: 'staging'
   location: location
@@ -468,11 +498,15 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = if (deploySl
     httpsOnly: httpsOnly
     publicNetworkAccess: publicNetworkAccess
     clientAffinityEnabled: clientAffinityEnabled
+    clientAffinityProxyEnabled: clientAffinityProxyEnabled
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
-    vnetContentShareEnabled: vnetContentShareEnabled
+    outboundVnetRouting: {
+      contentShareTraffic: vnetContentShareEnabled
+    }
     siteConfig: union(
       {
         tlsVersion: tlsVersion
+        minTlsCipherSuite: minTlsCipherSuite
         cors: empty(cors) ? null : cors
         vnetRouteAllEnabled: vnetRouteAllEnabled
         alwaysOn: alwaysOn

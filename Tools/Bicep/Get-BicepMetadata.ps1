@@ -195,7 +195,7 @@ function Get-BicepMetadata
                     }
                     elseif ($line -like 'param *')
                     {
-                        if ($line -match '^param\s+(?<ParameterName>[^\s]+)\s+(?<ParameterType>[^\s]+)(?:\s+=\s+(?<DefaultValue>.*)\s*)?$')
+                        if ($line -match '^param\s+(?<ParameterName>[^\s]+)\s+(?<ParameterType>[^\s]+)(?:\s+=\s+(?<DefaultValue>.*))?\s*$')
                         {
                             $defaultValue = $matches.ContainsKey('DefaultValue') ? $matches['DefaultValue'] : $null
                             $parameter = [PSCustomObject]@{
@@ -260,7 +260,7 @@ function Get-BicepMetadata
                     elseif ($line -like '@*')
                     {
                 
-                        if ($line -match '^@(?<DecoratorName>\w+)\(')
+                        if ($line -match '^@(?<DecoratorName>[\w.]+)\(')
                         {
                             $decoratorName = ($matches.DecoratorName).ToLower()
                             Write-Debug "Processing decorator $decoratorName"
@@ -280,6 +280,27 @@ function Get-BicepMetadata
                                         $multilineValues = @()
                                     }
                              
+                                }
+                                'sys.description'
+                                 {             
+                                    if ($line -like "@sys.description('''*")
+                                    {
+                                        $multiline = $true
+                                        $multiLineDecorator = 'description'
+                                        $multilineEndsLike = "*''')"
+                                        $multilineValues = @()
+                                    }
+                                    else
+                                    {
+                                        if ($line -match '^@sys\.description\(''(?<Description>.*)''\)\s*(?:\/\/.*)?$')
+                                        {
+                                            $currentDecorator.Add($decoratorName , $matches.Description )
+                                        }
+                                        else
+                                        {
+                                            Write-Warning "Could not parse description '$line'"
+                                        }
+                                    }
                                 }
                                 'description'
                                 {             
@@ -318,6 +339,7 @@ function Get-BicepMetadata
                                 'maxValue' { $currentDecorator.Add($decoratorName , (Get-DecoratorNumber -line $line)) }
                                 'minValue' { $currentDecorator.Add($decoratorName , (Get-DecoratorNumber -line $line)) }
                                 'secure' { $currentDecorator.Add($decoratorName , '' ) }
+                                'export' { $currentDecorator.Add($decoratorName , '' ) }
                                 Default
                                 {
                                     Write-Warning "Could not process decorator '$decoratorName'"

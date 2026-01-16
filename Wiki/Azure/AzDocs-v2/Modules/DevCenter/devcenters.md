@@ -20,6 +20,10 @@ This module creates a managed devops pool with the given specs.
 | devcenterName | string | <input type="checkbox" checked> | Length between 3-26 | <pre></pre> | The name of the Dev Center to upsert. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | identity | [IdentityType](#IdentityType) | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | Managed service identity to use for this configuration store. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity). |
+| devCenterDisplayName | string | <input type="checkbox"> | None | <pre>devcenterName</pre> | The display name of the Dev Center. |
+| microsoftHostedNetworkEnableStatus | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Enabled'</pre> | The status of the Microsoft Hosted Network. |
+| catalogItemSyncEnableStatus | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | The status of the Catalog Item Sync. |
+| installAzureMonitorAgentEnableStatus | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | The status of the Azure Monitor Agent. |
 
 ## Outputs
 | Name | Type | Description |

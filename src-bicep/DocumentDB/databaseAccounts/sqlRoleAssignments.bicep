@@ -1,4 +1,4 @@
-@description('The AAD Object ID of the pricipal you want to assign the role to.')
+@description('The AAD Object ID of the principal you want to assign the role to.')
 @minLength(36)
 @maxLength(36)
 param principalId string
@@ -22,17 +22,17 @@ var roleDefinitionId = roleDefinitionType == 'Contributor'
 var roleAssignmentId = guid(roleDefinitionId, principalId, documentDb.id)
 
 @description('Fetch the existing storage account for the role assignment scope in the next step.')
-resource documentDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' existing = {
+resource documentDb 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' existing = {
   name: documentDbInstanceName
 }
 
-resource sqlRoleDefinition 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2021-04-15' existing = {
+resource sqlRoleDefinition 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2024-11-15' existing = {
   name: roleDefinitionId
   parent: documentDb
 }
 
 @description('Upsert the role with the given parameters')
-resource roleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2023-04-15' = {
+resource roleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-11-15' = {
   name: roleAssignmentId
   parent: documentDb
   properties: {

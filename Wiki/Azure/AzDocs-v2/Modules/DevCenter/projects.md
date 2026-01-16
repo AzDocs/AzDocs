@@ -22,6 +22,7 @@ This module creates a Dev Center project in an existing Dev Center.
 | devCenterProjectDescription | string | <input type="checkbox"> | None | <pre>'Dev Center project'</pre> | The description of the Dev Center project. |
 | identity | [IdentityType](#IdentityType) | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | Managed service identity to use for this resource. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity). |
 | maxDevBoxesPerUser | int? | <input type="checkbox" checked> | None | <pre></pre> | When provided, allows to restrict how many dev boxes each developer can create in a project. |
+| catalogItemSyncTypes | array? | <input type="checkbox" checked> | None | <pre></pre> | Indicates catalog item types that can be synced. Should contain a string array containing any of EnvironmentDefinition and ImageDefinition. |
 
 ## Outputs
 | Name | Type | Description |

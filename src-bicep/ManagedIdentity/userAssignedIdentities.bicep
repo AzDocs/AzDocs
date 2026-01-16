@@ -1,3 +1,28 @@
+/*
+.SYNOPSIS
+Creating a User Assigned Managed Identity.
+.DESCRIPTION
+This Bicep file provisions a userassigned managed identity with the specified name, location, and tags.
+.EXAMPLE
+<pre>
+module userAssignedIdentity 'br:contosoregistry.azurecr.io/managedidentity/userassignedidentities:latest' = {
+  name: 'userAssignedIdentityDeployment'
+  params: {
+    userAssignedManagedIdentityName: 'myManagedIdentity'
+    tags: {
+      Environment: 'Development'
+      Project: 'ManagedIdentity'
+    }
+  }
+}
+</pre>
+<p>Creates a user assigned managed identity with the name myManagedIdentity</p>
+.LINKS
+- [Bicep Microsoft.ManagedIdentity userAssignedIdentities](https://learn.microsoft.com/en-us/azure/templates/microsoft.managedidentity/2024-11-30/userassignedidentities?pivots=deployment-language-bicep)
+*/
+
+
+// ===================================== Parameters =====================================
 @description('The location of this logic app to reside in. This defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -16,9 +41,8 @@ Example:
 ''')
 param tags object = {}
 
-#disable-next-line BCP081
 @description('Upsert the user assigned managed identity.')
-resource userManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2021-09-30-preview' = {
+resource userManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: userAssignedManagedIdentityName
   tags: tags
   location: location

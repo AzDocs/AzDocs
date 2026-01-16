@@ -1,3 +1,4 @@
+import { PrincipalType } from '../Common/authorizationTypes.bicep'
 /*
 .SYNOPSIS
 Assigns a role on subscription level.
@@ -29,14 +30,7 @@ targetScope = 'subscription'
 param principalId string
 
 @description('The type of principal you want to assign the role to.')
-@allowed([
-  'Device'
-  'ForeignGroup'
-  'Group'
-  'ServicePrincipal'
-  'User'
-])
-param principalType string = 'ServicePrincipal'
+param principalType PrincipalType
 
 @description('''
 The conditions on the role assignment. This limits the resources it can be assigned to.
@@ -83,7 +77,9 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     principalType: principalType
     condition: empty(roleAssignmentCondition) ? null : roleAssignmentCondition
     conditionVersion: empty(roleAssignmentCondition) ? null : roleAssignmentConditionVersion
-    delegatedManagedIdentityResourceId: delegatedManagedIdentityResourceId
+    delegatedManagedIdentityResourceId: !empty(delegatedManagedIdentityResourceId)
+        ? delegatedManagedIdentityResourceId
+        : null
     description: roleAssignmentDescription
   }
 }

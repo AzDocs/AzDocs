@@ -219,6 +219,32 @@ param allowBypassAcl string = 'None'
 @description('Account HierarchicalNamespace enabled if set to true. Can only be set at account creation time. ')
 param isHnsEnabled bool = false
 
+@description('''
+  CORS (Cross-Origin Resource Sharing) settings for the storage account.
+  {
+      corsRules: [
+        {
+          allowedOrigins: [
+            'https://contosoregistry.io'
+          ]
+          allowedMethods: [
+            'DELETE'
+            'GET'
+            'OPTIONS'
+          ]
+          maxAgeInSeconds: 0
+          exposedHeaders: [
+            ''
+          ]
+          allowedHeaders: [
+            ''
+          ]
+        }
+      ]
+    }
+''')
+param cors object = {}
+
 @description('Dealing with [issue:](https://github.com/Azure/azure-rest-api-specs/issues/18441)')
 var hnsPropertyObject = isHnsEnabled
   ? {
@@ -362,6 +388,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
       supportsHttpsTrafficOnly: true
       networkAcls: networkAcls
       publicNetworkAccess: publicNetworkAccess
+      cors: cors
     },
     hnsPropertyObject
   )

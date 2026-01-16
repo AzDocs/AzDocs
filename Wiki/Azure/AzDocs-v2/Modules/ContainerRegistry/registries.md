@@ -19,7 +19,7 @@ Creating an Azure Container Registry with the given specs.
 | containerRegistryName | string | <input type="checkbox" checked> | Length between 5-50 | <pre></pre> | The name of the Azure Container Registry to be upserted. |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |
-| logAnalyticsWorkspaceResourceId | string | <input type="checkbox" checked> | Length between 0-* | <pre></pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
+| logAnalyticsWorkspaceResourceId | string | <input type="checkbox"> | Length between 0-* | <pre>''</pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
 | diagnosticSettingsLogsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'allLogs'<br>    enabled: true<br>  }<br>]</pre> | Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to the [specifications](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings). |
 | diagnosticSettingsMetricsCategories | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    categoryGroup: 'AllMetrics'<br>    enabled: true<br>  }<br>]</pre> | Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to the [specifications](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings) |
 | identity | object | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | Sets the identity property for the container registry<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;type: 'UserAssigned'<br>&nbsp;&nbsp;&nbsp;userAssignedIdentities: userAssignedIdentities<br>}' |
@@ -34,6 +34,8 @@ Creating an Azure Container Registry with the given specs.
 | zoneRedundancy | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Enable zone redundancy for this ACR. |
 | dataEndpointEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable data endpoint for this ACR. |
 | networkRuleSet | object | <input type="checkbox"> | None | <pre>empty(ipRules)</pre> | Setting up the networkRuleSet and add ip rules if any are defined. |
+| legacyRegistryPermissions | string | <input type="checkbox"> | `'LegacyRegistryPermissions'` or `'AbacRepositoryPermissions'` | <pre>'LegacyRegistryPermissions'</pre> | Determines registry role assignment mode. |
+| networkRuleBypassAllowedForTasks | bool | <input type="checkbox"> | None | <pre>false</pre> | Allow network rule bypass for tasks. |
 
 ## Outputs
 | Name | Type | Description |
@@ -77,7 +79,7 @@ module acr 'br:acrazdocsprd.azurecr.io/containerregistry/registries:2024.06.07.1
 <p>Creates an acr with the name containerRegistryName</p>
 
 ## Links
-- [Bicep Microsoft.ContainerRegistry registries](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries?pivots=deployment-language-bicep)<br>
+- [Bicep Microsoft.ContainerRegistry registries](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/2025-04-01/registries?pivots=deployment-language-bicep)<br>
 - [azureADAuthenticationAsArmPolicy](https://www.azadvertizer.net/azpolicyadvertizer/42781ec6-6127-4c30-bdfa-fb423a0047d3.html)<br>
 - [quarantinePolicy](https://github.com/Azure/acr/tree/main/docs/preview/quarantine)<br>
 - [quarantinePolicy](https://samcogan.com/image-quarantine-in-azure-container-registry/)<br>
