@@ -354,27 +354,30 @@ type tlsVersionType = '1.2' | '1.3'
 param tlsVersion tlsVersionType = '1.3'
 
 @description('The TLS cipher suite in order of most secure to least secure to use for the app service.')
-type tlsCipherSuite = 'TLS_AES_256_GCM_SHA384' 
-|'TLS_AES_128_GCM_SHA256'
-|'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
-|'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
-|'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-|'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-|'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'
-|'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'
-|'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'
-|'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA'
-|'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
-|'TLS_RSA_WITH_AES_256_GCM_SHA384'
-|'TLS_RSA_WITH_AES_128_GCM_SHA256'
-|'TLS_RSA_WITH_AES_256_CBC_SHA256'
-|'TLS_RSA_WITH_AES_128_CBC_SHA256'
-|'TLS_RSA_WITH_AES_256_CBC_SHA'
-|'TLS_RSA_WITH_AES_128_CBC_SHA'
+type tlsCipherSuite =
+  | 'TLS_AES_256_GCM_SHA384'
+  | 'TLS_AES_128_GCM_SHA256'
+  | 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+  | 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+  | 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+  | 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+  | 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'
+  | 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'
+  | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'
+  | 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA'
+  | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
+  | 'TLS_RSA_WITH_AES_256_GCM_SHA384'
+  | 'TLS_RSA_WITH_AES_128_GCM_SHA256'
+  | 'TLS_RSA_WITH_AES_256_CBC_SHA256'
+  | 'TLS_RSA_WITH_AES_128_CBC_SHA256'
+  | 'TLS_RSA_WITH_AES_256_CBC_SHA'
+  | 'TLS_RSA_WITH_AES_128_CBC_SHA'
 
 @description('The TLS cipher suite in order of most secure to least secure to use for the app service.')
 param minTlsCipherSuite tlsCipherSuite = 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
 
+@description('Enables pulling image over Virtual Network.')
+param imagePullTraffic bool = false
 
 // ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this appservice instance. This app service plan should be pre-existing.')
@@ -426,6 +429,7 @@ resource webApp 'Microsoft.Web/sites@2025-03-01' = {
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
     outboundVnetRouting: {
       contentShareTraffic: vnetContentShareEnabled
+      imagePullTraffic: imagePullTraffic
     }
     siteConfig: union(
       {
@@ -502,6 +506,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2025-03-01' = if (deploySl
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
     outboundVnetRouting: {
       contentShareTraffic: vnetContentShareEnabled
+      imagePullTraffic: imagePullTraffic
     }
     siteConfig: union(
       {
@@ -612,4 +617,4 @@ output webAppStagingSlotResourceName string = deploySlot ? webAppStagingSlot.nam
 @description('The resource id of the webapp.')
 output webAppResourceId string = webApp.id
 @description('The resource id of the webapp\'s staging slot.')
-output webAppStagingSlotResourceId string = deploySlot ? webAppStagingSlot.id: ''
+output webAppStagingSlotResourceId string = deploySlot ? webAppStagingSlot.id : ''

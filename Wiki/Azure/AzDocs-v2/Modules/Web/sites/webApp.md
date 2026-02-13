@@ -7,7 +7,7 @@ Target Scope: resourceGroup
 | -- |  -- | -- | -- |
 | <a id="publicCertifcate">publicCertifcate</a>  | <pre>{</pre> |  | Public certificates for Azure App Service for example intermediate and root certificates. See https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.web/web-app-public-certificate/azuredeploy.json [   {     name: 'TrustedRootCertificate'     blob: 'base64 encoded public certificate file'     publicCertificateLocation: 'LocalMachineMy'   } ] | 
 | <a id="tlsVersionType">tlsVersionType</a>  | <pre>'1.2' &#124; '1.3'</pre> |  | The TLS version to use for the app service. | 
-| <a id="tlsCipherSuite">tlsCipherSuite</a>  | <pre>'TLS_AES_256_GCM_SHA384' </pre> |  | The TLS cipher suite in order of most secure to least secure to use for the app service. | 
+| <a id="tlsCipherSuite">tlsCipherSuite</a>  | <pre></pre> |  | The TLS cipher suite in order of most secure to least secure to use for the app service. | 
 
 ## Synopsis
 Creating an AppService Instance: WebApp, FunctionApp etc.
@@ -63,6 +63,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | webSocketsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine whether to enable WebSockets for app (default: false). |
 | tlsVersion | tlsVersionType | <input type="checkbox"> | None | <pre>'1.3'</pre> | The TLS version to use for the app service. |
 | minTlsCipherSuite | tlsCipherSuite | <input type="checkbox"> | None | <pre>'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'</pre> | The TLS cipher suite in order of most secure to least secure to use for the app service. |
+| imagePullTraffic | bool | <input type="checkbox"> | None | <pre>false</pre> | Enables pulling image over Virtual Network. |
 
 ## Outputs
 | Name | Type | Description |
