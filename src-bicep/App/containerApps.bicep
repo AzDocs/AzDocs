@@ -97,6 +97,11 @@ param containerAppName string
 @maxLength(126)
 param managedEnvironmentName string
 
+@description('The name of the resourcegroup where the managed environment resides. Defaults to the current resourcegroup.')
+@minLength(1)
+@maxLength(90)
+param managedEnvironmentResourceGroupName string = az.resourceGroup().name
+
 @description('Optional. Bool to disable all ingress traffic for the container app.')
 param disableIngress bool = false
 
@@ -572,6 +577,7 @@ type serviceBind = {
 
 @description('the managed environment of the container app. Should be pre-existing')
 resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' existing = {
+  scope: resourceGroup(managedEnvironmentResourceGroupName)
   name: managedEnvironmentName
 }
 
