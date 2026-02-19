@@ -92,13 +92,15 @@ type IdentityType =
 @maxLength(32)
 param containerAppName string
 
-@description('Name of the managed environment the container app should be in. Should be pre-existing. Either managedEnvironmentName or managedEnvironmentId must be provided.')
+@description('Name of the managed environment the container app should be in. Should be pre-existing.')
 @minLength(2)
 @maxLength(126)
-param managedEnvironmentName string?
+param managedEnvironmentName string
 
-@description('Resource ID of the managed environment the container app should be in. Should be pre-existing. Either managedEnvironmentName or managedEnvironmentId must be provided.')
-param managedEnvironmentId string?
+@description('The name of the resourcegroup where the managed environment resides. Defaults to the current resourcegroup.')
+@minLength(1)
+@maxLength(90)
+param managedEnvironmentResourceGroupName string = az.resourceGroup().name
 
 @description('Optional. Bool to disable all ingress traffic for the container app.')
 param disableIngress bool = false
@@ -573,13 +575,10 @@ type serviceBind = {
 
 // ================================================= Resources =================================================
 
-var environmentNameProvided = !empty(managedEnvironmentName)
-var environmentIdProvided = !empty(managedEnvironmentId)
-var _ = (environmentNameProvided || environmentIdProvided) ? null : fail('Either managedEnvironmentName or managedEnvironmentId must be provided.')
-
 @description('the managed environment of the container app. Should be pre-existing')
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' existing = if (environmentNameProvided) {
-  name: managedEnvironmentName! // Can not be empty as we check in the variable above
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' existing = {
+  scope: resourceGroup(managedEnvironmentResourceGroupName)
+  name: managedEnvironmentName
 }
 
 @description('The container app resource')
@@ -589,7 +588,7 @@ resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
   identity: identity
   tags: tags
   properties: {
-    managedEnvironmentId: environmentIdProvided ? managedEnvironmentId : managedEnvironment.id
+    managedEnvironmentId: managedEnvironment.id
     configuration: {
       activeRevisionsMode: activeRevisionsMode
       dapr: dapr
