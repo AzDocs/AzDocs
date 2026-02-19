@@ -1,3 +1,28 @@
+/*
+.SYNOPSIS
+Creating a Public IP Address.
+.DESCRIPTION
+Creating a Public IP Address with the given specs.
+.EXAMPLE
+<pre>
+module publicIP 'br:contosoregistry.azurecr.io/network/publicIPAddresses:latest' = {
+  name: '${deployment().name}-publicip'
+  params: {
+    publicIPAddressName: publicIPName
+    location: location
+    publicIPAllocationMethod: 'Static'
+    sku: {
+      name: 'Standard'
+      tier: 'Regional'
+    }
+  }
+}
+</pre>
+<p>Creates a Public IP Address with static allocation method.</p>
+.LINKS
+- [Bicep Microsoft.Network publicIPAddresses](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/publicipaddresses?pivots=deployment-language-bicep)
+- [Public IP addresses](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses)
+*/
 @description('The resource name for this Public IP address.')
 @minLength(1)
 @maxLength(80)
@@ -6,9 +31,10 @@ param publicIPAddressName string
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
-@description('The SKU name to use for this public IP address. For the object/array structure, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.network/publicipaddresses?tabs=bicep#publicipaddresssku.')
-param sku object = {
+@description('The SKU name to use for this public IP address.')
+param sku resourceInput<'Microsoft.Network/publicIPAddresses@2025-01-01'>.sku = {
   name: 'Standard'
+  tier: 'Regional'
 }
 
 @description('The public IP address allocation method. Options are `Static` or `Dynamic`.')
@@ -17,6 +43,9 @@ param sku object = {
   'Dynamic'
 ])
 param publicIPAllocationMethod string = 'Static'
+
+@description('Optional. Resource ID of the Public IP Prefix object. This is only needed if you want your Public IPs created in a PIP Prefix.')
+param publicIpPrefixResourceId string?
 
 @description('The version of the IP Address. can be IPv4 or IPv6.')
 @allowed([
@@ -30,11 +59,16 @@ param publicIPAddressVersion string = 'IPv4'
 @maxValue(30)
 param publicIPIdleTimeoutInMinutes int = 4
 
-@description('The zones to use for this public ipaddress.')
+@description('A list of availability zones denoting the IP allocated for the resource needs to come from.')
 @allowed([
-  '1'
-  '2'
-  '3'
+  []
+  [1]
+  [2]
+  [3]
+  [1, 2]
+  [1, 3]
+  [2, 3]
+  [1, 2, 3]
 ])
 param availabilityZones array = []
 
@@ -55,7 +89,7 @@ If a domain name label is specified, an A DNS record is created for the public I
 param domainNameLabel string = ''
 
 @description('Upsert the public ip with the given parameters.')
-resource publicIP 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
+resource publicIP 'Microsoft.Network/publicIPAddresses@2025-01-01' = {
   name: publicIPAddressName
   location: location
   sku: sku
@@ -63,6 +97,11 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
   properties: {
     publicIPAddressVersion: publicIPAddressVersion
     publicIPAllocationMethod: publicIPAllocationMethod
+    publicIPPrefix: !empty(publicIpPrefixResourceId)
+      ? {
+          id: publicIpPrefixResourceId
+        }
+      : null
     idleTimeoutInMinutes: publicIPIdleTimeoutInMinutes
     dnsSettings: empty(domainNameLabel)
       ? null
