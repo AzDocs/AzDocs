@@ -84,6 +84,12 @@ type IdentityType =
     }
   }
   | {
+    type: 'SystemAssigned,UserAssigned'
+    userAssignedIdentities: {
+      *: {}
+    }
+  }
+  | {
     type: 'None'
   }
 
