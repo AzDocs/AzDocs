@@ -12,8 +12,13 @@ Add an Azure Firewall Policy to the resource group. This can be linked to an Azu
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Location for all resources. |
-| tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+| tags | resourceInput<'Microsoft.Network/firewallPolicies@2025-05-01'>.tags? | <input type="checkbox" checked> | None | <pre></pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | firewallPolicyName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the firewall policy. |
+| basePolicyResourceId | string? | <input type="checkbox" checked> | None | <pre></pre> | Optional. Resource ID of the base policy. |
+| enableProxy | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. Enable DNS Proxy on Firewalls attached to the Firewall Policy. |
+| servers | array? | <input type="checkbox" checked> | None | <pre></pre> | Optional. List of Custom DNS Servers. |
+| tier | string | <input type="checkbox"> | `'Premium'` or `'Standard'` or `'Basic'` | <pre>'Standard'</pre> | Optional. Tier of Firewall Policy. |
+| allowSqlRedirect | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. A flag to indicate if SQL Redirect traffic filtering is enabled. Turning on the flag requires no rule using port 11000-11999. |
 | threatIntelMode | string | <input type="checkbox"> | `'Alert'` or `'Deny'` or `'Off'` | <pre>'Alert'</pre> | The threat intelligence mode of the firewall policy. |
 | insightsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Whether or not to enable Policy Analytics for the firewall policy. |
 | logAnalyticsResourcesDefaultWorkspaceId | string | <input type="checkbox"> | None | <pre>''</pre> | The default log analytics workspace id for the firewall policy to use for the Policy Analytics. |

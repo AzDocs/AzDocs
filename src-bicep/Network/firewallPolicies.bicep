@@ -29,10 +29,30 @@ Example:
   SecondTag: another value
 }
 ''')
-param tags object = {}
+param tags resourceInput<'Microsoft.Network/firewallPolicies@2025-05-01'>.tags?
 
 @description('The name of the firewall policy.')
 param firewallPolicyName string
+
+@description('Optional. Resource ID of the base policy.')
+param basePolicyResourceId string?
+
+@description('Optional. Enable DNS Proxy on Firewalls attached to the Firewall Policy.')
+param enableProxy bool = false
+
+@description('Optional. List of Custom DNS Servers.')
+param servers array?
+
+@description('Optional. Tier of Firewall Policy.')
+@allowed([
+  'Premium'
+  'Standard'
+  'Basic'
+])
+param tier string = 'Standard'
+
+@description('Optional. A flag to indicate if SQL Redirect traffic filtering is enabled. Turning on the flag requires no rule using port 11000-11999.')
+param allowSqlRedirect bool = false
 
 @description('The threat intelligence mode of the firewall policy.')
 @allowed([
@@ -54,11 +74,23 @@ param workspacesRegion string = 'westeurope'
 @description('The number of days the Policy Analytics data for the firewall policy is saved in the log analytics workspace.')
 param insightsRetentionDays int = 30
 
-resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' = {
+
+resource firewallPolicy 'Microsoft.Network/firewallPolicies@2025-05-01' = {
   name: firewallPolicyName
   tags: tags
   location: location
   properties: {
+    basePolicy: !empty(basePolicyResourceId)
+      ? {
+          id: basePolicyResourceId
+        }
+      : null
+    dnsSettings: (enableProxy || servers != null)
+      ? {
+          enableProxy: enableProxy
+          servers: servers ?? []
+        }
+      : null
     threatIntelMode: threatIntelMode
     insights: (!insightsEnabled || empty(logAnalyticsResourcesDefaultWorkspaceId))
       ? null
@@ -79,6 +111,12 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' = {
           }
           retentionDays: insightsRetentionDays
         }
+    sku: {
+      tier: tier
+    }
+    sql: {
+      allowSqlRedirect: allowSqlRedirect
+    }
   }
 }
 
