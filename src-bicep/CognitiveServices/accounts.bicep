@@ -1,9 +1,6 @@
 metadata name = 'Cognitive Services'
 metadata description = 'This module deploys a Cognitive Service.'
 
-// ================================================= Imports =================================================
-import { diagnosticLogCategory, diagnosticMetricCategory } from '../Common/diagnosticTypes.bicep'
-import { virtualNetworkRule, ipRule } from '../Common/networkTypes.bicep'
 
 /*
 .SYNOPSIS
@@ -30,40 +27,6 @@ module openAiAccount 'br:contosoregistry.azurecr.io/cognitiveservices/accounts:l
 - [Bicep Microsoft.CognitiveServices accounts](https://learn.microsoft.com/en-us/azure/templates/microsoft.cognitiveservices/accounts?pivots=deployment-language-bicep)
 - [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
 */
-
-// ================================================= User-Defined Types =================================================
-@description('API properties for the Cognitive Services account')
-type apiPropertiesType = {
-  @description('AAD client ID for custom domain')
-  aadClientId: string?
-
-  @description('AAD tenant ID for custom domain')
-  aadTenantId: string?
-
-  @description('Event hub connection string for audit logs')
-  eventHubConnectionString: string?
-
-  @description('Azure Search endpoint ID for Q&A service')
-  qnaAzureSearchEndpointId: string?
-
-  @description('Azure Search endpoint key for Q&A service')
-  qnaAzureSearchEndpointKey: string?
-
-  @description('Custom questions and answers runtime endpoint')
-  qnaRuntimeEndpoint: string?
-
-  @description('Statistics enabled flag')
-  statisticsEnabled: bool?
-
-  @description('Storage account connection string for audit logs')
-  storageAccountConnectionString: string?
-
-  @description('Super user for Personalizer')
-  superUser: string?
-
-  @description('Website name for Personalizer')
-  websiteName: string?
-}
 
 // ================================================= Parameters =================================================
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
@@ -160,11 +123,7 @@ param publicNetworkAccess string = 'Disabled'
 param networkAclsDefaultAction string = 'Deny'
 
 @description('The bypass options for network access control.')
-@allowed([
-  'None'
-  'AzureServices'
-])
-param networkRuleSetBypass string = 'None'
+param networkRuleSetBypass resourceInput<'Microsoft.CognitiveServices/accounts@2025-09-01'>.properties.networkAcls.bypass
 
 @description('''
 Array of virtual network rules for network access control.
@@ -176,7 +135,7 @@ Example:
   }
 ]
 ''')
-param virtualNetworkRules virtualNetworkRule[] = []
+param virtualNetworkRules resourceInput<'Microsoft.CognitiveServices/accounts@2025-09-01'>.properties.networkAcls.virtualNetworkRules = []
 
 @description('''
 Array of IP rules for network access control.
@@ -187,10 +146,10 @@ Example:
   }
 ]
 ''')
-param ipRules ipRule[] = []
+param ipRules resourceInput<'Microsoft.CognitiveServices/accounts@2025-09-01'>.properties.networkAcls.ipRules = []
 
 @description('API properties for the Cognitive Services account.')
-param apiProperties apiPropertiesType = {}
+param apiProperties resourceInput<'Microsoft.CognitiveServices/accounts@2025-09-01'>.properties.apiProperties = {}
 
 @description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
 param logAnalyticsWorkspaceResourceId string = ''
@@ -200,8 +159,10 @@ param logAnalyticsWorkspaceResourceId string = ''
 @maxLength(260)
 param diagnosticsName string = 'AzurePlatformCentralizedLogging'
 
+param disableLocalAuth bool = true
+
 @description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
-param diagnosticSettingsLogsCategories diagnosticLogCategory[] = [
+param diagnosticSettingsLogsCategories resourceInput<'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'>.properties.logs  = [
   {
     categoryGroup: 'allLogs'
     enabled: true
@@ -213,7 +174,7 @@ param diagnosticSettingsLogsCategories diagnosticLogCategory[] = [
 ]
 
 @description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings).')
-param diagnosticSettingsMetricsCategories diagnosticMetricCategory[] = [
+param diagnosticSettingsMetricsCategories resourceInput<'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'>.properties.metrics  = [
   {
     category: 'AllMetrics'
     enabled: true
@@ -230,14 +191,14 @@ var resolvedCustomSubDomainName = empty(customSubDomainName) ? accountName : cus
 
 // ================================================= Resources =================================================
 @description('Create the Cognitive Services account')
-resource cognitiveServicesAccount 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+resource cognitiveServicesAccount 'Microsoft.CognitiveServices/accounts@2025-09-01' = {
   name: accountName
   location: location
   tags: tags
   sku: {
     name: skuName
   }
-  kind: kind
+  kind: kind 
   properties: {
     apiProperties: apiProperties
     customSubDomainName: resolvedCustomSubDomainName
@@ -248,6 +209,7 @@ resource cognitiveServicesAccount 'Microsoft.CognitiveServices/accounts@2024-10-
       bypass: networkRuleSetBypass
     }
     publicNetworkAccess: publicNetworkAccess
+    disableLocalAuth: disableLocalAuth
   }
 }
 

@@ -27,10 +27,10 @@ Set-StrictMode -Version 3.0
 .DESCRIPTION
     Creating or updated the markdown files based on the given metadata.
 .EXAMPLE
-    . .\Azure.PlatformProvisioning\Tools\Bicep\Get-BicepMetadata.ps1
-    . .\Azure.PlatformProvisioning\Tools\Bicep\Update-MetadataMarkdown.ps1
-    $metadata = Get-BicepMetadata -path 'Azure.PlatformProvisioning\src-bicep'
-    Update-MetadataMarkdown -Metadata $metadata -DestinationPath 'Azure.PlatformProvisioning\Wiki\Azure\AzDocs-v2\Modules'
+    . .\Tools\Bicep\Get-BicepMetadata.ps1
+    . .\Tools\Bicep\Update-MetadataMarkdown.ps1
+    $metadata = Get-BicepMetadata -path 'src-bicep'
+    Update-MetadataMarkdown -Metadata $metadata -DestinationPath 'Wiki\Azure\AzDocs-v2\Modules'
 
     Loading the functions, fetching the metadata from the bicep files in te 'Azure.PlatformProvisioning\src-bicep' directory in the $metadata variable. 
     Creating the Markdown files in the 'docs' destination directory based on the given $metadata variable that has been created in the previous statement.
