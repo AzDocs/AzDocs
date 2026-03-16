@@ -1,7 +1,6 @@
 metadata name = 'Cognitive Services'
 metadata description = 'This module deploys a Cognitive Service.'
 
-
 /*
 .SYNOPSIS
 Creating an Azure Cognitive Services account (including Azure OpenAI)
@@ -123,7 +122,7 @@ param publicNetworkAccess string = 'Disabled'
 param networkAclsDefaultAction string = 'Deny'
 
 @description('The bypass options for network access control.')
-param networkRuleSetBypass resourceInput<'Microsoft.CognitiveServices/accounts@2025-09-01'>.properties.networkAcls.bypass
+param networkRuleSetBypass resourceInput<'Microsoft.CognitiveServices/accounts@2025-09-01'>.properties.networkAcls.bypass = ''
 
 @description('''
 Array of virtual network rules for network access control.
@@ -162,7 +161,7 @@ param diagnosticsName string = 'AzurePlatformCentralizedLogging'
 param disableLocalAuth bool = true
 
 @description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
-param diagnosticSettingsLogsCategories resourceInput<'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'>.properties.logs  = [
+param diagnosticSettingsLogsCategories resourceInput<'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'>.properties.logs = [
   {
     categoryGroup: 'allLogs'
     enabled: true
@@ -174,7 +173,7 @@ param diagnosticSettingsLogsCategories resourceInput<'Microsoft.Insights/diagnos
 ]
 
 @description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings).')
-param diagnosticSettingsMetricsCategories resourceInput<'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'>.properties.metrics  = [
+param diagnosticSettingsMetricsCategories resourceInput<'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'>.properties.metrics = [
   {
     category: 'AllMetrics'
     enabled: true
@@ -198,19 +197,25 @@ resource cognitiveServicesAccount 'Microsoft.CognitiveServices/accounts@2025-09-
   sku: {
     name: skuName
   }
-  kind: kind 
-  properties: {
-    apiProperties: apiProperties
-    customSubDomainName: resolvedCustomSubDomainName
-    networkAcls: {
-      defaultAction: networkAclsDefaultAction
-      virtualNetworkRules: virtualNetworkRules
-      ipRules: ipRules
-      bypass: networkRuleSetBypass
+  kind: kind
+  properties: union(
+    {
+      apiProperties: apiProperties
+      customSubDomainName: resolvedCustomSubDomainName
+      networkAcls: {
+        defaultAction: networkAclsDefaultAction
+        virtualNetworkRules: virtualNetworkRules
+        ipRules: ipRules
+      }
+      publicNetworkAccess: publicNetworkAccess
+      disableLocalAuth: disableLocalAuth
+    },
+    empty(networkRuleSetBypass) ? {} : {
+      networkAcls: {
+        bypass: networkRuleSetBypass
+      }
     }
-    publicNetworkAccess: publicNetworkAccess
-    disableLocalAuth: disableLocalAuth
-  }
+  )
 }
 
 @description('Conditionally create the diagnostic settings for the Cognitive Services account')
