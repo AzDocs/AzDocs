@@ -39,6 +39,15 @@ param storageAccountName string
 @maxLength(36)
 param roleDefinitionId string
 
+@description('Optional. The conditions on the role assignment. This limits the resources it can be assigned to. e.g.: @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:ContainerName] StringEqualsIgnoreCase "foo_storage_container"')
+param condition string?
+
+@description('Optional. Version of the condition. Currently the only accepted value is 2.0.')
+@allowed([
+  '2.0'
+])
+param conditionVersion string?
+
 @description('Fetch the existing storage account for the role assignment scope in the next step.')
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
   name: storageAccountName
@@ -58,5 +67,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     principalId: principalId
     roleDefinitionId: roleDefinition.id
     principalType: principalType
+    condition: condition
+    conditionVersion: conditionVersion
   }
 }
