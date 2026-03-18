@@ -15,6 +15,8 @@ Assign a role on the storage account scope to a identity with the given specs.
 | principalType | PrincipalType | <input type="checkbox" checked> | None | <pre></pre> | The type of principal you want to assign the role to. |
 | storageAccountName | string | <input type="checkbox" checked> | Length between 3-24 | <pre></pre> | The name of the Storage Account to assign the permissions on. This Storage Account should already exist. |
 | roleDefinitionId | string | <input type="checkbox" checked> | Length is 36 | <pre></pre> | The roledefinition ID you want to assign. |
+| condition | string? | <input type="checkbox" checked> | None | <pre></pre> | Optional. The conditions on the role assignment. This limits the resources it can be assigned to. e.g.: @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:ContainerName] StringEqualsIgnoreCase "foo_storage_container" |
+| conditionVersion | string? | <input type="checkbox" checked> | `'2.0'` | <pre></pre> | Optional. Version of the condition. Currently the only accepted value is 2.0. |
 
 ## Examples
 <pre>
