@@ -20,6 +20,7 @@ When you create a public IP address resource, you can assign a static public IP 
 | publicIPAddressVersion | string | <input type="checkbox"> | `'IPv4'` or `'IPv6'` | <pre>'IPv4'</pre> | The public IP address version. |
 | publicIPPrefixesIpTags | resourceInput<'Microsoft.Network/publicIPPrefixes@2025-01-01'>.properties.ipTags | <input type="checkbox"> | None | <pre>[]</pre> | A list of tags associated with the public IP prefix. |
 | publicIPPrefixesZones | array | <input type="checkbox"> | `[]` or `[1]` or `[2]` or `[3]` or `[1, 2]` or `[1, 3]` or `[2, 3]` or `[1, 2, 3]` | <pre>[]</pre> | A list of availability zones denoting the IP allocated for the resource needs to come from. |
+| customIPPrefixResourceId | string? | <input type="checkbox" checked> | None | <pre></pre> | The resource ID of the custom IP prefix that this public IP prefix is associated with. If not provided, no custom IP prefix is used. |
 
 ## Outputs
 | Name | Type | Description |

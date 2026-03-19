@@ -78,6 +78,9 @@ param publicIPPrefixesIpTags resourceInput<'Microsoft.Network/publicIPPrefixes@2
 ])
 param publicIPPrefixesZones array = []
 
+@description('The resource ID of the custom IP prefix that this public IP prefix is associated with. If not provided, no custom IP prefix is used.')
+param customIPPrefixResourceId string?
+
 resource publicIPPrefixes 'Microsoft.Network/publicIPPrefixes@2025-01-01' = {
   name: publicIPPrefixesName
   location: location
@@ -87,6 +90,7 @@ resource publicIPPrefixes 'Microsoft.Network/publicIPPrefixes@2025-01-01' = {
     prefixLength: publicIPPrefixesPrefixLength
     publicIPAddressVersion: publicIPAddressVersion
     ipTags: publicIPPrefixesIpTags
+    customIPPrefix: customIPPrefixResourceId != null ? { id: customIPPrefixResourceId } : null
   }
   zones: !empty(publicIPPrefixesZones) ? publicIPPrefixesZones : null
 }
