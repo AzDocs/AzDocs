@@ -10,6 +10,9 @@ module documentDb 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts:lat
   scope: resourceGroup
   params: {
     documentDbName: 'MyFirstDocumentDb'
+    capabilitiesToAdd: [
+        'EnableServerless'
+    ]
     locations: [
       {
         locationName: 'westeurope'
@@ -70,6 +73,24 @@ param documentDbKind string = 'GlobalDocumentDB'
 ])
 @description('MongoDB server version. Only applicable when documentDbKind is MongoDB. Defaults to 7.0.')
 param mongoDbServerVersion string = '7.0'
+
+/*
+Not supported capabilities have been removed from the allowed list to prevent confusion.
+'EnableCassandra' - Needs additional configuration, which is currently not supported by this module.
+'EnableGremlin' - Needs additional configuration, which is currently not supported by this module.
+*/
+@allowed([
+  'EnableTable'
+  'EnableMongo'
+  'DisableRateLimitingResponses'
+  'EnableServerless'
+  'EnableNoSQLVectorSearch'
+  'EnableNoSQLFullTextSearch'
+  'EnableMaterializedViews'
+  'DeleteAllItemsByPartitionKey'
+])
+@description('Optional. A list of Azure Cosmos DB specific capabilities for the account.')
+param capabilitiesToAdd string[]?
 
 @allowed([
   'Continuous7Days'
@@ -217,6 +238,9 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' = {
     enableBurstCapacity: enableBurstCapacity
     enablePartitionMerge: enablePartitionMerge
     enablePerRegionPerPartitionAutoscale: enablePerRegionPerPartitionAutoscale
+    capabilities: map(capabilitiesToAdd ?? [], capability => {
+      name: capability
+    })
     apiProperties: documentDbKind == 'MongoDB' ? {
       serverVersion: mongoDbServerVersion
     } : null

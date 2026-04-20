@@ -21,6 +21,7 @@ This module creates a document db account with the given specs.
 | locations | array | <input type="checkbox"> | None | <pre>[<br>  {<br>    locationName: 'westeurope'<br>    isZoneRedundant: false<br>  }<br>]</pre> | The locations for the DocumentDB account. Defaults to one location (westeurope) without zone redundancy. |
 | documentDbKind | string | <input type="checkbox"> | `'GlobalDocumentDB'` or `'MongoDB'` or `'Parse'` | <pre>'GlobalDocumentDB'</pre> | The kind of the DocumentDB account. Defaults to GlobalDocumentDB. |
 | mongoDbServerVersion | string | <input type="checkbox"> | `'3.2'` or `'3.6'` or `'4.0'` or `'4.2'` or `'5.0'` or `'6.0'` or `'7.0'` | <pre>'7.0'</pre> | MongoDB server version. Only applicable when documentDbKind is MongoDB. Defaults to 7.0. |
+| capabilitiesToAdd | string[]? | <input type="checkbox" checked> | `'EnableTable'` or `'EnableMongo'` or `'DisableRateLimitingResponses'` or `'EnableServerless'` or `'EnableNoSQLVectorSearch'` or `'EnableNoSQLFullTextSearch'` or `'EnableMaterializedViews'` or `'DeleteAllItemsByPartitionKey'` | <pre></pre> | Optional. A list of Azure Cosmos DB specific capabilities for the account. |
 | continuousBackupTier | string | <input type="checkbox"> | `'Continuous7Days'` or `'Continuous30Days'` | <pre>'Continuous7Days'</pre> | The continuous backup tier for this DocumentDB. Defaults to Continuous7Days. |
 | backupPolicy | object | <input type="checkbox"> | None | <pre>{<br>  type: 'Continuous'<br>  continuousModeProperties: {<br>    tier: continuousBackupTier<br>  }<br>}</pre> | The backup policy for this DocumentDB. Defaults to continuous backup with the specified tier. |
 | consistencyPolicy | object | <input type="checkbox"> | None | <pre>{<br>  defaultConsistencyLevel: 'Session'<br>  maxIntervalInSeconds: 5<br>  maxStalenessPrefix: 100<br>}</pre> | The consistency policy for this DocumentDB. Defaults to Session. |
@@ -53,6 +54,9 @@ module documentDb 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts:lat
   scope: resourceGroup
   params: {
     documentDbName: 'MyFirstDocumentDb'
+    capabilitiesToAdd: [
+        'EnableServerless'
+    ]
     locations: [
       {
         locationName: 'westeurope'
