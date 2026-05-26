@@ -29,7 +29,9 @@ param tableName string
 @description('Optional. Tags for the table.')
 param tags resourceInput<'Microsoft.DocumentDB/databaseAccounts/tables@2025-04-15'>.tags?
 
-@description('Conditional. The name of the parent Azure Cosmos DB account. Required if the template is used in a standalone deployment.')
+@description('The name of the DocumentDB instance to create the table on. This DocumentDB instance should already exist.')
+@minLength(3)
+@maxLength(44)
 param databaseAccountName string
 
 @description('Optional. Represents maximum throughput, the resource can scale up to. Cannot be set together with `throughput`. If `throughput` is set to something else than -1, this autoscale setting is ignored.')

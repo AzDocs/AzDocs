@@ -13,7 +13,7 @@ This module creates a document db table.
 | -- |  -- | -- | -- | -- | -- |
 | tableName | string | <input type="checkbox" checked> | None | <pre></pre> | Required. Name of the table. |
 | tags | resourceInput<'Microsoft.DocumentDB/databaseAccounts/tables@2025-04-15'>.tags? | <input type="checkbox" checked> | None | <pre></pre> | Optional. Tags for the table. |
-| databaseAccountName | string | <input type="checkbox" checked> | None | <pre></pre> | Conditional. The name of the parent Azure Cosmos DB account. Required if the template is used in a standalone deployment. |
+| databaseAccountName | string | <input type="checkbox" checked> | Length between 3-44 | <pre></pre> | The name of the DocumentDB instance to create the table on. This DocumentDB instance should already exist. |
 | maxThroughput | int | <input type="checkbox"> | None | <pre>4000</pre> | Optional. Represents maximum throughput, the resource can scale up to. Cannot be set together with `throughput`. If `throughput` is set to something else than -1, this autoscale setting is ignored. |
 | throughput | int? | <input type="checkbox" checked> | None | <pre></pre> | Optional. Request Units per second (for example 10000). Cannot be set together with `maxThroughput`. |
 
