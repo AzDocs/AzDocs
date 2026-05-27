@@ -56,6 +56,7 @@ Creating an container app with the given specs.
 | ingressExternal | bool | <input type="checkbox"> | None | <pre>true</pre> | Bool indicating if app exposes an external http endpoint.<br>For applications that need to be accessed from external clients (eg., browsers, other clients, applications hosted somewhere else)<br>&nbsp;&nbsp;- set external in ingress to true |
 | ingressTargetPort | int | <input type="checkbox"> | Value between 1-65535 | <pre>80</pre> | Target incoming Port in containers for incoming traffic (ingress). This will be the exposed port for the Docker Image.<br>The ingress section of the container app must have a targetPort specified. TargetPort must be in the range of [1,65535]. |
 | ingressTransport | string | <input type="checkbox"> | `'auto'` or `'http'` or `'http2'` or `'tcp'` | <pre>'auto'</pre> | Ingress transport protocol |
+| terminationGracePeriodSeconds | int? | <input type="checkbox" checked> | None | <pre></pre> | Optional. The termination grace period for the container app. |
 | workloadProfileName | string | <input type="checkbox"> | None | <pre>''</pre> | The name of the existing container app workload profile. If used, it should be pre-existing in the managed environment. |
 | includeAddOns | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. Toggle to include the service configuration. |
 | service | object | <input type="checkbox"> | None | <pre>{}</pre> | Optional. Dev ContainerApp service type. |

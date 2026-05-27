@@ -321,6 +321,9 @@ param ingressTargetPort int = 80
 ])
 param ingressTransport string = 'auto'
 
+@description('Optional. The termination grace period for the container app.')
+param terminationGracePeriodSeconds int?
+
 @description('The name of the existing container app workload profile. If used, it should be pre-existing in the managed environment.')
 param workloadProfileName string = ''
 
@@ -643,6 +646,7 @@ resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
     }
     template: {
       containers: containers
+      terminationGracePeriodSeconds: terminationGracePeriodSeconds
       initContainers: !empty(initContainersTemplate) ? initContainersTemplate : null
       revisionSuffix: revisionSuffix
       scale: {
