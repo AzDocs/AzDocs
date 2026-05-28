@@ -437,8 +437,9 @@ type container = {
 }
 
 type containerResources = {
-  @description('Required. Required CPU in cores, e.g. 1, 2, 4. Must be an integer value.')
-  cpu: int
+  @description('Required. Required CPU in cores, e.g. 1, 2, 4. Also supports decimals like 0.25, 0.5, 0.75 and 1.5.')
+  #disable-next-line no-explicit-any // Bicep currently does not support decimal numbers, so we need to use any here in favor of int. 
+  cpu: any
 
   @description('Required. Required memory, e.g. "0.5Gi", "1Gi", "2Gi"')
   memory: string
