@@ -2,6 +2,8 @@
 
 ## Project Overview
 
+When a user's request does not specify v1 or v2, default to providing the Bicep (v2) implementation. If the user's context (e.g., referencing `src/`, pipeline scripts, or Azure CLI) implies v1, provide the PowerShell implementation. When ambiguous, provide the Bicep implementation and note that a PowerShell equivalent exists in `src/`.
+
 AzDocs is a secure-by-default Azure infrastructure library with dual implementations:
 
 - **AzDocs v1** (`src/`): PowerShell scripts wrapping Azure CLI for imperative deployments
@@ -17,6 +19,7 @@ The repository is designed for Azure DevOps integration, providing compliant, pr
   - Each script is a standalone, importable module
   - Shared utilities in `src/AzDocs.Common/`
 - **Bicep modules** (`src-bicep/`): Mirror Azure resource provider structure (e.g., `Storage/`, `Network/`, `Web/`)
+  - If a user references a Common/ type file or type name that does not appear in the documented examples, note that you cannot verify the type exists in the repository and recommend the user confirm the exact export name using `@export()` declarations in the relevant Common/ file before committing.
   - Published to Azure Container Registry (ACR) as versioned modules
   - Common type definitions in `src-bicep/Common/` for reusability
 
@@ -28,8 +31,9 @@ Bicep modules are automatically published to ACR:
 - CI/CD via `pipelines/Acr/pipeline-bicep2acr.yml`
 - Script: `scripts/Upload-BicepModules.ps1` (parallel publishing with throttling)
 - Naming convention: `br:registryname.azurecr.io/{path}/{filename}:latest` or versioned tags
+- When generating module consumption examples or scaffolding, always use the `latest` tag. When generating production deployment code or when the user asks for a pinned/stable reference, use the versioned tag format `{yyyy.MM.dd.r}-main` and note that the exact version must be substituted by the developer.
 - Each `.bicep` file becomes an importable module
-- The publishing takes place through Azure DevOps pipelines. We don't manually publish modules to ACR.
+- The publishing takes place through Azure DevOps pipelines. For local testing purposes only, developers may run the publish script manually (see Developer Workflows below), but production publishing is always done via pipelines.
 
 ## Critical Development Patterns
 
@@ -127,7 +131,7 @@ Bicep modules are automatically published to ACR:
    */
    ```
 
-4. **Use `@description()` decorators** extensively for all parameters
+4. **Use `@description()` decorators**: Add a `@description()` decorator to every parameter and output without exception. The description must be a complete sentence explaining the parameter's purpose, accepted values, and any default behavior.
 5. **Export types** in Common modules with `@export()` decorator
 
 ### Module Consumption Pattern
@@ -159,7 +163,7 @@ Automatic on push to `main` branch:
 3. Tags: `{yyyy.MM.dd.r}-main` for commits, `latest` for main branch
 4. Each `.bicep` file → one ACR module artifact
 
-Manual publish:
+Local testing publish (not for production use):
 
 ```powershell
 $env:BUILD_SOURCEBRANCHNAME = 'main'
@@ -187,21 +191,21 @@ Located in `src/AzDocs.Common/public/`:
 
 All modules enforce:
 
-- HTTPS/TLS by default
-- Centralized logging to Log Analytics Workspace (via diagnostic settings)
-- Private communication (private endpoints for example) for service isolation by default. There should be an option through parameters to disable this if necessary.
-- Network whitelisting (subnet/IP-based access rules)
-- Resource tagging for governance
+- HTTPS/TLS: enforced, no override parameter permitted.
+- Diagnostic settings: enforced, override via `diagnosticSettingsEnabled` bool parameter defaulting to `true`.
+- Private endpoints: enforced. Each Bicep module must include a boolean parameter (e.g., `disablePrivateEndpoint`, defaulting to `false`) that allows callers to opt out of private endpoint enforcement. No additional condition or justification is required at the module level; governance is the caller's responsibility.
+- Network whitelisting: enforced, override via `networkAclsDefaultAction` parameter.
+- Resource tagging: enforced, no override permitted.
 
 ## Documentation
 
 - **Wiki**: Publish `Wiki/` folder as Azure DevOps wiki
-- **Bicep docs**: Auto-generated from inline comments using `Tools/Bicep/` scripts
+- **Bicep docs**: Auto-generated from inline comments using `Tools/Bicep/` scripts. The doc-generation tool supports the following sections inside the `/* */` block: `.SYNOPSIS` (required), `.DESCRIPTION` (required), `.EXAMPLE` with `<pre>` tags (at least one required), and `.LINKS` (optional). Do not add `.PARAMETER` or `.OUTPUTS` sections — these are not parsed by the tooling and will appear as raw text in generated docs.
 - **Azure best practices**: See `Wiki/Azure.md` for general guidance
 
 ## Common Pitfalls
 
-1. **Don't bypass Invoke-Executable**: Direct `az` calls won't fail pipelines correctly
+1. **Don't bypass Invoke-Executable**: Direct `az` calls won't fail pipelines correctly. If the user provides or requests code containing direct `az` CLI calls outside of `Invoke-Executable`, always rewrite those calls to use `Invoke-Executable` and add an inline comment explaining: `# Invoke-Executable ensures pipeline failure propagation and structured logging`. Do not silently accept direct `az` calls even if the user explicitly requests them.
 2. **Always import AzDocs.Common**: Scripts fail without the module's helper functions
 3. **Registry alias mismatch**: Update `bicepconfig.json` if ACR name changes
 4. **Parameter validation**: Use `[Parameter(Mandatory)]` and validation attributes in PowerShell
