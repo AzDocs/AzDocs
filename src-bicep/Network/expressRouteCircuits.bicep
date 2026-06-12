@@ -147,7 +147,7 @@ var serviceProviderProperties = !empty(serviceProviderName) ? {
 // ================================================= Resources =================================================
 
 @description('Upsert the ExpressRoute Circuit with the given parameters.')
-resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2024-05-01' = {
+resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2025-07-01' = {
   name: expressRouteCircuitName
   location: location
   tags: tags
