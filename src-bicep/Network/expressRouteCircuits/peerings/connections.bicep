@@ -72,18 +72,18 @@ param ipv6CircuitConnectionAddressPrefix string = ''
 // ================================================= Resources =================================================
 
 @description('Reference to the existing ExpressRoute Circuit.')
-resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2024-05-01' existing = {
+resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2025-07-01' existing = {
   name: expressRouteCircuitName
 }
 
 @description('Reference to the existing peering on the ExpressRoute Circuit.')
-resource existingPeering 'Microsoft.Network/expressRouteCircuits/peerings@2024-05-01' existing = {
+resource existingPeering 'Microsoft.Network/expressRouteCircuits/peerings@2025-07-01' existing = {
   parent: expressRouteCircuit
   name: peeringName
 }
 
 @description('Upsert the ExpressRoute Circuit Peering Connection with the given parameters.')
-resource connection 'Microsoft.Network/expressRouteCircuits/peerings/connections@2024-05-01' = {
+resource connection 'Microsoft.Network/expressRouteCircuits/peerings/connections@2025-07-01' = {
   parent: existingPeering
   name: connectionName
   properties: {
