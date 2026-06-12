@@ -128,7 +128,7 @@ var identity = (createDatabaseUserAssignedManagedIdentity)
 
 // ================================================= Existing Resources =================================================
 @description('Fetch the SQL server to use as underlying provider for the SQL Database')
-resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' existing = {
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
   name: sqlServerName
 }
 
@@ -196,7 +196,7 @@ param elasticPoolId string = ''
 
 // ================================================= Resources =================================================
 @description('Upsert the SQL database with the given parameters.')
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
   parent: sqlServer
   name: sqlDatabaseName
   location: location

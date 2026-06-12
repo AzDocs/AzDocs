@@ -1,28 +1,46 @@
+metadata name = 'SQL Servers'
+metadata description = 'This module deploys a base Azure SQL server.'
+
 /*
 .SYNOPSIS
-Creating a SQL server
+Creating a base Azure SQL server
 .DESCRIPTION
-Creating a SQL server with the given specs.
+Creating a SQL server with only base requirements. Advanced capabilities can be deployed with dedicated modules in a main.bicep.
+A hidden SQL Database resource called master is automatically created.
 .EXAMPLE
 <pre>
-module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
-  name: format('{0}-{1}', take('${deployment().name}', 57), 'sqlserver')
+module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' = {
+  name: format('{0}-{1}', take('${deployment().name}', 54), 'sqlserver')
   params: {
-    tags: tags
     location: location
     sqlAuthenticationAdminPassword: <<password>>
     sqlServerName: sqlServerName
-    vulnerabilityScanStorageAccountName: sqlStorageAccountName
-    subnetResourceIdsToWhitelist: subnetResourceIdsToWhitelist
     sqlAuthenticationAdminUsername: 'dbaisdba'
-    azureActiveDirectoryAdminObjectId: '00000000-0000-0000-0000-00000000000'
-    azureActiveDirectoryAdminUserName: 'name@tenant.com'
   }
 }
 </pre>
-<p>Creates a Sql server with the name sqlServerName</p>
+<p>Creates a base SQL server with SQL authentication.</p>
 <pre>
-module sqlserver 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
+module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' = {
+  name: format('{0}-{1}', take('${deployment().name}', 54), 'sqlserver')
+  params: {
+    location: location
+    sqlAuthenticationAdminPassword: <<password>>
+    sqlServerName: sqlServerName
+    sqlAuthenticationAdminUsername: 'dbaisdba'
+    sqlServerFirewallRules: [
+      {
+        name: 'AllowBuildAgent'
+        start: '12.34.56.78'
+        end: '12.34.56.78'
+      }
+    ]
+  }
+}
+</pre>
+<p>Creates a base SQL server with SQL authentication and optional firewall rules.</p>
+<pre>
+module sqlserver 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' = {
   name: format('{0}-{1}', take('${deployment().name}', 60), 'sql')
   params: {
     sqlAuthenticationAdminPassword: ''
@@ -30,14 +48,13 @@ module sqlserver 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
     sqlAuthenticationAdminUsername: ''
     sqlServerName: sqlServerName
     useAzureActiveDirectoryAuthentication: true
-    vulnerabilityScanStorageAccountName: vulnerabilityScanStorageAccountName
     azureActiveDirectoryAdminObjectId: 'a348f815-0d14-4a85-b2fe-d3b36519e4fg'
+    azureActiveDirectoryAdminUserName: 'admin@contoso.com'
     azureActiveDirectoryOnlyAuthentication: true
-    createSqlUserAssignedManagedIdentity: true
   }
 }
 </pre>
-<p>Creates a Sql server with EntraID authentication only.</p>
+<p>Creates a base SQL server with Entra ID authentication only.</p>
 .LINKS
 - [Bicep Microsoft.SQL servers](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-bicep)
 - [Bicep Microsoft SQL Azure Active Directory Authentication](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-bicep#serverexternaladministrator)
@@ -52,16 +69,9 @@ param location string = resourceGroup().location
 @maxLength(63)
 param sqlServerName string
 
-@description('Type of the server administrator.')
-@allowed([
-  'ActiveDirectory'
-])
-param sqlServerAdministratorType string = 'ActiveDirectory'
-
 @description('''
 Switch if you want to use Azure Active Directory Authentication (next to SQL authentication).
-When set to true, you need to fill the param azureActiveDirectoryLogin below with all correct values.
-Explanation is with the single params within this param.
+When set to true, fill the related Entra ID parameters below.
 ''')
 param useAzureActiveDirectoryAuthentication bool = false
 
@@ -84,12 +94,9 @@ param azureActiveDirectoryOnlyAuthentication bool = false
 ])
 param azureActiveDirectoryAdminPrincipalType string = 'User'
 
-@description('''
-If you want to use Azure Active Directory authentication, you need to completely fill this object with correct values.
-See the [docs](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-bicep#serverexternaladministrator) for what to fill in. Make sure to combine it with the param userAADLogin to true.
-''')
+@description('Entra ID administrator configuration object, applied to the server when useAzureActiveDirectoryAuthentication is true.')
 var azureActiveDirectoryLogin = {
-  administratorType: sqlServerAdministratorType
+  administratorType: 'ActiveDirectory'
   tenantId: subscription().tenantId
   principalType: azureActiveDirectoryAdminPrincipalType
   azureADOnlyAuthentication: azureActiveDirectoryOnlyAuthentication
@@ -97,30 +104,12 @@ var azureActiveDirectoryLogin = {
   sid: azureActiveDirectoryAdminObjectId
 }
 
-@description('''
-The username for the administrator using SQL Authentication. Once created it cannot be changed.
-If you opted for EntraID only authentication, this param can be given an empty ('') value.
-You can choose for EntraID only authentication by setting the param azureActiveDirectoryOnlyAuthentication to true.
-''')
+@description('The username for the SQL authentication administrator. Once created it cannot be changed. Pass an empty string when using Entra ID only authentication.')
 param sqlAuthenticationAdminUsername string
 
+@description('The password for the SQL authentication administrator. Pass an empty string when using Entra ID only authentication. Azure SQL enforces [password complexity](https://learn.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver16#password-complexity).')
 @secure()
-@description('''
-The password for the administrator using SQL Authentication (required for server creation).
-Azure SQL enforces [password complexity](https://learn.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver16#password-complexity).
-''')
 param sqlAuthenticationAdminPassword string
-
-@description('Provide an array of e-mailaddresses (strings) where the vulnerability reports should be sent to.')
-param vulnerabilityScanEmails array = []
-
-@description('Enable Vulnerability Assessment on this SQL Server.')
-param enableVulnerabilityAssessment bool = true
-
-@description('The resource name of the storage account to be used for the vulnerabilityscans.')
-@minLength(3)
-@maxLength(24)
-param vulnerabilityScanStorageAccountName string
 
 @description('''
 Array of strings containing resource id\'s of the subnets you want to whitelist on this SQL Server.
@@ -135,20 +124,11 @@ param subnetResourceIdsToWhitelist array = []
 @description('If you want to create the firewall rule before the virtual network has vnet service endpoint enabled towards sql.')
 param ignoreMissingVnetServiceEndpoint bool = false
 
-@description('Determines if a user assigned managed identity should be created for this SQL server.')
-param createSqlUserAssignedManagedIdentity bool = false
+@description('Optional resource ID of an existing user assigned managed identity to attach to this SQL server.')
+param existingUserAssignedManagedIdentityResourceId string = ''
 
-@description('The name of the user assigned managed identity to create for this SQL server.')
-param userAssignedManagedIdentityName string = 'id-${sqlServerName}'
-
-@description('''
-If you are using more that one user assigned managed identity, you can choose which one will be the primary user assigned managed identity.
-Example
-'${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/${userAssignedManagedIdentityName}'
-''')
-param sqlServerprimaryUserAssignedIdentityId string = (createSqlUserAssignedManagedIdentity)
-  ? '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/${userAssignedManagedIdentityName}'
-  : ''
+@description('Optional resource ID of the primary user assigned managed identity. Defaults to the existing UAMI resource ID when one is provided.')
+param sqlServerprimaryUserAssignedIdentityId string = existingUserAssignedManagedIdentityResourceId
 
 @description('''
 The tags to apply to this resource. This is an object with key/value pairs.
@@ -204,30 +184,19 @@ param sqlServerFirewallRules array = []
 @description('A CMK URI of the key to use for encryption.')
 param sqlServerEncryptionKeyKeyvaultUri string = ''
 
-@description('Specifies whether audit events are sent to Azure Monitor.')
-param auditingSettingsIsAzureMonitorTargetEnabled bool = true
-
-@description('''
-One or more managed identities running this SQL server. Defaults to a system assigned managed identity. 
-When one or more user-assigned managed identities are assigned to the server, designate one of those as the primary or default identity for the server.
-''')
-var identity = (createSqlUserAssignedManagedIdentity)
+@description('One or more managed identities for this SQL server. Attaches an existing user assigned managed identity when provided, otherwise defaults to system assigned only.')
+var identity = !empty(existingUserAssignedManagedIdentityResourceId)
   ? {
       type: 'SystemAssigned,UserAssigned'
       userAssignedIdentities: {
-        '${sqlServerUserAssignedManagedIdentity.id}': {}
+        '${existingUserAssignedManagedIdentityResourceId}': {}
       }
     }
   : { type: 'SystemAssigned' }
 
 // ================================================= Resources =================================================
-resource sqlServerUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (createSqlUserAssignedManagedIdentity) {
-  name: userAssignedManagedIdentityName
-  location: location
-}
-
-@description('Upsert the SQL Server, vnet whitelisting rules, security assessments, alertpolicies, auditsettings & vulnerability scans with the passed parameters')
-resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
+@description('Upsert the SQL Server with base settings and optional network rules.')
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' = {
   name: sqlServerName
   location: location
   tags: tags
@@ -239,12 +208,12 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
     publicNetworkAccess: sqlServerPublicNetworkAccess
     restrictOutboundNetworkAccess: sqlServerRestrictOutboundNetworkAccess
     version: sqlServerVersion
-    administrators: useAzureActiveDirectoryAuthentication ? azureActiveDirectoryLogin : {}
-    primaryUserAssignedIdentityId: sqlServerprimaryUserAssignedIdentityId
+    administrators: useAzureActiveDirectoryAuthentication ? azureActiveDirectoryLogin : null
+    primaryUserAssignedIdentityId: !empty(sqlServerprimaryUserAssignedIdentityId) ? sqlServerprimaryUserAssignedIdentityId : null
     keyId: !empty(sqlServerEncryptionKeyKeyvaultUri) ? sqlServerEncryptionKeyKeyvaultUri : null
   }
 
-  resource sqlVnetRules 'virtualNetworkRules@2023-05-01-preview' = [
+  resource sqlVnetRules 'virtualNetworkRules@2025-01-01' = [
     for (subnetId, i) in subnetResourceIdsToWhitelist: if (!empty(subnetResourceIdsToWhitelist)) {
       name: 'subnet-${i}'
       properties: {
@@ -254,7 +223,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
     }
   ]
 
-  resource SqlServerAllowFirewall 'firewallRules@2023-05-01-preview' = [
+  resource SqlServerAllowFirewall 'firewallRules@2025-01-01' = [
     for rule in sqlServerFirewallRules: if (!empty(sqlServerFirewallRules)) {
       name: rule.name
       properties: {
@@ -263,87 +232,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
       }
     }
   ]
-
-  resource sqlServerAdvancedSecurityAssessment 'securityAlertPolicies@2023-05-01-preview' = {
-    name: 'advancedSecurityAssessment'
-    properties: {
-      state: 'Enabled'
-    }
-  }
-
-  resource sqlServerAuditingSettings 'auditingSettings@2023-05-01-preview' = {
-    name: 'default'
-    properties: {
-      auditActionsAndGroups: [
-        'BATCH_COMPLETED_GROUP'
-        'SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP'
-        'FAILED_DATABASE_AUTHENTICATION_GROUP'
-      ]
-      state: 'Enabled'
-      isAzureMonitorTargetEnabled: auditingSettingsIsAzureMonitorTargetEnabled
-      storageEndpoint: vulnerabilityScanStorageAccount.outputs.storageAccountPrimaryEndpoint.blob
-    }
-  }
-
-  resource devOpsAuditingSettings 'devOpsAuditingSettings@2023-05-01-preview' = {
-    name: 'default'
-    properties: {
-      state: 'Enabled'
-      isAzureMonitorTargetEnabled: auditingSettingsIsAzureMonitorTargetEnabled
-      isManagedIdentityInUse: true
-      storageEndpoint: vulnerabilityScanStorageAccount.outputs.storageAccountPrimaryEndpoint.blob
-    }
-  }
-
-  resource sqlVulnerability 'vulnerabilityAssessments@2022-05-01-preview' = if (enableVulnerabilityAssessment) {
-    name: 'default'
-    properties: {
-      recurringScans: {
-        emails: vulnerabilityScanEmails
-        isEnabled: true
-      }
-      storageContainerPath: '${vulnerabilityScanStorageAccount.outputs.storageAccountPrimaryEndpoint.blob}${vulnblob.outputs.blobContainerName}'
-    }
-
-    dependsOn: [
-      sqlServerAdvancedSecurityAssessment
-    ]
-  }
 }
-
-module vulnerabilityScanStorageAccount '../Storage/storageAccounts.bicep' = {
-  name: format('{0}-{1}', take('${deployment().name}', 60), 'stg')
-  params: {
-    storageAccountKind: 'StorageV2'
-    storageAccountName: vulnerabilityScanStorageAccountName
-    storageAccountSku: 'Standard_LRS'
-    location: location
-  }
-}
-
-module vulnblob '../Storage/storageAccounts/blobServices.bicep' = {
-  name: format('{0}-{1}', take('${deployment().name}', 59), 'blob')
-  params: {
-    storageAccountName: vulnerabilityScanStorageAccount.outputs.storageAccountName
-    blobContainerName: 'vulnerabilityscans'
-  }
-}
-
-module storageBlobDataContributorRoleAssignment '../Authorization/roleAssignmentsStorage.bicep' = {
-  name: format('{0}-{1}', take('${deployment().name}', 51), 'roleassidstg')
-  params: {
-    storageAccountName: vulnerabilityScanStorageAccount.outputs.storageAccountName
-    roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' //Storage Blob Data Contributor
-    principalId: createSqlUserAssignedManagedIdentity
-      ? sqlServer.identity.userAssignedIdentities[sqlServerUserAssignedManagedIdentity.id].principalId
-      : sqlServer.identity.principalId
-  }
-}
-
-@description('Output the storage account resource name where the vulnerability scan reports are stored for this SQL Server.')
-output vulnerabilityScanStorageAccountName string = !empty(vulnerabilityScanStorageAccountName)
-  ? vulnerabilityScanStorageAccount.outputs.storageAccountName
-  : ''
 @description('Output the name of the SQL Server.')
 output sqlServerName string = sqlServer.name
 @description('Output the resource ID of the SQL Server.')

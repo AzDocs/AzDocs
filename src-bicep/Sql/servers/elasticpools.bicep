@@ -127,12 +127,12 @@ param sku elasticPoolSku = {
 
 // ================================================= Existing Resources =================================================
 @description('Fetch the SQL server to use as underlying provider for the SQL Database')
-resource sqlServer 'Microsoft.Sql/servers@2024-05-01-preview' existing = {
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
   name: sqlServerName
 }
 
 // ================================================= Resources =================================================
-resource elasticPool 'Microsoft.Sql/servers/elasticPools@2024-05-01-preview' = {
+resource elasticPool 'Microsoft.Sql/servers/elasticPools@2025-01-01' = {
   parent: sqlServer
   location: location
   name: elasticPoolName
