@@ -17,7 +17,7 @@ Creating an Express Route Gateway with the given specs.
 | allowNonVirtualWanTraffic | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. Configures this gateway to accept traffic from non Virtual WAN networks. |
 | autoScaleConfigurationBoundsMax | int | <input type="checkbox"> | None | <pre>2</pre> | Optional. Maximum number of scale units deployed for ExpressRoute gateway. |
 | autoScaleConfigurationBoundsMin | int | <input type="checkbox"> | None | <pre>2</pre> | Optional. Minimum number of scale units deployed for ExpressRoute gateway. |
-| expressRouteConnections | resourceInput<'Microsoft.Network/expressRouteGateways@2024-07-01'>.properties.expressRouteConnections | <input type="checkbox"> | None | <pre>[]</pre> | Optional. List of ExpressRoute connections to the ExpressRoute gateway. **Note:** This parameter will overwrite existing connections, including deleting any that are not provided. This is by-design behavior of the resource provider. |
+| expressRouteConnections | resourceInput<'Microsoft.Network/expressRouteGateways@2025-07-01'>.properties.expressRouteConnections | <input type="checkbox"> | None | <pre>[]</pre> | Optional. List of ExpressRoute connections to the ExpressRoute gateway. **Note:** This parameter will overwrite existing connections, including deleting any that are not provided. This is by-design behavior of the resource provider. |
 | virtualHubResourceId | string | <input type="checkbox" checked> | None | <pre></pre> | Required. Resource ID of the Virtual Wan Hub. |
 
 ## Outputs

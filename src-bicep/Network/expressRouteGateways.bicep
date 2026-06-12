@@ -45,12 +45,12 @@ param autoScaleConfigurationBoundsMax int = 2
 param autoScaleConfigurationBoundsMin int = 2
 
 @description('Optional. List of ExpressRoute connections to the ExpressRoute gateway. **Note:** This parameter will overwrite existing connections, including deleting any that are not provided. This is by-design behavior of the resource provider.')
-param expressRouteConnections resourceInput<'Microsoft.Network/expressRouteGateways@2024-07-01'>.properties.expressRouteConnections = []
+param expressRouteConnections resourceInput<'Microsoft.Network/expressRouteGateways@2025-07-01'>.properties.expressRouteConnections = []
 
 @description('Required. Resource ID of the Virtual Wan Hub.')
 param virtualHubResourceId string
 
-resource expressRouteGateway 'Microsoft.Network/expressRouteGateways@2024-07-01' = {
+resource expressRouteGateway 'Microsoft.Network/expressRouteGateways@2025-07-01' = {
   name: expressRouteGatewayName
   location: location
   tags: tags

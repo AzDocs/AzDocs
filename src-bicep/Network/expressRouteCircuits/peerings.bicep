@@ -124,12 +124,12 @@ param stats object = {}
 // ================================================= Resources =================================================
 
 @description('Reference to the existing ExpressRoute Circuit.')
-resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2024-05-01' existing = {
+resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2025-07-01' existing = {
   name: expressRouteCircuitName
 }
 
 @description('Upsert the ExpressRoute Circuit Peering with the given parameters.')
-resource peering 'Microsoft.Network/expressRouteCircuits/peerings@2024-05-01' = {
+resource peering 'Microsoft.Network/expressRouteCircuits/peerings@2025-07-01' = {
   parent: expressRouteCircuit
   name: peeringName
   properties: {
