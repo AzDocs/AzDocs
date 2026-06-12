@@ -12,19 +12,18 @@ A hidden SQL Database resource called master is automatically created.
 module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' = {
   name: format('{0}-{1}', take('${deployment().name}', 54), 'sqlserver')
   params: {
-    location: location
     sqlAuthenticationAdminPassword: <<password>>
     sqlServerName: sqlServerName
     sqlAuthenticationAdminUsername: 'dbaisdba'
   }
 }
 </pre>
-<p>Creates a base SQL server with SQL authentication.</p>
+<p>Creates a base SQL server with SQL authentication with public network access closed and a system assigned identity.</p>
 <pre>
 module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' = {
   name: format('{0}-{1}', take('${deployment().name}', 54), 'sqlserver')
   params: {
-    location: location
+    location: 'swedencentral'
     sqlAuthenticationAdminPassword: <<password>>
     sqlServerName: sqlServerName
     sqlAuthenticationAdminUsername: 'dbaisdba'
