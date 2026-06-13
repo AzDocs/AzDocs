@@ -136,18 +136,21 @@ Example:
 ''')
 param tags object = {}
 
-@description('Set the minimum TLS version to be permitted on requests to the sqlserver.')
+@description('Set the minimum TLS version to be permitted on requests to the sqlserver. Use `None` to allow all versions.')
 @allowed([
+  'None'
   '1.0'
   '1.1'
   '1.2'
+  '1.3'
 ])
 param sqlServerMinimalTlsVersion string = '1.2'
 
-@description('Whether or not public endpoint access is allowed for this server. Value is optional but if passed in, must be `Enabled` or `Disabled`')
+@description('Whether or not public endpoint access is allowed for this server. Value is optional but if passed in, must be `Enabled`, `Disabled`, or `SecuredByPerimeter`.')
 @allowed([
   'Enabled'
   'Disabled'
+  'SecuredByPerimeter'
 ])
 param sqlServerPublicNetworkAccess string = 'Enabled'
 
