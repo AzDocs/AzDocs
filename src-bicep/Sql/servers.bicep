@@ -13,7 +13,7 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' =
   name: format('{0}-{1}', take('${deployment().name}', 54), 'sqlserver')
   params: {
     sqlAuthenticationAdminPassword: <<password>>
-    sqlServerName: sqlServerName
+    sqlServerName: 'sqlServerName01'
     sqlAuthenticationAdminUsername: 'dbaisdba'
   }
 }
@@ -25,7 +25,7 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' =
   params: {
     location: 'swedencentral'
     sqlAuthenticationAdminPassword: <<password>>
-    sqlServerName: sqlServerName
+    sqlServerName: 'sqlServerName01'
     sqlAuthenticationAdminUsername: 'dbaisdba'
     sqlServerFirewallRules: [
       {
@@ -42,13 +42,10 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' =
 module sqlserver 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' = {
   name: format('{0}-{1}', take('${deployment().name}', 60), 'sql')
   params: {
-    sqlAuthenticationAdminPassword: ''
-    location: location
-    sqlAuthenticationAdminUsername: ''
-    sqlServerName: sqlServerName
+    location: 'westeurope'
+    sqlServerName: 'sqlServerName01'
     useAzureActiveDirectoryAuthentication: true
     azureActiveDirectoryAdminObjectId: 'a348f815-0d14-4a85-b2fe-d3b36519e4fg'
-    azureActiveDirectoryAdminUserName: 'admin@contoso.com'
     azureActiveDirectoryOnlyAuthentication: true
   }
 }
@@ -104,11 +101,11 @@ var azureActiveDirectoryLogin = {
 }
 
 @description('The username for the SQL authentication administrator. Once created it cannot be changed. Pass an empty string when using Entra ID only authentication.')
-param sqlAuthenticationAdminUsername string
+param sqlAuthenticationAdminUsername string = ''
 
 @description('The password for the SQL authentication administrator. Pass an empty string when using Entra ID only authentication. Azure SQL enforces [password complexity](https://learn.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver16#password-complexity).')
 @secure()
-param sqlAuthenticationAdminPassword string
+param sqlAuthenticationAdminPassword string = ''
 
 @description('''
 Array of strings containing resource id\'s of the subnets you want to whitelist on this SQL Server.
@@ -165,7 +162,8 @@ param sqlServerRestrictOutboundNetworkAccess string = 'Disabled'
 param sqlServerVersion string = '12.0'
 
 @description('''
-An array of IpAddress with start and end. If you would use 0.0.0.0 as start and end ipaddress you would virtually allow every Azure resource on your sql.
+An array of IpAddress with start and end. 
+If you would use 0.0.0.0 as start and end ipaddress you would allow every Azure services and resources on your sql server (also from other Azure subscriptions).
 Example
 {
     name: 'myrulename'
@@ -173,7 +171,7 @@ Example
     end: '12.34.56.78'
   }
   {
-    name: 'AllowEveryAzureResource'
+    name: 'AllowAzureServices'
     start: '0.0.0.0'
     end: '0.0.0.0'
   }
