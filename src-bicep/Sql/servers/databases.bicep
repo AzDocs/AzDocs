@@ -5,7 +5,7 @@ Creating a database in an existing SQL server
 Creating a database in an existing SQL server with the given specs.
 .EXAMPLE
 <pre>
-module sql 'br:contosoregistry.azurecr.io/sql/servers/databases.bicep:2026.06.12.1-main' = {
+module sql 'br:contosoregistry.azurecr.io/sql/servers/databases.bicep:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 61), 'db')
   params: {
     sqlServerName:sqlserver.outputs.sqlServerName

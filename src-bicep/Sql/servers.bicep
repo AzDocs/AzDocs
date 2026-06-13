@@ -9,7 +9,7 @@ Creating a SQL server with only base requirements. Advanced capabilities can be 
 A hidden SQL Database resource called master is automatically created.
 .EXAMPLE
 <pre>
-module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' = {
+module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 54), 'sqlserver')
   params: {
     sqlAuthenticationAdminPassword: <<password>>
@@ -20,7 +20,7 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' =
 </pre>
 <p>Creates a base SQL server with SQL authentication with public network access closed and a system assigned identity.</p>
 <pre>
-module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' = {
+module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 54), 'sqlserver')
   params: {
     location: 'swedencentral'
@@ -39,7 +39,7 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' =
 </pre>
 <p>Creates a base SQL server with SQL authentication and optional firewall rules.</p>
 <pre>
-module sqlserver 'br:contosoregistry.azurecr.io/sql/servers.bicep:2026.06.12.1-main' = {
+module sqlserver 'br:contosoregistry.azurecr.io/sql/servers.bicep:latest' = {
   name: format('{0}-{1}', take('${deployment().name}', 60), 'sql')
   params: {
     location: 'westeurope'
