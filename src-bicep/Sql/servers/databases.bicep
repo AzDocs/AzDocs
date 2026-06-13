@@ -5,7 +5,7 @@ Creating a database in an existing SQL server
 Creating a database in an existing SQL server with the given specs.
 .EXAMPLE
 <pre>
-module sql 'br:contosoregistry.azurecr.io/sql/servers/databases.bicep:latest' = {
+module sql 'br:contosoregistry.azurecr.io/sql/servers/databases.bicep:2026.06.12.1-main' = {
   name: format('{0}-{1}', take('${deployment().name}', 61), 'db')
   params: {
     sqlServerName:sqlserver.outputs.sqlServerName
@@ -20,6 +20,18 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers/databases.bicep:latest' = 
 */
 
 // ================================================= Parameters =================================================
+@discriminator('type')
+type IdentityType =
+  | {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      *: {}
+    }
+  }
+  | {
+    type: 'None'
+  }
+
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -43,7 +55,7 @@ param logAnalyticsWorkspaceResourceId string = ''
 param diagnosticsName string = 'AzurePlatformCentralizedLogging'
 
 @description('''
-The SKU object to use for this SQL Database. Defaults to a provisioned Compute tier GP_Gen5 with capacity 2 sku. 
+The SKU object to use for this SQL Database. Defaults to a serverless General Purpose tier GP_S_Gen5 with capacity 2 sku. 
 For the object format, refer to [sku](https://docs.microsoft.com/en-us/azure/templates/microsoft.sql/servers/databases?tabs=bicep#sku).
 Example
 param sku object = {
@@ -53,7 +65,7 @@ param sku object = {
 }
 ''')
 param sku object = {
-  name: 'GP_Gen5'
+  name: 'GP_S_Gen5'
   tier: 'GeneralPurpose'
   family: 'Gen5'
   capacity: 2
@@ -72,12 +84,16 @@ param catalogCollation string = ''
 
 @description('Specifies the mode of database creation. Use restore/copy parameters below when not using Default mode.')
 @allowed([
-  'Default'
   'Copy'
-  'Secondary'
+  'Default'
+  'OnlineSecondary'
   'PointInTimeRestore'
   'Recovery'
   'Restore'
+  'RestoreExternalBackup'
+  'RestoreExternalBackupSecondary'
+  'RestoreLongTermRetentionBackup'
+  'Secondary'
 ])
 param createMode string = 'Default'
 
@@ -99,6 +115,9 @@ param sourceDatabaseDeletionDate string = ''
 @description('The resource identifier of the source associated with restore operations across subscriptions, where supported.')
 param sourceResourceId string = ''
 
+@description('The resource identifier of the long term retention backup associated with create operation of this database.')
+param longTermRetentionBackupResourceId string = ''
+
 @description('The license type to apply for this database. LicenseIncluded if you need a license, or BasePrice if you have a license and are eligible for the Azure Hybrid Benefit.')
 @allowed([
   'BasePrice'
@@ -114,6 +133,27 @@ param licenseType string = 'BasePrice'
   'Zone'
 ])
 param requestedBackupStorageRedundancy string = 'Zone'
+
+@description('Whether this database uses the free monthly limits. Allowed on one database in a subscription.')
+param useFreeLimit bool = false
+
+@description('The behavior to apply when free monthly limits are exhausted. Allowed only when useFreeLimit is true.')
+@allowed([
+  'AutoPause'
+  'BillOverUsage'
+])
+param freeLimitExhaustionBehavior string = 'AutoPause'
+
+@description('The managed identity to use for this SQL database. Set this to UserAssigned when per-database customer-managed keys or other identity-bound features require it.')
+param identity IdentityType = {
+  type: 'None'
+}
+
+@description('The Azure Key Vault URI of the key to use for per-database customer-managed keys.')
+param encryptionProtector string = ''
+
+@description('Whether the database encryption protector key should rotate automatically. Set this to true only when encryptionProtector is configured.')
+param encryptionProtectorAutoRotation bool = false
 
 @description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
 param diagnosticSettingsLogsCategories array = [
@@ -154,7 +194,11 @@ param databaseZoneRedundant bool = false
 ])
 param availabilityZone string = ''
 
-@description('Maintenance configuration resource ID assigned to the database. Leave empty to use SQL default maintenance behavior.')
+@description('''
+Maintenance configuration resource ID assigned to the database. Leave empty to use SQL default maintenance behavior.
+Example:
+'/subscriptions/11111111-2222-3333-4444-555555555555/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_westeurope_DB_1'
+''')
 param maintenanceConfigurationId string = ''
 
 @description('The number of secondary replicas for high availability. Leave empty to use the service default for the selected SKU.')
@@ -166,8 +210,8 @@ param isLedgerOn bool?
 @description('The max size of the database expressed in bytes')
 param maxSizeBytes int = 32 * 1024 * 1024 * 1024 // 32GB
 
-@description('For the serverless database model, ignored for the provisioned model.Time in minutes after which database is automatically paused. A value of -1 means that automatic pause is disabled')
-param autoPauseDelay int = -1
+@description('For the serverless database model, ignored for the provisioned model.Time in minutes after which database is automatically paused. A value of -1 means that automatic pause is disabled. Default is 15 minutes.')
+param autoPauseDelay int = 15
 
 @description('Minimal capacity that database will always have allocated, if not paused. To specify a decimal (0.5 0.75 ß1) value, use the json() function.')
 param minCapacity string = '0.5'
@@ -194,6 +238,11 @@ param readScaleOut string = 'Disabled'
 @description('The resource identifier of the elastic pool, this should be pre-existing.')
 param elasticPoolId string = ''
 
+// ================================================= Variables =================================================
+var usesElasticPool = !empty(elasticPoolId)
+var usesFreeLimitAutoPauseExhaustion = useFreeLimit && freeLimitExhaustionBehavior == 'AutoPause'
+var effectiveRequestedBackupStorageRedundancy = usesFreeLimitAutoPauseExhaustion ? 'Local' : requestedBackupStorageRedundancy
+
 // ================================================= Existing Resources =================================================
 @description('Fetch the SQL server to use as underlying provider for the SQL Database')
 resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
@@ -207,6 +256,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
   name: sqlDatabaseName
   location: location
   tags: tags
+  identity: identity
   sku: sku
   properties: {
     createMode: createMode
@@ -216,13 +266,29 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
     })
     elasticPoolId: elasticPoolId
     licenseType: licenseType
-    requestedBackupStorageRedundancy: requestedBackupStorageRedundancy
+    requestedBackupStorageRedundancy: effectiveRequestedBackupStorageRedundancy
+    useFreeLimit: useFreeLimit
+    ...(useFreeLimit ? {
+      freeLimitExhaustionBehavior: freeLimitExhaustionBehavior
+    } : {})
+    ...(empty(encryptionProtector) ? {} : {
+      encryptionProtector: encryptionProtector
+    })
+    ...(empty(encryptionProtector) || !encryptionProtectorAutoRotation ? {} : {
+      encryptionProtectorAutoRotation: encryptionProtectorAutoRotation
+    })
     readScale: readScaleOut
-    sampleName: empty(sampleName) ? null : sampleName
+    ...(usesElasticPool || empty(sampleName) ? {} : {
+      sampleName: sampleName
+    })
     zoneRedundant: databaseZoneRedundant
     maxSizeBytes: maxSizeBytes
-    autoPauseDelay: autoPauseDelay
-    minCapacity: json(minCapacity)
+    ...(usesElasticPool ? {} : {
+      ...(usesFreeLimitAutoPauseExhaustion ? {} : {
+        autoPauseDelay: autoPauseDelay
+      })
+      minCapacity: json(minCapacity)
+    })
     ...(empty(availabilityZone) ? {} : {
       availabilityZone: availabilityZone
     })
@@ -252,6 +318,9 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
     })
     ...(empty(sourceResourceId) ? {} : {
       sourceResourceId: sourceResourceId
+    })
+    ...(empty(longTermRetentionBackupResourceId) ? {} : {
+      longTermRetentionBackupResourceId: longTermRetentionBackupResourceId
     })
   }
 }
