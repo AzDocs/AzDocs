@@ -33,7 +33,7 @@ param sqlServerName string
 @maxLength(128)
 param sqlDatabaseName string
 
-@description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
+@description('The azure resource id of the log analytics workspace to log the diagnostics to.')
 @minLength(0)
 param logAnalyticsWorkspaceResourceId string = ''
 
@@ -61,6 +61,43 @@ param sku object = {
 
 @description('The collation of the database. Defaults to `SQL_Latin1_General_CP1_CI_AS`. For options, please refer to [collation](https://docs.microsoft.com/en-us/sql/relational-databases/collations/collation-and-unicode-support?view=sql-server-ver16#Server-level-collations).')
 param collation string = 'SQL_Latin1_General_CP1_CI_AS'
+
+@description('Collation of the metadata catalog. Leave empty to use service defaults.')
+@allowed([
+  ''
+  'DATABASE_DEFAULT'
+  'SQL_Latin1_General_CP1_CI_AS'
+])
+param catalogCollation string = ''
+
+@description('Specifies the mode of database creation. Use restore/copy parameters below when not using Default mode.')
+@allowed([
+  'Default'
+  'Copy'
+  'Secondary'
+  'PointInTimeRestore'
+  'Recovery'
+  'Restore'
+])
+param createMode string = 'Default'
+
+@description('The resource identifier of the source database associated with copy/restore/secondary create operations.')
+param sourceDatabaseId string = ''
+
+@description('Specifies the point in time (ISO8601 format) for PointInTimeRestore create mode.')
+param restorePointInTime string = ''
+
+@description('The resource identifier of the recoverable database associated with Recovery create mode.')
+param recoverableDatabaseId string = ''
+
+@description('The resource identifier of the restorable dropped database associated with Restore create mode.')
+param restorableDroppedDatabaseId string = ''
+
+@description('Specifies the time that the source database was deleted, for restore operations that require it.')
+param sourceDatabaseDeletionDate string = ''
+
+@description('The resource identifier of the source associated with restore operations across subscriptions, where supported.')
+param sourceResourceId string = ''
 
 @description('The license type to apply for this database. LicenseIncluded if you need a license, or BasePrice if you have a license and are eligible for the Azure Hybrid Benefit.')
 @allowed([
@@ -104,39 +141,27 @@ Example:
 ''')
 param tags object = {}
 
-@description('Determines if a user assigned managed identity should be created for this SQL database.')
-param createDatabaseUserAssignedManagedIdentity bool = false
-
-@description('The name of the user assigned managed identity to create for this SQL server.')
-param userAssignedManagedIdentityName string = 'id-${sqlDatabaseName}'
-
 @description('Whether or not this database is zone redundant, which means the replicas of this database will be spread across multiple availability zones.')
 param databaseZoneRedundant bool = false
 
-@description('''
-One or more managed identities running this SQL server. Defaults to a system assigned managed identity. 
-When one or more user-assigned managed identities are assigned to the server, designate one of those as the primary or default identity for the server.
-''')
-var identity = (createDatabaseUserAssignedManagedIdentity)
-  ? {
-      type: 'UserAssigned'
-      userAssignedIdentities: {
-        '${databaseUserAssignedIdentity.id}': {}
-      }
-    }
-  : { type: 'None' }
+@description('Specifies the availability zone the database is pinned to. Leave empty to use platform default behavior.')
+@allowed([
+  ''
+  '1'
+  '2'
+  '3'
+  'NoPreference'
+])
+param availabilityZone string = ''
 
-// ================================================= Existing Resources =================================================
-@description('Fetch the SQL server to use as underlying provider for the SQL Database')
-resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
-  name: sqlServerName
-}
+@description('Maintenance configuration resource ID assigned to the database. Leave empty to use SQL default maintenance behavior.')
+param maintenanceConfigurationId string = ''
 
-// ================================================= Resources =================================================
-resource databaseUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (createDatabaseUserAssignedManagedIdentity) {
-  name: userAssignedManagedIdentityName
-  location: location
-}
+@description('The number of secondary replicas for high availability. Leave empty to use the service default for the selected SKU.')
+param highAvailabilityReplicaCount int?
+
+@description('Whether this database should be created as a ledger database. Leave empty to use default behavior.')
+param isLedgerOn bool?
 
 @description('The max size of the database expressed in bytes')
 param maxSizeBytes int = 32 * 1024 * 1024 * 1024 // 32GB
@@ -146,31 +171,6 @@ param autoPauseDelay int = -1
 
 @description('Minimal capacity that database will always have allocated, if not paused. To specify a decimal (0.5 0.75 ß1) value, use the json() function.')
 param minCapacity string = '0.5'
-
-// LTR backup parameters
-@description('''
-The retention object for the long term backup retention policy. See for values the [docs](https://learn.microsoft.com/en-us/azure/azure-sql/database/long-term-retention-overview?view=azuresql).
-Example:
-W=0, M=3, Y=0
-'The first full backup of each month is kept for three months.'
-''')
-param backupRetention object = {
-  weeklyRetention: 'P4W'
-}
-
-// STR backup parameters
-@description('''
-The differential backup interval in hours. This is how many interval hours between each differential backup will be supported. This is only applicable to live databases but not dropped databases.
-See [docs](https://learn.microsoft.com/en-us/azure/azure-sql/database/automated-backups-overview?view=azuresql)
-''')
-@allowed([
-  12
-  24
-])
-param diffBackupIntervalInHours int = 12
-
-@description('The backup retention period in days. This is how many days Point-in-Time Restore will be supported.')
-param retentionDays int = 7
 
 @description('The sample name of the database to create.')
 @allowed([
@@ -194,6 +194,12 @@ param readScaleOut string = 'Disabled'
 @description('The resource identifier of the elastic pool, this should be pre-existing.')
 param elasticPoolId string = ''
 
+// ================================================= Existing Resources =================================================
+@description('Fetch the SQL server to use as underlying provider for the SQL Database')
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
+  name: sqlServerName
+}
+
 // ================================================= Resources =================================================
 @description('Upsert the SQL database with the given parameters.')
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
@@ -202,9 +208,12 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
   location: location
   tags: tags
   sku: sku
-  identity: identity
   properties: {
+    createMode: createMode
     collation: collation
+    ...(empty(catalogCollation) ? {} : {
+      catalogCollation: catalogCollation
+    })
     elasticPoolId: elasticPoolId
     licenseType: licenseType
     requestedBackupStorageRedundancy: requestedBackupStorageRedundancy
@@ -214,21 +223,36 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
     maxSizeBytes: maxSizeBytes
     autoPauseDelay: autoPauseDelay
     minCapacity: json(minCapacity)
-  }
-
-  @description('Upsert the backup long term retention policies settings for this SQL Database.')
-  resource longTermBackupPolicy 'backupLongTermRetentionPolicies@2022-11-01-preview' = {
-    name: 'default'
-    properties: backupRetention
-  }
-
-  @description('Upsert the backup short term retention policies settings for this SQL Database.')
-  resource backupShortTermRetentionPolicies 'backupShortTermRetentionPolicies@2022-05-01-preview' = {
-    name: 'default'
-    properties: {
-      diffBackupIntervalInHours: diffBackupIntervalInHours
-      retentionDays: retentionDays
-    }
+    ...(empty(availabilityZone) ? {} : {
+      availabilityZone: availabilityZone
+    })
+    ...(empty(maintenanceConfigurationId) ? {} : {
+      maintenanceConfigurationId: maintenanceConfigurationId
+    })
+    ...(highAvailabilityReplicaCount == null ? {} : {
+      highAvailabilityReplicaCount: highAvailabilityReplicaCount
+    })
+    ...(isLedgerOn == null ? {} : {
+      isLedgerOn: isLedgerOn
+    })
+    ...(empty(sourceDatabaseId) ? {} : {
+      sourceDatabaseId: sourceDatabaseId
+    })
+    ...(empty(restorePointInTime) ? {} : {
+      restorePointInTime: restorePointInTime
+    })
+    ...(empty(recoverableDatabaseId) ? {} : {
+      recoverableDatabaseId: recoverableDatabaseId
+    })
+    ...(empty(restorableDroppedDatabaseId) ? {} : {
+      restorableDroppedDatabaseId: restorableDroppedDatabaseId
+    })
+    ...(empty(sourceDatabaseDeletionDate) ? {} : {
+      sourceDatabaseDeletionDate: sourceDatabaseDeletionDate
+    })
+    ...(empty(sourceResourceId) ? {} : {
+      sourceResourceId: sourceResourceId
+    })
   }
 }
 
