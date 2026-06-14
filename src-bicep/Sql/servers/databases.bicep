@@ -255,9 +255,9 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
   parent: sqlServer
   name: sqlDatabaseName
   location: location
-  tags: tags
-  identity: identity
   sku: sku
+  identity: identity
+  tags: tags
   properties: {
     createMode: createMode
     collation: collation
@@ -327,8 +327,8 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
 
 @description('Upsert the diagnostic settings for this SQL Database.')
 resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
-  name: diagnosticsName
   scope: sqlDatabase
+  name: diagnosticsName
   properties: {
     workspaceId: logAnalyticsWorkspaceResourceId
     logs: diagnosticSettingsLogsCategories

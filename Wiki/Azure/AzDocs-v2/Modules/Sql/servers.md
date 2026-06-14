@@ -39,7 +39,7 @@ Use these dedicated modules for optional features:
 | sqlServerPublicNetworkAccess | string | <input type="checkbox"> | 'Enabled' or 'Disabled' | <pre>'Enabled'</pre> | Whether public endpoint access is allowed for this server. |
 | sqlServerRestrictOutboundNetworkAccess | string | <input type="checkbox"> | 'Enabled' or 'Disabled' | <pre>'Disabled'</pre> | Whether outbound network access is restricted for this server. |
 | sqlServerVersion | string | <input type="checkbox"> | None | <pre>'12.0'</pre> | SQL server version. |
-| sqlServerFirewallRules | array | <input type="checkbox"> | None | <pre>[]</pre> | Optional array of firewall rules in { name, start, end } format. |
+| sqlServerFirewallRules | sqlServerFirewallRuleType[] | <input type="checkbox"> | None | <pre>[]</pre> | Optional array of firewall rules in { name, start, end } format. |
 | sqlServerEncryptionKeyKeyvaultUri | string | <input type="checkbox"> | None | <pre>''</pre> | Optional CMK URI for server encryption. |
 
 ## Outputs

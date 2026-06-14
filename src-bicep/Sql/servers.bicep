@@ -90,16 +90,6 @@ param azureActiveDirectoryOnlyAuthentication bool = false
 ])
 param azureActiveDirectoryAdminPrincipalType string = 'User'
 
-@description('Entra ID administrator configuration object, applied to the server when useAzureActiveDirectoryAuthentication is true.')
-var azureActiveDirectoryLogin = {
-  administratorType: 'ActiveDirectory'
-  tenantId: subscription().tenantId
-  principalType: azureActiveDirectoryAdminPrincipalType
-  azureADOnlyAuthentication: azureActiveDirectoryOnlyAuthentication
-  login: azureActiveDirectoryAdminUserName
-  sid: azureActiveDirectoryAdminObjectId
-}
-
 @description('The username for the SQL authentication administrator. Once created it cannot be changed. Pass an empty string when using Entra ID only authentication.')
 param sqlAuthenticationAdminUsername string = ''
 
@@ -179,10 +169,32 @@ Example
     end: '0.0.0.0'
   }
 ''')
-param sqlServerFirewallRules array = []
+
+type sqlServerFirewallRuleType = {
+  @description('The name of the firewall rule.')
+  name: string
+
+  @description('The starting IPv4 address for the firewall rule.')
+  start: string
+
+  @description('The ending IPv4 address for the firewall rule.')
+  end: string
+}
+
+param sqlServerFirewallRules sqlServerFirewallRuleType[] = []
 
 @description('A CMK URI of the key to use for encryption.')
 param sqlServerEncryptionKeyKeyvaultUri string = ''
+
+@description('Entra ID administrator configuration object, applied to the server when useAzureActiveDirectoryAuthentication is true.')
+var azureActiveDirectoryLogin = {
+  administratorType: 'ActiveDirectory'
+  tenantId: subscription().tenantId
+  principalType: azureActiveDirectoryAdminPrincipalType
+  azureADOnlyAuthentication: azureActiveDirectoryOnlyAuthentication
+  login: azureActiveDirectoryAdminUserName
+  sid: azureActiveDirectoryAdminObjectId
+}
 
 @description('One or more managed identities for this SQL server. Attaches an existing user assigned managed identity when provided, otherwise defaults to system assigned only.')
 var identity = !empty(existingUserAssignedManagedIdentityResourceId)
@@ -199,8 +211,8 @@ var identity = !empty(existingUserAssignedManagedIdentityResourceId)
 resource sqlServer 'Microsoft.Sql/servers@2025-01-01' = {
   name: sqlServerName
   location: location
-  tags: tags
   identity: identity
+  tags: tags
   properties: {
     administratorLogin: azureActiveDirectoryOnlyAuthentication ? null : sqlAuthenticationAdminUsername
     administratorLoginPassword: azureActiveDirectoryOnlyAuthentication ? null : sqlAuthenticationAdminPassword
