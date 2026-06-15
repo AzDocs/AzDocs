@@ -20,6 +20,18 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers/databases.bicep:latest' = 
 */
 
 // ================================================= Parameters =================================================
+@discriminator('type')
+type IdentityType =
+  | {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      *: {}
+    }
+  }
+  | {
+    type: 'None'
+  }
+
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -33,7 +45,7 @@ param sqlServerName string
 @maxLength(128)
 param sqlDatabaseName string
 
-@description('The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled.')
+@description('The azure resource id of the log analytics workspace to log the diagnostics to.')
 @minLength(0)
 param logAnalyticsWorkspaceResourceId string = ''
 
@@ -43,7 +55,7 @@ param logAnalyticsWorkspaceResourceId string = ''
 param diagnosticsName string = 'AzurePlatformCentralizedLogging'
 
 @description('''
-The SKU object to use for this SQL Database. Defaults to a provisioned Compute tier GP_Gen5 with capacity 2 sku. 
+The SKU object to use for this SQL Database. Defaults to a serverless General Purpose tier GP_S_Gen5 with capacity 2 sku. 
 For the object format, refer to [sku](https://docs.microsoft.com/en-us/azure/templates/microsoft.sql/servers/databases?tabs=bicep#sku).
 Example
 param sku object = {
@@ -53,7 +65,7 @@ param sku object = {
 }
 ''')
 param sku object = {
-  name: 'GP_Gen5'
+  name: 'GP_S_Gen5'
   tier: 'GeneralPurpose'
   family: 'Gen5'
   capacity: 2
@@ -61,6 +73,50 @@ param sku object = {
 
 @description('The collation of the database. Defaults to `SQL_Latin1_General_CP1_CI_AS`. For options, please refer to [collation](https://docs.microsoft.com/en-us/sql/relational-databases/collations/collation-and-unicode-support?view=sql-server-ver16#Server-level-collations).')
 param collation string = 'SQL_Latin1_General_CP1_CI_AS'
+
+@description('Collation of the metadata catalog. Leave empty to use service defaults.')
+@allowed([
+  ''
+  'DATABASE_DEFAULT'
+  'SQL_Latin1_General_CP1_CI_AS'
+])
+param catalogCollation string = ''
+
+@description('Specifies the mode of database creation. Use restore/copy parameters below when not using Default mode.')
+@allowed([
+  'Copy'
+  'Default'
+  'OnlineSecondary'
+  'PointInTimeRestore'
+  'Recovery'
+  'Restore'
+  'RestoreExternalBackup'
+  'RestoreExternalBackupSecondary'
+  'RestoreLongTermRetentionBackup'
+  'Secondary'
+])
+param createMode string = 'Default'
+
+@description('The resource identifier of the source database associated with copy/restore/secondary create operations.')
+param sourceDatabaseId string = ''
+
+@description('Specifies the point in time (ISO8601 format) for PointInTimeRestore create mode.')
+param restorePointInTime string = ''
+
+@description('The resource identifier of the recoverable database associated with Recovery create mode.')
+param recoverableDatabaseId string = ''
+
+@description('The resource identifier of the restorable dropped database associated with Restore create mode.')
+param restorableDroppedDatabaseId string = ''
+
+@description('Specifies the time that the source database was deleted, for restore operations that require it.')
+param sourceDatabaseDeletionDate string = ''
+
+@description('The resource identifier of the source associated with restore operations across subscriptions, where supported.')
+param sourceResourceId string = ''
+
+@description('The resource identifier of the long term retention backup associated with create operation of this database.')
+param longTermRetentionBackupResourceId string = ''
 
 @description('The license type to apply for this database. LicenseIncluded if you need a license, or BasePrice if you have a license and are eligible for the Azure Hybrid Benefit.')
 @allowed([
@@ -77,6 +133,27 @@ param licenseType string = 'BasePrice'
   'Zone'
 ])
 param requestedBackupStorageRedundancy string = 'Zone'
+
+@description('Whether this database uses the free monthly limits. Allowed on one database in a subscription.')
+param useFreeLimit bool = false
+
+@description('The behavior to apply when free monthly limits are exhausted. Allowed only when useFreeLimit is true.')
+@allowed([
+  'AutoPause'
+  'BillOverUsage'
+])
+param freeLimitExhaustionBehavior string = 'AutoPause'
+
+@description('The managed identity to use for this SQL database. Set this to UserAssigned when per-database customer-managed keys or other identity-bound features require it.')
+param identity IdentityType = {
+  type: 'None'
+}
+
+@description('The Azure Key Vault URI of the key to use for per-database customer-managed keys.')
+param encryptionProtector string = ''
+
+@description('Whether the database encryption protector key should rotate automatically. Set this to true only when encryptionProtector is configured.')
+param encryptionProtectorAutoRotation bool = false
 
 @description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
 param diagnosticSettingsLogsCategories array = [
@@ -104,73 +181,40 @@ Example:
 ''')
 param tags object = {}
 
-@description('Determines if a user assigned managed identity should be created for this SQL database.')
-param createDatabaseUserAssignedManagedIdentity bool = false
-
-@description('The name of the user assigned managed identity to create for this SQL server.')
-param userAssignedManagedIdentityName string = 'id-${sqlDatabaseName}'
-
 @description('Whether or not this database is zone redundant, which means the replicas of this database will be spread across multiple availability zones.')
 param databaseZoneRedundant bool = false
 
+@description('Specifies the availability zone the database is pinned to. Leave empty to use platform default behavior.')
+@allowed([
+  ''
+  '1'
+  '2'
+  '3'
+  'NoPreference'
+])
+param availabilityZone string = ''
+
 @description('''
-One or more managed identities running this SQL server. Defaults to a system assigned managed identity. 
-When one or more user-assigned managed identities are assigned to the server, designate one of those as the primary or default identity for the server.
+Maintenance configuration resource ID assigned to the database. Leave empty to use SQL default maintenance behavior.
+Example:
+'/subscriptions/11111111-2222-3333-4444-555555555555/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_westeurope_DB_1'
 ''')
-var identity = (createDatabaseUserAssignedManagedIdentity)
-  ? {
-      type: 'UserAssigned'
-      userAssignedIdentities: {
-        '${databaseUserAssignedIdentity.id}': {}
-      }
-    }
-  : { type: 'None' }
+param maintenanceConfigurationId string = ''
 
-// ================================================= Existing Resources =================================================
-@description('Fetch the SQL server to use as underlying provider for the SQL Database')
-resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' existing = {
-  name: sqlServerName
-}
+@description('The number of secondary replicas for high availability. Leave empty to use the service default for the selected SKU.')
+param highAvailabilityReplicaCount int?
 
-// ================================================= Resources =================================================
-resource databaseUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (createDatabaseUserAssignedManagedIdentity) {
-  name: userAssignedManagedIdentityName
-  location: location
-}
+@description('Whether this database should be created as a ledger database. Leave empty to use default behavior.')
+param isLedgerOn bool?
 
 @description('The max size of the database expressed in bytes')
 param maxSizeBytes int = 32 * 1024 * 1024 * 1024 // 32GB
 
-@description('For the serverless database model, ignored for the provisioned model.Time in minutes after which database is automatically paused. A value of -1 means that automatic pause is disabled')
-param autoPauseDelay int = -1
+@description('For the serverless database model, ignored for the provisioned model.Time in minutes after which database is automatically paused. A value of -1 means that automatic pause is disabled. Default is 15 minutes.')
+param autoPauseDelay int = 15
 
 @description('Minimal capacity that database will always have allocated, if not paused. To specify a decimal (0.5 0.75 ß1) value, use the json() function.')
 param minCapacity string = '0.5'
-
-// LTR backup parameters
-@description('''
-The retention object for the long term backup retention policy. See for values the [docs](https://learn.microsoft.com/en-us/azure/azure-sql/database/long-term-retention-overview?view=azuresql).
-Example:
-W=0, M=3, Y=0
-'The first full backup of each month is kept for three months.'
-''')
-param backupRetention object = {
-  weeklyRetention: 'P4W'
-}
-
-// STR backup parameters
-@description('''
-The differential backup interval in hours. This is how many interval hours between each differential backup will be supported. This is only applicable to live databases but not dropped databases.
-See [docs](https://learn.microsoft.com/en-us/azure/azure-sql/database/automated-backups-overview?view=azuresql)
-''')
-@allowed([
-  12
-  24
-])
-param diffBackupIntervalInHours int = 12
-
-@description('The backup retention period in days. This is how many days Point-in-Time Restore will be supported.')
-param retentionDays int = 7
 
 @description('The sample name of the database to create.')
 @allowed([
@@ -194,48 +238,97 @@ param readScaleOut string = 'Disabled'
 @description('The resource identifier of the elastic pool, this should be pre-existing.')
 param elasticPoolId string = ''
 
+// ================================================= Variables =================================================
+var usesElasticPool = !empty(elasticPoolId)
+var usesFreeLimitAutoPauseExhaustion = useFreeLimit && freeLimitExhaustionBehavior == 'AutoPause'
+var effectiveRequestedBackupStorageRedundancy = usesFreeLimitAutoPauseExhaustion ? 'Local' : requestedBackupStorageRedundancy
+
+// ================================================= Existing Resources =================================================
+@description('Fetch the SQL server to use as underlying provider for the SQL Database')
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
+  name: sqlServerName
+}
+
 // ================================================= Resources =================================================
 @description('Upsert the SQL database with the given parameters.')
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
   parent: sqlServer
   name: sqlDatabaseName
   location: location
-  tags: tags
   sku: sku
   identity: identity
+  tags: tags
   properties: {
+    createMode: createMode
     collation: collation
+    ...(empty(catalogCollation) ? {} : {
+      catalogCollation: catalogCollation
+    })
     elasticPoolId: elasticPoolId
     licenseType: licenseType
-    requestedBackupStorageRedundancy: requestedBackupStorageRedundancy
+    requestedBackupStorageRedundancy: effectiveRequestedBackupStorageRedundancy
+    useFreeLimit: useFreeLimit
+    ...(useFreeLimit ? {
+      freeLimitExhaustionBehavior: freeLimitExhaustionBehavior
+    } : {})
+    ...(empty(encryptionProtector) ? {} : {
+      encryptionProtector: encryptionProtector
+    })
+    ...(empty(encryptionProtector) || !encryptionProtectorAutoRotation ? {} : {
+      encryptionProtectorAutoRotation: encryptionProtectorAutoRotation
+    })
     readScale: readScaleOut
-    sampleName: empty(sampleName) ? null : sampleName
+    ...(usesElasticPool || empty(sampleName) ? {} : {
+      sampleName: sampleName
+    })
     zoneRedundant: databaseZoneRedundant
     maxSizeBytes: maxSizeBytes
-    autoPauseDelay: autoPauseDelay
-    minCapacity: json(minCapacity)
-  }
-
-  @description('Upsert the backup long term retention policies settings for this SQL Database.')
-  resource longTermBackupPolicy 'backupLongTermRetentionPolicies@2022-11-01-preview' = {
-    name: 'default'
-    properties: backupRetention
-  }
-
-  @description('Upsert the backup short term retention policies settings for this SQL Database.')
-  resource backupShortTermRetentionPolicies 'backupShortTermRetentionPolicies@2022-05-01-preview' = {
-    name: 'default'
-    properties: {
-      diffBackupIntervalInHours: diffBackupIntervalInHours
-      retentionDays: retentionDays
-    }
+    ...(usesElasticPool ? {} : {
+      ...(usesFreeLimitAutoPauseExhaustion ? {} : {
+        autoPauseDelay: autoPauseDelay
+      })
+      minCapacity: json(minCapacity)
+    })
+    ...(empty(availabilityZone) ? {} : {
+      availabilityZone: availabilityZone
+    })
+    ...(empty(maintenanceConfigurationId) ? {} : {
+      maintenanceConfigurationId: maintenanceConfigurationId
+    })
+    ...(highAvailabilityReplicaCount == null ? {} : {
+      highAvailabilityReplicaCount: highAvailabilityReplicaCount
+    })
+    ...(isLedgerOn == null ? {} : {
+      isLedgerOn: isLedgerOn
+    })
+    ...(empty(sourceDatabaseId) ? {} : {
+      sourceDatabaseId: sourceDatabaseId
+    })
+    ...(empty(restorePointInTime) ? {} : {
+      restorePointInTime: restorePointInTime
+    })
+    ...(empty(recoverableDatabaseId) ? {} : {
+      recoverableDatabaseId: recoverableDatabaseId
+    })
+    ...(empty(restorableDroppedDatabaseId) ? {} : {
+      restorableDroppedDatabaseId: restorableDroppedDatabaseId
+    })
+    ...(empty(sourceDatabaseDeletionDate) ? {} : {
+      sourceDatabaseDeletionDate: sourceDatabaseDeletionDate
+    })
+    ...(empty(sourceResourceId) ? {} : {
+      sourceResourceId: sourceResourceId
+    })
+    ...(empty(longTermRetentionBackupResourceId) ? {} : {
+      longTermRetentionBackupResourceId: longTermRetentionBackupResourceId
+    })
   }
 }
 
 @description('Upsert the diagnostic settings for this SQL Database.')
 resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceResourceId)) {
-  name: diagnosticsName
   scope: sqlDatabase
+  name: diagnosticsName
   properties: {
     workspaceId: logAnalyticsWorkspaceResourceId
     logs: diagnosticSettingsLogsCategories
