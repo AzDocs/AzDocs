@@ -34,10 +34,10 @@ Creating an elastic pool with the given specs.
 | elasticPoolAvailabilityZone | elasticPoolAvailabilityZoneType | <input type="checkbox"> | None | <pre>'NoPreference'</pre> | The availability zone for the Elastic Pool. |
 | elasticPoolHighAvailabilityMode | int | <input type="checkbox"> | Value between 0-3 | <pre>1</pre> | The high availability replica count for the Elastic Pool. |
 | elasticPoolMaxSizeBytes | int | <input type="checkbox"> | None | <pre>268435456000 // 250 GB</pre> | The maximum size in bytes for the Elastic Pool. |
-| elasticPoolAutoPauseDelay | int? | <input type="checkbox"> | Minimum value is -1 | <pre>null</pre> | The time in minutes after which the elastic pool is automatically paused. Set to -1 to disable automatic pause. Leave null to omit this property. |
+| elasticPoolAutoPauseDelay | int? | <input type="checkbox" checked> | Value between -1-* | <pre></pre> | The time in minutes after which the elastic pool is automatically paused. Set to -1 to disable automatic pause. Leave null to omit this property. |
 | elasticPoolMaintenanceConfigurationId | string | <input type="checkbox"> | None | <pre>''</pre> | The maintenance configuration resource identifier assigned to the elastic pool. Leave empty to omit this property. |
-| elasticPoolMinCapacity | int? | <input type="checkbox"> | None | <pre>null</pre> | The minimum capacity that a serverless elastic pool will not shrink below when it is not paused. Leave null to omit this property. |
-| databaseAutoPauseDelay | int? | <input type="checkbox"> | Minimum value is -1 | <pre>null</pre> | The per-database auto pause delay in minutes within the elastic pool. Set to -1 to disable automatic pause. Leave null to omit this property. |
+| elasticPoolMinCapacity | int? | <input type="checkbox" checked> | None | <pre></pre> | The minimum capacity that a serverless elastic pool will not shrink below when it is not paused. Leave null to omit this property. |
+| databaseAutoPauseDelay | int? | <input type="checkbox" checked> | Value between -1-* | <pre></pre> | The per-database auto pause delay in minutes within the elastic pool. Set to -1 to disable automatic pause. Leave null to omit this property. |
 | elasticPoolPreferredEnclave | elasticPoolPreferredEnclaveType | <input type="checkbox"> | None | <pre>'Default'</pre> | The preferred enclave type for the Elastic Pool. |
 | sku | elasticPoolSku | <input type="checkbox"> | None | <pre>{<br>  name: 'GP_Gen5'<br>  tier: 'GeneralPurpose'<br>  size: 'GeneralPurpose'<br>  family: 'Gen5'<br>  capacity: 2<br>}</pre> | The SKU object to use for this Elastic Pool. Defaults to a standard pool. <br>Example<br>param sku object = {<br>&nbsp;&nbsp;&nbsp;name: 'PremiumPool'<br>&nbsp;&nbsp;&nbsp;tier: 'Premium'<br>} |
 
