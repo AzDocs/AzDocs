@@ -210,7 +210,7 @@ param clientAffinityEnabled bool = true
 param clientAffinityProxyEnabled bool = false
 
 @description('Virtual Network `route all` enabled. This causes all outbound traffic to have Virtual Network Network Security Groups (nsg) and User Defined Routes applied.')
-param vnetRouteAllEnabled bool = false
+param vnetRouteAllEnabled bool = true
 
 @description('''
 The `Always On` feature of Azure App Service, keeps the host process running.
