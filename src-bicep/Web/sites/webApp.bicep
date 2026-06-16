@@ -292,7 +292,7 @@ param deploySlot bool = true
 @description('''
 Determines whether app settings, connection strings, and restart-triggering site configuration are deployed to the production slot.
 Set this to `false` for blue/green (slot swap) deployments to prevent production restarts during infrastructure provisioning.
-When `false`, only non-restart-triggering settings (IP restrictions, TLS, CORS, FTP state, HTTP/2) are applied to production.
+When `false`, only non-restart-triggering settings (IP restrictions, TLS, CORS, FTP state, HTTP/2, VNet routing, alwaysOn, numberOfWorkers) are applied to production.
 The staging slot always receives the full configuration regardless of this setting.
 After a slot swap, the staging slot's configuration becomes production.
 For greenfield (first-time) deployments, either leave as `true` or perform an initial swap after the first deployment.
@@ -451,11 +451,11 @@ var slotSpecificSiteConfig = {
   ftpsState: ftpsState
   http20Enabled: http20Enabled
   numberOfWorkers: numberOfWorkers
+  alwaysOn: alwaysOn
 }
 
 @description('Site configuration that is swapped during slot swap. When applyConfigToProductionSlot is false, these are only deployed to the staging slot and propagated to production via swap.')
 var swappableSiteConfig = {
-  alwaysOn: alwaysOn
   use32BitWorkerProcess: use32BitWorkerProcess
   netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
   minimumElasticInstanceCount: minimumElasticInstanceCount ?? 0
