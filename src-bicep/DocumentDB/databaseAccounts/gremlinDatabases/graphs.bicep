@@ -1,23 +1,54 @@
 metadata name = 'DocumentDB Database Accounts Gremlin Databases Graphs'
-metadata description = 'This module deploys a DocumentDB Database Accounts Gremlin Database Graph.'
+metadata description = 'This module deploys a Gremlin graph within a Cosmos DB Gremlin database.'
 
+/*
+.SYNOPSIS
+Creating a document db Gremlin graph.
+.DESCRIPTION
+This module creates a document db Gremlin graph within an existing Gremlin database.
+.EXAMPLE
+<pre>
+module gremlinGraph 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts/gremlindatabases/graphs:latest' = {
+  name: 'Creating_a_document_db_gremlin_graph'
+  scope: resourceGroup
+  params: {
+    databaseAccountName: 'mydocumentdb'
+    gremlinDatabaseName: 'mygremlindatabase'
+    name: 'mygraph'
+    partitionKeyPaths: [
+      '/id'
+    ]
+    tags: {
+      environment: 'dev'
+    }
+  }
+}
+</pre>
+<p>Creates a document db Gremlin graph with the given specs</p>
+.LINKS
+- [Bicep Microsoft.DocumentDB databaseAccounts gremlinDatabases graphs](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/2025-04-15/databaseaccounts/gremlindatabases/graphs)
+*/
 @description('Required. Name of the graph.')
 param name string
 
-@description('Optional. Tags of the Gremlin graph resource.')
+@description('Optional. Tags for the Gremlin graph resource.')
 param tags resourceInput<'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2025-04-15'>.tags?
 
-@description('Conditional. The name of the parent Database Account. Required if the template is used in a standalone deployment.')
+@description('The name of the parent DocumentDB account. This DocumentDB instance should already exist.')
+@minLength(3)
+@maxLength(44)
 param databaseAccountName string
 
-@description('Conditional. The name of the parent Gremlin Database. Required if the template is used in a standalone deployment.')
+@description('The name of the parent Gremlin database. This Gremlin database should already exist.')
 param gremlinDatabaseName string
 
-@description('Optional. Indexing policy of the graph.')
+@description('Optional. The indexing policy to apply to the graph.')
 param indexingPolicy resourceInput<'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2025-04-15'>.properties.resource.indexingPolicy?
 
-@description('Optional. List of paths using which data within the container can be partitioned.')
-param partitionKeyPaths resourceInput<'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2025-04-15'>.properties.resource.partitionKey.paths?
+@description('Optional. The list of partition key paths to apply to the graph. Defaults to `/id`.')
+param partitionKeyPaths array = [
+  '/id'
+]
 
 resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' existing = {
   name: databaseAccountName

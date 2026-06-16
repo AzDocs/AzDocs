@@ -1,19 +1,46 @@
 metadata name = 'DocumentDB Database Account Gremlin Databases'
-metadata description = 'This module deploys a Gremlin Database within a CosmosDB Account.'
+metadata description = 'This module deploys a Gremlin database within a Cosmos DB account.'
 
+/*
+.SYNOPSIS
+Creating a document db Gremlin database.
+.DESCRIPTION
+This module creates a document db Gremlin database within an existing document db account.
+.EXAMPLE
+<pre>
+module gremlinDatabase 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts/gremlindatabases:latest' = {
+  name: 'Creating_a_document_db_gremlin_database'
+  scope: resourceGroup
+  params: {
+    databaseAccountName: 'mydocumentdb'
+    name: 'mygremlindatabase'
+    maxThroughput: 4000
+    throughput: null
+    tags: {
+      environment: 'dev'
+    }
+  }
+}
+</pre>
+<p>Creates a document db Gremlin database with the given specs</p>
+.LINKS
+- [Bicep Microsoft.DocumentDB databaseAccounts gremlinDatabases](https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/2025-04-15/databaseaccounts/gremlindatabases)
+*/
 @description('Required. Name of the Gremlin database.')
 param name string
 
-@description('Optional. Tags of the Gremlin database resource.')
-param tags resourceInput<'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2024-11-15'>.tags?
+@description('Optional. Tags for the Gremlin database resource.')
+param tags resourceInput<'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2025-04-15'>.tags?
 
-@description('Conditional. The name of the parent Gremlin database. Required if the template is used in a standalone deployment.')
+@description('The name of the DocumentDB instance to create the Gremlin database on. This DocumentDB instance should already exist.')
+@minLength(3)
+@maxLength(44)
 param databaseAccountName string
 
-@description('Optional. Represents maximum throughput, the resource can scale up to. Cannot be set together with `throughput`. If `throughput` is set to something else than -1, this autoscale setting is ignored. Setting throughput at the database level is only recommended for development/test or when workload across all graphs in the shared throughput database is uniform. For best performance for large production workloads, it is recommended to set dedicated throughput (autoscale or manual) at the graph level and not at the database level.')
+@description('Optional. Represents the maximum throughput the database can scale up to. Cannot be set together with `throughput`. If `throughput` is set, this autoscale setting is ignored. Setting throughput at the database level is recommended only for development, test, or uniformly shared workloads across all graphs.')
 param maxThroughput int = 4000
 
-@description('Optional. Request Units per second (for example 10000). Cannot be set together with `maxThroughput`. Setting throughput at the database level is only recommended for development/test or when workload across all graphs in the shared throughput database is uniform. For best performance for large production workloads, it is recommended to set dedicated throughput (autoscale or manual) at the graph level and not at the database level.')
+@description('Optional. Request Units per second for the Gremlin database, for example 10000. Cannot be set together with `maxThroughput`. For large production workloads, prefer dedicated throughput at the graph level.')
 param throughput int?
 
 resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' existing = {
