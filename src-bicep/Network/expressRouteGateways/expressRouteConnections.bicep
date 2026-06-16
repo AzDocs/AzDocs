@@ -48,9 +48,6 @@ param enableInternetSecurity bool = false
 @description('Optional. Enable FastPath to vNet for the ExpressRoute connection.')
 param enableDirectConnect bool = false
 
-@description('Optional. Bypass the ExpressRoute gateway when accessing private-links.')
-param expressRouteGatewayBypass bool = false
-
 // ================================================= Resources =================================================
 
 resource expressRouteGateway 'Microsoft.Network/expressRouteGateways@2025-07-01' existing = {
@@ -67,7 +64,6 @@ resource expressRouteConnection 'Microsoft.Network/expressRouteGateways/expressR
     routingWeight: routingWeight
     authorizationKey: !empty(authorizationKey) ? authorizationKey : null
     enableInternetSecurity: enableInternetSecurity
-    enablePrivateLinkFastPath: expressRouteGatewayBypass
     routingConfiguration: enableDirectConnect ? {
       associatedRouteTable: {
         id: '${expressRouteGateway.id}/hubRouteTables/defaultRouteTable'
