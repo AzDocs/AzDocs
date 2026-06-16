@@ -28,7 +28,6 @@ Creating an ExpressRoute Circuit Peering with the given specs. Supports Azure Pr
 | microsoftPeeringConfig | object | <input type="checkbox"> | None | <pre>{}</pre> | Optional. The Microsoft peering configuration. Required for MicrosoftPeering type. |
 | ipv6PeeringConfig | object | <input type="checkbox"> | None | <pre>{}</pre> | Optional. The IPv6 peering configuration. |
 | connections | array | <input type="checkbox"> | None | <pre>[]</pre> | Optional. The list of circuit connections associated with Azure Private Peering for this circuit. |
-| stats | object | <input type="checkbox"> | None | <pre>{}</pre> | Optional. The peering stats of the ExpressRoute circuit. |
 
 ## Outputs
 | Name | Type | Description |
