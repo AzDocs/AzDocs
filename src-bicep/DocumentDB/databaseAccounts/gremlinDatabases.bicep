@@ -1,6 +1,3 @@
-metadata name = 'DocumentDB Database Account Gremlin Databases'
-metadata description = 'This module deploys a Gremlin database within a Cosmos DB account.'
-
 /*
 .SYNOPSIS
 Creating a document db Gremlin database.
@@ -29,8 +26,15 @@ module gremlinDatabase 'br:contosoregistry.azurecr.io/documentdb/databaseaccount
 @description('Required. Name of the Gremlin database.')
 param name string
 
-@description('Optional. Tags for the Gremlin database resource.')
-param tags resourceInput<'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2025-04-15'>.tags?
+@description('''
+The tags to apply to this resource. This is an object with key/value pairs.
+Example:
+{
+  FirstTag: myvalue
+  SecondTag: another value
+}
+''')
+param tags object = {}
 
 @description('The name of the DocumentDB instance to create the Gremlin database on. This DocumentDB instance should already exist.')
 @minLength(3)

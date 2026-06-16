@@ -1,6 +1,3 @@
-metadata name = 'DocumentDB Database Accounts Gremlin Databases Graphs'
-metadata description = 'This module deploys a Gremlin graph within a Cosmos DB Gremlin database.'
-
 /*
 .SYNOPSIS
 Creating a document db Gremlin graph.
