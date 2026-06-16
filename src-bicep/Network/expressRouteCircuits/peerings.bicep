@@ -118,9 +118,6 @@ param ipv6PeeringConfig object = {}
 @description('Optional. The list of circuit connections associated with Azure Private Peering for this circuit.')
 param connections array = []
 
-@description('Optional. The peering stats of the ExpressRoute circuit.')
-param stats object = {}
-
 // ================================================= Resources =================================================
 
 @description('Reference to the existing ExpressRoute Circuit.')
@@ -147,7 +144,6 @@ resource peering 'Microsoft.Network/expressRouteCircuits/peerings@2025-07-01' = 
     secondaryPeerAddressPrefix: secondaryPeerAddressPrefix
     sharedKey: !empty(sharedKey) ? sharedKey : null
     state: state
-    stats: !empty(stats) ? stats : null
     vlanId: vlanId
   }
 }
