@@ -51,6 +51,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | clientCertMode | string | <input type="checkbox"> | None | <pre>''</pre> | This setting is linked to the clientCertEnabled parameter.<br>ClientCertEnabled: false means ClientCert is ignored.<br>ClientCertEnabled: true and ClientCertMode: Required, means ClientCert is required.<br>ClientCertEnabled: true and ClientCertMode: Optional means ClientCert is optional or allow.<br>Example:<br>'Optional',<br>'OptionalInteractiveUser',<br>'Required' |
 | publicNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` or `''` | <pre>'Enabled'</pre> | Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled` or an empty string. |
 | deploySlot | bool | <input type="checkbox"> | None | <pre>true</pre> | Determine whether to deploy a staging slot in the webApp (default: true). |
+| applyConfigToProductionSlot | bool | <input type="checkbox"> | None | <pre>true</pre> | Determines whether app settings, connection strings, and restart-triggering site configuration are deployed to the production slot.<br>Set this to `false` for blue/green (slot swap) deployments to prevent production restarts during infrastructure provisioning.<br>When `false`, only non-restart-triggering settings (IP restrictions, TLS, CORS, FTP state, HTTP/2, VNet routing, alwaysOn, numberOfWorkers) are applied to production.<br>The staging slot always receives the full configuration regardless of this setting.<br>After a slot swap, the staging slot's configuration becomes production.<br>For greenfield (first-time) deployments, either leave as `true` or perform an initial swap after the first deployment. |
 | use32BitWorkerProcess | bool | <input type="checkbox"> | None | <pre>true</pre> | Use 32-bit worker process on 64-bit platform. Uses 64-bit worker process if false. Default is true (will use 32-bit). |
 | cors | object | <input type="checkbox"> | None | <pre>{}</pre> | Gets or sets the list of origins that should be allowed to make cross-origin calls (for example: http://example.com:12345).<br>Use "*" to allow all in the allowedOrigins array. The wildcard (*) is ignored if there's another domain entry.<br>Info about supportCredentials: [link](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#Requests_with_credentials)<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;allowedOrigins: [<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://functions.azure.com'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://functions-staging.azure.com'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://functions-next.azure.com'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://portal.azure.com'<br>&nbsp;&nbsp;&nbsp;]<br>&nbsp;&nbsp;&nbsp;supportCredentials: false<br>} |
 | numberOfWorkers | int | <input type="checkbox"> | None | <pre>2</pre> | Number to indicate on how many instances the app will run. |
@@ -120,6 +121,24 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
 }
 </pre>
 <p>Creates a WebApp with the name 'webAppName'</p>
+<p>Blue/green deployment example (zero-downtime):</p>
+<pre>
+module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 57), 'webapp')
+  params: {
+    appServiceName: webAppName
+    appServicePlanName: appServicePlan.outputs.appServicePlanResourceName
+    appInsightsName: appInsights.outputs.appInsightsName
+    appServicePlanResourceGroupName: appServicePlanResourceGroupName
+    location: location
+    appSettings: { MY_SETTING: 'value' }
+    connectionStrings: {}
+    deploySlot: true
+    applyConfigToProductionSlot: false // Prevents production restart during infra deployment
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+  }
+}
+</pre>
 
 ## Links
 - [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)<br>
