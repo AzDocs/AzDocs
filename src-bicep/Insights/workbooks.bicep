@@ -36,8 +36,7 @@ param displayName string
 param identity object?
 
 @description('Optional workbook kind. Only "shared" is supported currently.')
-@allowed(['shared'])
-param kind string = 'shared'
+param kind resourceInput<'Microsoft.Insights/workbooks@2023-06-01'>.kind = 'shared'
 
 @description('The geo-location where the resource lives.')
 param location string

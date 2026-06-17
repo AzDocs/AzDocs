@@ -11,7 +11,6 @@ Target Scope: resourceGroup
 | <a id="postgresStorageAutoGrow">postgresStorageAutoGrow</a>  | <pre>'Disabled' &#124; 'Enabled'</pre> |  | Storage autogrow flag to enable / disable storage auto grow for flexible server. | 
 | <a id="postgresStorageTier">postgresStorageTier</a>  | <pre></pre> |  | Storage tier for IOPS. | 
 | <a id="postgresSkuTier">postgresSkuTier</a>  | <pre>'Burstable' &#124; 'GeneralPurpose' &#124; 'MemoryOptimized'</pre> |  | The tier of the particular SKU, e.g. Burstable. | 
-| <a id="userAssignedIdentity">userAssignedIdentity</a>  | <pre>'None' &#124; 'UserAssigned'</pre> |  | The types of identities associated with this resource; currently restricted to None and UserAssigned | 
 | <a id="publicNetworkAccessType">publicNetworkAccessType</a>  | <pre>'Enabled' &#124; 'Disabled'</pre> |  | The public network access for the Postgres server. | 
 | <a id="geoRedundantBackupType">geoRedundantBackupType</a>  | <pre>'Enabled' &#124; 'Disabled'</pre> |  | The availability zone. | 
 | <a id="highAvailabilityModeType">highAvailabilityModeType</a>  | <pre>'Disabled' &#124; 'SameZone' &#124; 'ZeroRedundant'</pre> |  | The high availability mode. | 
@@ -44,7 +43,7 @@ Creating a Postgres server with the given specs.
 | storageTier | postgresStorageTier | <input type="checkbox"> | None | <pre>'P1'</pre> |  |
 | skuName | string | <input type="checkbox"> | None | <pre>'Standard_D4s_v5'</pre> | The name of the sku, typically, tier + family + cores, e.g. Standard_D4s_v3. |
 | skuTier | postgresSkuTier | <input type="checkbox"> | None | <pre>'GeneralPurpose'</pre> |  |
-| userAssignedIdentityType | userAssignedIdentity | <input type="checkbox"> | None | <pre>createPostgresUserAssignedManagedIdentity</pre> |  |
+| userAssignedIdentityType | resourceInput<'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01'>.identity.type | <input type="checkbox"> | None | <pre>createPostgresUserAssignedManagedIdentity</pre> | The types of identities associated with this resource; currently restricted to None and UserAssigned |
 | postgresSqlDatabaseName | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The Database name of the postgres sql database |
 | publicNetworkAccess | publicNetworkAccessType | <input type="checkbox"> | None | <pre>'Disabled'</pre> |  |
 | geoRedundantBackup | geoRedundantBackupType | <input type="checkbox" checked> | None | <pre></pre> |  |
