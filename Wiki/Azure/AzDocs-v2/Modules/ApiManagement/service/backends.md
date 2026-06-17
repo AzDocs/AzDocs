@@ -17,7 +17,7 @@ Creating a backend instance in an existing Api Management Service.
 | doValidateCertificateChain | bool | <input type="checkbox"> | None | <pre>true</pre> | Flag indicating whether SSL certificate chain validation should be done when using self-signed certificates for this backend host. Default is true. |
 | doValidateCertificateName | bool | <input type="checkbox"> | None | <pre>true</pre> | Flag indicating whether SSL certificate name validation should be done when using self-signed certificates for this backend host. Default is true. |
 | pool | resourceInput<'Microsoft.ApiManagement/service/backends@2023-05-01-preview'>.properties.pool? | <input type="checkbox" checked> | None | <pre></pre> | Conditional. Backend pool configuration for load balancing. Required if type is Pool and not supported if type is Single. |
-| type | string | <input type="checkbox"> | None | <pre>'Single'</pre> | Optional. Type of the backend. A backend can be either Single or Pool. |
+| type | resourceInput<'Microsoft.ApiManagement/service/backends@2023-05-01-preview'>.properties.type | <input type="checkbox"> | None | <pre>'Single'</pre> | Optional. Type of the backend. A backend can be either Single or Pool. |
 | url | string? | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | Conditional. Runtime Url of the Backend. Required if type is Single and not supported if type is Pool. |
 | protocol | string | <input type="checkbox"> | `'http'` or `'soap'` | <pre>'http'</pre> | Backend communication protocol. You need to define one type. |
 
