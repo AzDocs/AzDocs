@@ -18,7 +18,6 @@ Creating an ExpressRoute Gateway Connection that wires an ExpressRoute circuit's
 | authorizationKey | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. Authorization key to establish the connection (required for cross-subscription circuits). |
 | enableInternetSecurity | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. Enable internet security (route internet-bound traffic through the hub firewall). |
 | enableDirectConnect | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. Enable FastPath to vNet for the ExpressRoute connection. |
-| expressRouteGatewayBypass | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. Bypass the ExpressRoute gateway when accessing private-links. |
 
 ## Outputs
 | Name | Type | Description |
