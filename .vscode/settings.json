@@ -6,4 +6,8 @@
     "powershell.codeFormatting.useConstantStrings": true,
     "powershell.codeFormatting.useCorrectCasing": true,
     "powershell.codeFormatting.whitespaceBetweenParameters": true,
+    "chat.tools.terminal.autoApprove": {
+        ".\\Tools\\Reorder-BicepPropertyOrder.ps1": true,
+        "Invoke-Pester": true
+    },
 }

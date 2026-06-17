@@ -355,9 +355,11 @@ func verifyStorageIOps(
 
 // ================================================= Resources =================================================
 resource sqlManagedInstance 'Microsoft.Sql/managedInstances@2024-05-01-preview' = {
-  identity: identity
-  location: location
   name: sqlManagedInstanceName
+  location: location
+  sku: sku
+  identity: identity
+  tags: tags
   properties: {
     // Required properties for managed instance creation
     administratorLogin: administratorLogin
@@ -417,8 +419,6 @@ resource sqlManagedInstance 'Microsoft.Sql/managedInstances@2024-05-01-preview' 
     restorePointInTime: managedInstanceCreateMode == 'PointInTimeRestore' ? restorePointInTime : null
     sourceManagedInstanceId: managedInstanceCreateMode == 'PointInTimeRestore' ? sourceManagedInstanceId : null
   }
-  sku: sku
-  tags: tags
 }
 
 // ================================================= Outputs =================================================

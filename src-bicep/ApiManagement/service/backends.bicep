@@ -68,8 +68,7 @@ param doValidateCertificateName bool = true
 param pool resourceInput<'Microsoft.ApiManagement/service/backends@2023-05-01-preview'>.properties.pool?
 
 @description('Optional. Type of the backend. A backend can be either Single or Pool.')
-@allowed(['Single', 'Pool'])
-param type string = 'Single'
+param type resourceInput<'Microsoft.ApiManagement/service/backends@2023-05-01-preview'>.properties.type = 'Single'
 
 @description('Conditional. Runtime Url of the Backend. Required if type is Single and not supported if type is Pool.')
 @minLength(1)
