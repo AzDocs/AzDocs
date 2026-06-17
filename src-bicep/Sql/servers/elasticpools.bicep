@@ -157,16 +157,14 @@ resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
 // ================================================= Resources =================================================
 resource elasticPool 'Microsoft.Sql/servers/elasticPools@2025-01-01' = {
   parent: sqlServer
-  location: location
   name: elasticPoolName
+  location: location
   sku: sku
   properties: {
     perDatabaseSettings: {
       minCapacity: databaseCapacityMin
       maxCapacity: databaseCapacityMax
-      ...(databaseAutoPauseDelay == null ? {} : {
-        autoPauseDelay: databaseAutoPauseDelay
-      })
+      ...(databaseAutoPauseDelay != null ? { autoPauseDelay: databaseAutoPauseDelay } : {})
     }
     preferredEnclaveType: elasticPoolPreferredEnclave
     licenseType: elasticPoolLicense
@@ -174,15 +172,9 @@ resource elasticPool 'Microsoft.Sql/servers/elasticPools@2025-01-01' = {
     availabilityZone: elasticPoolAvailabilityZone
     highAvailabilityReplicaCount: elasticPoolHighAvailabilityMode
     maxSizeBytes: elasticPoolMaxSizeBytes
-    ...(elasticPoolAutoPauseDelay == null ? {} : {
-      autoPauseDelay: elasticPoolAutoPauseDelay
-    })
-    ...(empty(elasticPoolMaintenanceConfigurationId) ? {} : {
-      maintenanceConfigurationId: elasticPoolMaintenanceConfigurationId
-    })
-    ...(elasticPoolMinCapacity == null ? {} : {
-      minCapacity: elasticPoolMinCapacity
-    })
+    ...(elasticPoolAutoPauseDelay != null ? {autoPauseDelay: elasticPoolAutoPauseDelay } : {})
+    ...(!empty(elasticPoolMaintenanceConfigurationId) ? {  maintenanceConfigurationId: elasticPoolMaintenanceConfigurationId } : {})
+    ...(elasticPoolMinCapacity != null ? {  minCapacity: elasticPoolMinCapacity  } : {})
   }
 }
 

@@ -62,28 +62,6 @@ param storageEndpoint string = ''
 
 var useCustomStorageForThreatDetection = !empty(storageEndpoint) && !empty(storageAccountAccessKey)
 
-var securityAlertPolicyProperties = union(
-  {
-    state: securityAlertPolicyState
-  },
-  length(disabledAlerts) > 0 ? {
-    disabledAlerts: disabledAlerts
-  } : {},
-  emailAccountAdmins ? {
-    emailAccountAdmins: emailAccountAdmins
-  } : {},
-  length(emailAddresses) > 0 ? {
-    emailAddresses: emailAddresses
-  } : {},
-  retentionDays > 0 ? {
-    retentionDays: retentionDays
-  } : {},
-  useCustomStorageForThreatDetection ? {
-    storageAccountAccessKey: storageAccountAccessKey
-    storageEndpoint: storageEndpoint
-  } : {}
-)
-
 // ================================================= Existing Resources =================================================
 @description('Fetch the existing SQL server to apply security alert settings to.')
 resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
@@ -95,7 +73,17 @@ resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
 resource sqlServerAdvancedSecurityAssessment 'Microsoft.Sql/servers/securityAlertPolicies@2025-01-01' = {
   parent: sqlServer
   name: 'Default'
-  properties: securityAlertPolicyProperties
+  properties: {
+    state: securityAlertPolicyState
+    ...(!empty(disabledAlerts) ? { disabledAlerts:  disabledAlerts } : {})
+    ...(emailAccountAdmins ? { emailAccountAdmins: emailAccountAdmins } : {})
+    ...(!empty(emailAddresses) ? { emailAddresses: emailAddresses } : {})
+    ...(retentionDays > 0 ? { retentionDays: retentionDays } : {})
+    ...(useCustomStorageForThreatDetection ? {
+          storageAccountAccessKey: storageAccountAccessKey
+          storageEndpoint: storageEndpoint
+        } : {})
+  }
 }
 
 @description('Output the name of the SQL server security alert policy.')

@@ -20,18 +20,6 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers/databases.bicep:latest' = 
 */
 
 // ================================================= Parameters =================================================
-@discriminator('type')
-type IdentityType =
-  | {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      *: {}
-    }
-  }
-  | {
-    type: 'None'
-  }
-
 @description('Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location.')
 param location string = resourceGroup().location
 
@@ -64,7 +52,7 @@ param sku object = {
   capacity: 0
 }
 ''')
-param sku object = {
+param sku resourceInput<'Microsoft.Sql/servers/databases@2025-01-01'>.sku = {
   name: 'GP_S_Gen5'
   tier: 'GeneralPurpose'
   family: 'Gen5'
@@ -83,19 +71,7 @@ param collation string = 'SQL_Latin1_General_CP1_CI_AS'
 param catalogCollation string = ''
 
 @description('Specifies the mode of database creation. Use restore/copy parameters below when not using Default mode.')
-@allowed([
-  'Copy'
-  'Default'
-  'OnlineSecondary'
-  'PointInTimeRestore'
-  'Recovery'
-  'Restore'
-  'RestoreExternalBackup'
-  'RestoreExternalBackupSecondary'
-  'RestoreLongTermRetentionBackup'
-  'Secondary'
-])
-param createMode string = 'Default'
+param createMode resourceInput<'Microsoft.Sql/servers/databases@2025-01-01'>.properties.createMode = 'Default'
 
 @description('The resource identifier of the source database associated with copy/restore/secondary create operations.')
 param sourceDatabaseId string = ''
@@ -145,7 +121,7 @@ param useFreeLimit bool = false
 param freeLimitExhaustionBehavior string = 'AutoPause'
 
 @description('The managed identity to use for this SQL database. Set this to UserAssigned when per-database customer-managed keys or other identity-bound features require it.')
-param identity IdentityType = {
+param identity resourceInput<'Microsoft.Sql/servers/databases@2025-01-01'>.identity = {
   type: 'None'
 }
 
@@ -156,7 +132,7 @@ param encryptionProtector string = ''
 param encryptionProtectorAutoRotation bool = false
 
 @description('Which log categories to enable; This defaults to `allLogs`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep#logsettings).')
-param diagnosticSettingsLogsCategories array = [
+param diagnosticSettingsLogsCategories resourceInput<'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'>.properties.logs = [
   {
     categoryGroup: 'allLogs'
     enabled: true
@@ -164,9 +140,9 @@ param diagnosticSettingsLogsCategories array = [
 ]
 
 @description('Which Metrics categories to enable; This defaults to `AllMetrics`. For array/object format, please refer to [docs](https://docs.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings?tabs=bicep&pivots=deployment-language-bicep#metricsettings).')
-param diagnosticSettingsMetricsCategories array = [
+param diagnosticSettingsMetricsCategories resourceInput<'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'>.properties.metrics = [
   {
-    categoryGroup: 'AllMetrics'
+    category: 'AllMetrics'
     enabled: true
   }
 ]

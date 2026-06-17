@@ -82,7 +82,7 @@ This requires a separate diagnostic settings for SQLSecurityAuditEvents having b
 param auditingSettingsIsAzureMonitorTargetEnabled bool = true
 
 @description('List of audit action groups to enable.')
-param auditActionsAndGroups array = [
+param auditActionsAndGroups resourceInput<'Microsoft.Sql/servers/auditingsettings@2025-01-01'>.properties.auditActionsAndGroups = [
   'BATCH_COMPLETED_GROUP'
   'SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP'
   'FAILED_DATABASE_AUTHENTICATION_GROUP'
@@ -121,8 +121,6 @@ param eventHubName string = ''
 @description('The resource ID of the Storage Account for SQL audit diagnostics archival. Leave empty to skip this destination.')
 param diagnosticsStorageAccountResourceId string = ''
 
-// ================================================= Variables =================================================
-var deployMasterDiagnosticSettings = enableMasterDiagnosticSettings
 
 // ================================================= Existing Resources =================================================
 @description('Fetch the existing SQL server to apply auditing settings to.')
@@ -177,7 +175,7 @@ resource devOpsAuditingSettings 'Microsoft.Sql/servers/devOpsAuditingSettings@20
 }
 
 @description('Create diagnostic settings on the SQL master database to route SQL audit events to configured destinations.')
-resource sqlAuditDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployMasterDiagnosticSettings) {
+resource sqlAuditDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableMasterDiagnosticSettings) {
   scope: masterDatabase
   name: diagnosticSettingsName
   properties: {
@@ -212,4 +210,4 @@ output auditingSettingsName string = sqlServerAuditingSettings.name
 @description('Output the name of the SQL DevOps auditing settings resource.')
 output devOpsAuditingSettingsName string = enableDevOpsAuditingSettings ? devOpsAuditingSettings.name : ''
 @description('Output the name of the SQL master database diagnostic settings resource.')
-output sqlAuditDiagnosticSettingsName string = deployMasterDiagnosticSettings ? sqlAuditDiagnosticSettings.name : ''
+output sqlAuditDiagnosticSettingsName string = enableMasterDiagnosticSettings ? sqlAuditDiagnosticSettings.name : ''
