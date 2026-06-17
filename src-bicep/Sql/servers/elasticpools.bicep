@@ -13,6 +13,7 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers/elasticpools.bicep:latest'
       tier: 'GeneralPurpose'
       capacity: 2
       family: 'Gen5'
+      size: 'GeneralPurpose'
     }
     sqlServerName: sqlserver.outputs.sqlServerName
     location: location
@@ -25,6 +26,10 @@ module sql 'br:contosoregistry.azurecr.io/sql/servers/elasticpools.bicep:latest'
     elasticPoolAvailabilityZone: 'NoPreference'
     elasticPoolHighAvailabilityMode: 1
     elasticPoolMaxSizeBytes: 268435456000 // 250 GB
+    elasticPoolAutoPauseDelay: 60
+    elasticPoolMaintenanceConfigurationId: resourceId('Microsoft.Maintenance/publicMaintenanceConfigurations', 'SQL_Default')
+    elasticPoolMinCapacity: 0.5
+    databaseAutoPauseDelay: 60
   }
 }
 </pre>
@@ -73,6 +78,20 @@ param elasticPoolHighAvailabilityMode int = 1
 @description('The maximum size in bytes for the Elastic Pool.')
 param elasticPoolMaxSizeBytes int = 268435456000 // 250 GB
 
+@minValue(-1)
+@description('The time in minutes after which the elastic pool is automatically paused. Set to -1 to disable automatic pause. Leave null to omit this property.')
+param elasticPoolAutoPauseDelay int?
+
+@description('The maintenance configuration resource identifier assigned to the elastic pool. Leave empty to omit this property.')
+param elasticPoolMaintenanceConfigurationId string = ''
+
+@description('The minimum capacity that a serverless elastic pool will not shrink below when it is not paused. Leave null to omit this property.')
+param elasticPoolMinCapacity int?
+
+@minValue(-1)
+@description('The per-database auto pause delay in minutes within the elastic pool. Set to -1 to disable automatic pause. Leave null to omit this property.')
+param databaseAutoPauseDelay int?
+
 @description('The preferred enclave type of the Elastic Pool. For options, please refer to [elasticPoolPreferredEnclaveType].')
 type elasticPoolPreferredEnclaveType = 'Default' | 'VBS'
 
@@ -103,6 +122,9 @@ type elasticPoolSku = {
   @description('The tier of the Elastic Pool SKU.')
   tier: elasticPoolSkuTier
 
+  @description('The size of the Elastic Pool SKU.')
+  size: elasticPoolSkuSize?
+
   @description('The family of the Elastic Pool SKU.')
   family: elasticPoolSkuFamily?
 
@@ -121,26 +143,28 @@ param sku object = {
 param sku elasticPoolSku = {
   name: 'GP_Gen5'
   tier: 'GeneralPurpose'
+  size: 'GeneralPurpose'
   family: 'Gen5'
   capacity: 2
 } //default sku for elastic pool
 
 // ================================================= Existing Resources =================================================
 @description('Fetch the SQL server to use as underlying provider for the SQL Database')
-resource sqlServer 'Microsoft.Sql/servers@2024-05-01-preview' existing = {
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' existing = {
   name: sqlServerName
 }
 
 // ================================================= Resources =================================================
-resource elasticPool 'Microsoft.Sql/servers/elasticPools@2024-05-01-preview' = {
+resource elasticPool 'Microsoft.Sql/servers/elasticPools@2025-01-01' = {
   parent: sqlServer
-  location: location
   name: elasticPoolName
+  location: location
   sku: sku
   properties: {
     perDatabaseSettings: {
       minCapacity: databaseCapacityMin
       maxCapacity: databaseCapacityMax
+      ...(databaseAutoPauseDelay != null ? { autoPauseDelay: databaseAutoPauseDelay } : {})
     }
     preferredEnclaveType: elasticPoolPreferredEnclave
     licenseType: elasticPoolLicense
@@ -148,6 +172,9 @@ resource elasticPool 'Microsoft.Sql/servers/elasticPools@2024-05-01-preview' = {
     availabilityZone: elasticPoolAvailabilityZone
     highAvailabilityReplicaCount: elasticPoolHighAvailabilityMode
     maxSizeBytes: elasticPoolMaxSizeBytes
+    ...(elasticPoolAutoPauseDelay != null ? {autoPauseDelay: elasticPoolAutoPauseDelay } : {})
+    ...(!empty(elasticPoolMaintenanceConfigurationId) ? {  maintenanceConfigurationId: elasticPoolMaintenanceConfigurationId } : {})
+    ...(elasticPoolMinCapacity != null ? {  minCapacity: elasticPoolMinCapacity  } : {})
   }
 }
 

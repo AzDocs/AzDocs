@@ -11,6 +11,15 @@ AzDocs is a secure-by-default Azure infrastructure library with dual implementat
 
 The repository is designed for Azure DevOps integration, providing compliant, production-ready Azure resources with comprehensive logging, HTTPS enforcement, and centralized diagnostics.
 
+## Copilot Instruction Layering
+
+When generating or modifying PowerShell code, apply the path-specific instruction files in `.github/instructions/`:
+
+- `powershell.instructions.md` for `**/*.ps1` and `**/*.psm1`
+- `powershell-pester-5.instructions.md` for `**/*.Tests.ps1`
+
+If both this file and path-specific instruction files apply, follow all applicable rules. For conflicts, prefer the more specific path-targeted instruction.
+
 ## Architecture & Organization
 
 ### Dual Code Paths
