@@ -56,9 +56,9 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' exis
 }
 
 resource gremlinGraph 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2025-04-15' = {
+  parent: databaseAccount::gremlinDatabase
   name: name
   tags: tags
-  parent: databaseAccount::gremlinDatabase
   properties: {
     resource: {
       id: name

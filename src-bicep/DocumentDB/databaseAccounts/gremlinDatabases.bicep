@@ -47,25 +47,35 @@ param maxThroughput int = 4000
 @description('Optional. Request Units per second for the Gremlin database, for example 10000. Cannot be set together with `maxThroughput`. For large production workloads, prefer dedicated throughput at the graph level.')
 param throughput int?
 
+var accountCapabilities = databaseAccount.properties.capabilities ?? []
+
+var isServerless = contains(string(accountCapabilities), 'EnableServerless')
+
+var databaseOptions = isServerless
+  ? {}
+  : {
+      ...(throughput == null
+        ? {
+            autoscaleSettings: {
+              maxThroughput: maxThroughput
+            }
+          }
+        : {})
+      ...(throughput != null
+        ? {
+            throughput: throughput ?? 0
+          }
+        : {})
+    }
+
 resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' existing = {
   name: databaseAccountName
 }
 
-var databaseOptions = contains(databaseAccount.properties.capabilities, { name: 'EnableServerless' })
-  ? {}
-  : {
-      autoscaleSettings: throughput == null
-        ? {
-            maxThroughput: maxThroughput
-          }
-        : null
-      throughput: throughput
-    }
-
 resource gremlinDatabase 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2025-04-15' = {
+  parent: databaseAccount
   name: name
   tags: tags
-  parent: databaseAccount
   properties: {
     options: databaseOptions
     resource: {
