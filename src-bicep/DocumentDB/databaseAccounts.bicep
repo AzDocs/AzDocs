@@ -77,10 +77,10 @@ param mongoDbServerVersion string = '7.0'
 /*
 Not supported capabilities have been removed from the allowed list to prevent confusion.
 'EnableCassandra' - Needs additional configuration, which is currently not supported by this module.
-'EnableGremlin' - Needs additional configuration, which is currently not supported by this module.
 */
 @allowed([
   'EnableTable'
+  'EnableGremlin'
   'EnableMongo'
   'DisableRateLimitingResponses'
   'EnableServerless'
@@ -248,7 +248,13 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' = {
       totalThroughputLimit: totalThroughputLimit
     }
     ipRules: ipsToWhitelist
-    disableLocalAuth: true
+    ...(contains(capabilitiesToAdd ?? [], 'EnableGremlin') ? {
+      // Key-based authentication is the only allowed authentication method with Azure Cosmos DB for Apache Gremlin.
+      disableLocalAuth: false
+      disableKeyBasedMetadataWriteAccess: false
+    } : {
+      disableLocalAuth: true
+    })
   }
 }
 
