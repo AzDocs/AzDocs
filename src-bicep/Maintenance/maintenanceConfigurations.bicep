@@ -156,12 +156,12 @@ resource maintenanceConfiguration 'Microsoft.Maintenance/maintenanceConfiguratio
   tags: tags
   properties: {
     maintenanceScope: maintenanceScope
-    installPatches: {
+    installPatches: maintenanceScope == 'InGuestPatch' ? {
       linuxParameters: installPatchesLinuxParameters
       windowsParameters: installPatchesWindowsParameters
       rebootSetting: rebootSetting
       tasks: tasks
-    }
+    } : null
     extensionProperties: extensionProperties
     maintenanceWindow: maintenanceWindow
     namespace: namespaceMaintenanceConfiguration
