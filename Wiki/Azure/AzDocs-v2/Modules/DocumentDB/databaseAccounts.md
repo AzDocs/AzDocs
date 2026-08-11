@@ -11,7 +11,8 @@ Target Scope: resourceGroup
 Creating a document db account with the given specs.
 
 ## Description
-This module creates a document db account with the given specs.
+This module creates a document db account with the given specs.<br>
+When the 'EnableServerless' capability is added, the account is created in serverless capacity mode: the total throughput limit is omitted and free tier is forced off, since neither is supported for serverless accounts. All other callers are unaffected.
 
 ## Parameters
 | Name | Type | Required | Validation | Default value | Description |
@@ -32,8 +33,8 @@ This module creates a document db account with the given specs.
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox" checked> | None | <pre></pre> | The resource id of the Log Analytics workspace to send diagnostics data to. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The tag object.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For example (in YAML):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationID: 1234<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationName: MyCmdbAppName<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationOwner: myproductowner@company.com<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AppTechOwner: myteam@company.com<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BillingIdentifier: 123456<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BusinessUnit: MyBusinessUnit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CostType: Application<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EnvironmentType: dev<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PipelineBuildNumber: 2022.08.02-main<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PipelineRunUrl: https://dev.azure.com/org/TeamProject/_build/results?buildId=1234&view=results |
 | publicNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` or `'SecuredByPerimeter'` | <pre>'Enabled'</pre> |  |
-| totalThroughputLimit | int | <input type="checkbox"> | None | <pre>1000</pre> | The capacity for the DocumentDB account. Defaults to totallimit 1000 RU/s. |
-| enableFreeTier | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable free tier for the DocumentDB account. Defaults to false. |
+| totalThroughputLimit | int | <input type="checkbox"> | None | <pre>1000</pre> | The capacity for the DocumentDB account. Defaults to totallimit 1000 RU/s. Ignored for serverless accounts (the EnableServerless capability), where a total throughput limit is not supported. |
+| enableFreeTier | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable free tier for the DocumentDB account. Defaults to false. Forced to false for serverless accounts (the EnableServerless capability), where free tier is not supported. |
 | enableBurstCapacity | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable burst capacity for the DocumentDB account. Defaults to false. |
 | enablePartitionMerge | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable partition merge for the DocumentDB account. Defaults to false. |
 | enablePerRegionPerPartitionAutoscale | bool | <input type="checkbox"> | None | <pre>false</pre> | Enable per-region per-partition autoscale for the DocumentDB account. Defaults to false. |
