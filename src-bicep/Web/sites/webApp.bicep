@@ -15,6 +15,7 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
         principalType: 'ServicePrincipal'
         roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' // website contributor
       }
+    ]
     appInsightsName: appInsights.outputs.appInsightsName
     appServicePlanResourceGroupName: appServicePlanResourceGroupName
     ipSecurityRestrictions: union(homeIps, [
