@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="principalTypes">principalTypes</a>  | <pre></pre> |  | The type of principal you want to assign the role to. | 
+| <a id="principalTypes">principalTypes</a>  | <pre>&nbsp;&nbsp;&nbsp;&#124; 'User'<br>&nbsp;&nbsp;&nbsp;&#124; 'Group'<br>&nbsp;&nbsp;&nbsp;&#124; 'ServicePrincipal'<br>&nbsp;&nbsp;&nbsp;&#124; 'Unknown'<br>&nbsp;&nbsp;&nbsp;&#124; 'DirectoryRoleTemplate'<br>&nbsp;&nbsp;&nbsp;&#124; 'ForeignGroup'<br>&nbsp;&nbsp;&nbsp;&#124; 'Application'<br>&nbsp;&nbsp;&nbsp;&#124; 'MSI'<br>&nbsp;&nbsp;&nbsp;&#124; 'DirectoryObjectOrGroup'<br>&nbsp;&nbsp;&nbsp;&#124; 'Everyone'<br></pre> |  | The type of principal you want to assign the role to. | 
 
 ## Synopsis
 Assign a role on the servicebus queue scope to a identity

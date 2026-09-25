@@ -6,21 +6,21 @@ Target Scope: resourceGroup
 Creating logger in an existing Api Management Service.
 
 ## Description
-Creating logger in an existing Api Management Service.<br>
-<pre><br>
-module logger 'br:contosoregistry.azurecr.io/service/loggers.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 57), 'logger')<br>
-  params: {<br>
-    apiManagementServiceName: apimPost.outputs.apiManagementServiceName<br>
-    loggerType: 'applicationInsights'<br>
-    loggerName: 'appInsightsLogger'<br>
-    loggerDescription: 'Application Insights for APIM'<br>
-    resourceId: appInsights.outputs.appInsightsResourceId<br>
-    credentials: {<br>
-      instrumentationKey: namedValueAppInsightsKey.outputs.namedValueValue<br>
-    }<br>
-  }<br>
-}<br>
+Creating logger in an existing Api Management Service.
+<pre>
+module logger 'br:contosoregistry.azurecr.io/service/loggers.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 57), 'logger')
+  params: {
+    apiManagementServiceName: apimPost.outputs.apiManagementServiceName
+    loggerType: 'applicationInsights'
+    loggerName: 'appInsightsLogger'
+    loggerDescription: 'Application Insights for APIM'
+    resourceId: appInsights.outputs.appInsightsResourceId
+    credentials: {
+      instrumentationKey: namedValueAppInsightsKey.outputs.namedValueValue
+    }
+  }
+}
 </pre><br>
 <p>Creates a logger with the name appInsightsLogger .</p>
 

@@ -6,17 +6,17 @@ Target Scope: resourceGroup
 Creating a policy fragement to re-use in a policy definition in an existing Api Management Service.
 
 ## Description
-Creating a policy fragement to re-use in a policy definition in an existing Api Management Service.<br>
-<pre><br>
-module policyFragment 'br:contosoregistry.azurecr.io/service/policyFragments.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 57), 'policyFragment')<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    name: policyFragmentName<br>
-    fragmentDescription: description<br>
-    fragmentValue: value<br>
-  }<br>
-}<br>
+Creating a policy fragement to re-use in a policy definition in an existing Api Management Service.
+<pre>
+module policyFragment 'br:contosoregistry.azurecr.io/service/policyFragments.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 57), 'policyFragment')
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    name: policyFragmentName
+    fragmentDescription: description
+    fragmentValue: value
+  }
+}
 </pre><br>
 <p>Creates a policy fragment with the name policyFragmentName.</p>
 

@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+> [!NOTE]
+> This module uses Bicep resource-derived types (`resourceInput<>` / `resourceOutput<>`).
+> - [Resource-derived types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-data-types#resource-derived-types)
+> - [Bicep data types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/data-types)
+
 ## Synopsis
 Azure Firewall Policy module.
 
@@ -12,7 +17,7 @@ Add an Azure Firewall Policy to the resource group. This can be linked to an Azu
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Location for all resources. |
-| tags | resourceInput<'Microsoft.Network/firewallPolicies@2025-05-01'>.tags? | <input type="checkbox" checked> | None | <pre></pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
+| tags | [resourceInput<'Microsoft.Network/firewallPolicies@2025-05-01'>.tags](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-05-01/firewallpolicies?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Schema-constrained (resource-derived type) | <pre></pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | firewallPolicyName | string | <input type="checkbox" checked> | None | <pre></pre> | The name of the firewall policy. |
 | basePolicyResourceId | string? | <input type="checkbox" checked> | None | <pre></pre> | Optional. Resource ID of the base policy. |
 | enableProxy | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. Enable DNS Proxy on Firewalls attached to the Firewall Policy. |

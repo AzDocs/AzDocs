@@ -6,23 +6,23 @@ Target Scope: resourceGroup
 Creating an Action Group.
 
 ## Description
-Creating an Action Group for Azure Monitor.<br>
-<pre><br>
-module action group 'br:contosoregistry.azurecr.io/insights/actiongroups:latest' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 52), 'actiongroup')<br>
-  params: {<br>
-    actionGroupName: 'ag-appl-dev'<br>
-    groupShortName: 'agappldev'<br>
-    emailReceivers: [<br>
-        {<br>
-            name: 'testemailfunction'<br>
-            emailAddress: 'first.last@email.com'<br>
-            useCommonAlertSchema: false<br>
-            status: 'Enabled'<br>
-        }<br>
-    ]<br>
-  }<br>
-}<br>
+Creating an Action Group for Azure Monitor.
+<pre>
+module action group 'br:contosoregistry.azurecr.io/insights/actiongroups:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 52), 'actiongroup')
+  params: {
+    actionGroupName: 'ag-appl-dev'
+    groupShortName: 'agappldev'
+    emailReceivers: [
+        {
+            name: 'testemailfunction'
+            emailAddress: 'first.last@email.com'
+            useCommonAlertSchema: false
+            status: 'Enabled'
+        }
+    ]
+  }
+}
 </pre><br>
 <p>Configures a smart detection rule with the name 'Degradation in dependency duration' that is integrated in applicationInsights.</p>
 

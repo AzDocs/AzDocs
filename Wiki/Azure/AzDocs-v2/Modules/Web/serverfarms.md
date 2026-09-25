@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+> [!NOTE]
+> This module uses Bicep resource-derived types (`resourceInput<>` / `resourceOutput<>`).
+> - [Resource-derived types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-data-types#resource-derived-types)
+> - [Bicep data types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/data-types)
+
 ## Synopsis
 Creating a serverfarms (AppService Plan) instance with the given specs.
 
@@ -12,8 +17,8 @@ Creating a serverfarms (AppService Plan) instance with the given specs.
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | appServicePlanName | string | <input type="checkbox" checked> | Length between 1-40 | <pre></pre> | The resourcename for the app service plan to upsert. |
-| appServicePlanSku | resourceInput<'Microsoft.Web/serverfarms@2025-03-01'>.sku | <input type="checkbox"> | None | <pre>{<br>  name: 'P1v3'<br>  capacity: 1<br>}</pre> | The sku object for this app service plan. For object format, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/serverfarms?tabs=bicep#skudescription.<br>Defaults to:<br>{<br>&nbsp;&nbsp;&nbsp;name: 'P1v3'<br>&nbsp;&nbsp;&nbsp;capacity: 1<br>}<br>Valid SKU names (at the time of writing) include: B1, B2, B3, D1, F1, FC1, FREE, I1, I1v2, I2, I2v2, I3, I3v2, P1V2, P1V3, P2V2, P2V3, P3V2, P3V3, S1, S2, S3, SHARED, WS1, WS2, WS3<br>For a Flex Consumption plan, specify `{ name: 'FC1', tier: 'FlexConsumption' }` and use `functionapp` for the app service plan kind. |
-| appServicePlanOsType | resourceInput<'Microsoft.Web/serverfarms@2025-03-01'>.kind | <input type="checkbox"> | `'app'` or `'functionapp'` or `'windows'` or `'linux'` or `'elastic'` | <pre>'app'</pre> | The server farm kind. Use windows for Windows, linux for Linux, or app, functionapp, or elastic with appServicePlanReserved to select the worker operating system. Defaults to app, which uses Windows. For FC1, use functionapp because Flex Consumption always uses Linux. |
+| appServicePlanSku | [resourceInput<'Microsoft.Web/serverfarms@2025-03-01'>.sku](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/2025-03-01/serverfarms?pivots=deployment-language-bicep) | <input type="checkbox"> | Schema-constrained (resource-derived type) | <pre>{<br>  name: 'P1v3'<br>  capacity: 1<br>}</pre> | The sku object for this app service plan. For object format, refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.web/serverfarms?tabs=bicep#skudescription.<br>Defaults to:<br>{<br>&nbsp;&nbsp;&nbsp;name: 'P1v3'<br>&nbsp;&nbsp;&nbsp;capacity: 1<br>}<br>Valid SKU names (at the time of writing) include: B1, B2, B3, D1, F1, FC1, FREE, I1, I1v2, I2, I2v2, I3, I3v2, P1V2, P1V3, P2V2, P2V3, P3V2, P3V3, S1, S2, S3, SHARED, WS1, WS2, WS3<br>For a Flex Consumption plan, specify `{ name: 'FC1', tier: 'FlexConsumption' }` and use `functionapp` for the app service plan kind. |
+| appServicePlanOsType | [resourceInput<'Microsoft.Web/serverfarms@2025-03-01'>.kind](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/2025-03-01/serverfarms?pivots=deployment-language-bicep) | <input type="checkbox"> | `'app'` or `'functionapp'` or `'windows'` or `'linux'` or `'elastic'` | <pre>'app'</pre> | The server farm kind. Use windows for Windows, linux for Linux, or app, functionapp, or elastic with appServicePlanReserved to select the worker operating system. Defaults to app, which uses Windows. For FC1, use functionapp because Flex Consumption always uses Linux. |
 | appServicePlanReserved | bool | <input type="checkbox"> | None | <pre>false</pre> | Sets the worker operating system for app, functionapp, and elastic kinds. Set to true for Linux and false for Windows. Defaults to Windows. Flex Consumption always uses Linux, and explicit linux or windows kinds take precedence. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | appServicePlanPerSiteScaling | bool | <input type="checkbox"> | None | <pre>true</pre> | If true, apps assigned to this App Service plan can be scaled independently.<br>If false, apps assigned to this App Service plan will scale to all instances of the plan.<br>This value is ignored and set to null for Flex Consumption plans. |

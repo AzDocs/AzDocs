@@ -6,18 +6,18 @@ Target Scope: resourceGroup
 Creating a Smart Detector Alert Rule. 
 
 ## Description
-Creating a Smart Detector Alert Rule. Can be used to create the new type of Azure Monitor Application Insights smart detection rules (alerts view (preview)).<br>
-<pre><br>
-module smartrules 'br:contosoregistry.azurecr.io/alertsmanagement/smartdetectoralertrules:latest' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 53), 'smartrules')<br>
-  params: {<br>
-    appInsightsName: appInsights.outputs.appInsightsName<br>
-    smartDetectorAlertRuleDescription: 'Dependency Latency Degradation notifies you of an unusual increase in response by a dependency your app is calling (e.g. REST API or database).'<br>
-    smartDetectorAlertRuleDetectorId: 'DependencyPerformanceDegradationDetector'<br>
-    smartDetectorAlertRuleName: 'Failure Anomalies - ${applicationInsightsName}'<br>
-    smartDetectorAlertRuleFrequency: 'P1D'<br>
-  }<br>
-}<br>
+Creating a Smart Detector Alert Rule. Can be used to create the new type of Azure Monitor Application Insights smart detection rules (alerts view (preview)).
+<pre>
+module smartrules 'br:contosoregistry.azurecr.io/alertsmanagement/smartdetectoralertrules:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 53), 'smartrules')
+  params: {
+    appInsightsName: appInsights.outputs.appInsightsName
+    smartDetectorAlertRuleDescription: 'Dependency Latency Degradation notifies you of an unusual increase in response by a dependency your app is calling (e.g. REST API or database).'
+    smartDetectorAlertRuleDetectorId: 'DependencyPerformanceDegradationDetector'
+    smartDetectorAlertRuleName: 'Failure Anomalies - ${applicationInsightsName}'
+    smartDetectorAlertRuleFrequency: 'P1D'
+  }
+}
 </pre><br>
 <p>Creates a smart detection rule with the name 'DependencyPerformanceDegradationDetector' and displayname 'Dependency Latency Degradation - appinsights-dev'.</p>
 

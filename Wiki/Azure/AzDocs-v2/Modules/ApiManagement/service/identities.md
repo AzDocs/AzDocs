@@ -6,26 +6,26 @@ Target Scope: resourceGroup
 Register or modify an identity provider in Api Management Service.
 
 ## Description
-Register a new or modify an identity provider (for exampl AAD) in Api Management Service.<br>
-<pre><br>
-module diagnostics 'br:contosoregistry.azurecr.io/service/identities.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 58), 'identities')<br>
-  params: {<br>
-    allowedTenants: allowedTenants<br>
-    apiManagementServiceName: 'apim-irma-${environentType}'<br>
-    authority: authority<br>
-    authenticationType: authenticationType<br>
-    clientId: clientId<br>
-    clientLibrary: clientLibrary<br>
-    clientSecret: clientSecret<br>
-    name: name<br>
-    passwordResetPolicyName: passwordResetPolicyName<br>
-    profileEditingPolicyName: profileEditingPolicyName<br>
-    signinPolicyName: signinPolicyName<br>
-    signinTenant: signinTenant<br>
-    signupPolicyName: signupPolicyName<br>
-  }<br>
-}<br>
+Register a new or modify an identity provider (for exampl AAD) in Api Management Service.
+<pre>
+module diagnostics 'br:contosoregistry.azurecr.io/service/identities.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 58), 'identities')
+  params: {
+    allowedTenants: allowedTenants
+    apiManagementServiceName: 'apim-irma-${environentType}'
+    authority: authority
+    authenticationType: authenticationType
+    clientId: clientId
+    clientLibrary: clientLibrary
+    clientSecret: clientSecret
+    name: name
+    passwordResetPolicyName: passwordResetPolicyName
+    profileEditingPolicyName: profileEditingPolicyName
+    signinPolicyName: signinPolicyName
+    signinTenant: signinTenant
+    signupPolicyName: signupPolicyName
+  }
+}
 </pre><br>
 <p>Register a new or modify an identity provider (for exampl AAD) </p>
 

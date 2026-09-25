@@ -6,22 +6,22 @@ Target Scope: resourceGroup
 Creating a product resource in an existing Api Management Service.
 
 ## Description
-Creating a product resource in an existing Api Management Service.<br>
-<pre><br>
-module products 'br:contosoregistry.azurecr.io/service/products.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 46), 'products')<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    approvalRequired: approvalRequired<br>
-    productDescription: productDescription<br>
-    productDisplayName: productDisplayName<br>
-    name: productName<br>
-    state: state<br>
-    subscriptionRequired: subscriptionRequired<br>
-    subscriptionLimit: subscriptionLimit<br>
-    terms: terms<br>
-  }<br>
-}<br>
+Creating a product resource in an existing Api Management Service.
+<pre>
+module products 'br:contosoregistry.azurecr.io/service/products.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 46), 'products')
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    approvalRequired: approvalRequired
+    productDescription: productDescription
+    productDisplayName: productDisplayName
+    name: productName
+    state: state
+    subscriptionRequired: subscriptionRequired
+    subscriptionLimit: subscriptionLimit
+    terms: terms
+  }
+}
 </pre><br>
 <p>Creates a product resource with the specified parameters.</p>
 

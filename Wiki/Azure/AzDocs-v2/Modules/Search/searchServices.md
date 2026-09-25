@@ -5,8 +5,8 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="aadOrApiKeyAuthOption">aadOrApiKeyAuthOption</a>  | <pre>{</pre> |  | Azure AD or API key authentication option for data plane | 
-| <a id="authOptions">authOptions</a>  | <pre>{</pre> |  | Data plane authentication options for the search service | 
+| <a id="aadOrApiKeyAuthOption">aadOrApiKeyAuthOption</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;@description('Describes what response the data plane API would send for requests that failed authentication')<br>&nbsp;&nbsp;&nbsp;aadAuthFailureMode: 'http401WithBearerChallenge' &#124; 'http403'<br>}<br></pre> |  | Azure AD or API key authentication option for data plane | 
+| <a id="authOptions">authOptions</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;@description('Indicates that either the API key or an access token from a Microsoft Entra ID tenant can be used for authentication')<br>&nbsp;&nbsp;&nbsp;aadOrApiKey: aadOrApiKeyAuthOption?<br><br>&nbsp;&nbsp;&nbsp;@description('Indicates that only the API key can be used for authentication')<br>&nbsp;&nbsp;&nbsp;apiKeyOnly: object?<br>}<br></pre> |  | Data plane authentication options for the search service | 
 | <a id="dataExfiltrationProtection">dataExfiltrationProtection</a>  | <pre>'BlockAll'</pre> |  | Data exfiltration protection scenarios that can be explicitly disallowed for the search service | 
 
 ## Synopsis
@@ -29,10 +29,10 @@ Creating an Azure Search Service with the given specifications. This module supp
 | networkRuleSetBypass | string | <input type="checkbox"> | `'None'` or `'AzureServices'` | <pre>'None'</pre> | The bypass options for network access control. |
 | hostingMode | string | <input type="checkbox"> | `'default'` or `'highDensity'` | <pre>'default'</pre> | The hosting mode for the search service. |
 | disableLocalAuth | bool | <input type="checkbox"> | None | <pre>true</pre> | Whether local authentication is disabled. |
-| authenticationOptions | authOptions? | <input type="checkbox" checked> | None | <pre></pre> | Defines the options for how the data plane API of a search service authenticates requests. This cannot be set if disableLocalAuth is set to true. |
+| authenticationOptions | [authOptions](#authOptions)? | <input type="checkbox" checked> | None | <pre></pre> | Defines the options for how the data plane API of a search service authenticates requests. This cannot be set if disableLocalAuth is set to true. |
 | semanticSearch | string | <input type="checkbox"> | `'disabled'` or `'free'` or `'standard'` | <pre>'free'</pre> | The semantic search configuration. |
 | encryptionWithCmkEnforcement | string | <input type="checkbox"> | `'Disabled'` or `'Enabled'` or `'Unspecified'` | <pre>'Unspecified'</pre> | The encryption with customer-managed keys enforcement. |
-| dataExfiltrationProtections | dataExfiltrationProtection[] | <input type="checkbox"> | None | <pre>[]</pre> | Array of data exfiltration protection scenarios that are explicitly disallowed for the search service. |
+| dataExfiltrationProtections | [dataExfiltrationProtection](#dataExfiltrationProtection)[] | <input type="checkbox"> | None | <pre>[]</pre> | Array of data exfiltration protection scenarios that are explicitly disallowed for the search service. |
 | identity | object | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | Managed service identity to use for this Azure Search Service. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.search/searchservices?tabs=bicep#identity). |
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | The azure resource id of the log analytics workspace to log the diagnostics to. If you set this to an empty string, logging & diagnostics will be disabled. |
 | diagnosticsName | string | <input type="checkbox"> | Length between 1-260 | <pre>'AzurePlatformCentralizedLogging'</pre> | The name of the diagnostics. This defaults to `AzurePlatformCentralizedLogging`. |

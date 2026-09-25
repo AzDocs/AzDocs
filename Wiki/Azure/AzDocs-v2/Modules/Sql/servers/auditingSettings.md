@@ -2,10 +2,15 @@
 
 Target Scope: resourceGroup
 
+> [!NOTE]
+> This module uses Bicep resource-derived types (`resourceInput<>` / `resourceOutput<>`).
+> - [Resource-derived types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-data-types#resource-derived-types)
+> - [Bicep data types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/data-types)
+
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="storageAccountSubscriptionIdType">storageAccountSubscriptionIdType</a>  | <pre></pre> | type | The subscription ID of the storage account used by SQL auditing settings. Leave empty to use the current subscription context. | 
+| <a id="storageAccountSubscriptionIdType">storageAccountSubscriptionIdType</a>  | <pre>&nbsp;&nbsp;&nbsp;&#124; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: 'Explicit'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value: string<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&#124; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: 'Current'<br>&nbsp;&nbsp;&nbsp;}<br></pre> | type | The subscription ID of the storage account used by SQL auditing settings. Leave empty to use the current subscription context. | 
 
 ## Synopsis
 Configuring auditing settings for an existing SQL server. Destination can be set to a storage account, Azure Monitor, or both.
@@ -21,7 +26,7 @@ Creates or updates auditing settings and optional DevOps auditing settings on an
 | storageAccountAccessKey | string | <input type="checkbox"> | None | <pre>''</pre> | The storage account access key used by SQL auditing settings. <br>If state is Enabled and storageEndpoint is specified, not specifying the storageAccountAccessKey will use SQL server system-assigned managed identity to access the storage.<br>Prerequisites for using managed identity authentication:<br>1. Assign SQL Server a system-assigned or user-assigned managed identity.<br>2. Grant SQL Server identity access to the storage account by adding 'Storage Blob Data Contributor' RBAC role to the server identity. |
 | storageAccountSubscriptionId | [storageAccountSubscriptionIdType](#storageAccountSubscriptionIdType) | <input type="checkbox"> | None | <pre>{<br>  type: 'Current'<br>}</pre> | Use Current to omit the property or Explicit to pass a storage account subscription ID. |
 | auditingSettingsIsAzureMonitorTargetEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | Specifies whether audit events are sent to Azure Monitor (Log Analytics). <br>Set to true when SQL auditing should (also) emit to Azure Monitor.<br>This requires a separate diagnostic settings for SQLSecurityAuditEvents having been set on the master database. |
-| auditActionsAndGroups | resourceInput<'Microsoft.Sql/servers/auditingsettings@2025-01-01'>.properties.auditActionsAndGroups | <input type="checkbox"> | None | <pre>[<br>  'BATCH_COMPLETED_GROUP'<br>  'SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP'<br>  'FAILED_DATABASE_AUTHENTICATION_GROUP'<br>]</pre> | List of audit action groups to enable. |
+| auditActionsAndGroups | [resourceInput<'Microsoft.Sql/servers/auditingsettings@2025-01-01'>.properties.auditActionsAndGroups](https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/2025-01-01/servers/auditingsettings?pivots=deployment-language-bicep) | <input type="checkbox"> | Schema-constrained (resource-derived type) | <pre>[<br>  'BATCH_COMPLETED_GROUP'<br>  'SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP'<br>  'FAILED_DATABASE_AUTHENTICATION_GROUP'<br>]</pre> | List of audit action groups to enable. |
 | enableDevOpsAuditingSettings | bool | <input type="checkbox"> | None | <pre>true</pre> | This will enable the setting: Enable Auditing of Microsoft support operations |
 | devOpsAuditingIsManagedIdentityInUse | bool | <input type="checkbox"> | None | <pre>true</pre> | Specifies whether Managed Identity is used to access blob storage. RBAC rights for this identity must have been set on the storage account. <br>When set to true, DevOps auditing settings will use managed identity to write to the storage account. <br>When set to false, DevOps auditing settings will use storage account access key to write to the storage account. |
 | state | string | <input type="checkbox"> | None | <pre>'Enabled'</pre> | Specifies the state of the audit. If state is Enabled, storageEndpoint or isAzureMonitorTargetEnabled are required. |

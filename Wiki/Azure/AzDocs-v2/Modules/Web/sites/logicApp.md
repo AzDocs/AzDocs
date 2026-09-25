@@ -6,7 +6,7 @@ Target Scope: resourceGroup
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
 | <a id="tlsVersionType">tlsVersionType</a>  | <pre>'1.2' &#124; '1.3'</pre> |  | The TLS version to use for the app service. | 
-| <a id="tlsCipherSuite">tlsCipherSuite</a>  | <pre></pre> |  | The TLS cipher suite in order of most secure to least secure to use for the app service. | 
+| <a id="tlsCipherSuite">tlsCipherSuite</a>  | <pre>&nbsp;&nbsp;&nbsp;&#124; 'TLS_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_256_CBC_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_128_CBC_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_256_CBC_SHA'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_128_CBC_SHA'<br></pre> |  | The TLS cipher suite in order of most secure to least secure to use for the app service. | 
 
 ## Synopsis
 Creating a Logic Standard Instance.
@@ -56,8 +56,8 @@ Therefore this separate bicep file.
 | publicNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` or `''` | <pre>'Enabled'</pre> | Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled` or an empty string. |
 | appInsightsName | string | <input type="checkbox"> | Length between 0-260 | <pre>''</pre> | The name of the application insights instance to attach to this app service. If you leave this empty, no AppInsights resource will be created. |
 | appInsightsResourceGroupName | string | <input type="checkbox"> | Length between 1-90 | <pre>az.resourceGroup().name</pre> | The name of the resourcegroup where the application insights instance resides in to attach to this app service. This application insights instance should be pre-existing. Defaults to the current resourcegroup. |
-| tlsVersion | tlsVersionType | <input type="checkbox"> | None | <pre>'1.3'</pre> | The TLS version to use for the app service. |
-| minTlsCipherSuite | tlsCipherSuite | <input type="checkbox"> | None | <pre>'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'</pre> | The TLS cipher suite in order of most secure to least secure to use for the app service. |
+| tlsVersion | [tlsVersionType](#tlsVersionType) | <input type="checkbox"> | None | <pre>'1.3'</pre> | The TLS version to use for the app service. |
+| minTlsCipherSuite | [tlsCipherSuite](#tlsCipherSuite) | <input type="checkbox"> | None | <pre>'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'</pre> | The TLS cipher suite in order of most secure to least secure to use for the app service. |
 
 ## Outputs
 | Name | Type | Description |

@@ -6,22 +6,22 @@ Target Scope: resourceGroup
 Register or modify OpenId Connect in Api Management Service.
 
 ## Description
-Register a new or modify OpenId Connect provider in Api Management Service.<br>
-<pre><br>
-module diagnostics 'br:contosoregistry.azurecr.io/service/openidconnectproviders.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 58), 'openidconnectproviders')<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    clientId: clientId<br>
-    clientSecret: clientSecret<br>
-    description: description<br>
-    displayName: displayName<br>
-    metadataEndpoint: metadataEndpoint<br>
-    name: name<br>
-    useInApiDocumentation: useInApiDocumentation<br>
-    useInTestConsole: useInTestConsole<br>
-  }<br>
-}<br>
+Register a new or modify OpenId Connect provider in Api Management Service.
+<pre>
+module diagnostics 'br:contosoregistry.azurecr.io/service/openidconnectproviders.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 58), 'openidconnectproviders')
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    clientId: clientId
+    clientSecret: clientSecret
+    description: description
+    displayName: displayName
+    metadataEndpoint: metadataEndpoint
+    name: name
+    useInApiDocumentation: useInApiDocumentation
+    useInTestConsole: useInTestConsole
+  }
+}
 </pre><br>
 <p>Register or modify OpenId Connect in Api Management Service.</p>
 

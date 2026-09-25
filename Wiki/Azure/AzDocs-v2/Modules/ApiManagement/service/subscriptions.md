@@ -6,18 +6,18 @@ Target Scope: resourceGroup
 Creating an subscription in an existing Api Management Service.
 
 ## Description
-Creating an subscription in an existing Api Management Service.<br>
-<pre><br>
-module apis 'br:contosoregistry.azurecr.io/service/subscriptions:latest' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 37), 'subscriptions')<br>
-  params: {<br>
-    allowTracing: allowTracing<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    displayName: displayName<br>
-    subscriptionName: apiName<br>
-    scope: scope<br>
-  }<br>
-}<br>
+Creating an subscription in an existing Api Management Service.
+<pre>
+module apis 'br:contosoregistry.azurecr.io/service/subscriptions:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 37), 'subscriptions')
+  params: {
+    allowTracing: allowTracing
+    apiManagementServiceName: apiManagementServiceName
+    displayName: displayName
+    subscriptionName: apiName
+    scope: scope
+  }
+}
 </pre><br>
 <p>Creates an subscription with the name displayName.</p>
 

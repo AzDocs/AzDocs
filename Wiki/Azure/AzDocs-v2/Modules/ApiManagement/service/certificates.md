@@ -6,26 +6,26 @@ Target Scope: resourceGroup
 Creating certificates in an existing Api Management Service.
 
 ## Description
-Creating certificates in an existing Api Management Service.<br>
-<pre><br>
-module certs 'br:contosoregistry.azurecr.io/service/certificates.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 59), 'certs')<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    apimCertificateData: loadFileAsBase64('./domain_company_so_org.pfx')<br>
-    apimCertificatePassword: 'myCertPassword'<br>
-  }<br>
-}<br>
+Creating certificates in an existing Api Management Service.
+<pre>
+module certs 'br:contosoregistry.azurecr.io/service/certificates.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 59), 'certs')
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    apimCertificateData: loadFileAsBase64('./domain_company_so_org.pfx')
+    apimCertificatePassword: 'myCertPassword'
+  }
+}
 </pre><br>
-<p>Creates a certificate by loading the pfx as base64 encoded and providing the password.</p><br>
-<pre><br>
-module certs2 'br:contosoregistry.azurecr.io/service/certificates.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 58), 'certs2')<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    secretIdentifier: 'https://keyvaultname${environment().suffixes.keyvaultDns}/secrets/certname-org'<br>
-  }<br>
-}<br>
+<p>Creates a certificate by loading the pfx as base64 encoded and providing the password.</p>
+<pre>
+module certs2 'br:contosoregistry.azurecr.io/service/certificates.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 58), 'certs2')
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    secretIdentifier: 'https://keyvaultname${environment().suffixes.keyvaultDns}/secrets/certname-org'
+  }
+}
 </pre><br>
 <p>Creates a certificate in the existing Apim service by using the system assigned identity of the Apim service to access the keyvault for the certificate.</p>
 

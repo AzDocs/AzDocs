@@ -6,17 +6,17 @@ Target Scope: resourceGroup
 Creating diagnostics in an existing Api Management Service.
 
 ## Description
-Creatingdiagnostics in an existing Api Management Service.<br>
-<pre><br>
-module diagnostics 'br:contosoregistry.azurecr.io/service/diagnostics.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 59), 'diag')<br>
-  params: {<br>
-    apiManagementServiceName: apimPost.outputs.apiManagementServiceName<br>
-    apimDiagnosticsName: 'appInsightsDiagnostics'<br>
-    loggerId: appInsights.outputs.appInsightsResourceId<br>
-    logClientIp: true<br>
-  }<br>
-}<br>
+Creatingdiagnostics in an existing Api Management Service.
+<pre>
+module diagnostics 'br:contosoregistry.azurecr.io/service/diagnostics.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 59), 'diag')
+  params: {
+    apiManagementServiceName: apimPost.outputs.apiManagementServiceName
+    apimDiagnosticsName: 'appInsightsDiagnostics'
+    loggerId: appInsights.outputs.appInsightsResourceId
+    logClientIp: true
+  }
+}
 </pre><br>
 <p>Creates a diagnostics with the name appInsightsDiagnostics in the existing Apim service.</p>
 

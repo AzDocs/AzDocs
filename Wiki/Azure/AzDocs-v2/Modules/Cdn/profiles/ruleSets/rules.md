@@ -6,18 +6,18 @@ Target Scope: resourceGroup
 Create a rule in an existing ruleset.
 
 ## Description
-Create a rule in an existing ruleset.<br>
-<pre><br>
-module rulehttptohttps 'br:contosoregistry.azurecr.io/cdn/profiles/rulesets/rules.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 59), 'rule')<br>
-  params: {<br>
-    ruleName: ruleNameHttpToHttps<br>
-    matchProcessingBehavior: 'Continue'<br>
-    ruleOrder: 0<br>
-    ruleSetName: rulesethttptohttps.outputs.ruleSetName<br>
-    frontDoorName: frontDoorProfile.outputs.frontDoorName<br>
-  }<br>
-}<br>
+Create a rule in an existing ruleset.
+<pre>
+module rulehttptohttps 'br:contosoregistry.azurecr.io/cdn/profiles/rulesets/rules.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 59), 'rule')
+  params: {
+    ruleName: ruleNameHttpToHttps
+    matchProcessingBehavior: 'Continue'
+    ruleOrder: 0
+    ruleSetName: rulesethttptohttps.outputs.ruleSetName
+    frontDoorName: frontDoorProfile.outputs.frontDoorName
+  }
+}
 </pre><br>
 <p>Creates a rule named ruleNameHttpToHttps in an existing rulesetname in an existing frontdoor profile.</p>
 
