@@ -42,6 +42,51 @@ function Get-BicepMetadata
         }
     }
 
+    function Test-IsResourceDerivedType
+    {
+        [CmdletBinding()]
+        [OutputType([bool])]
+        param (
+            [Parameter()]
+            [string]
+            $TypeText
+        )
+
+        if ([string]::IsNullOrWhiteSpace($TypeText))
+        {
+            return $false
+        }
+
+        return $TypeText -match "^\s*resource(?:Input|Output)\s*<\s*'[^']+@[^']+'\s*>\s*(?:\.[A-Za-z0-9_\*]+)*\s*(?:\[\])?\??\s*$"
+    }
+
+    function Get-DeclarationTypeAndDefault
+    {
+        [CmdletBinding()]
+        [OutputType([hashtable])]
+        param (
+            [Parameter()]
+            [string]
+            $LineRemainder
+        )
+
+        $result = @{
+            Type = $null
+            DefaultValue = $null
+        }
+
+        if ($LineRemainder -match '^(?<Type>.+?)(?:\s+=\s+(?<DefaultValue>.*))?$')
+        {
+            $result.Type = $matches.Type.Trim()
+            if ($matches.ContainsKey('DefaultValue'))
+            {
+                $result.DefaultValue = $matches.DefaultValue
+            }
+        }
+
+        return $result
+    }
+
     Function Add-MetadataBlock
     {
         [CmdletBinding()]
@@ -74,6 +119,8 @@ function Get-BicepMetadata
     {
         Set-Location $Path 
    
+        # Note: For batch linting/building multiple files, use bicep CLI directly:
+        # bicep lint --pattern 'src-bicep/**/*.bicep' (much faster than PowerShell loop)
         $bicepFiles = Get-ChildItem -Filter '*.bicep' -Recurse
         $bicepFiles | ForEach-Object {
             $bicepFile = $_ # $bicepFile = $bicepFiles[0]
@@ -91,6 +138,9 @@ function Get-BicepMetadata
             $multiLine = $false
             $multilineValues = @()
             $multiLineParameter = $null
+            $multiLineType = $null
+            $multiLineTypeNestingDepth = 0
+            $multiLineTypeAwaitingContinuation = $false
             $multilineEnd = $null
 
 
@@ -101,6 +151,199 @@ function Get-BicepMetadata
             
                 if ($multiLine)
                 {
+                    if ($multiLineDecorator -eq 'type')
+                    {
+                        $trimmedLine = $line.Trim()
+
+                        if ($multiLineTypeAwaitingContinuation)
+                        {
+                            if (![string]::IsNullOrWhiteSpace($trimmedLine) -and !$trimmedLine.StartsWith('|'))
+                            {
+                                $multiLineType.Type = $multilineValues
+                                $bicepMetaData.TypeInfo += $multiLineType
+                                $multiLineType = $null
+                                $multiLineTypeNestingDepth = 0
+                                $multiLineTypeAwaitingContinuation = $false
+                                $multiLine = $false
+                                $multiLineDecorator = $null
+
+                                if ($line -match '^targetScope = ''(?<targetScope>.*)''\s*$')
+                                {
+                                    $bicepMetaData.TargetScope = $matches.targetScope
+                                }
+                                elseif ($line -match '^type\s+(?<typeName>\w+)\s*=\s*(?<value>.*)\s*$')
+                                {
+                                    $typeValue = $matches.value
+                                    $typeValueTrimmed = $typeValue.Trim()
+                                    if ([string]::IsNullOrWhiteSpace($typeValueTrimmed) -or $typeValueTrimmed -eq '{' -or $typeValueTrimmed -eq '[' -or $typeValueTrimmed.StartsWith('|'))
+                                    {
+                                        $multiLine = $true
+                                        $multiLineDecorator = 'type'
+                                        $multiLineType = [PSCustomObject]@{
+                                            Name       = $matches.typeName
+                                            Type       = $null
+                                            Decorators = $currentDecorator
+                                        }
+                                        $currentDecorator = @{}
+                                        $multilineValues = @()
+                                        $multiLineTypeNestingDepth = 0
+                                        $multiLineTypeAwaitingContinuation = $false
+
+                                        if (![string]::IsNullOrWhiteSpace($typeValueTrimmed))
+                                        {
+                                            $multilineValues += $typeValue
+                                            $multiLineTypeNestingDepth += ([regex]::Matches($typeValue, '[\{\[\(]')).Count
+                                            $multiLineTypeNestingDepth -= ([regex]::Matches($typeValue, '[\}\]\)]')).Count
+                                        }
+                                    }
+                                    else
+                                    {
+                                        $type = [PSCustomObject]@{
+                                            Name       = $matches.typeName
+                                            Type       = $typeValue
+                                            Decorators = $currentDecorator
+                                        }
+                                        $bicepMetaData.TypeInfo += $type
+                                        $currentDecorator = @{}
+                                    }
+                                }
+                                elseif ($line -match '^param\s+(?<ParameterName>[^\s]+)\s+(?<LineRemainder>.+)$')
+                                {
+                                    $typeAndDefault = Get-DeclarationTypeAndDefault -LineRemainder $matches.LineRemainder
+                                    $defaultValue = $typeAndDefault.DefaultValue
+                                    $parameter = [PSCustomObject]@{
+                                        Name         = $matches.ParameterName
+                                        Type         = $typeAndDefault.Type
+                                        IsResourceDerivedType = (Test-IsResourceDerivedType -TypeText $typeAndDefault.Type)
+                                        DefaultValue = $defaultValue
+                                        Decorators   = $currentDecorator
+                                    }
+                                    $bicepMetaData.ParameterInfo += $parameter
+
+                                    $currentDecorator = @{}
+                                    $multiLineParameter = $parameter
+                                    if ($defaultValue -eq '{')
+                                    {
+                                        $multiLine = $true
+                                        $multiLineDecorator = 'parameter'
+                                        $multilineEndsLike = '}*'
+                                        $multilineEnd = '}'
+                                        $multilineValues = @('{')
+
+                                    }
+                                    elseif ($defaultValue -eq '[')
+                                    {
+                                        $multiLine = $true
+                                        $multiLineDecorator = 'parameter'
+                                        $multilineEndsLike = ']*'
+                                        $multilineEnd = ']'
+                                        $multilineValues = @('[')
+                                    }
+                                }
+                                elseif ($line -match '^output\s+(?<OutputName>[^\s]+)\s+(?<LineRemainder>.+)$')
+                                {
+                                    $typeAndDefault = Get-DeclarationTypeAndDefault -LineRemainder $matches.LineRemainder
+                                    $output = [PSCustomObject]@{
+                                        Name       = $matches.OutputName
+                                        Type       = $typeAndDefault.Type
+                                        IsResourceDerivedType = (Test-IsResourceDerivedType -TypeText $typeAndDefault.Type)
+                                        Decorators = $currentDecorator
+                                    }
+                                    $bicepMetaData.outputInfo += $output
+                                    $currentDecorator = @{}
+                                }
+                                elseif ($line -like '/`*')
+                                {
+                                    $multiline = $true
+                                    $multiLineDecorator = 'MultiLineComment'
+                                    $multilineEndsLike = '*`*/'
+                                    $multilineValues = @()
+                                    $multilineCommentSection = [String]::Empty
+                                }
+                                elseif ($line -like '@*')
+                                {
+                                    if ($line -match '^@(?<DecoratorName>[\w.]+)\(')
+                                    {
+                                        $decoratorName = ($matches.DecoratorName).ToLower()
+                                        switch ($decoratorName)
+                                        {
+                                            'allowed'
+                                            {
+                                                if ($line -notlike '*])')
+                                                {
+                                                    $multiline = $true
+                                                    $multiLineDecorator = $decoratorName
+                                                    $multilineEndsLike = '])'
+                                                    $multilineValues = @()
+                                                }
+                                            }
+                                            'sys.description'
+                                            {
+                                                if ($line -like "@sys.description('''*")
+                                                {
+                                                    $multiline = $true
+                                                    $multiLineDecorator = 'description'
+                                                    $multilineEndsLike = "*''')"
+                                                    $multilineValues = @()
+                                                }
+                                                elseif ($line -match '^@sys\.description\(''(?<Description>.*)''\)\s*(?:\/\/.*)?$')
+                                                {
+                                                    $currentDecorator.Add($decoratorName, $matches.Description)
+                                                }
+                                            }
+                                            'description'
+                                            {
+                                                if ($line -like "@description('''*")
+                                                {
+                                                    $multiline = $true
+                                                    $multiLineDecorator = $decoratorName
+                                                    $multilineEndsLike = "*''')"
+                                                    $multilineValues = @()
+                                                }
+                                                elseif ($line -match '^@description\(''(?<Description>.*)''\)\s*(?:\/\/.*)?$')
+                                                {
+                                                    $currentDecorator.Add($decoratorName, $matches.Description)
+                                                }
+                                            }
+                                            'discriminator'
+                                            {
+                                                if ($line -match '^@discriminator\(''(?<type>.*)''\)\s*(?:\/\/.*)?$')
+                                                {
+                                                    $currentDecorator.Add($decoratorName, $matches.type)
+                                                }
+                                            }
+                                            'maxLength' { $currentDecorator.Add($decoratorName, (Get-DecoratorNumber -line $line)) }
+                                            'minLength' { $currentDecorator.Add($decoratorName, (Get-DecoratorNumber -line $line)) }
+                                            'maxValue' { $currentDecorator.Add($decoratorName, (Get-DecoratorNumber -line $line)) }
+                                            'minValue' { $currentDecorator.Add($decoratorName, (Get-DecoratorNumber -line $line)) }
+                                            'secure' { $currentDecorator.Add($decoratorName, '') }
+                                            'export' { $currentDecorator.Add($decoratorName, '') }
+                                        }
+                                    }
+                                }
+                                elseif ($line -notmatch '^\s*$' -and $currentDecorator.Count -gt 0)
+                                {
+                                    $currentDecorator = @{}
+                                }
+
+                                return
+                            }
+
+                            $multiLineTypeAwaitingContinuation = $false
+                        }
+
+                        $multilineValues += $line
+                        $multiLineTypeNestingDepth += ([regex]::Matches($line, '[\{\[\(]')).Count
+                        $multiLineTypeNestingDepth -= ([regex]::Matches($line, '[\}\]\)]')).Count
+
+                        if ($multiLineTypeNestingDepth -le 0)
+                        {
+                            $multiLineTypeAwaitingContinuation = $true
+                        }
+
+                        return
+                    }
+
                     if ($line -like $multilineEndsLike )
                     { 
                         if ($multiLineDecorator -eq 'parameter')
@@ -180,13 +423,40 @@ function Get-BicepMetadata
                     {
                         if ($line -match '^type\s+(?<typeName>\w+)\s*=\s*(?<value>.*)\s*$')
                         {
-                            $type = [PSCustomObject]@{
-                                Name       = $matches.typeName
-                                Type       = $matches.value
-                                Decorators = $currentDecorator
+                            $typeValue = $matches.value
+                            $typeValueTrimmed = $typeValue.Trim()
+
+                            if ([string]::IsNullOrWhiteSpace($typeValueTrimmed) -or $typeValueTrimmed -eq '{' -or $typeValueTrimmed -eq '[' -or $typeValueTrimmed.StartsWith('|'))
+                            {
+                                $multiLine = $true
+                                $multiLineDecorator = 'type'
+                                $multiLineType = [PSCustomObject]@{
+                                    Name       = $matches.typeName
+                                    Type       = $null
+                                    Decorators = $currentDecorator
+                                }
+                                $currentDecorator = @{}
+                                $multilineValues = @()
+                                $multiLineTypeNestingDepth = 0
+                                $multiLineTypeAwaitingContinuation = $false
+
+                                if (![string]::IsNullOrWhiteSpace($typeValueTrimmed))
+                                {
+                                    $multilineValues += $typeValue
+                                    $multiLineTypeNestingDepth += ([regex]::Matches($typeValue, '[\{\[\(]')).Count
+                                    $multiLineTypeNestingDepth -= ([regex]::Matches($typeValue, '[\}\]\)]')).Count
+                                }
                             }
-                            $bicepMetaData.TypeInfo += $type
-                            $currentDecorator = @{}
+                            else
+                            {
+                                $type = [PSCustomObject]@{
+                                    Name       = $matches.typeName
+                                    Type       = $typeValue
+                                    Decorators = $currentDecorator
+                                }
+                                $bicepMetaData.TypeInfo += $type
+                                $currentDecorator = @{}
+                            }
                         }
                         else
                         {
@@ -195,12 +465,14 @@ function Get-BicepMetadata
                     }
                     elseif ($line -like 'param *')
                     {
-                        if ($line -match '^param\s+(?<ParameterName>[^\s]+)\s+(?<ParameterType>[^\s]+)(?:\s+=\s+(?<DefaultValue>.*))?\s*$')
+                        if ($line -match '^param\s+(?<ParameterName>[^\s]+)\s+(?<LineRemainder>.+)$')
                         {
-                            $defaultValue = $matches.ContainsKey('DefaultValue') ? $matches['DefaultValue'] : $null
+                            $typeAndDefault = Get-DeclarationTypeAndDefault -LineRemainder $matches.LineRemainder
+                            $defaultValue = $typeAndDefault.DefaultValue
                             $parameter = [PSCustomObject]@{
                                 Name         = $matches.ParameterName
-                                Type         = $matches.ParameterType
+                                Type         = $typeAndDefault.Type
+                                IsResourceDerivedType = (Test-IsResourceDerivedType -TypeText $typeAndDefault.Type)
                                 DefaultValue = $defaultValue 
                                 Decorators   = $currentDecorator
                             }
@@ -234,11 +506,13 @@ function Get-BicepMetadata
                     elseif ($line -like 'output *')
                     {
 
-                        if ($line -match '^^output\s+(?<OutputName>[^\s]+)\s+(?<OutputType>[^\s]+)(?:\s+=\s+(?<OutputValue>.*)\s*)?$')
+                        if ($line -match '^output\s+(?<OutputName>[^\s]+)\s+(?<LineRemainder>.+)$')
                         {
+                            $typeAndDefault = Get-DeclarationTypeAndDefault -LineRemainder $matches.LineRemainder
                             $output = [PSCustomObject]@{
                                 Name       = $matches.OutputName
-                                Type       = $matches.OutputType
+                                Type       = $typeAndDefault.Type
+                                IsResourceDerivedType = (Test-IsResourceDerivedType -TypeText $typeAndDefault.Type)
                                 Decorators = $currentDecorator
                             }
                             $bicepMetaData.outputInfo += $output 
@@ -365,6 +639,16 @@ function Get-BicepMetadata
                     }
                 }
             }
+
+            if ($multiLine -and $multiLineDecorator -eq 'type' -and $null -ne $multiLineType)
+            {
+                $multiLineType.Type = $multilineValues
+                $bicepMetaData.TypeInfo += $multiLineType
+                $multiLineType = $null
+                $multiLine = $false
+                $multiLineDecorator = $null
+            }
+
             return $bicepMetaData
         }
     }
