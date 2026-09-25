@@ -6,29 +6,29 @@ Target Scope: resourceGroup
 Creating an api instance in an existing Api Management Service.
 
 ## Description
-Creating an api instance in an existing Api Management Service.<br>
-<pre><br>
-module apis 'br:contosoregistry.azurecr.io/service/apis.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 46), 'apis')<br>
-dependsOn: [<br>
-    apimPolicyFragments<br>
-    apimGlobalPolicy<br>
-    apimBackends<br>
-  ]<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    apiName: apiName<br>
-    displayName: displayName<br>
-    apiType: 'http'<br>
-    isCurrent: isCurrent<br>
-    isSubscriptionRequred: isSubscriptionRequired<br>
-    apiDescription: apidescription<br>
-    apiPath: apiPath<br>
-    contentValue: contentValue<br>
-    contentFormat: contentFormat<br>
-    apiPolicy: apiPolicy<br>
-  }<br>
-}<br>
+Creating an api instance in an existing Api Management Service.
+<pre>
+module apis 'br:contosoregistry.azurecr.io/service/apis.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 46), 'apis')
+dependsOn: [
+    apimPolicyFragments
+    apimGlobalPolicy
+    apimBackends
+  ]
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    apiName: apiName
+    displayName: displayName
+    apiType: 'http'
+    isCurrent: isCurrent
+    isSubscriptionRequred: isSubscriptionRequired
+    apiDescription: apidescription
+    apiPath: apiPath
+    contentValue: contentValue
+    contentFormat: contentFormat
+    apiPolicy: apiPolicy
+  }
+}
 </pre><br>
 <p>Creates an api instance with the name displayName.</p>
 

@@ -6,16 +6,16 @@ Target Scope: resourceGroup
 Creating a apiLink resource on an existing Product to an existing API.
 
 ## Description
-Creating a apiLink resource on an existing Product to an existing API.<br>
-<pre><br>
-module apiLink 'br:contosoregistry.azurecr.io/service/products/apilinks.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 57), 'apilink')<br>
-  params: {<br>
-    apiLinkName: apiLinkName<br>
-    apiId: apiId<br>
-    productName: productName<br>
-  }<br>
-}<br>
+Creating a apiLink resource on an existing Product to an existing API.
+<pre>
+module apiLink 'br:contosoregistry.azurecr.io/service/products/apilinks.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 57), 'apilink')
+  params: {
+    apiLinkName: apiLinkName
+    apiId: apiId
+    productName: productName
+  }
+}
 </pre><br>
 <p>Creates an apiLink resource with the specified parameters.</p>
 

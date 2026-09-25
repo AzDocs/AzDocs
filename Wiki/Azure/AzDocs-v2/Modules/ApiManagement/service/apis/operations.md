@@ -6,22 +6,22 @@ Target Scope: resourceGroup
 Creating an api operation in an existing Api Management Service.
 
 ## Description
-Creating an api opreation in an existing Api Management Service.<br>
-<pre><br>
-module apiOperation 'resource.operation.bicep' = {<br>
-  name: '${take(deployment().name, 19)}-apioperation-${take(apiName, 20)}-${take(operationName, 10)}'<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    apiName: apiName<br>
-    operationName: operationName<br>
-    operationDisplayName: operationDisplayName<br>
-    operationMethod: operationMethod<br>
-    operationRequestDescription: operationRequestDescription<br>
-    operationRequestQueryParameters: operationRequestQueryParameters<br>
-    operationResponses: operationResponses<br>
-    operationUrlTemplate: operationUrlTemplate<br>
-  }<br>
-}<br>
+Creating an api opreation in an existing Api Management Service.
+<pre>
+module apiOperation 'resource.operation.bicep' = {
+  name: '${take(deployment().name, 19)}-apioperation-${take(apiName, 20)}-${take(operationName, 10)}'
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    apiName: apiName
+    operationName: operationName
+    operationDisplayName: operationDisplayName
+    operationMethod: operationMethod
+    operationRequestDescription: operationRequestDescription
+    operationRequestQueryParameters: operationRequestQueryParameters
+    operationResponses: operationResponses
+    operationUrlTemplate: operationUrlTemplate
+  }
+}
 </pre><br>
 <p>Creates an api operation on an existing api with the name operationName.</p>
 

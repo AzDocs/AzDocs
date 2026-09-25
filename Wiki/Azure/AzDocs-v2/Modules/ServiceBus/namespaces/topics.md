@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="statusType">statusType</a>  | <pre></pre> |  | Type representing the status of a messaging entity. | 
+| <a id="statusType">statusType</a>  | <pre>&nbsp;&nbsp;&nbsp;&#124; 'Active'<br>&nbsp;&nbsp;&nbsp;&#124; 'Creating'<br>&nbsp;&nbsp;&nbsp;&#124; 'Deleting'<br>&nbsp;&nbsp;&nbsp;&#124; 'Disabled'<br>&nbsp;&nbsp;&nbsp;&#124; 'ReceiveDisabled'<br>&nbsp;&nbsp;&nbsp;&#124; 'Renaming'<br>&nbsp;&nbsp;&nbsp;&#124; 'Restoring'<br>&nbsp;&nbsp;&nbsp;&#124; 'SendDisabled'<br>&nbsp;&nbsp;&nbsp;&#124; 'Unknown'<br></pre> |  | Type representing the status of a messaging entity. | 
 
 ## Synopsis
 Creating a Topic inside of a servicebus namespace

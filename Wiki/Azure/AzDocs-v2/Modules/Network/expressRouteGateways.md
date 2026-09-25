@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+> [!NOTE]
+> This module uses Bicep resource-derived types (`resourceInput<>` / `resourceOutput<>`).
+> - [Resource-derived types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-data-types#resource-derived-types)
+> - [Bicep data types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/data-types)
+
 ## Synopsis
 Creating an Express Route Gateway.
 
@@ -17,7 +22,7 @@ Creating an Express Route Gateway with the given specs.
 | allowNonVirtualWanTraffic | bool | <input type="checkbox"> | None | <pre>false</pre> | Optional. Configures this gateway to accept traffic from non Virtual WAN networks. |
 | autoScaleConfigurationBoundsMax | int | <input type="checkbox"> | None | <pre>2</pre> | Optional. Maximum number of scale units deployed for ExpressRoute gateway. |
 | autoScaleConfigurationBoundsMin | int | <input type="checkbox"> | None | <pre>2</pre> | Optional. Minimum number of scale units deployed for ExpressRoute gateway. |
-| expressRouteConnections | resourceInput<'Microsoft.Network/expressRouteGateways@2025-07-01'>.properties.expressRouteConnections | <input type="checkbox"> | None | <pre>[]</pre> | Optional. List of ExpressRoute connections to the ExpressRoute gateway. **Note:** This parameter will overwrite existing connections, including deleting any that are not provided. This is by-design behavior of the resource provider. |
+| expressRouteConnections | [resourceInput<'Microsoft.Network/expressRouteGateways@2025-07-01'>.properties.expressRouteConnections](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-07-01/expressroutegateways?pivots=deployment-language-bicep) | <input type="checkbox"> | Schema-constrained (resource-derived type) | <pre>[]</pre> | Optional. List of ExpressRoute connections to the ExpressRoute gateway. **Note:** This parameter will overwrite existing connections, including deleting any that are not provided. This is by-design behavior of the resource provider. |
 | virtualHubResourceId | string | <input type="checkbox" checked> | None | <pre></pre> | Required. Resource ID of the Virtual Wan Hub. |
 
 ## Outputs

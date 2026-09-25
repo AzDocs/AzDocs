@@ -6,17 +6,17 @@ Target Scope: resourceGroup
 Creating a security policy in an existing FrontDoor Cdn profile.
 
 ## Description
-Creating a security policy in an existing FrontDoor Cdn profile.<br>
-<pre><br>
-module secpolicy 'br:contosoregistry.azurecr.io/cdn/profiles/securitypolicies.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 54), 'secpolicy')<br>
-  params: {<br>
-    afdEndpointsName: afdendpointappgw.outputs.frontDoorEndpointName<br>
-    frontDoorName: frontDoorProfile.outputs.frontDoorName<br>
-    securityPolicyName: 'securitypolicypub-tst-site-com'<br>
-    wafPolicyName: frontdoorwafmypubtstonsitecom.outputs.wafPolicyName<br>
-  }<br>
-}<br>
+Creating a security policy in an existing FrontDoor Cdn profile.
+<pre>
+module secpolicy 'br:contosoregistry.azurecr.io/cdn/profiles/securitypolicies.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 54), 'secpolicy')
+  params: {
+    afdEndpointsName: afdendpointappgw.outputs.frontDoorEndpointName
+    frontDoorName: frontDoorProfile.outputs.frontDoorName
+    securityPolicyName: 'securitypolicypub-tst-site-com'
+    wafPolicyName: frontdoorwafmypubtstonsitecom.outputs.wafPolicyName
+  }
+}
 </pre><br>
 <p>Creates a security policy in an existing Frontdoor Cdn Profile.</p>
 

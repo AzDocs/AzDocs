@@ -6,30 +6,30 @@ Target Scope: resourceGroup
 Creating a secret in an existing Front Door Cdn profile which represents a certificate.
 
 ## Description
-Creating a secret in an existing Front Door Cdn profile which represents a certificate.<br>
-<pre><br>
-module secret 'br:contosoregistry.azurecr.io/cdn/profiles/secrets.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 57), 'secret')<br>
-  params: {<br>
-    frontDoorName: frontDoorProfile.outputs.frontDoorName<br>
-    frontDoorSecretName: 'tst-secretsite-com-latest'<br>
-    secretParameters: {<br>
-      type: 'CustomerCertificate'<br>
-      secretSource: {<br>
-        id: '/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.KeyVault/vaults/<keyvaultname>/secrets/tst-secretsite-com'<br>
-      }<br>
-      secretVersion: ''<br>
-      useLatestVersion: true<br>
-      subjectAlternativeNames: [<br>
-        'my.perfect.web.site.org'<br>
-      ]<br>
-    }<br>
-  }<br>
-  dependsOn: [<br>
-    MeInKeyvaultAccessPolicy<br>
-    frontDoorProfileKeyvaultAccess<br>
-  ]<br>
-}<br>
+Creating a secret in an existing Front Door Cdn profile which represents a certificate.
+<pre>
+module secret 'br:contosoregistry.azurecr.io/cdn/profiles/secrets.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 57), 'secret')
+  params: {
+    frontDoorName: frontDoorProfile.outputs.frontDoorName
+    frontDoorSecretName: 'tst-secretsite-com-latest'
+    secretParameters: {
+      type: 'CustomerCertificate'
+      secretSource: {
+        id: '/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.KeyVault/vaults/<keyvaultname>/secrets/tst-secretsite-com'
+      }
+      secretVersion: ''
+      useLatestVersion: true
+      subjectAlternativeNames: [
+        'my.perfect.web.site.org'
+      ]
+    }
+  }
+  dependsOn: [
+    MeInKeyvaultAccessPolicy
+    frontDoorProfileKeyvaultAccess
+  ]
+}
 </pre><br>
 <p>Creates a representation of a certificate in the form of a secret coming from a keyvault and link it in an existing Frontdoor Cdn Profile.</p>
 

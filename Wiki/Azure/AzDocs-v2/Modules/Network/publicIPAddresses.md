@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+> [!NOTE]
+> This module uses Bicep resource-derived types (`resourceInput<>` / `resourceOutput<>`).
+> - [Resource-derived types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-data-types#resource-derived-types)
+> - [Bicep data types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/data-types)
+
 ## Synopsis
 Creating a Public IP Address.
 
@@ -13,7 +18,7 @@ Creating a Public IP Address with the given specs.
 | -- |  -- | -- | -- | -- | -- |
 | publicIPAddressName | string | <input type="checkbox" checked> | Length between 1-80 | <pre></pre> | The resource name for this Public IP address. |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | Specifies the Azure location where the resource should be created. Defaults to the resourcegroup location. |
-| sku | resourceInput<'Microsoft.Network/publicIPAddresses@2025-01-01'>.sku | <input type="checkbox"> | None | <pre>{<br>  name: 'Standard'<br>  tier: 'Regional'<br>}</pre> | The SKU name to use for this public IP address. |
+| sku | [resourceInput<'Microsoft.Network/publicIPAddresses@2025-01-01'>.sku](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-01-01/publicipaddresses?pivots=deployment-language-bicep) | <input type="checkbox"> | Schema-constrained (resource-derived type) | <pre>{<br>  name: 'Standard'<br>  tier: 'Regional'<br>}</pre> | The SKU name to use for this public IP address. |
 | publicIPAllocationMethod | string | <input type="checkbox"> | `'Static'` or `'Dynamic'` | <pre>'Static'</pre> | The public IP address allocation method. Options are `Static` or `Dynamic`. |
 | publicIpPrefixResourceId | string? | <input type="checkbox" checked> | None | <pre></pre> | Optional. Resource ID of the Public IP Prefix object. This is only needed if you want your Public IPs created in a PIP Prefix. |
 | publicIPAddressVersion | string | <input type="checkbox"> | `'IPv4'` or `'IPv6'` | <pre>'IPv4'</pre> | The version of the IP Address. can be IPv4 or IPv6. |

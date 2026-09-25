@@ -6,17 +6,17 @@ Target Scope: resourceGroup
 Creating named values in an existing Api Management Service.
 
 ## Description
-Creating named values in an existing Api Management Service. A named value can be plain text (use namedValuesValue), secret (namedValuesValue + IsNamedValueSecret=true ) or a reference to a secret in a key vault (secretIdentifier).<br>
-<pre><br>
-module namedvalue 'br:contosoregistry.azurecr.io/service/namedvalues.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 49), 'appInsightsKey')<br>
-  params: {<br>
-    apiManagementServiceName: apimPost.outputs.apiManagementServiceName<br>
-    namedValuesDisplayName: 'appInsightsInstrumentationKey'<br>
-    namedValuesName: 'appInsightsKey'<br>
-    namedValuesInKeyVaultIdentifier: appInsights.outputs.appInsightsInstrumentationKey<br>
-  }<br>
-}<br>
+Creating named values in an existing Api Management Service. A named value can be plain text (use namedValuesValue), secret (namedValuesValue + IsNamedValueSecret=true ) or a reference to a secret in a key vault (secretIdentifier).
+<pre>
+module namedvalue 'br:contosoregistry.azurecr.io/service/namedvalues.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 49), 'appInsightsKey')
+  params: {
+    apiManagementServiceName: apimPost.outputs.apiManagementServiceName
+    namedValuesDisplayName: 'appInsightsInstrumentationKey'
+    namedValuesName: 'appInsightsKey'
+    namedValuesInKeyVaultIdentifier: appInsights.outputs.appInsightsInstrumentationKey
+  }
+}
 </pre><br>
 <p>Creates a named value called appInsightsKey.</p>
 

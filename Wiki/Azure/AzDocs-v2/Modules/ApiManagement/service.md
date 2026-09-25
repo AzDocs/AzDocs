@@ -6,23 +6,23 @@ Target Scope: resourceGroup
 Creating an Api Management Service.
 
 ## Description
-Creating an Api Management Service.<br>
-<pre><br>
-module apim 'br:contosoregistry.azurecr.io/apimanagement/service.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 59), 'apim')<br>
-  params: {<br>
-    location: location<br>
-    apiManagementServiceName: 'myapim'<br>
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId<br>
-    publisherEmail: 'noreply@mail.com'<br>
-    publisherName: 'Publisher Name'<br>
-    virtualNetworkConfiguration: {<br>
-      subnetResourceId: '${subscription().id}/resourceGroups/${virtualNetworkResourceGroupName}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}/subnets/${apimSubnetName}'<br>
-    }<br>
-    virtualNetworkType: 'Internal'<br>
-    publicIpAddressName: 'apimPublicIP'<br>
-  }<br>
-}<br>
+Creating an Api Management Service.
+<pre>
+module apim 'br:contosoregistry.azurecr.io/apimanagement/service.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 59), 'apim')
+  params: {
+    location: location
+    apiManagementServiceName: 'myapim'
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    publisherEmail: 'noreply@mail.com'
+    publisherName: 'Publisher Name'
+    virtualNetworkConfiguration: {
+      subnetResourceId: '${subscription().id}/resourceGroups/${virtualNetworkResourceGroupName}/providers/Microsoft.Network/virtualNetworks/${virtualNetworkName}/subnets/${apimSubnetName}'
+    }
+    virtualNetworkType: 'Internal'
+    publicIpAddressName: 'apimPublicIP'
+  }
+}
 </pre><br>
 <p>Creates an apim service with the name apimservicename that is integrated in the virtualNetworkName Vnet.</p>
 

@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="ApplicationGatewaySku">ApplicationGatewaySku</a>  | <pre>{</pre> |  |  | 
+| <a id="ApplicationGatewaySku">ApplicationGatewaySku</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;name:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#124; 'Basic'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#124; 'Standard_Large'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#124; 'Standard_Medium'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#124; 'Standard_Small'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#124; 'Standard_v2'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#124; 'WAF_Large'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#124; 'WAF_Medium'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#124; 'WAF_v2'<br>&nbsp;&nbsp;&nbsp;tier: 'Basic' &#124; 'Standard' &#124; 'Standard_v2' &#124; 'WAF' &#124; 'WAF_v2'<br>&nbsp;&nbsp;&nbsp;family: 'Generation_1' &#124; 'Generation_2' &#124; null<br>}<br></pre> |  |  | 
 
 ## Synopsis
 Creating an application gateway 

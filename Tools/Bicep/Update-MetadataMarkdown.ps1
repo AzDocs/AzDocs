@@ -103,12 +103,27 @@ function Update-MetadataMarkdown
         {
             $StreamWriter.WriteLine() | Out-Null
             $StreamWriter.WriteLine("## $Header") | Out-Null
-            $br = '<br>'
-            if ($NoBreak)
+            $sb = [System.Text.StringBuilder]::new()
+            $inPre = $false
+            for ($i = 0; $i -lt $lines.Count; $i++)
             {
-                $br = ''
+                $currentLine = $lines[$i]
+                if ($currentLine -match '<pre>') { $inPre = $true }
+                if ($i -gt 0)
+                {
+                    if ($inPre -or $NoBreak)
+                    {
+                        $sb.Append("`r`n") | Out-Null
+                    }
+                    else
+                    {
+                        $sb.Append("<br>`r`n") | Out-Null
+                    }
+                }
+                $sb.Append($currentLine) | Out-Null
+                if ($currentLine -match '</pre>') { $inPre = $false }
             }
-            $newLines = $lines | Join-String -Separator "$br`r`n" 
+            $newLines = $sb.ToString()
             $StreamWriter.WriteLine($newLines) | Out-Null 
         }
     }
@@ -126,6 +141,171 @@ function Update-MetadataMarkdown
             return $string | ForEach-Object { $_.Replace('|' , '&#124;').Replace('$', '&#36;') } 
         }
        
+    }
+
+    function ConvertTo-SingularResourceName
+    {
+        [CmdletBinding()]
+        [OutputType([string])]
+        param (
+            [Parameter(Mandatory)]
+            [string]
+            $ResourceName
+        )
+
+        if ($ResourceName -match 'ies$')
+        {
+            return "$($ResourceName.Substring(0, $ResourceName.Length - 3))y"
+        }
+
+        if ($ResourceName -match '(xes|ses|zes|ches|shes)$')
+        {
+            return $ResourceName.Substring(0, $ResourceName.Length - 2)
+        }
+
+        if ($ResourceName -match 's$')
+        {
+            return $ResourceName.Substring(0, $ResourceName.Length - 1)
+        }
+
+        return $ResourceName
+    }
+
+    function ConvertTo-ResourceTypeDocLink
+    {
+        [CmdletBinding()]
+        [OutputType([string])]
+        param (
+            [Parameter(Mandatory)]
+            [string]
+            $TypeText
+        )
+
+        # Link resource-derived Bicep types to Azure template references when possible.
+        if ($TypeText -notmatch "^(?<TypeKind>resourceInput|resourceOutput)<\s*'(?<ResourceType>[^@']+)@(?<ApiVersion>[^']+)'\s*>\s*(?<PropertyPath>(?:\.[A-Za-z0-9_\*]+)*)(?<TypeSuffix>(?:\[\])*\??)$")
+        {
+            return $TypeText
+        }
+
+        $resourceType = $matches.ResourceType
+        $apiVersion = $matches.ApiVersion
+        $typeSuffix = $matches.TypeSuffix
+
+        $resourceTypeSegments = $resourceType.Split('/')
+        if ($resourceTypeSegments.Count -lt 2)
+        {
+            return $TypeText
+        }
+
+        $providerNamespace = $resourceTypeSegments[0].ToLowerInvariant()
+        $resourcePath = ($resourceTypeSegments[1..($resourceTypeSegments.Count - 1)] | ForEach-Object { $_.ToLowerInvariant() }) -join '/'
+        $documentationUrl = "https://learn.microsoft.com/en-us/azure/templates/$providerNamespace/$apiVersion/${resourcePath}?pivots=deployment-language-bicep"
+
+        # Keep links stable by pointing to the template landing page only.
+        # Property anchors are not guaranteed to remain stable across docs updates.
+
+        $displayType = "resourceInput<'$resourceType@$apiVersion'>$($matches.PropertyPath)"
+        if ($matches.TypeKind -eq 'resourceOutput')
+        {
+            $displayType = "resourceOutput<'$resourceType@$apiVersion'>$($matches.PropertyPath)"
+        }
+
+        return "[$displayType]($documentationUrl)$typeSuffix"
+    }
+
+    function Test-IsResourceDerivedType
+    {
+        [CmdletBinding()]
+        [OutputType([bool])]
+        param (
+            [Parameter()]
+            [string]
+            $TypeText
+        )
+
+        if ([string]::IsNullOrWhiteSpace($TypeText))
+        {
+            return $false
+        }
+
+        return $TypeText -match "^\s*resource(?:Input|Output)\s*<\s*'[^']+@[^']+'\s*>\s*(?:\.[A-Za-z0-9_\*]+)*\s*(?:\[\])?\??\s*$"
+    }
+
+    function Test-HasResourceDerivedTypes
+    {
+        [CmdletBinding()]
+        [OutputType([bool])]
+        param (
+            [Parameter(Mandatory)]
+            [PSCustomObject]
+            $FileMetadata
+        )
+
+        foreach ($parameterInfo in ($FileMetadata.ParameterInfo ?? @()))
+        {
+            if (Test-IsResourceDerivedType -TypeText $parameterInfo.Type)
+            {
+                return $true
+            }
+        }
+
+        foreach ($outputInfo in ($FileMetadata.OutputInfo ?? @()))
+        {
+            if (Test-IsResourceDerivedType -TypeText $outputInfo.Type)
+            {
+                return $true
+            }
+        }
+
+        return $false
+    }
+
+    function Add-ResourceDerivedTypesNote
+    {
+        [CmdletBinding()]
+        param (
+            [Parameter(Mandatory)]
+            [System.IO.StreamWriter]
+            $StreamWriter,
+
+            [Parameter(Mandatory)]
+            [PSCustomObject]
+            $FileMetadata
+        )
+
+        if (-not (Test-HasResourceDerivedTypes -FileMetadata $FileMetadata))
+        {
+            return
+        }
+
+        $StreamWriter.WriteLine() | Out-Null
+        $StreamWriter.WriteLine('> [!NOTE]') | Out-Null
+        $StreamWriter.WriteLine('> This module uses Bicep resource-derived types (`resourceInput<>` / `resourceOutput<>`).') | Out-Null
+        $StreamWriter.WriteLine('> - [Resource-derived types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-data-types#resource-derived-types)') | Out-Null
+        $StreamWriter.WriteLine('> - [Bicep data types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/data-types)') | Out-Null
+    }
+
+    function ConvertTo-UserDefinedTypeLink
+    {
+        [CmdletBinding()]
+        [OutputType([string])]
+        param (
+            [Parameter(Mandatory)]
+            [string]
+            $TypeText,
+
+            [Parameter()]
+            [AllowEmptyCollection()]
+            [string[]]
+            $UserDefinedTypes = @()
+        )
+
+        if ($TypeText -match '^(?<BaseType>[A-Za-z_][A-Za-z0-9_]*)(?<Suffix>(?:\[\])*\??)$' -and $matches.BaseType -in $UserDefinedTypes)
+        {
+            return "[$($matches.BaseType)](#$($matches.BaseType))$($matches.Suffix)"
+        }
+
+        return $TypeText
     }
 
     Function Add-ParametersSection
@@ -155,6 +335,10 @@ function Update-MetadataMarkdown
             if ($allowedDecorator)
             {
                 $validation = $allowedDecorator | Join-String -Separator '` or `' -OutputPrefix '`' -OutputSuffix '`' | Out-String -NoNewline
+            }
+            elseif (Test-IsResourceDerivedType -TypeText $parameterInfo.Type)
+            {
+                $validation = 'Schema-constrained (resource-derived type)'
             }
 
             if ($parameterInfo.Decorators.ContainsKey('minLength') -or $parameterInfo.Decorators.ContainsKey('maxLength'))
@@ -202,7 +386,11 @@ function Update-MetadataMarkdown
             }
             $required = "<input type=""checkbox""$($null -eq $parameterInfo.DefaultValue ? ' checked' : '')>"
 
-            $parameterTypeText = $parameterInfo.Type -contains $UserDefinedTypes ? "[$($parameterInfo.Type)](#$($parameterInfo.Type))" : $parameterInfo.Type
+            $parameterTypeText = ConvertTo-UserDefinedTypeLink -TypeText $parameterInfo.Type -UserDefinedTypes $UserDefinedTypes
+            if ($parameterTypeText -eq $parameterInfo.Type)
+            {
+                $parameterTypeText = ConvertTo-ResourceTypeDocLink -TypeText $parameterInfo.Type
+            }
 
             $StreamWriter.WriteLine("| $($parameterInfo.Name) | $parameterTypeText | $required | $validation | <pre>$defaultValue</pre> | $description |") | Out-Null   
         }
@@ -230,7 +418,25 @@ function Update-MetadataMarkdown
             $StreamWriter.WriteLine('| -- |  -- | -- | -- |') | Out-Null
             $UserDefinedTypes | ForEach-Object { 
                 $outputInfo = $_ #  $parameterInfo  =  $singleFileMetadata.ParameterInfo[0]
-                $StreamWriter.WriteLine("| <a id=""$($outputInfo.Name)"">$($outputInfo.Name)</a>  | <pre>$($outputInfo.Type | ConvertTo-MarkDownSanitizedText )</pre> | $($outputInfo.Decorators['discriminator'] ?? $null ) | $($outputInfo.Decorators['description'] ?? $null ) | ") | Out-Null
+                $typeText = $outputInfo.Type
+                if ($typeText -is [array])
+                {
+                    if ($typeText.Count -gt 1)
+                    {
+                        $spacedType = ConvertTo-SpaceWithHtmlSpaces -lines $typeText
+                        $typeText = $spacedType | Join-String -Separator '<br>' | ConvertTo-MarkDownSanitizedText
+                    }
+                    else
+                    {
+                        $typeText = $typeText[0] | ConvertTo-MarkDownSanitizedText
+                    }
+                }
+                else
+                {
+                    $typeText = $typeText | ConvertTo-MarkDownSanitizedText
+                }
+
+                $StreamWriter.WriteLine("| <a id=""$($outputInfo.Name)"">$($outputInfo.Name)</a>  | <pre>$typeText</pre> | $($outputInfo.Decorators['discriminator'] ?? $null ) | $($outputInfo.Decorators['description'] ?? $null ) | ") | Out-Null
 
             }
         }
@@ -258,7 +464,8 @@ function Update-MetadataMarkdown
             $StreamWriter.WriteLine('| -- |  -- | -- |') | Out-Null
             $Outputs | ForEach-Object { 
                 $outputInfo = $_ #  $parameterInfo  =  $singleFileMetadata.ParameterInfo[0]
-                $StreamWriter.WriteLine("| $($outputInfo.Name) | $($outputInfo.Type) | $($outputInfo.Decorators['description'] ?? $null ) |") | Out-Null
+                $outputTypeText = ConvertTo-ResourceTypeDocLink -TypeText $outputInfo.Type
+                $StreamWriter.WriteLine("| $($outputInfo.Name) | $outputTypeText | $($outputInfo.Decorators['description'] ?? $null ) |") | Out-Null
 
             }
         }
@@ -320,6 +527,7 @@ function Update-MetadataMarkdown
 
             $streamWriter.WriteLine() | Out-Null
             Add-TargetScopeSection -StreamWriter $streamWriter -TargetScope $singleFileMetadata.TargetScope
+            Add-ResourceDerivedTypesNote -StreamWriter $streamWriter -FileMetadata $singleFileMetadata
 
             Add-TypeSection -StreamWriter $streamWriter -UserDefinedTypes $singleFileMetadata.TypeInfo
 
