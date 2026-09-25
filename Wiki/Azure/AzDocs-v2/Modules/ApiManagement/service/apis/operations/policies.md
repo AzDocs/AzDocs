@@ -6,18 +6,18 @@ Target Scope: resourceGroup
 Provision an operation policy in an existing Api Management Service.
 
 ## Description
-Provision an operation policy on an existing API in an existing Api Management Service.<br>
-<pre><br>
-module apiOperationPolicy 'policies/resource.policies.bicep' = {<br>
-  name: '${take(deployment().name, 12)}-apioperation-${take(apiName, 20)}-${take(operationName, 10)}-policy'<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    apiName: apiName<br>
-    contentFormat: contentFormat<br>
-    operationName: operationName<br>
-    operationValue: operationValue<br>
-  }<br>
-}<br>
+Provision an operation policy on an existing API in an existing Api Management Service.
+<pre>
+module apiOperationPolicy 'policies/resource.policies.bicep' = {
+  name: '${take(deployment().name, 12)}-apioperation-${take(apiName, 20)}-${take(operationName, 10)}-policy'
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    apiName: apiName
+    contentFormat: contentFormat
+    operationName: operationName
+    operationValue: operationValue
+  }
+}
 </pre><br>
 <p>Provision an operation policy on an existing API in an existing Api Management Service.</p>
 

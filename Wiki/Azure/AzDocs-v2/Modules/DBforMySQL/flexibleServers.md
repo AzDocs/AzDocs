@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="IdentityType">IdentityType</a>  | <pre></pre> | type |  | 
+| <a id="IdentityType">IdentityType</a>  | <pre>&nbsp;&nbsp;&nbsp;&#124; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: 'UserAssigned'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userAssignedIdentities: {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*: {}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&#124; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: 'None'<br>&nbsp;&nbsp;&nbsp;}<br></pre> | type |  | 
 
 ## Synopsis
 Deploys an Azure Database for MySQL server and supporting network and firewall configuration.<br>

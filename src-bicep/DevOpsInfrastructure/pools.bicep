@@ -45,7 +45,105 @@ module devopspools 'br:contosoregistry.azurecr.io/devopsinfrastructure/pools:lat
 <p>Creates a devops pool in your own networking</p>
 .LINKS
 - [ARM Microsoft.DevOpsInfrastructure](https://learn.microsoft.com/en-us/azure/devops/managed-devops-pools/quickstart-arm-template?view=azure-devops)
+- [Microsoft Learn: Microsoft.DevOpsInfrastructure/pools Bicep reference](https://learn.microsoft.com/en-us/azure/templates/microsoft.devopsinfrastructure/2024-10-19/pools?pivots=deployment-language-bicep)
+- [Azure Resource Manager schema: Microsoft.DevOpsInfrastructure 2026-06-02](https://github.com/Azure/azure-resource-manager-schemas/blob/main/schemas/2026-06-02/Microsoft.DevOpsInfrastructure.json)
 */
+
+// ===================================== User-defined types =====================================
+@export()
+type imageType = {
+  @description('Optional. List of aliases to reference the image by.')
+  aliases: string[]?
+
+  @description('Optional. The percentage of the buffer to be allocated to this image.')
+  buffer: string?
+
+  @description('Conditional. The image to use from a well-known set of images made available to customers. Required if `resourceId` is not set.')
+  wellKnownImageName: string?
+
+  @description('Conditional. The specific resource id of the marketplace or compute gallery image. Required if `wellKnownImageName` is not set.')
+  resourceId: string?
+}
+
+type SecretsManagementSettings = {
+  @description('Defines if the key of the certificates should be exportable.')
+  keyExportable: bool
+  @description('The list of certificates to observe. Each entry should be the thumbprint of a certificate.')
+  observedCertificates: string[]
+  @description('Where to store certificates on the machine.')
+  certificateStoreLocation: string?
+}
+
+@export()
+type dataDiskType = {
+  @description('Optional. The type of caching to enable for the data disk.')
+  caching: ('None' | 'ReadOnly' | 'ReadWrite')?
+
+  @description('Optional. The initial size of the data disk in GiB.')
+  diskSizeGiB: int?
+
+  @description('Optional. The drive letter for the empty data disk.')
+  driveLetter: string?
+
+  @description('Optional. The storage account type for the data disk.')
+  storageAccountType: ('Standard_LRS' | 'Premium_LRS' | 'StandardSSD_LRS' | 'Premium_ZRS' | 'StandardSSD_ZRS')?
+}
+
+@export()
+type statefulAgentProfileType = {
+  @description('The agent profile kind.')
+  kind: 'Stateful'
+
+  @description('Optional. How long stateful machines should be kept around.')
+  maxAgentLifetime: string?
+
+  @description('Optional. How long a machine should be kept after running a workload.')
+  gracePeriodTimeSpan: string?
+
+  @description('Optional. The standby agent prediction settings.')
+  resourcePredictionsProfile: resourcePredictionsProfileType?
+}
+
+@export()
+type statelessAgentProfileType = {
+  @description('The agent profile kind.')
+  kind: 'Stateless'
+
+  @description('Optional. The standby agent prediction settings.')
+  resourcePredictionsProfile: resourcePredictionsProfileType?
+}
+
+@export()
+@discriminator('kind')
+type agentScalingProfileType = statefulAgentProfileType | statelessAgentProfileType
+
+@export()
+type resourcePredictionsProfileType = {
+  @description('The standby prediction mode.')
+  kind: 'Automatic' | 'Manual'
+
+  @description('Optional. The balance between standby cost and performance.')
+  predictionPreference: ('Balanced' | 'MostCostEffective' | 'MoreCostEffective' | 'MorePerformance' | 'BestPerformance')?
+}
+
+@export()
+type organizationType = {
+  @description('The Azure DevOps organization URL.')
+  url: string
+
+  @description('Optional. The organization alias.')
+  alias: string?
+
+  @description('Optional. Whether the pool is open to all projects.')
+  openAccess: bool?
+
+  @description('Optional. The projects in which the pool should be created.')
+  projects: string[]?
+
+  @description('Optional. The maximum number of machines created in this organization.')
+  parallelism: int?
+}[]
+
 // ===================================== Parameters =====================================
 @description('The location of the resource. Defaults to the resourcegroups location.')
 param location string = resourceGroup().location
@@ -98,22 +196,7 @@ Example:
       }
     ]
 ''')
-param managedDevOpsPoolImages imageType[]
-
-@export()
-type imageType = {
-  @description('Optional. List of aliases to reference the image by.')
-  aliases: string[]?
-
-  @description('Optional. The percentage of the buffer to be allocated to this image.')
-  buffer: string?
-
-  @description('Conditional. The image to use from a well-known set of images made available to customers. Required if `resourceId` is not set.')
-  wellKnownImageName: string?
-
-  @description('Conditional. The specific resource id of the marketplace or compute gallery image. Required if `wellKnownImageName` is not set.')
-  resourceId: string?
-}
+param managedDevOpsPoolImages imageType[] = []
 
 @description('The permissions profile for the AzureDevOps pool in the project.')
 @allowed([
@@ -131,7 +214,7 @@ param azureDevOpsPoolsPermissionsProfile string = 'Inherit'
 param poolInteractiveMode string = 'Service'
 
 @description('Future keyvault configuration for the pool. Currently it is not used.')
-param keyvaultConfiguration object = {
+param keyvaultConfiguration SecretsManagementSettings = {
   keyExportable: false
   observedCertificates: []
 }
@@ -158,7 +241,7 @@ Example:
   }
 ]
 ''')
-param dataDisks array = []
+param dataDisks dataDiskType[] = []
 
 @description('''
 The kind of the agent scaling profile.
@@ -173,7 +256,7 @@ Example:
   }
 }
 ''')
-param agentScalingProfile object = {
+param agentScalingProfile agentScalingProfileType = {
   kind: 'Stateless' //Fresh Agent every time
   resourcePredictionsProfile: {
     predictionPreference: 'MostCostEffective' //The balance between cost and performance for standby agents.
@@ -185,7 +268,7 @@ param agentScalingProfile object = {
 param azureDevOpsOrganizationName string
 
 @description('The AzureDevOps projects to add the pool to. Empty array means all projects.')
-param azureDevOpsProjects array = []
+param azureDevOpsProjects string[] = []
 
 @description('Defines how many VM resources can be created at any given time.')
 @minValue(1)
@@ -197,11 +280,6 @@ How many machines can be created at maximum in this organization out of the maxi
 ''')
 param organizationProfileOrganizationsParallelism int = 1
 
-type additionalAzureDevOpsOrganizationsType = {
-  url: string
-  projects: []?
-  parallelism: int?
-}[]
 @description('''
 The additional AzureDevOps organizations to add the pool to.
 Example:
@@ -213,7 +291,7 @@ Example:
   }
 ]
 ''')
-param additionalAzureDevOpsOrganizations additionalAzureDevOpsOrganizationsType = []
+param additionalAzureDevOpsOrganizations organizationType[] = []
 
 // ===================================== Variables =====================================
 @description('The initial AzureDevOps organization to configure the pool in.')
@@ -246,12 +324,10 @@ var userAssignedIdentity = (!empty(userAssignedManagedIdentityName))
 @description('The resourceId of the existing Dev Center project the pool belongs to.')
 var devCenterProjectResourceId = resourceId('Microsoft.DevCenter/projects', devCenterProjectName)
 
-
 // ================================================= Resources =================================================
-resource managedDevOpsPool 'Microsoft.DevOpsInfrastructure/pools@2024-10-19' = {
+resource managedDevOpsPool 'Microsoft.DevOpsInfrastructure/pools@2026-06-02' = {
   name: managedDevOpsPoolName
   location: location
-  tags: {}
   identity: !empty(userAssignedIdentity)
     ? {
         type: 'UserAssigned'
@@ -262,6 +338,7 @@ resource managedDevOpsPool 'Microsoft.DevOpsInfrastructure/pools@2024-10-19' = {
     : {
         type: 'None'
       }
+  tags: {}
   properties: {
     agentProfile: agentScalingProfile
     devCenterProjectResourceId: devCenterProjectResourceId

@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="sqlServerFirewallRuleType">sqlServerFirewallRuleType</a>  | <pre>{</pre> |  | An array of IpAddress with start and end.  If you would use 0.0.0.0 as start and end ipaddress you would allow every Azure services and resources on your sql server (also from other Azure subscriptions). Example {     name: 'myrulename'     start: '12.34.56.78'     end: '12.34.56.78'   }   {     name: 'AllowAzureServices'     start: '0.0.0.0'     end: '0.0.0.0'   } | 
+| <a id="sqlServerFirewallRuleType">sqlServerFirewallRuleType</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;@description('The name of the firewall rule.')<br>&nbsp;&nbsp;&nbsp;name: string<br><br>&nbsp;&nbsp;&nbsp;@description('The starting IPv4 address for the firewall rule.')<br>&nbsp;&nbsp;&nbsp;start: string<br><br>&nbsp;&nbsp;&nbsp;@description('The ending IPv4 address for the firewall rule.')<br>&nbsp;&nbsp;&nbsp;end: string<br>}<br></pre> |  | An array of IpAddress with start and end.  If you would use 0.0.0.0 as start and end ipaddress you would allow every Azure services and resources on your sql server (also from other Azure subscriptions). Example {     name: 'myrulename'     start: '12.34.56.78'     end: '12.34.56.78'   }   {     name: 'AllowAzureServices'     start: '0.0.0.0'     end: '0.0.0.0'   } | 
 
 ## Synopsis
 Creating a base Azure SQL server
@@ -35,7 +35,7 @@ A hidden SQL Database resource called master is automatically created.
 | sqlServerPublicNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` or `'SecuredByPerimeter'` | <pre>'Enabled'</pre> | Whether or not public endpoint access is allowed for this server. Value is optional but if passed in, must be `Enabled`, `Disabled`, or `SecuredByPerimeter`. |
 | sqlServerRestrictOutboundNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Whether or not to restrict outbound network access for this server. Value is optional but if passed in, must be `Enabled` or `Disabled` |
 | sqlServerVersion | string | <input type="checkbox"> | None | <pre>'12.0'</pre> | The version of the sql server. |
-| sqlServerFirewallRules | sqlServerFirewallRuleType[] | <input type="checkbox"> | None | <pre>[]</pre> |  |
+| sqlServerFirewallRules | [sqlServerFirewallRuleType](#sqlServerFirewallRuleType)[] | <input type="checkbox"> | None | <pre>[]</pre> |  |
 | sqlServerEncryptionKeyKeyvaultUri | string | <input type="checkbox"> | None | <pre>''</pre> | A CMK URI of the key to use for encryption. |
 
 ## Outputs

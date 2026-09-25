@@ -6,22 +6,22 @@ Target Scope: resourceGroup
 Configuring a Proactive Detection Config.
 
 ## Description
-Configuring a Proactive Detection Config for a smart detection rule in Application Insights.<br>
-<pre><br>
-module proactivedetectionconfig 'br:contosoregistry.azurecr.io/insights/components/proactivedetectionconfigs:latest' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 32), 'degradationindependencyduration')<br>
-  dependsOn: [<br>
-    applicationInsights<br>
-  ]<br>
-  params: {<br>
-    name: 'degradationindependencyduration'<br>
-    displayName: 'Degradation in dependency duration'<br>
-    ruleDescription: 'Smart Detection rules notify you of performance anomaly issues.'<br>
-    helpUrl: 'https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics'<br>
-    applicationInsightsName: applicationInsights.outputs.appInsightsName<br>
-    customEmails: customEmails<br>
-  }<br>
-}<br>
+Configuring a Proactive Detection Config for a smart detection rule in Application Insights.
+<pre>
+module proactivedetectionconfig 'br:contosoregistry.azurecr.io/insights/components/proactivedetectionconfigs:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 32), 'degradationindependencyduration')
+  dependsOn: [
+    applicationInsights
+  ]
+  params: {
+    name: 'degradationindependencyduration'
+    displayName: 'Degradation in dependency duration'
+    ruleDescription: 'Smart Detection rules notify you of performance anomaly issues.'
+    helpUrl: 'https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics'
+    applicationInsightsName: applicationInsights.outputs.appInsightsName
+    customEmails: customEmails
+  }
+}
 </pre><br>
 <p>Configures a smart detection rule with the name 'Degradation in dependency duration' that is integrated in applicationInsights.</p>
 

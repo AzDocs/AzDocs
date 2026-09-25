@@ -5,8 +5,8 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="virtualNetworkRule">virtualNetworkRule</a>  | <pre>{</pre> |  | Virtual network rule for network access control | 
-| <a id="ipRule">ipRule</a>  | <pre>{</pre> |  | IP rule for network access control | 
+| <a id="virtualNetworkRule">virtualNetworkRule</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;@description('The resource ID of the subnet')<br>&nbsp;&nbsp;&nbsp;id: string<br><br>&nbsp;&nbsp;&nbsp;@description('Whether to ignore missing virtual network service endpoint')<br>&nbsp;&nbsp;&nbsp;ignoreMissingVnetServiceEndpoint: bool?<br>}<br></pre> |  | Virtual network rule for network access control | 
+| <a id="ipRule">ipRule</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;@description('The IP address or CIDR range to allow access from')<br>&nbsp;&nbsp;&nbsp;value: string<br>}</pre> |  | IP rule for network access control | 
 
 ## Synopsis
 Common network access control types for Azure resources

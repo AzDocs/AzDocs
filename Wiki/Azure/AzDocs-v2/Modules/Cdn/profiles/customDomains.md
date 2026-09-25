@@ -6,17 +6,17 @@ Target Scope: resourceGroup
 Create a custom domain in an existing frontdoor CDN profile.
 
 ## Description
-Create a custom domain in an existing frontdoor CDN profile.<br>
-<pre><br>
-module customdomain 'br:contosoregistry.azurecr.io/cdn/profiles/customDomains.bicep' = {<br>
-    name: format('{0}-{1}', take('${deployment().name}', 51), 'customdomain')<br>
-  params: {<br>
-    customDomainName: 'my.perfect.site.company.org'<br>
-    frontDoorName: frontDoorProfile.outputs.frontDoorName<br>
-    customDomainCertificateType: 'CustomerCertificate'<br>
-    frontDoorSecretName: frontdoorsecret.outputs.secretName<br>
-  }<br>
-}<br>
+Create a custom domain in an existing frontdoor CDN profile.
+<pre>
+module customdomain 'br:contosoregistry.azurecr.io/cdn/profiles/customDomains.bicep' = {
+    name: format('{0}-{1}', take('${deployment().name}', 51), 'customdomain')
+  params: {
+    customDomainName: 'my.perfect.site.company.org'
+    frontDoorName: frontDoorProfile.outputs.frontDoorName
+    customDomainCertificateType: 'CustomerCertificate'
+    frontDoorSecretName: frontdoorsecret.outputs.secretName
+  }
+}
 </pre><br>
 <p>Creates a custom domain called my.perfect.site.company.org in an existing Frontdoor Cdn Profile.</p>
 

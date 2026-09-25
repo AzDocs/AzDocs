@@ -6,16 +6,16 @@ Target Scope: resourceGroup
 Creating a  a Log Analytics Workspace.
 
 ## Description
-Creating a  a Log Analytics Workspace.<br>
-<pre><br>
-module origin 'br:contosoregistry.azurecr.io/operationalinsights/workspaces.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 51), 'loganalytics')<br>
-  params: {<br>
-    logAnalyticsWorkspaceName: 'workspacename'<br>
-    location: location<br>
-    retentionInDays: 30<br>
-  }<br>
-}<br>
+Creating a  a Log Analytics Workspace.
+<pre>
+module origin 'br:contosoregistry.azurecr.io/operationalinsights/workspaces.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 51), 'loganalytics')
+  params: {
+    logAnalyticsWorkspaceName: 'workspacename'
+    location: location
+    retentionInDays: 30
+  }
+}
 </pre><br>
 <p>Creates a Log Analytics Workspace with the name workspacename.</p>
 

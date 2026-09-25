@@ -6,24 +6,24 @@ Target Scope: resourceGroup
 Creating an Application Insights instance.
 
 ## Description
-Creating an Application Insights instance integrated with Log Analytics Workspace for Azure Monitor.<br>
-<pre><br>
-module appInsights 'br:contosoregistry.azurecr.io/insights/components:latest' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 52), 'appinsights')<br>
-  params: {<br>
-    appInsightsName: 'appi-myapp-dev'<br>
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.id<br>
-    location: 'westeurope'<br>
-    retentionInDays: 90<br>
-    disableLocalAuth: true<br>
-    publicNetworkAccessForIngestion: 'Enabled'<br>
-    publicNetworkAccessForQuery: 'Enabled'<br>
-    tags: {<br>
-      Environment: 'Development'<br>
-      Application: 'MyApp'<br>
-    }<br>
-  }<br>
-}<br>
+Creating an Application Insights instance integrated with Log Analytics Workspace for Azure Monitor.
+<pre>
+module appInsights 'br:contosoregistry.azurecr.io/insights/components:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 52), 'appinsights')
+  params: {
+    appInsightsName: 'appi-myapp-dev'
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.id
+    location: 'westeurope'
+    retentionInDays: 90
+    disableLocalAuth: true
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
+    tags: {
+      Environment: 'Development'
+      Application: 'MyApp'
+    }
+  }
+}
 </pre><br>
 <p>Creates an Application Insights component with Log Analytics workspace integration for application monitoring and telemetry collection.</p>
 

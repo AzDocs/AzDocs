@@ -6,37 +6,37 @@ Target Scope: resourceGroup
 Create a route in an existing endpoint on a Frontdoor Cdn.
 
 ## Description
-Create a route in an existing endpoint on a Frontdoor Cdn.<br>
-<pre><br>
-module route 'br:contosoregistry.azurecr.io/profiles/afdEndpoints/routes.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 58), 'route')<br>
-  params: {<br>
-    afdEndpointsName: afdendpointappgw.outputs.frontDoorEndpointName<br>
-    customDomains:[<br>
-      {<br>
-        id:customdomainpub.outputs.customDomainId<br>
-      }<br>
-    ]<br>
-    frontDoorName: frontDoorProfile.outputs.frontDoorName<br>
-    forwardingProtocol: 'MatchRequest'<br>
-    linkToDefaultDomain: 'Disabled'<br>
-    originGroupName: origingroupappgw.outputs.originGroupName<br>
-    routePatternsToMatch: [<br>
-      '/api/*'<br>
-    ]<br>
-    routeName: 'mypub-be-api'<br>
-    ruleSets: [<br>
-      {<br>
-        id: rulesetadddefaultresponseheaders.outputs.ruleSetId<br>
-      }<br>
-    ]<br>
-    originName: originappgw.outputs.originName<br>
-  }<br>
-  dependsOn: [<br>
-    origingroupappgw<br>
-    originappgw<br>
-  ]<br>
-}<br>
+Create a route in an existing endpoint on a Frontdoor Cdn.
+<pre>
+module route 'br:contosoregistry.azurecr.io/profiles/afdEndpoints/routes.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 58), 'route')
+  params: {
+    afdEndpointsName: afdendpointappgw.outputs.frontDoorEndpointName
+    customDomains:[
+      {
+        id:customdomainpub.outputs.customDomainId
+      }
+    ]
+    frontDoorName: frontDoorProfile.outputs.frontDoorName
+    forwardingProtocol: 'MatchRequest'
+    linkToDefaultDomain: 'Disabled'
+    originGroupName: origingroupappgw.outputs.originGroupName
+    routePatternsToMatch: [
+      '/api/*'
+    ]
+    routeName: 'mypub-be-api'
+    ruleSets: [
+      {
+        id: rulesetadddefaultresponseheaders.outputs.ruleSetId
+      }
+    ]
+    originName: originappgw.outputs.originName
+  }
+  dependsOn: [
+    origingroupappgw
+    originappgw
+  ]
+}
 </pre><br>
 <p>Creates a route in an existing frontdoor profile with existing endpoint, existing origingroup, origin and ruleset</p>
 

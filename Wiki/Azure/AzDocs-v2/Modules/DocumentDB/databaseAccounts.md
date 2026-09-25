@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="Subnet">Subnet</a>  | <pre>{</pre> |  |  | 
+| <a id="Subnet">Subnet</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;resourceGroupName: string<br>&nbsp;&nbsp;&nbsp;vnetName: string<br>&nbsp;&nbsp;&nbsp;subnetName: string<br>&nbsp;&nbsp;&nbsp;subscriptionId: string?<br>}<br></pre> |  |  | 
 
 ## Synopsis
 Creating a document db account with the given specs.
@@ -28,7 +28,7 @@ When the 'EnableServerless' capability is added, the account is created in serve
 | consistencyPolicy | object | <input type="checkbox"> | None | <pre>{<br>  defaultConsistencyLevel: 'Session'<br>  maxIntervalInSeconds: 5<br>  maxStalenessPrefix: 100<br>}</pre> | The consistency policy for this DocumentDB. Defaults to Session. |
 | identity | object | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | The identity for this DocumentDB. Defaults to SystemAssigned. |
 | ipsToWhitelist | array | <input type="checkbox"> | None | <pre>[]</pre> | The IPs to whitelist for this DocumentDB. Defaults to empty.<br>Make sure to pass an array of objects with the following properties:<br>- ipAddressOrRange: The CIDR notation for the IP to whitelist (you are allowed to omit the suffix if its a /32.). Examples: 123.123.123.123 or 123.123.123.123/24 |
-| subnetsToWhitelist | Subnet[] | <input type="checkbox"> | None | <pre>[]</pre> | The subnets to whitelist for this DocumentDB. Defaults to empty.<br>Make sure to pass an array of objects with the following properties:<br>- resourceGroupName: The name of the resourcegroup the vnet is in.<br>- vnetName: The name of the vnet.<br>- subnetName: The name of the subnet.<br>- subscriptionId: The subscription id of the vnet. (optional) |
+| subnetsToWhitelist | [Subnet](#Subnet)[] | <input type="checkbox"> | None | <pre>[]</pre> | The subnets to whitelist for this DocumentDB. Defaults to empty.<br>Make sure to pass an array of objects with the following properties:<br>- resourceGroupName: The name of the resourcegroup the vnet is in.<br>- vnetName: The name of the vnet.<br>- subnetName: The name of the subnet.<br>- subscriptionId: The subscription id of the vnet. (optional) |
 | minimalTlsVersion | string | <input type="checkbox"> | `'Tls'` or `'Tls11'` or `'Tls12'` | <pre>'Tls12'</pre> |  |
 | logAnalyticsWorkspaceResourceId | string | <input type="checkbox" checked> | None | <pre></pre> | The resource id of the Log Analytics workspace to send diagnostics data to. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The tag object.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For example (in YAML):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationID: 1234<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationName: MyCmdbAppName<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationOwner: myproductowner@company.com<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AppTechOwner: myteam@company.com<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BillingIdentifier: 123456<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BusinessUnit: MyBusinessUnit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CostType: Application<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EnvironmentType: dev<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PipelineBuildNumber: 2022.08.02-main<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PipelineRunUrl: https://dev.azure.com/org/TeamProject/_build/results?buildId=1234&view=results |

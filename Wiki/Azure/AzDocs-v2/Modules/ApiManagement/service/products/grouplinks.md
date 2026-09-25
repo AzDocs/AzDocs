@@ -6,17 +6,17 @@ Target Scope: resourceGroup
 Add a grouplink to a product in Api Management Service.
 
 ## Description
-Add a grouplink to a product Access Control List (ACL) in Api Management Service.<br>
-<pre><br>
-module diagnostics 'br:contosoregistry.azurecr.io/service/groups.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 58), 'groups')<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    groupId: groupId<br>
-    groupLinkName: groupLinkName<br>
-    productName: productName<br>
-  }<br>
-}<br>
+Add a grouplink to a product Access Control List (ACL) in Api Management Service.
+<pre>
+module diagnostics 'br:contosoregistry.azurecr.io/service/groups.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 58), 'groups')
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    groupId: groupId
+    groupLinkName: groupLinkName
+    productName: productName
+  }
+}
 </pre><br>
 <p>Add a grouplink to a product Access Control List (ACL) in Api Management Service.</p>
 

@@ -6,15 +6,15 @@ Target Scope: resourceGroup
 Creating a FrontDoor endpoint
 
 ## Description
-Creating a FrontDoor endpoint in an existing FrontDoor Cdn profile.<br>
-<pre><br>
-module afdendpoint 'br:contosoregistry.azurecr.io/cdn/profiles/afdendpoints.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 52), 'afdendpoint')<br>
-  params: {<br>
-    frontDoorName: frontDoorProfile.outputs.frontDoorName<br>
-    afdEndpointsName: afdEndpointsName<br>
-  }<br>
-}<br>
+Creating a FrontDoor endpoint in an existing FrontDoor Cdn profile.
+<pre>
+module afdendpoint 'br:contosoregistry.azurecr.io/cdn/profiles/afdendpoints.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 52), 'afdendpoint')
+  params: {
+    frontDoorName: frontDoorProfile.outputs.frontDoorName
+    afdEndpointsName: afdEndpointsName
+  }
+}
 </pre><br>
 <p>Creates a endpoint in an existing Frontdoor Profile with the name afdEndpointsName.</p>
 

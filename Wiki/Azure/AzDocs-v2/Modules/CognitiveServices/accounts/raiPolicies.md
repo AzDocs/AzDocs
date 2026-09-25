@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="contentFilter">contentFilter</a>  | <pre>{</pre> |  | Content filter configuration for RAI policies | 
+| <a id="contentFilter">contentFilter</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;@description('The name of the content filter (e.g., Violence, Hate, Sexual, SelfHarm)')<br>&nbsp;&nbsp;&nbsp;name: string<br><br>&nbsp;&nbsp;&nbsp;@description('The severity threshold for the content filter (Low, Medium, High)')<br>&nbsp;&nbsp;&nbsp;severityThreshold: string<br><br>&nbsp;&nbsp;&nbsp;@description('Whether the content filter should block content that exceeds the threshold')<br>&nbsp;&nbsp;&nbsp;blocking: bool<br><br>&nbsp;&nbsp;&nbsp;@description('Whether the content filter is enabled')<br>&nbsp;&nbsp;&nbsp;enabled: bool<br><br>&nbsp;&nbsp;&nbsp;@description('The source to apply the filter to (Prompt, Completion)')<br>&nbsp;&nbsp;&nbsp;source: string<br>}<br></pre> |  | Content filter configuration for RAI policies | 
 
 ## Synopsis
 Creating a Responsible AI (RAI) policy for an existing Cognitive Services account
@@ -20,7 +20,7 @@ Creating a Responsible AI policy for an existing Cognitive Services account with
 | policyName | string | <input type="checkbox" checked> | Length between 1-64 | <pre></pre> | The name of the RAI policy to create. |
 | mode | string | <input type="checkbox"> | `'Default'` or `'Blocking'` | <pre>'Default'</pre> | The mode of the RAI policy. |
 | basePolicyName | string | <input type="checkbox"> | None | <pre>''</pre> | The base policy name to inherit from (if using Default mode). |
-| contentFilters | contentFilter[] | <input type="checkbox"> | None | <pre>[]</pre> | Array of content filters to apply. Each filter should have the following structure:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'Violence'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;severityThreshold: 'Low' &#124; 'Medium' &#124; 'High'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blocking: true &#124; false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enabled: true &#124; false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source: 'Prompt' &#124; 'Completion'<br>&nbsp;&nbsp;&nbsp;}<br>] |
+| contentFilters | [contentFilter](#contentFilter)[] | <input type="checkbox"> | None | <pre>[]</pre> | Array of content filters to apply. Each filter should have the following structure:<br>[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: 'Violence'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;severityThreshold: 'Low' &#124; 'Medium' &#124; 'High'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blocking: true &#124; false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enabled: true &#124; false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source: 'Prompt' &#124; 'Completion'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 
 ## Outputs
 | Name | Type | Description |

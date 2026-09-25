@@ -6,15 +6,15 @@ Target Scope: resourceGroup
 Creating a origin GroupName with an optional origin in an existing FrontDoor profile with an existing endpoint.
 
 ## Description
-Creating a origin GroupName endpoint with an optional origin in an existing FrontDoor profile with an existing endpoint.<br>
-<pre><br>
-module origingroup 'br:contosoregistry.azurecr.io/cdn/profiles/origingroups.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 52), 'origingroup')<br>
-  params: {<br>
-    frontDoorName: frontDoorProfile.outputs.frontDoorName<br>
-    originGroupName: originGroupName<br>
-  }<br>
-}<br>
+Creating a origin GroupName endpoint with an optional origin in an existing FrontDoor profile with an existing endpoint.
+<pre>
+module origingroup 'br:contosoregistry.azurecr.io/cdn/profiles/origingroups.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 52), 'origingroup')
+  params: {
+    frontDoorName: frontDoorProfile.outputs.frontDoorName
+    originGroupName: originGroupName
+  }
+}
 </pre><br>
 <p>Creates an origin GroupName called originGroupName in an existing Frontdoor Cdn Profile.</p>
 

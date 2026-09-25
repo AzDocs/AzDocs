@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+> [!NOTE]
+> This module uses Bicep resource-derived types (`resourceInput<>` / `resourceOutput<>`).
+> - [Resource-derived types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-data-types#resource-derived-types)
+> - [Bicep data types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/data-types)
+
 ## Synopsis
 Creating a Virtual Hub.
 
@@ -19,16 +24,16 @@ Creating a Virtual Hub with the given specs. If you are planning to deploy a Sec
 | azureFirewallResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. Resource ID of the Azure Firewall to link to. |
 | expressRouteGatewayResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. Resource ID of the Express Route Gateway to link to. |
 | p2SVpnGatewayResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. Resource ID of the Point-to-Site VPN Gateway to link to. |
-| hubRoutingPreference | resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.hubRoutingPreference? | <input type="checkbox" checked> | None | <pre></pre> | Optional. The preferred routing preference for this virtual hub. |
-| preferredRoutingGateway | resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.preferredRoutingGateway? | <input type="checkbox" checked> | None | <pre></pre> | Optional. The preferred routing gateway types. |
-| routeTableRoutes | resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.routeTable.routes? | <input type="checkbox" checked> | None | <pre></pre> | Optional. The VirtualHub route tables. |
+| hubRoutingPreference | [resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.hubRoutingPreference](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-01-01/virtualhubs?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Schema-constrained (resource-derived type) | <pre></pre> | Optional. The preferred routing preference for this virtual hub. |
+| preferredRoutingGateway | [resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.preferredRoutingGateway](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-01-01/virtualhubs?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Schema-constrained (resource-derived type) | <pre></pre> | Optional. The preferred routing gateway types. |
+| routeTableRoutes | [resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.routeTable.routes](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-01-01/virtualhubs?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Schema-constrained (resource-derived type) | <pre></pre> | Optional. The VirtualHub route tables. |
 | securityPartnerProviderResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. ID of the Security Partner Provider to link to. |
 | securityProviderName | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. The Security Provider name. |
 | sku | string | <input type="checkbox"> | `'Basic'` or `'Standard'` | <pre>'Standard'</pre> | Optional. The sku of this VirtualHub. |
-| virtualHubRouteTableV2s | resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.virtualHubRouteTableV2s? | <input type="checkbox" checked> | None | <pre></pre> | Optional. List of all virtual hub route table v2s associated with this VirtualHub. |
-| virtualRouterAsn | resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.virtualRouterAsn? | <input type="checkbox" checked> | Value between 0-4294967295 | <pre></pre> | Optional. VirtualRouter ASN. |
-| virtualRouterIps | resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.virtualRouterIps? | <input type="checkbox" checked> | None | <pre></pre> | Optional. VirtualRouter IPs. |
-| virtualRouterAutoScaleConfiguration | resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.virtualRouterAutoScaleConfiguration? | <input type="checkbox" checked> | None | <pre></pre> | Optional. The auto scale configuration for the virtual router. |
+| virtualHubRouteTableV2s | [resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.virtualHubRouteTableV2s](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-01-01/virtualhubs?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Schema-constrained (resource-derived type) | <pre></pre> | Optional. List of all virtual hub route table v2s associated with this VirtualHub. |
+| virtualRouterAsn | [resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.virtualRouterAsn](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-01-01/virtualhubs?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Value between 0-4294967295 | <pre></pre> | Optional. VirtualRouter ASN. |
+| virtualRouterIps | [resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.virtualRouterIps](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-01-01/virtualhubs?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Schema-constrained (resource-derived type) | <pre></pre> | Optional. VirtualRouter IPs. |
+| virtualRouterAutoScaleConfiguration | [resourceInput<'Microsoft.Network/virtualHubs@2025-01-01'>.properties.virtualRouterAutoScaleConfiguration](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2025-01-01/virtualhubs?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Schema-constrained (resource-derived type) | <pre></pre> | Optional. The auto scale configuration for the virtual router. |
 | virtualWanResourceId | string | <input type="checkbox" checked> | None | <pre></pre> | Required. Resource ID of the virtual WAN to link to. |
 | vpnGatewayResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | Optional. Resource ID of the VPN Gateway to link to. |
 
