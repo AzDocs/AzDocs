@@ -29,6 +29,7 @@ param dashboardName string
 
 @description('The title displayed for the dashboard in the Azure portal and stored in the hidden-title tag.')
 @minLength(1)
+@maxLength(256)
 param dashboardDisplayName string
 
 @description('The dashboard definition, including its lenses and metadata.')

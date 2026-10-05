@@ -12,7 +12,7 @@ Creates a Microsoft.Portal dashboard from caller-provided dashboard properties. 
 | Name | Type | Required | Validation | Default value | Description |
 | -- |  -- | -- | -- | -- | -- |
 | dashboardName | string | <input type="checkbox" checked> | Length between 3-64 | <pre></pre> | The name of the dashboard resource. Alphanumerics and hyphens only. |
-| dashboardDisplayName | string | <input type="checkbox" checked> | Length between 1-* | <pre></pre> | The title displayed for the dashboard in the Azure portal and stored in the hidden-title tag. |
+| dashboardDisplayName | string | <input type="checkbox" checked> | Length between 1-256 | <pre></pre> | The title displayed for the dashboard in the Azure portal and stored in the hidden-title tag. |
 | dashboardProperties | object | <input type="checkbox" checked> | None | <pre></pre> | The dashboard definition, including its lenses and metadata. |
 | location | string | <input type="checkbox"> | None | <pre>resourceGroup().location</pre> | The Azure region for the dashboard. Defaults to the resource group location. |
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | Additional tags to apply to the dashboard. The hidden-title tag is set from dashboardDisplayName. |
