@@ -6,6 +6,7 @@ Creating a Virtual machine with the given specs.
 
 The defaults create a Windows Server 2025 Azure Edition VM of size `Standard_D2as_v6` with Trusted Launch (secure boot and vTPM), encryption at host and an NVMe disk controller.
 The Dasv6 family only supports Generation 2 images and the NVMe disk controller. When you choose an older size or a Generation 1 image, also set `diskControllerType` to `SCSI` and, for Generation 1 images, `virtualMachineSecurityType` to `Standard`.
+When you deploy this module over an existing virtual machine that was created without a security type, set `virtualMachineSecurityType` to an empty string. Azure does not allow adding a security type to such a virtual machine.
 .EXAMPLE
 <pre>
 resource keyVault 'Microsoft.KeyVault/vaults@2024-11-01' existing = {
@@ -157,8 +158,10 @@ param diskControllerType string = 'NVMe'
 @description('''
 Specifies the security type of the virtual machine. Defaults to `TrustedLaunch`, which requires a Generation 2 image.
 Use `Standard` for Generation 1 images. `ConfidentialVM` requires a confidential VM size and a confidential OS disk configuration in `osDisk`.
+Use an empty string to leave `securityType` out of the request. This is needed for an existing virtual machine that was created without a security type: Azure does not allow setting `securityType` on such a virtual machine afterwards, not even to `Standard`, and rejects the deployment with `PropertyChangeNotAllowed`.
 ''')
 @allowed([
+  ''
   'TrustedLaunch'
   'ConfidentialVM'
   'Standard'
@@ -499,8 +502,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2025-04-01' = {
     }
     securityProfile: {
       encryptionAtHost: encryptionAtHost
-      securityType: virtualMachineSecurityType
-      ...(virtualMachineSecurityType != 'Standard'
+      // An empty security type leaves securityType and uefiSettings out, for virtual machines created without a security type
+      ...(!empty(virtualMachineSecurityType) ? { securityType: virtualMachineSecurityType } : {})
+      ...(contains(['TrustedLaunch', 'ConfidentialVM'], virtualMachineSecurityType)
         ? {
             uefiSettings: {
               secureBootEnabled: secureBootEnabled
