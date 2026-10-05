@@ -3,8 +3,15 @@
 Creating a Virtual Machine
 .DESCRIPTION
 Creating a Virtual machine with the given specs.
+
+The defaults create a Windows Server 2025 Azure Edition VM of size `Standard_D2as_v6` with Trusted Launch (secure boot and vTPM), encryption at host and an NVMe disk controller.
+The Dasv6 family only supports Generation 2 images and the NVMe disk controller. When you choose an older size or a Generation 1 image, also set `diskControllerType` to `SCSI` and, for Generation 1 images, `virtualMachineSecurityType` to `Standard`.
 .EXAMPLE
 <pre>
+resource keyVault 'Microsoft.KeyVault/vaults@2024-11-01' existing = {
+  name: 'kv-myworkload-dev'
+}
+
 module vm 'br:contosoregistry.azurecr.io/compute/virtualmachines:latest' = {
   name: 'Creating_VM_MyFirstVM'
   scope: resourceGroup
@@ -13,14 +20,48 @@ module vm 'br:contosoregistry.azurecr.io/compute/virtualmachines:latest' = {
     virtualMachineName: 'MyFirstVM'
     virtualMachineSubnetResourceId: virtualMachineSubnetResourceId
     virtualMachineAdminUsername: 'vmadmin'
-    virtualMachineAdminPasswordOrPublicKey: 'VerySecretPassW0rd'
+    virtualMachineAdminPasswordOrPublicKey: keyVault.getSecret('vm-admin-password')
   }
 }
 </pre>
-<p>Creates a virtual machine with the name MyFirstVM</p>
+<p>Creates a Windows virtual machine with the name MyFirstVM and a system assigned managed identity.</p>
+.EXAMPLE
+<pre>
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = {
+  name: 'id-myworkload-dev'
+}
+
+module vm 'br:contosoregistry.azurecr.io/compute/virtualmachines:latest' = {
+  name: 'Creating_VM_MyLinuxVM'
+  scope: resourceGroup
+  params: {
+    operatingSystem: 'Linux'
+    virtualMachineName: 'MyLinuxVM'
+    virtualMachineSubnetResourceId: virtualMachineSubnetResourceId
+    virtualMachineAdminUsername: 'vmadmin'
+    virtualMachineAuthenticationMethod: 'sshPublicKey'
+    virtualMachineAdminPasswordOrPublicKey: loadTextContent('publickey.pub')
+    virtualMachineImageReference: {
+      publisher: 'Canonical'
+      offer: 'ubuntu-24_04-lts'
+      sku: 'server'
+      version: 'latest'
+    }
+    identity: {
+      type: 'SystemAssigned, UserAssigned'
+      userAssignedIdentities: {
+        '${userAssignedIdentity.id}': {}
+      }
+    }
+  }
+}
+</pre>
+<p>Creates a Linux virtual machine with the name MyLinuxVM, SSH key authentication, and both a system assigned and a user assigned managed identity.</p>
 .LINKS
-- [Bicep Microsoft.Compute virtualMachines](https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep)
-- [Virtual Machines sizes](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')
+- [Bicep Microsoft.Compute virtualMachines](https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep)
+- [Virtual Machines sizes](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes)
+- [Dasv6 series](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/dasv6-series)
+- [Trusted Launch](https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch)
 - [BYOL, Hybrid Benefit](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing)
 */
 
@@ -54,6 +95,23 @@ Example:
 ''')
 param tags object = {}
 
+@description('''
+The managed identity configuration of the virtual machine. Defaults to a system assigned managed identity.
+Allowed types are `SystemAssigned`, `UserAssigned`, `SystemAssigned, UserAssigned` and `None`.
+Example with both a system assigned and a user assigned managed identity:
+{
+  type: 'SystemAssigned, UserAssigned'
+  userAssignedIdentities: {
+    '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}': {}
+  }
+}
+
+NOTE: Every deployment replaces the complete identity configuration of the virtual machine. User assigned identities that something outside this module attaches, for example an Azure Policy that assigns the identity the Azure Monitor Agent authenticates with, are removed on a redeploy unless you include them in `userAssignedIdentities`. Until the policy attaches the identity again, the agent cannot authenticate.
+''')
+param identity resourceInput<'Microsoft.Compute/virtualMachines@2025-04-01'>.identity = {
+  type: 'SystemAssigned'
+}
+
 @description('Specifies the resource id of the subnet where the default NIC should be onboarded into. If you don\'t fill the `networkInterfaces` parameter, this parameter is required.')
 param virtualMachineSubnetResourceId string = ''
 
@@ -80,17 +138,47 @@ To import a string (either password or SSH-key) you also have the option to do t
 @minLength(12)
 param virtualMachineAdminPasswordOrPublicKey string
 
-@description('Specifies the size of the virtual machine. For more options, please refer to https://docs.microsoft.com/en-us/azure/virtual-machines/sizes')
-param virtualMachineSize string = 'Standard_D1_v2'
+@description('''
+Specifies the size of the virtual machine. Defaults to `Standard_D2as_v6` (2 vCPUs, 8 GiB memory).
+The Dasv6 family requires a Generation 2 image and the `NVMe` disk controller. For more options, please refer to https://learn.microsoft.com/en-us/azure/virtual-machines/sizes
+''')
+param virtualMachineSize string = 'Standard_D2as_v6'
 
 @description('''
-This is the configuration for the OS Disk for this virtual machine. For formatting & options, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep#osdisk.
+Specifies the disk controller type of the virtual machine. Defaults to `NVMe`, which the default size `Standard_D2as_v6` requires.
+Use `SCSI` for sizes that do not support NVMe, for example the Dv2 and Dv5 families.
 ''')
-param osDisk object = {
+@allowed([
+  'NVMe'
+  'SCSI'
+])
+param diskControllerType string = 'NVMe'
+
+@description('''
+Specifies the security type of the virtual machine. Defaults to `TrustedLaunch`, which requires a Generation 2 image.
+Use `Standard` for Generation 1 images. `ConfidentialVM` requires a confidential VM size and a confidential OS disk configuration in `osDisk`.
+''')
+@allowed([
+  'TrustedLaunch'
+  'ConfidentialVM'
+  'Standard'
+])
+param virtualMachineSecurityType string = 'TrustedLaunch'
+
+@description('Specifies whether secure boot is enabled. Only used when `virtualMachineSecurityType` is `TrustedLaunch` or `ConfidentialVM`. Defaults to `true`.')
+param secureBootEnabled bool = true
+
+@description('Specifies whether the virtual TPM is enabled. Only used when `virtualMachineSecurityType` is `TrustedLaunch` or `ConfidentialVM`. Defaults to `true`.')
+param vTpmEnabled bool = true
+
+@description('''
+This is the configuration for the OS Disk for this virtual machine. For formatting & options, please refer to https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep#osdisk.
+''')
+param osDisk resourceInput<'Microsoft.Compute/virtualMachines@2025-04-01'>.properties.storageProfile.osDisk = {
   name: 'osdisk-${virtualMachineName}'
   caching: 'ReadWrite'
   createOption: 'FromImage'
-  diskSizeGB: 100
+  diskSizeGB: 128
   managedDisk: {
     storageAccountType: 'StandardSSD_LRS'
   }
@@ -112,10 +200,10 @@ dataDisks: [for j in range(0, numberOfDataDisks): {
   }
 }]
 ''')
-param dataDisks array = []
+param dataDisks resourceInput<'Microsoft.Compute/virtualMachines@2025-04-01'>.properties.storageProfile.dataDisks = []
 
 @description('''
-The array of network interfaces to create for this VM. For formatting & options please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep#networkinterfacereference.
+The array of network interfaces to create for this VM. For formatting & options please refer to https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep#networkinterfacereference.
 
 If you leave this empty, this script will create 1 default NIC for you. If you fill this, the default option will be omitted/skipped.
 
@@ -129,28 +217,28 @@ networkInterfaces: [
 param networkInterfaces array = []
 
 @description('''
-Define the image you want to use for this VM. For formatting & options, please refer to https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep#imagereference.
+Define the image you want to use for this VM. Defaults to Windows Server 2025 Datacenter Azure Edition (Generation 2). For formatting & options, please refer to https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep#imagereference.
 Example:
 {
   publisher: 'Canonical'
-  offer: '0001-com-ubuntu-server-focal'
-  sku: '20_04-lts'
+  offer: 'ubuntu-24_04-lts'
+  sku: 'server'
   version: 'latest'
 }
 Other examples:
 Among others, options are:
 `publisher`: Canonical (for Ubuntu), RedHat (for Red Hat Linux), MicrosoftWindowsServer (for Windows Server).
-`offer`: UbuntuServer (for Ubuntu), RHEL for (Red Hat Linux), WindowsServer (for Windows Server)
-`sku`: 18.04-LTS (for Ubuntu) , 7.8 (for Red Hat Linux), 2019-Datacenter (for Windows Server)
+`offer`: ubuntu-24_04-lts (for Ubuntu), RHEL (for Red Hat Linux), WindowsServer (for Windows Server)
+`sku`: server (for Ubuntu), 9-lvm-gen2 (for Red Hat Linux), 2025-datacenter-azure-edition (for Windows Server)
 ''')
 param virtualMachineImageReference object = {
   publisher: 'MicrosoftWindowsServer'
   offer: 'WindowsServer'
-  sku: '2019-Datacenter'
+  sku: '2025-datacenter-azure-edition'
   version: 'latest'
 }
 
-@description('Specifies the name of the storage account where the bootstrap diagnostic logs of the virtual machine are stored. Leave empty to disable boot diagnostics.')
+@description('Specifies the name of the storage account where the bootstrap diagnostic logs of the virtual machine are stored. Leave empty to use managed storage for boot diagnostics.')
 @maxLength(24)
 param bootDiagnosticsStorageAccountName string = ''
 
@@ -196,46 +284,67 @@ Example:
 param loadBalancerInboundNatRuleResourceIds array = []
 
 @description('''
-Enable Accelerated Networking for the vm\'s default interface. Defaults to `false`.
+Enable Accelerated Networking for the vm's default interface. Defaults to `true`, which the default size `Standard_D2as_v6` supports.
+Set this to `false` for sizes that do not support accelerated networking. Changing this on an existing NIC requires the VM to be deallocated.
 NOTE: If you use the `networkInterfaces` parameter, this value is not used.
 ''')
-param enableAcceleratedNetworking bool = false
+param enableAcceleratedNetworking bool = true
 
-@description('''The Azure availability zones your Virtual Machine can be in. See https://docs.microsoft.com/en-us/azure/availability-zones/az-overview.
+@description('''The Azure availability zones your Virtual Machine can be in. See https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview.
 Example:
-[1]
+['1']
 You cannot both have Availability Zone and Availability Set specified. Deploying an Availability Set to an Availability Zone is not supported.
 ''')
 @maxLength(1)
 param availabilityZones array = []
 
-@description('If you want to have bootdiagnostics enabled on the Virtual Machine. More info https://docs.microsoft.com/en-us/azure/virtual-machines/boot-diagnostics.')
+@description('If you want to have bootdiagnostics enabled on the Virtual Machine. More info https://learn.microsoft.com/en-us/azure/virtual-machines/boot-diagnostics.')
 param bootdiagnosticsEnabled bool = true
 
 @description('If the provision agent should be installed.')
 param provisionVMAgent bool = true
 
-@description('The bicep object to configure the linux vm configuration when creating the vm.')
-param linuxConfiguration object = {}
+@description('''
+Specifies whether the virtual machine is patched by an Azure Update Manager maintenance configuration (patch orchestration "Customer Managed Schedules").
+Set to `true` when a maintenance configuration covers this VM, for example through a dynamic scope on tags. Without a maintenance configuration assigned, a VM with `true` receives no automatic patches.
+Defaults to `false`: Azure patches the VM in its off-peak hours.
+On Windows, `true` also disables hotpatching, because Azure only allows hotpatching with the platform safety checks enabled.
+Only applied when the `patchMode` in `windowsConfiguration` or `linuxConfiguration` is `AutomaticByPlatform`. See https://learn.microsoft.com/en-us/azure/update-manager/prerequsite-for-schedule-patching.
+''')
+param bypassPlatformSafetyChecksOnUserSchedule bool = false
 
-@description('The bicep object to configure the Windows vm configuration when creating the vm.')
-param windowsConfiguration object = {
-  enableAutomaticUpdates: true
+@description('''
+The bicep object to configure the linux vm configuration when creating the vm. For formatting & options, please refer to https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep#linuxconfiguration.
+Defaults to `AutomaticByPlatform` patching. Use `ImageDefault` for images that do not support platform patching, see https://learn.microsoft.com/en-us/azure/virtual-machines/automatic-vm-guest-patching#supported-os-images.
+''')
+param linuxConfiguration resourceInput<'Microsoft.Compute/virtualMachines@2025-04-01'>.properties.osProfile.linuxConfiguration = {
   patchSettings: {
-    patchMode: 'AutomaticByOS'
-    assessmentMode: 'ImageDefault'
+    patchMode: 'AutomaticByPlatform'
+    assessmentMode: 'AutomaticByPlatform'
   }
-  enableVMAgentPlatformUpdates: false
 }
 
 @description('''
-This property can be used by user in the request to enable or disable the Host Encryption for the virtual machine or virtual machine scale set. 
-This will enable the encryption for all the disks including Resource/Temp disk at host itself.
-
-For Linux operating systems this is a mandatory to be set to True.
-Azure Policy controling this is described here [Virtual machines and virtual machine scale sets should have encryption at host enabled](https://www.azadvertizer.com/azpolicyadvertizer/fc4d8e41-e223-45ea-9bf5-eada37891d87.html) 
+The bicep object to configure the Windows vm configuration when creating the vm. For formatting & options, please refer to https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines?pivots=deployment-language-bicep#windowsconfiguration.
+Defaults to `AutomaticByPlatform` patching, which Hotpatch-compatible images such as the default `2025-datacenter-azure-edition` require. Use `AutomaticByOS` for images that do not support platform patching.
 ''')
-param encryptionAtHost bool = false
+param windowsConfiguration resourceInput<'Microsoft.Compute/virtualMachines@2025-04-01'>.properties.osProfile.windowsConfiguration = {
+  enableAutomaticUpdates: true
+  patchSettings: {
+    patchMode: 'AutomaticByPlatform'
+    assessmentMode: 'AutomaticByPlatform'
+  }
+}
+
+@description('''
+This property can be used by user in the request to enable or disable the Host Encryption for the virtual machine or virtual machine scale set.
+This will enable the encryption for all the disks including Resource/Temp disk at host itself.
+Defaults to `true`. Requires the `EncryptionAtHost` feature to be registered on the subscription (`az feature register --namespace Microsoft.Compute --name EncryptionAtHost`).
+
+Only set this to `false` for sizes that do not support encryption at host.
+Azure Policy controlling this is described here [Virtual machines and virtual machine scale sets should have encryption at host enabled](https://www.azadvertizer.com/azpolicyadvertizer/fc4d8e41-e223-45ea-9bf5-eada37891d87.html)
+''')
+param encryptionAtHost bool = true
 
 @description('''
 Type of OS licensing.
@@ -265,13 +374,13 @@ Azure Hybrid Benefit provides software updates and integrated support directly f
 param OSLicenseType string = ''
 
 @description('''
-Specifies a base-64 encoded string of custom data. 
-The base-64 encoded string is decoded to a binary array that is saved as a file on the Virtual Machine. 
-The maximum length of the binary array is 65535 bytes. 
+Specifies a base-64 encoded string of custom data.
+The base-64 encoded string is decoded to a binary array that is saved as a file on the Virtual Machine.
+The maximum length of the binary array is 65535 bytes.
 
 **Note: Do not pass any secrets or passwords in customData property. **
-This property cannot be updated after the VM is created. 
-The property 'customData' is passed to the VM to be saved as a file, for more information see [Custom Data on Azure VMs](https://azure.microsoft.com/blog/custom-data-and-cloud-init-on-windows-azure/). 
+This property cannot be updated after the VM is created.
+The property 'customData' is passed to the VM to be saved as a file, for more information see [Custom Data on Azure VMs](https://azure.microsoft.com/blog/custom-data-and-cloud-init-on-windows-azure/).
 For using cloud-init for your Linux VM, see [Using cloud-init to customize a Linux VM during creation](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/using-cloud-init).
 ''')
 param customData string?
@@ -282,6 +391,16 @@ var linuxConfigurationUnion = union(
   //default configuration
   { provisionVMAgent: provisionVMAgent },
   //adding the provision vm agent setting
+  linuxConfiguration.?patchSettings.?patchMode == 'AutomaticByPlatform'
+    ? {
+        //adding the scheduled patching setting
+        patchSettings: {
+          automaticByPlatformSettings: {
+            bypassPlatformSafetyChecksOnUserSchedule: bypassPlatformSafetyChecksOnUserSchedule
+          }
+        }
+      }
+    : {},
   virtualMachineAuthenticationMethod == 'sshPublicKey'
     ? {
         //adding ssh public key authorization settings
@@ -302,20 +421,32 @@ var linuxConfigurationUnion = union(
 var windowsConfigurationUnion = union(
   windowsConfiguration,
   //default configuration
-  { provisionVMAgent: provisionVMAgent } //adding the provision vm agent setting
+  { provisionVMAgent: provisionVMAgent }, //adding the provision vm agent setting
+  windowsConfiguration.?patchSettings.?patchMode == 'AutomaticByPlatform'
+    ? {
+        //adding the scheduled patching setting, hotpatching requires the platform safety checks
+        patchSettings: {
+          ...(bypassPlatformSafetyChecksOnUserSchedule ? { enableHotpatching: false } : {})
+          automaticByPlatformSettings: {
+            bypassPlatformSafetyChecksOnUserSchedule: bypassPlatformSafetyChecksOnUserSchedule
+          }
+        }
+      }
+    : {}
 )
 
 // ================================================= Resources =================================================
 @description('Upsert the availabilitySet using the given parameters if desired.')
-resource availabilitySet 'Microsoft.Compute/availabilitySets@2022-03-01' = if (!empty(availabilitySetName)) {
+resource availabilitySet 'Microsoft.Compute/availabilitySets@2025-04-01' = if (!empty(availabilitySetName)) {
   name: empty(availabilitySetName) ? 'dummy' : availabilitySetName
   location: location
+  sku: {
+    name: 'Aligned'
+  }
+  tags: tags
   properties: {
     platformFaultDomainCount: availabilitySetPlatformFaultDomainCount
     platformUpdateDomainCount: availabilitySetPlatformUpdateDomainCount
-  }
-  sku: {
-    name: 'Aligned'
   }
 }
 
@@ -336,18 +467,17 @@ module virtualMachineNetworkInterface '../Network/networkInterfaces.bicep' = if 
 }
 
 @description('Fetch the storageaccount used for boot diagnostics if desired.')
-resource bootDiagnosticsStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' existing = if (!empty(bootDiagnosticsStorageAccountName)) {
+resource bootDiagnosticsStorageAccount 'Microsoft.Storage/storageAccounts@2025-01-01' existing = if (!empty(bootDiagnosticsStorageAccountName)) {
   name: bootDiagnosticsStorageAccountName
 }
 
 @description('Upsert the Virtual Machine with the given parameters.')
-resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
+resource virtualMachine 'Microsoft.Compute/virtualMachines@2025-04-01' = {
   name: virtualMachineName
   location: location
+  zones: availabilityZones
+  identity: identity
   tags: tags
-  identity: {
-    type: 'SystemAssigned'
-  }
   properties: {
     hardwareProfile: {
       vmSize: virtualMachineSize
@@ -356,7 +486,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     osProfile: {
       computerName: virtualMachineName
       adminUsername: virtualMachineAdminUsername
-      adminPassword: virtualMachineAdminPasswordOrPublicKey
+      adminPassword: virtualMachineAuthenticationMethod == 'password' ? virtualMachineAdminPasswordOrPublicKey : null
       linuxConfiguration: operatingSystem == 'Linux' ? linuxConfigurationUnion : null
       windowsConfiguration: operatingSystem == 'Windows' ? windowsConfigurationUnion : null
       ...(customData != null ? { customData: customData } : {})
@@ -365,31 +495,35 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       imageReference: virtualMachineImageReference
       osDisk: osDisk
       dataDisks: dataDisks
+      diskControllerType: diskControllerType
     }
     securityProfile: {
       encryptionAtHost: encryptionAtHost
+      securityType: virtualMachineSecurityType
+      ...(virtualMachineSecurityType != 'Standard'
+        ? {
+            uefiSettings: {
+              secureBootEnabled: secureBootEnabled
+              vTpmEnabled: vTpmEnabled
+            }
+          }
+        : {})
     }
     availabilitySet: (!empty(availabilitySetName)) ? { id: availabilitySet.id } : null
     networkProfile: {
       networkInterfaces: length(networkInterfaces) <= 0
-        ? [{ id: virtualMachineNetworkInterface.outputs.networkInterfaceResourceId }]
+        ? [{ id: virtualMachineNetworkInterface!.outputs.networkInterfaceResourceId }]
         : networkInterfaces
     }
     diagnosticsProfile: {
       bootDiagnostics: {
         enabled: bootdiagnosticsEnabled
         storageUri: !empty(bootDiagnosticsStorageAccountName)
-          ? bootDiagnosticsStorageAccount.properties.primaryEndpoints.blob
+          ? bootDiagnosticsStorageAccount!.properties.primaryEndpoints.blob
           : null
       }
     }
   }
-  zones: availabilityZones
-  dependsOn: !empty(availabilitySetName)
-    ? [
-        availabilitySet
-      ]
-    : []
 }
 
 @description('Output the availability set\'s Resource ID.')
@@ -398,3 +532,5 @@ output availabilitysetResourceId string = !empty(availabilitySetName) ? availabi
 output virtualMachineName string = virtualMachine.name
 @description('Output the resourceId of the virtual machine created or upserted')
 output virtualMachineResourceId string = virtualMachine.id
+@description('Output the principal id of the system assigned managed identity of the virtual machine. Empty when the virtual machine has no system assigned managed identity.')
+output virtualMachinePrincipalId string = virtualMachine.identity.?principalId ?? ''
