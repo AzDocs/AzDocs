@@ -10,14 +10,14 @@ module dashboard 'br:contosoregistry.azurecr.io/portal/dashboards:latest' = {
   params: {
     dashboardName: 'dash-myapp-dev'
     dashboardDisplayName: 'My Application Dashboard'
-    dashboardProperties: loadJsonContent('dashboard.json')
+    dashboardProperties: loadJsonContent('dashboard.json').properties
     tags: {
       EnvironmentType: 'Development'
     }
   }
 }
 </pre>
-<p>Deploys a portal dashboard. The dashboard definition is supplied as an object, for example by loading a JSON file.</p>
+<p>Deploys a portal dashboard from an exported dashboard JSON file. Pass the file's properties object as dashboardProperties.</p>
 .LINKS
 - [Bicep Microsoft.Portal dashboards](https://learn.microsoft.com/en-us/azure/templates/microsoft.portal/dashboards?pivots=deployment-language-bicep)
 */
