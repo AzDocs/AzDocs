@@ -5,10 +5,10 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="DashboardPartPosition">DashboardPartPosition</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;x: int<br>&nbsp;&nbsp;&nbsp;y: int<br>&nbsp;&nbsp;&nbsp;colSpan: int<br>&nbsp;&nbsp;&nbsp;rowSpan: int<br>&nbsp;&nbsp;&nbsp;metadata: object?<br>}<br></pre> |  |  |
-| <a id="DashboardPart">DashboardPart</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;position: DashboardPartPosition<br>&nbsp;&nbsp;&nbsp;metadata: object?<br>}<br></pre> |  |  |
-| <a id="DashboardLens">DashboardLens</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;order: int<br>&nbsp;&nbsp;&nbsp;parts: DashboardPart[]<br>&nbsp;&nbsp;&nbsp;metadata: object?<br>}<br></pre> |  |  |
-| <a id="DashboardProperties">DashboardProperties</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;lenses: DashboardLens[]?<br>&nbsp;&nbsp;&nbsp;metadata: object?<br>}<br></pre> |  |  |
+| <a id="DashboardPartPosition">DashboardPartPosition</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;x: int<br>&nbsp;&nbsp;&nbsp;y: int<br>&nbsp;&nbsp;&nbsp;colSpan: int<br>&nbsp;&nbsp;&nbsp;rowSpan: int<br>&nbsp;&nbsp;&nbsp;metadata: object?<br>}<br></pre> |  |  | 
+| <a id="DashboardPart">DashboardPart</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;position: DashboardPartPosition<br>&nbsp;&nbsp;&nbsp;metadata: object?<br>}<br></pre> |  |  | 
+| <a id="DashboardLens">DashboardLens</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;order: int<br>&nbsp;&nbsp;&nbsp;parts: DashboardPart[]<br>&nbsp;&nbsp;&nbsp;metadata: object?<br>}<br></pre> |  |  | 
+| <a id="DashboardProperties">DashboardProperties</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;lenses: DashboardLens[]?<br>&nbsp;&nbsp;&nbsp;metadata: object?<br>}<br></pre> |  |  | 
 
 ## Synopsis
 Creates an Azure portal dashboard.
@@ -38,14 +38,14 @@ module dashboard 'br:contosoregistry.azurecr.io/portal/dashboards:latest' = {
   params: {
     dashboardName: 'dash-myapp-dev'
     dashboardDisplayName: 'My Application Dashboard'
-    dashboardProperties: loadJsonContent('dashboard.json')
+    dashboardProperties: loadJsonContent('dashboard.json').properties
     tags: {
       EnvironmentType: 'Development'
     }
   }
 }
 </pre>
-<p>Deploys a portal dashboard. The dashboard definition is supplied as an object, for example by loading a JSON file.</p>
+<p>Deploys a portal dashboard from an exported dashboard JSON file. Pass the file's properties object as dashboardProperties.</p>
 
 ## Links
 - [Bicep Microsoft.Portal dashboards](https://learn.microsoft.com/en-us/azure/templates/microsoft.portal/dashboards?pivots=deployment-language-bicep)
