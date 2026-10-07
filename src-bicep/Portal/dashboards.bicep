@@ -21,6 +21,30 @@ module dashboard 'br:contosoregistry.azurecr.io/portal/dashboards:latest' = {
 .LINKS
 - [Bicep Microsoft.Portal dashboards](https://learn.microsoft.com/en-us/azure/templates/microsoft.portal/dashboards?pivots=deployment-language-bicep)
 */
+type DashboardPartPosition = {
+  x: int
+  y: int
+  colSpan: int
+  rowSpan: int
+  metadata: object?
+}
+
+type DashboardPart = {
+  position: DashboardPartPosition
+  metadata: object?
+}
+
+type DashboardLens = {
+  order: int
+  parts: DashboardPart[]
+  metadata: object?
+}
+
+type DashboardProperties = {
+  lenses: DashboardLens[]?
+  metadata: object?
+}
+
 // ========== Parameters ==========
 @description('The name of the dashboard resource. Alphanumerics and hyphens only.')
 @minLength(3)
@@ -33,7 +57,7 @@ param dashboardName string
 param dashboardDisplayName string
 
 @description('The dashboard definition, including its lenses and metadata.')
-param dashboardProperties object
+param dashboardProperties DashboardProperties
 
 @description('The Azure region for the dashboard. Defaults to the resource group location.')
 param location string = resourceGroup().location
