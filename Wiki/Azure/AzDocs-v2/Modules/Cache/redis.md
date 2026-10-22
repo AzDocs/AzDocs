@@ -5,7 +5,7 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="accessPolicyAssignmentType">accessPolicyAssignmentType</a>  | <pre>{</pre> |  |  | 
+| <a id="accessPolicyAssignmentType">accessPolicyAssignmentType</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;@description('The name of the access policy that is being assigned. Built-in are: Data Reader, Data Contributor and Data Owner')<br>&nbsp;&nbsp;&nbsp;accessPolicyName: string<br><br>&nbsp;&nbsp;&nbsp;@description('Object Id to assign access policy to.')<br>&nbsp;&nbsp;&nbsp;@minLength(36)<br>&nbsp;&nbsp;&nbsp;@maxLength(36)<br>&nbsp;&nbsp;&nbsp;principalId: string<br><br>&nbsp;&nbsp;&nbsp;@description('User friendly name for object id. Also represents username for token based authentication.')<br>&nbsp;&nbsp;&nbsp;principalIdAlias: string<br>}<br></pre> |  |  | 
 
 ## Synopsis
 Creates an Azure Cache for Redis instance
@@ -31,7 +31,7 @@ Creates an Azure Cache for Redis instance with the given specs.
 | tags | object | <input type="checkbox"> | None | <pre>{}</pre> | The tags to apply to this resource. This is an object with key/value pairs. Resource may inherit tags from the ResourceGroup instead.<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;FirstTag: myvalue<br>&nbsp;&nbsp;&nbsp;SecondTag: another value<br>} |
 | publicNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` | <pre>'Disabled'</pre> | Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled`. |
 | roleAssignments | roleAssignment[] | <input type="checkbox"> | None | <pre>[]</pre> | Setting up role assignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roleDefinitionId: 'e0f68234-74aa-48ed-b826-c38b57376e17' // Redis Cache Contributor (Lets you manage Redis caches, but not access to them.)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalType: 'ServicePrincipal'<br>&nbsp;&nbsp;&nbsp;}<br>] |
-| accessPolicyAssignments | accessPolicyAssignmentType[] | <input type="checkbox"> | None | <pre>[]</pre> | Setting up access policy assignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;accessPolicyName: 'Data Reader'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalIdAlias: 'principal-alias'<br>&nbsp;&nbsp;&nbsp;}<br>] |
+| accessPolicyAssignments | [accessPolicyAssignmentType](#accessPolicyAssignmentType)[] | <input type="checkbox"> | None | <pre>[]</pre> | Setting up access policy assignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;accessPolicyName: 'Data Reader'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalIdAlias: 'principal-alias'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | aofBackupEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Specifies whether the aof backup is enabled |
 | rdbBackupEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Specifies whether the rdb backup is enabled |
 | rdbBackupFrequency | int | <input type="checkbox"> | `15` or `30` or `60` or `360` or `720` or `1440` | <pre>15</pre> | Specifies the frequency for creating rdb backup in minutes. Valid values: (15, 30, 60, 360, 720, 1440). |

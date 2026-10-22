@@ -958,17 +958,17 @@ module swaRedirect '../Web/staticSites.bicep' = if (redirectHttpToHttps && empty
 }
 
 @description('Fetch the existing AppGW WAF policy for further use.')
-resource applicationGatewayWafPolicies 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2021-08-01' existing = {
+resource applicationGatewayWafPolicies 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2024-10-01' existing = {
   name: applicationGatewayWebApplicationFirewallPolicyName
 }
 
 @description('Fetch the existing AppGW public IP address for further use.')
-resource applicationGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2022-01-01' existing = {
+resource applicationGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2024-10-01' existing = {
   name: applicationGatewayPublicIpName
 }
 
 @description('Upsert the Application Gateway with the given parameters.')
-resource applicationGateway 'Microsoft.Network/applicationGateways@2024-05-01' = {
+resource applicationGateway 'Microsoft.Network/applicationGateways@2024-10-01' = {
   name: applicationGatewayName
   tags: tags
   location: location

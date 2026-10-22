@@ -6,18 +6,18 @@ Target Scope: resourceGroup
 Create or add an group in Api Management Service.
 
 ## Description
-Create an internal group or add an existing external group in Api Management Service.<br>
-<pre><br>
-module diagnostics 'br:contosoregistry.azurecr.io/service/groups.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 58), 'groups')<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    groupName: groupName<br>
-    groupDescription: groupDescription<br>
-    groupExternalId: groupExternalId<br>
-    groupType: groupType<br>
-  }<br>
-}<br>
+Create an internal group or add an existing external group in Api Management Service.
+<pre>
+module diagnostics 'br:contosoregistry.azurecr.io/service/groups.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 58), 'groups')
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    groupName: groupName
+    groupDescription: groupDescription
+    groupExternalId: groupExternalId
+    groupType: groupType
+  }
+}
 </pre><br>
 <p>Create an internal group or add an existing external group in Api Management Service.</p>
 

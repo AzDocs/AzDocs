@@ -231,8 +231,11 @@ function Confirm-AccessRestriction
             elseif ($SubnetResourceId)
             {
                 Write-Host "Checking for subnet with $SubnetResourceId"
-                $matchingSubnets = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object { $_.vnet_subnet_resource_id -eq $SubnetResourceId }
-                if ($matchingSubnets.Length -gt 0)
+                $matchingSubnets = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object {
+                    $_.vnetSubnetResourceId -ieq $SubnetResourceId -or
+                    $_.vnet_subnet_resource_id -ieq $SubnetResourceId
+                }
+                if (@($matchingSubnets).Count -gt 0)
                 {
                     foreach ($matchingSubnet in $matchingSubnets)
                     {
@@ -285,8 +288,12 @@ function Confirm-AccessRestriction
         }
         elseif ($SubnetResourceId)
         {
-            $matchingSubnets = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object { $_.Name -eq $AccessRestrictionRuleName -and $_.vnet_subnet_resource_id -eq $SubnetResourceId }
-            if ($matchingSubnets.Length -gt 0)
+            $matchingSubnets = $accessRestrictions.$SecurityRestrictionObjectName | Where-Object {
+                $_.Name -eq $AccessRestrictionRuleName -and
+                ($_.vnetSubnetResourceId -ieq $SubnetResourceId -or
+                $_.vnet_subnet_resource_id -ieq $SubnetResourceId)
+            }
+            if (@($matchingSubnets).Count -gt 0)
             {
                 foreach ($matchingSubnet in $matchingSubnets)
                 {

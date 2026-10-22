@@ -5,7 +5,7 @@ param principalId string
 
 @description('The name of the DocumentDB instance to assign the permissions on. This DocumentDB instance should already exist.')
 @minLength(3)
-@maxLength(24)
+@maxLength(44)
 param documentDbInstanceName string
 
 @description('The type of role you want to assign.')

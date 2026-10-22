@@ -6,19 +6,19 @@ Target Scope: resourceGroup
 Creating an api policy in an existing Api Management Service.
 
 ## Description
-Creating an api policy in an existing Api Management Service.<br>
-<pre><br>
-module apipolicies 'br:contosoregistry.azurecr.io/service/apis/policies.bicep:latest' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 46), 'apipolicies')<br>
-  dependsOn: [<br>
-    apimServices<br>
-  ]<br>
-  params: {<br>
-    serviceApiName: serviceApiName<br>
-    name: apiPolicyName<br>
-    contentValue: contentValue<br>
-    contentFormat: contentFormat<br>
-  }<br>
+Creating an api policy in an existing Api Management Service.
+<pre>
+module apipolicies 'br:contosoregistry.azurecr.io/service/apis/policies.bicep:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 46), 'apipolicies')
+  dependsOn: [
+    apimServices
+  ]
+  params: {
+    serviceApiName: serviceApiName
+    name: apiPolicyName
+    contentValue: contentValue
+    contentFormat: contentFormat
+  }
 </pre><br>
 <p>Creates an api policy with the name apiPolicyName.</p>
 

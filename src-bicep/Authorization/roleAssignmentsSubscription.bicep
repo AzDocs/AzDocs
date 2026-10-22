@@ -3,20 +3,26 @@ import { PrincipalType } from '../Common/authorizationTypes.bicep'
 .SYNOPSIS
 Assigns a role on subscription level.
 .DESCRIPTION
-Assigns a RBAC role on subscription level to a principal.
+Assign a role on the subscription scope to an identity with the given specs.
+Supports role input by GUID (legacy roleDefinitionId), role name, or full role definition resource ID (roleDefinitionIdOrName).
+
+Role definition input behavior:
+1) roleDefinitionIdOrName when not empty
+2) otherwise roleDefinitionId
+3) fail() when both are empty
 .EXAMPLE
 <pre>
-module azureKubernetesServiceContributorRoleToDfcPolicyAssignmentUserAssignedManagedIdentity '../AzDocs/src-bicep/Authorization/roleAssignmentsSubscription.bicep' = {
-  name: format('{0}-{1}', take('${deployment().name}', 46), 'akscontrole')
+module roleAssignmentsSubscription 'br:contosoregistry.azurecr.io/authorization/roleassignmentssubscription:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 46), 'rolessub')
   scope: subscription()
   params: {
-    principalId: dfcPolicyAssignmentUserAssignedManagedIdentity.outputs.userManagedIdentityPrincipalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: 'ed7f3fbd-7b88-4dd4-9017-9adb7ce333f8'
+    principalType: 'User'
+    principalId: 'a348f815-0d14-4a85-b2fe-d3b36519e4fd' // object id of the user
+    roleDefinitionIdOrName: 'Reader' // can also be a GUID or full role definition resource ID
   }
 }
 </pre>
-<p>Assigns the role Azure Kubernetes Service Contributor Role to the Principal on subscription level.</p>
+<p>Assign a role on the subscription scope to an identity</p>
 .LINKS
 - [Bicep Microsoft.Authorization roleAssignments](https://learn.microsoft.com/en-us/azure/templates/microsoft.authorization/roleassignments?pivots=deployment-language-bicep)
 */
@@ -57,22 +63,36 @@ param delegatedManagedIdentityResourceId string = ''
 @description('Description of role assignment.')
 param roleAssignmentDescription string = ''
 
-@description('The roledefinition ID you want to assign. See the [documentation](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles) for the build-in roles')
+@description('Legacy role definition ID input for backward compatibility. Provide a role definition GUID. If roleDefinitionIdOrName is also provided, roleDefinitionIdOrName takes precedence. See [documentation](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles).')
 @minLength(36)
 @maxLength(36)
-param roleDefinitionId string
+param roleDefinitionId string?
 
-@description('Fetch the role based on the given roleDefinitionId. See [documentation](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles)')
-resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
-  scope: subscription()
-  name: roleDefinitionId
+@description('The roledefinition to assign. Supports built-in role name, role definition GUID, or full role definition resource ID.')
+param roleDefinitionIdOrName string = roleDefinitionId ?? ''
+
+var builtInRoleNames = {
+  Contributor: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+  Owner: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')
+  Reader: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
 }
+
+var effectiveRoleDefinitionInput = !empty(roleDefinitionIdOrName)
+  ? roleDefinitionIdOrName
+  : (roleDefinitionId ?? '')
+
+var validatedRoleDefinitionInput = empty(effectiveRoleDefinitionInput)
+  ? fail('Either roleDefinitionId or roleDefinitionIdOrName must be provided.')
+  : effectiveRoleDefinitionInput
+
+var resolvedRoleDefinitionId = builtInRoleNames[?validatedRoleDefinitionInput] ?? (contains(validatedRoleDefinitionInput, '/providers/Microsoft.Authorization/roleDefinitions/') ? validatedRoleDefinitionInput : subscriptionResourceId('Microsoft.Authorization/roleDefinitions', validatedRoleDefinitionInput))
+
 
 @description('Upsert the role to the chosen principal.')
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(subscription().id, principalId, roleDefinition.id)
+  name: guid(subscription().id, principalId, resolvedRoleDefinitionId)
   properties: {
-    roleDefinitionId: roleDefinition.id
+    roleDefinitionId: resolvedRoleDefinitionId
     principalId: principalId
     principalType: principalType
     condition: empty(roleAssignmentCondition) ? null : roleAssignmentCondition

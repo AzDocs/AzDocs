@@ -17,20 +17,7 @@ module devcenterproject 'br:contosoregistry.azurecr.io/devcenter/projects:latest
 .LINKS
 - [Bicep Microsoft.Devcenter Projects](https://learn.microsoft.com/en-us/azure/templates/microsoft.devcenter/projects?pivots=deployment-language-bicep)
 */
-// ===================================== Parameters =====================================
-@description('The location of the Dev Center project.')
-param location string = resourceGroup().location
-
-@description('The name of the existing Dev Center.')
-param devCenterName string
-
-@description('The name of the Dev Center project.')
-@minLength(3)
-param devCenterProjectName string
-
-@description('The description of the Dev Center project.')
-param devCenterProjectDescription string = 'Dev Center project'
-
+// ===================================== User-defined types =====================================
 @discriminator('type')
 type IdentityType =
   | {
@@ -46,6 +33,22 @@ type IdentityType =
     type: 'None'
   }
 
+type CatalogItemSyncType = 'EnvironmentDefinition' | 'ImageDefinition'
+
+// ===================================== Parameters =====================================
+@description('The location of the Dev Center project.')
+param location string = resourceGroup().location
+
+@description('The name of the existing Dev Center.')
+param devCenterName string
+
+@description('The name of the Dev Center project.')
+@minLength(3)
+param devCenterProjectName string
+
+@description('The description of the Dev Center project.')
+param devCenterProjectDescription string = 'Dev Center project'
+
 @description('Managed service identity to use for this resource. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity).')
 param identity IdentityType = {
   type: 'SystemAssigned'
@@ -55,14 +58,14 @@ param identity IdentityType = {
 param maxDevBoxesPerUser int?
 
 @description('Indicates catalog item types that can be synced. Should contain a string array containing any of EnvironmentDefinition and ImageDefinition.')
-param catalogItemSyncTypes array?
+param catalogItemSyncTypes CatalogItemSyncType[] = []
 
 // ================================================= Resources =================================================
-resource devCenter 'Microsoft.DevCenter/devcenters@2024-10-01-preview' existing = {
+resource devCenter 'Microsoft.DevCenter/devcenters@2025-02-01' existing = {
   name: devCenterName
 }
 
-resource devCenterProject 'Microsoft.DevCenter/projects@2024-08-01-preview' = {
+resource devCenterProject 'Microsoft.DevCenter/projects@2025-02-01' = {
   name: devCenterProjectName
   location: location
   identity: identity
@@ -72,7 +75,7 @@ resource devCenterProject 'Microsoft.DevCenter/projects@2024-08-01-preview' = {
     maxDevBoxesPerUser: maxDevBoxesPerUser ?? null
     displayName: devCenterProjectName
     catalogSettings: {
-      catalogItemSyncTypes: catalogItemSyncTypes ?? []
+      catalogItemSyncTypes: catalogItemSyncTypes
     }
   }
 }

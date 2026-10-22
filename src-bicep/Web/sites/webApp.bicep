@@ -15,6 +15,7 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
         principalType: 'ServicePrincipal'
         roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' // website contributor
       }
+    ]
     appInsightsName: appInsights.outputs.appInsightsName
     appServicePlanResourceGroupName: appServicePlanResourceGroupName
     ipSecurityRestrictions: union(homeIps, [
@@ -46,6 +47,24 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
 }
 </pre>
 <p>Creates a WebApp with the name 'webAppName'</p>
+<p>Blue/green deployment example (zero-downtime):</p>
+<pre>
+module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 57), 'webapp')
+  params: {
+    appServiceName: webAppName
+    appServicePlanName: appServicePlan.outputs.appServicePlanResourceName
+    appInsightsName: appInsights.outputs.appInsightsName
+    appServicePlanResourceGroupName: appServicePlanResourceGroupName
+    location: location
+    appSettings: { MY_SETTING: 'value' }
+    connectionStrings: {}
+    deploySlot: true
+    applyConfigToProductionSlot: false // Prevents production restart during infra deployment
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+  }
+}
+</pre>
 .LINKS
 - [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)
 - [Azure App Service Kind](https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
@@ -210,7 +229,7 @@ param clientAffinityEnabled bool = true
 param clientAffinityProxyEnabled bool = false
 
 @description('Virtual Network `route all` enabled. This causes all outbound traffic to have Virtual Network Network Security Groups (nsg) and User Defined Routes applied.')
-param vnetRouteAllEnabled bool = false
+param vnetRouteAllEnabled bool = true
 
 @description('''
 The `Always On` feature of Azure App Service, keeps the host process running.
@@ -270,6 +289,16 @@ param publicNetworkAccess string = 'Enabled'
 
 @description('Determine whether to deploy a staging slot in the webApp (default: true).')
 param deploySlot bool = true
+
+@description('''
+Determines whether app settings, connection strings, and restart-triggering site configuration are deployed to the production slot.
+Set this to `false` for blue/green (slot swap) deployments to prevent production restarts during infrastructure provisioning.
+When `false`, only non-restart-triggering settings (IP restrictions, TLS, CORS, FTP state, HTTP/2, VNet routing, alwaysOn, numberOfWorkers) are applied to production.
+The staging slot always receives the full configuration regardless of this setting.
+After a slot swap, the staging slot's configuration becomes production.
+For greenfield (first-time) deployments, either leave as `true` or perform an initial swap after the first deployment.
+''')
+param applyConfigToProductionSlot bool = true
 
 @description('Use 32-bit worker process on 64-bit platform. Uses 64-bit worker process if false. Default is true (will use 32-bit).')
 param use32BitWorkerProcess bool = true
@@ -354,27 +383,30 @@ type tlsVersionType = '1.2' | '1.3'
 param tlsVersion tlsVersionType = '1.3'
 
 @description('The TLS cipher suite in order of most secure to least secure to use for the app service.')
-type tlsCipherSuite = 'TLS_AES_256_GCM_SHA384' 
-|'TLS_AES_128_GCM_SHA256'
-|'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
-|'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
-|'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-|'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-|'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'
-|'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'
-|'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'
-|'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA'
-|'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
-|'TLS_RSA_WITH_AES_256_GCM_SHA384'
-|'TLS_RSA_WITH_AES_128_GCM_SHA256'
-|'TLS_RSA_WITH_AES_256_CBC_SHA256'
-|'TLS_RSA_WITH_AES_128_CBC_SHA256'
-|'TLS_RSA_WITH_AES_256_CBC_SHA'
-|'TLS_RSA_WITH_AES_128_CBC_SHA'
+type tlsCipherSuite =
+  | 'TLS_AES_256_GCM_SHA384'
+  | 'TLS_AES_128_GCM_SHA256'
+  | 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+  | 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+  | 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+  | 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+  | 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'
+  | 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'
+  | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'
+  | 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA'
+  | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
+  | 'TLS_RSA_WITH_AES_256_GCM_SHA384'
+  | 'TLS_RSA_WITH_AES_128_GCM_SHA256'
+  | 'TLS_RSA_WITH_AES_256_CBC_SHA256'
+  | 'TLS_RSA_WITH_AES_128_CBC_SHA256'
+  | 'TLS_RSA_WITH_AES_256_CBC_SHA'
+  | 'TLS_RSA_WITH_AES_128_CBC_SHA'
 
 @description('The TLS cipher suite in order of most secure to least secure to use for the app service.')
 param minTlsCipherSuite tlsCipherSuite = 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
 
+@description('Enables pulling image over Virtual Network.')
+param imagePullTraffic bool = false
 
 // ================================================= Resources =================================================
 @description('Fetch the app service plan to be used for this appservice instance. This app service plan should be pre-existing.')
@@ -407,6 +439,30 @@ var linuxSiteConfig = appServicePlan.kind == 'linux'
     }
   : {}
 
+@description('Site configuration that is slot-specific (not swapped during slot swap). These settings must be applied directly to each slot.')
+var slotSpecificSiteConfig = {
+  tlsVersion: tlsVersion
+  minTlsCipherSuite: minTlsCipherSuite
+  cors: empty(cors) ? null : cors
+  healthCheckPath: empty(healthCheckPath) ? null : healthCheckPath
+  vnetRouteAllEnabled: vnetRouteAllEnabled
+  ipSecurityRestrictions: ipSecurityRestrictions
+  scmIpSecurityRestrictions: scmIpSecurityRestrictions
+  scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
+  ftpsState: ftpsState
+  http20Enabled: http20Enabled
+  numberOfWorkers: numberOfWorkers
+  alwaysOn: alwaysOn
+}
+
+@description('Site configuration that is swapped during slot swap. When applyConfigToProductionSlot is false, these are only deployed to the staging slot and propagated to production via swap.')
+var swappableSiteConfig = {
+  use32BitWorkerProcess: use32BitWorkerProcess
+  netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
+  minimumElasticInstanceCount: minimumElasticInstanceCount ?? 0
+  webSocketsEnabled: webSocketsEnabled
+}
+
 @description('Upsert the webApp and potential VNet integration with the given parameters.')
 resource webApp 'Microsoft.Web/sites@2025-03-01' = {
   name: appServiceName
@@ -426,36 +482,21 @@ resource webApp 'Microsoft.Web/sites@2025-03-01' = {
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
     outboundVnetRouting: {
       contentShareTraffic: vnetContentShareEnabled
+      imagePullTraffic: imagePullTraffic
     }
     siteConfig: union(
-      {
-        tlsVersion: tlsVersion
-        minTlsCipherSuite: minTlsCipherSuite
-        cors: empty(cors) ? null : cors
-        healthCheckPath: empty(healthCheckPath) ? null : healthCheckPath
-        vnetRouteAllEnabled: vnetRouteAllEnabled
-        alwaysOn: alwaysOn
-        ipSecurityRestrictions: ipSecurityRestrictions
-        scmIpSecurityRestrictions: scmIpSecurityRestrictions
-        scmIpSecurityRestrictionsUseMain: scmIpSecurityRestrictionsUseMain
-        ftpsState: ftpsState
-        http20Enabled: http20Enabled
-        use32BitWorkerProcess: use32BitWorkerProcess
-        numberOfWorkers: numberOfWorkers
-        netFrameworkVersion: empty(netFrameworkVersion) ? null : netFrameworkVersion
-        minimumElasticInstanceCount: minimumElasticInstanceCount ?? 0 // Only required if the app service plan is a elastic plan (function app). Default to 0.
-        webSocketsEnabled: webSocketsEnabled
-      },
-      linuxSiteConfig
+      slotSpecificSiteConfig,
+      applyConfigToProductionSlot ? swappableSiteConfig : {},
+      applyConfigToProductionSlot ? linuxSiteConfig : {}
     )
   }
 
-  resource config 'config@2022-09-01' = {
+  resource config 'config@2022-09-01' = if (applyConfigToProductionSlot) {
     name: 'appsettings'
     properties: union(internalSettings, appSettings)
   }
 
-  resource connectionString 'config@2022-09-01' = {
+  resource connectionString 'config@2022-09-01' = if (applyConfigToProductionSlot) {
     name: 'connectionstrings'
     properties: connectionStrings
   }
@@ -502,6 +543,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2025-03-01' = if (deploySl
     virtualNetworkSubnetId: !empty(vNetIntegrationSubnetResourceId) ? vNetIntegrationSubnetResourceId : null
     outboundVnetRouting: {
       contentShareTraffic: vnetContentShareEnabled
+      imagePullTraffic: imagePullTraffic
     }
     siteConfig: union(
       {
@@ -612,4 +654,4 @@ output webAppStagingSlotResourceName string = deploySlot ? webAppStagingSlot.nam
 @description('The resource id of the webapp.')
 output webAppResourceId string = webApp.id
 @description('The resource id of the webapp\'s staging slot.')
-output webAppStagingSlotResourceId string = deploySlot ? webAppStagingSlot.id: ''
+output webAppStagingSlotResourceId string = deploySlot ? webAppStagingSlot.id : ''

@@ -6,19 +6,19 @@ Target Scope: resourceGroup
 Creating a origin GroupName with an optional origin in an existing FrontDoor profile with an existing endpoint.
 
 ## Description
-Creating a origin GroupName endpoint with an optional origin in an existing FrontDoor profile with an existing endpoint.<br>
-<pre><br>
-module origin 'br:contosoregistry.azurecr.io/cdn/profiles/origingroups/origins.bicep' = [for (origin, index) in originGroupOrigins:{<br>
-  name: format('{0}-{1}', take('${deployment().name}', 57), origin.name)<br>
-  params: {<br>
-    originGroupName: origingroup.outputs.originGroupName<br>
-    originName: origin.name<br>
-    originHostNameFqdn: origin.hostname<br>
-    frontDoorName: frontDoorProfile.outputs.frontDoorName<br>
-    //originHostHeader: contains(origin, 'originHostHeader') ? origin.originHostHeader : ''<br>
-    originEnabledState: origin.enabledState<br>
-  }<br>
-}]<br>
+Creating a origin GroupName endpoint with an optional origin in an existing FrontDoor profile with an existing endpoint.
+<pre>
+module origin 'br:contosoregistry.azurecr.io/cdn/profiles/origingroups/origins.bicep' = [for (origin, index) in originGroupOrigins:{
+  name: format('{0}-{1}', take('${deployment().name}', 57), origin.name)
+  params: {
+    originGroupName: origingroup.outputs.originGroupName
+    originName: origin.name
+    originHostNameFqdn: origin.hostname
+    frontDoorName: frontDoorProfile.outputs.frontDoorName
+    //originHostHeader: contains(origin, 'originHostHeader') ? origin.originHostHeader : ''
+    originEnabledState: origin.enabledState
+  }
+}]
 </pre><br>
 <p>Creates an origin in a existing origin GroupName called originGroupName in an existing Frontdoor Profile.</p>
 

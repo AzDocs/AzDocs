@@ -74,6 +74,9 @@ Example:
 ''')
 param customProperties object = {}
 
+@description('Adding custom email subject.')
+param actionProperties object = {}
+
 @description('The description of the scheduled query rule.')
 param scheduledQueryRuleDescription string = scheduledQueryRuleName
 
@@ -248,7 +251,7 @@ resource scheduledQueryRule 'Microsoft.Insights/scheduledQueryRules@2023-03-15-p
     actions: {
       actionGroups: actionGroups
       customProperties: customProperties
-      actionProperties: {}
+      actionProperties: actionProperties
     }
     autoMitigate: autoMitigate
     muteActionsDuration: empty(muteActionsDuration) ? null : muteActionsDuration

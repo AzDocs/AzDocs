@@ -6,17 +6,17 @@ Target Scope: resourceGroup
 Creating a policy resource in an existing Api Management Service.
 
 ## Description
-Creating a policy resource in an existing Api Management Service.<br>
-<pre><br>
-module policies 'br:contosoregistry.azurecr.io/service/policies.bicep' = {<br>
-  name: format('{0}-{1}', take('${deployment().name}', 46), 'policies')<br>
-  params: {<br>
-    apiManagementServiceName: apiManagementServiceName<br>
-    name: policyName<br>
-    format: format<br>
-    value: value<br>
-  }<br>
-}<br>
+Creating a policy resource in an existing Api Management Service.
+<pre>
+module policies 'br:contosoregistry.azurecr.io/service/policies.bicep' = {
+  name: format('{0}-{1}', take('${deployment().name}', 46), 'policies')
+  params: {
+    apiManagementServiceName: apiManagementServiceName
+    name: policyName
+    format: format
+    value: value
+  }
+}
 </pre><br>
 <p>Creates a policy resource with the name policyFragmentName.</p>
 

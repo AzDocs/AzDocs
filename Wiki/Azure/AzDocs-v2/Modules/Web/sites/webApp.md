@@ -5,9 +5,9 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="publicCertifcate">publicCertifcate</a>  | <pre>{</pre> |  | Public certificates for Azure App Service for example intermediate and root certificates. See https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.web/web-app-public-certificate/azuredeploy.json [   {     name: 'TrustedRootCertificate'     blob: 'base64 encoded public certificate file'     publicCertificateLocation: 'LocalMachineMy'   } ] | 
+| <a id="publicCertifcate">publicCertifcate</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;name: string<br>&nbsp;&nbsp;&nbsp;blob: string<br>&nbsp;&nbsp;&nbsp;publicCertificateLocation: 'CurrentUserMy' &#124; 'LocalMachineMy' &#124; 'Unknown'<br>}</pre> |  | Public certificates for Azure App Service for example intermediate and root certificates. See https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.web/web-app-public-certificate/azuredeploy.json [   {     name: 'TrustedRootCertificate'     blob: 'base64 encoded public certificate file'     publicCertificateLocation: 'LocalMachineMy'   } ] | 
 | <a id="tlsVersionType">tlsVersionType</a>  | <pre>'1.2' &#124; '1.3'</pre> |  | The TLS version to use for the app service. | 
-| <a id="tlsCipherSuite">tlsCipherSuite</a>  | <pre>'TLS_AES_256_GCM_SHA384' </pre> |  | The TLS cipher suite in order of most secure to least secure to use for the app service. | 
+| <a id="tlsCipherSuite">tlsCipherSuite</a>  | <pre>&nbsp;&nbsp;&nbsp;&#124; 'TLS_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_256_GCM_SHA384'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_128_GCM_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_256_CBC_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_128_CBC_SHA256'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_256_CBC_SHA'<br>&nbsp;&nbsp;&nbsp;&#124; 'TLS_RSA_WITH_AES_128_CBC_SHA'<br></pre> |  | The TLS cipher suite in order of most secure to least secure to use for the app service. | 
 
 ## Synopsis
 Creating an AppService Instance: WebApp, FunctionApp etc.
@@ -41,7 +41,7 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | httpsOnly | bool | <input type="checkbox"> | None | <pre>true</pre> | Configures a web site to accept only https requests. Issues redirect for http requests |
 | clientAffinityEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | True to enable client affinity; false to stop sending session affinity cookies, which route client requests in the same session to the same instance. Default is true. |
 | clientAffinityProxyEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | True to override client affinity cookie domain with X-Forwarded-Host request header. False to use default domain. Default is false. |
-| vnetRouteAllEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Virtual Network `route all` enabled. This causes all outbound traffic to have Virtual Network Network Security Groups (nsg) and User Defined Routes applied. |
+| vnetRouteAllEnabled | bool | <input type="checkbox"> | None | <pre>true</pre> | Virtual Network `route all` enabled. This causes all outbound traffic to have Virtual Network Network Security Groups (nsg) and User Defined Routes applied. |
 | alwaysOn | bool | <input type="checkbox"> | None | <pre>true</pre> | The `Always On` feature of Azure App Service, keeps the host process running.<br>This allows your site to be more responsive to request after significant idle periods.<br>Otherwise, once a request comes in, the App Service will have to cold boot and load into memory before responding to the request. |
 | scmIpSecurityRestrictionsUseMain | bool | <input type="checkbox"> | None | <pre>true</pre> | IP security restrictions for scm to use the same settings as main. |
 | ftpsState | string | <input type="checkbox"> | `'AllAllowed'` or `'Disabled'` or `'FtpsOnly'` | <pre>'Disabled'</pre> | State of FTP / FTPS service |
@@ -51,18 +51,20 @@ Creating an AppService Instance: WebApp, FunctionApp etc. with the given specs.
 | clientCertMode | string | <input type="checkbox"> | None | <pre>''</pre> | This setting is linked to the clientCertEnabled parameter.<br>ClientCertEnabled: false means ClientCert is ignored.<br>ClientCertEnabled: true and ClientCertMode: Required, means ClientCert is required.<br>ClientCertEnabled: true and ClientCertMode: Optional means ClientCert is optional or allow.<br>Example:<br>'Optional',<br>'OptionalInteractiveUser',<br>'Required' |
 | publicNetworkAccess | string | <input type="checkbox"> | `'Enabled'` or `'Disabled'` or `''` | <pre>'Enabled'</pre> | Property to allow or block all public traffic. Allowed Values: `Enabled`, `Disabled` or an empty string. |
 | deploySlot | bool | <input type="checkbox"> | None | <pre>true</pre> | Determine whether to deploy a staging slot in the webApp (default: true). |
+| applyConfigToProductionSlot | bool | <input type="checkbox"> | None | <pre>true</pre> | Determines whether app settings, connection strings, and restart-triggering site configuration are deployed to the production slot.<br>Set this to `false` for blue/green (slot swap) deployments to prevent production restarts during infrastructure provisioning.<br>When `false`, only non-restart-triggering settings (IP restrictions, TLS, CORS, FTP state, HTTP/2, VNet routing, alwaysOn, numberOfWorkers) are applied to production.<br>The staging slot always receives the full configuration regardless of this setting.<br>After a slot swap, the staging slot's configuration becomes production.<br>For greenfield (first-time) deployments, either leave as `true` or perform an initial swap after the first deployment. |
 | use32BitWorkerProcess | bool | <input type="checkbox"> | None | <pre>true</pre> | Use 32-bit worker process on 64-bit platform. Uses 64-bit worker process if false. Default is true (will use 32-bit). |
 | cors | object | <input type="checkbox"> | None | <pre>{}</pre> | Gets or sets the list of origins that should be allowed to make cross-origin calls (for example: http://example.com:12345).<br>Use "*" to allow all in the allowedOrigins array. The wildcard (*) is ignored if there's another domain entry.<br>Info about supportCredentials: [link](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#Requests_with_credentials)<br>Example:<br>{<br>&nbsp;&nbsp;&nbsp;allowedOrigins: [<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://functions.azure.com'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://functions-staging.azure.com'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://functions-next.azure.com'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'https://portal.azure.com'<br>&nbsp;&nbsp;&nbsp;]<br>&nbsp;&nbsp;&nbsp;supportCredentials: false<br>} |
 | numberOfWorkers | int | <input type="checkbox"> | None | <pre>2</pre> | Number to indicate on how many instances the app will run. |
 | healthCheckPath | string | <input type="checkbox"> | None | <pre>''</pre> | Relative path of the health check probe. A valid path starts with "/".<br>Example:<br>'/api/HealthCheck' |
 | roleAssignments | array | <input type="checkbox"> | None | <pre>[]</pre> | Setting up roleassignments for the resource.<br>Example:<br>&nbsp;&nbsp;[<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' //Website Contributor<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalId: '74d905df-d648-4408-9b93-9bc3261b89ef'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principalType: 'ServicePrincipal'<br>&nbsp;&nbsp;&nbsp;}<br>] |
 | netFrameworkVersion | string | <input type="checkbox"> | None | <pre>''</pre> | The .NET Framework version to set for the app. Default it is null. Get the list of supported versions by running: `az functionapp list-runtimes`.<br>Example:<br>'v8.0' |
-| publicCertificates | publicCertifcate[] | <input type="checkbox"> | None | <pre>[]</pre> |  |
+| publicCertificates | [publicCertifcate](#publicCertifcate)[] | <input type="checkbox"> | None | <pre>[]</pre> |  |
 | minimumElasticInstanceCount | int? | <input type="checkbox" checked> | None | <pre></pre> | Number of minimum instance count for a site. This setting only applies to the Elastic Plans. |
 | vnetContentShareEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine whether to enable VNet content share for app (default: false). Should be enabled for function app where both function app and storage account are in VNet. [link](https://docs.microsoft.com/en-us/azure/app-service/web-sites-integrate-with-vnet#vnet-content-share) |
 | webSocketsEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Determine whether to enable WebSockets for app (default: false). |
-| tlsVersion | tlsVersionType | <input type="checkbox"> | None | <pre>'1.3'</pre> | The TLS version to use for the app service. |
-| minTlsCipherSuite | tlsCipherSuite | <input type="checkbox"> | None | <pre>'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'</pre> | The TLS cipher suite in order of most secure to least secure to use for the app service. |
+| tlsVersion | [tlsVersionType](#tlsVersionType) | <input type="checkbox"> | None | <pre>'1.3'</pre> | The TLS version to use for the app service. |
+| minTlsCipherSuite | [tlsCipherSuite](#tlsCipherSuite) | <input type="checkbox"> | None | <pre>'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'</pre> | The TLS cipher suite in order of most secure to least secure to use for the app service. |
+| imagePullTraffic | bool | <input type="checkbox"> | None | <pre>false</pre> | Enables pulling image over Virtual Network. |
 
 ## Outputs
 | Name | Type | Description |
@@ -88,6 +90,7 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
         principalType: 'ServicePrincipal'
         roleDefinitionId: 'de139f84-1756-47ae-9be6-808fbbe84772' // website contributor
       }
+    ]
     appInsightsName: appInsights.outputs.appInsightsName
     appServicePlanResourceGroupName: appServicePlanResourceGroupName
     ipSecurityRestrictions: union(homeIps, [
@@ -119,6 +122,24 @@ module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
 }
 </pre>
 <p>Creates a WebApp with the name 'webAppName'</p>
+<p>Blue/green deployment example (zero-downtime):</p>
+<pre>
+module webApp 'br:contosoregistry.azurecr.io/web/sites/webapp:latest' = {
+  name: format('{0}-{1}', take('${deployment().name}', 57), 'webapp')
+  params: {
+    appServiceName: webAppName
+    appServicePlanName: appServicePlan.outputs.appServicePlanResourceName
+    appInsightsName: appInsights.outputs.appInsightsName
+    appServicePlanResourceGroupName: appServicePlanResourceGroupName
+    location: location
+    appSettings: { MY_SETTING: 'value' }
+    connectionStrings: {}
+    deploySlot: true
+    applyConfigToProductionSlot: false // Prevents production restart during infra deployment
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+  }
+}
+</pre>
 
 ## Links
 - [Bicep Microsoft.Web Sites](https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-bicep)<br>

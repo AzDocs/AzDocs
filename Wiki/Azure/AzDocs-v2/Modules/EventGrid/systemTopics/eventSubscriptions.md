@@ -2,6 +2,11 @@
 
 Target Scope: resourceGroup
 
+> [!NOTE]
+> This module uses Bicep resource-derived types (`resourceInput<>` / `resourceOutput<>`).
+> - [Resource-derived types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-data-types#resource-derived-types)
+> - [Bicep data types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/data-types)
+
 ## Synopsis
 Creating a event subscription inside of a Event Grid System Topic resource
 
@@ -13,8 +18,8 @@ Creating a event subscription inside of a Event Grid System Topic resource with 
 | -- |  -- | -- | -- | -- | -- |
 | eventGridNamespaceName | string | <input type="checkbox" checked> | Length between 3-50 | <pre></pre> | The name of this Event Grid System Topic resource. |
 | eventSubscriptionName | string | <input type="checkbox" checked> | Length between 3-64 | <pre></pre> | The name of this Event Subscription subresource. |
-| destination | resourceInput<'Microsoft.EventGrid/systemTopics/eventSubscriptions@2025-02-15'>.properties.destination? | <input type="checkbox" checked> | None | <pre></pre> | Information about the destination where events have to be delivered for the event subscription. |
-| deliveryWithResourceIdentity | resourceInput<'Microsoft.EventGrid/systemTopics/eventSubscriptions@2025-02-15'>.properties.deliveryWithResourceIdentity? | <input type="checkbox" checked> | None | <pre></pre> | Information about the destination where events have to be delivered for the event subscription. Uses the managed identity setup on the parent resource (namely, topic or domain) to acquire the authentication tokens being used during delivery / dead-lettering. |
+| destination | [resourceInput<'Microsoft.EventGrid/systemTopics/eventSubscriptions@2025-02-15'>.properties.destination](https://learn.microsoft.com/en-us/azure/templates/microsoft.eventgrid/2025-02-15/systemtopics/eventsubscriptions?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Schema-constrained (resource-derived type) | <pre></pre> | Information about the destination where events have to be delivered for the event subscription. |
+| deliveryWithResourceIdentity | [resourceInput<'Microsoft.EventGrid/systemTopics/eventSubscriptions@2025-02-15'>.properties.deliveryWithResourceIdentity](https://learn.microsoft.com/en-us/azure/templates/microsoft.eventgrid/2025-02-15/systemtopics/eventsubscriptions?pivots=deployment-language-bicep)? | <input type="checkbox" checked> | Schema-constrained (resource-derived type) | <pre></pre> | Information about the destination where events have to be delivered for the event subscription. Uses the managed identity setup on the parent resource (namely, topic or domain) to acquire the authentication tokens being used during delivery / dead-lettering. |
 | filter | object | <input type="checkbox" checked> | None | <pre></pre> | Information about the filter for the event subscription. For objectstructure please visit the [documentation](https://learn.microsoft.com/en-us/azure/templates/microsoft.eventgrid/systemtopics/eventsubscriptions?pivots=deployment-language-bicep#eventsubscriptionfilter). |
 | eventDeliverySchema | string | <input type="checkbox"> | `'CloudEventSchemaV1_0'` or `'CustomInputSchema'` or `'EventGridSchema'` | <pre>'EventGridSchema'</pre> | The event delivery schema for the event subscription. |
 | retryPolicyMaxDeliveryAttempts | int | <input type="checkbox"> | None | <pre>30</pre> | Maximum number of delivery retry attempts for events. |

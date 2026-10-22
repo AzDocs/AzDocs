@@ -35,7 +35,7 @@ Example:
 param tags object = {}
 
 @description('The public IP prefix SKU. Tier can be Global or Regional')
-param publicIPPrefixesSku object = {
+param publicIPPrefixesSku resourceInput<'Microsoft.Network/publicIPPrefixes@2025-01-01'>.sku = {
   name: 'Standard'
   tier: 'Regional'
 }
@@ -62,29 +62,26 @@ param publicIPPrefixesPrefixLength int = 31
 ])
 param publicIPAddressVersion string = 'IPv4'
 
-@description('''
-A list of tags associated with the public IP prefix.
-Example:
-[
-  ipTagType: 'RoutingPreference'
-  tag: 'Internet'
-]
-''')
-param publicIPPrefixesIpTags array = []
+@description('A list of tags associated with the public IP prefix.')
+param publicIPPrefixesIpTags resourceInput<'Microsoft.Network/publicIPPrefixes@2025-01-01'>.properties.ipTags = []
 
-@description('''
-A list of availability zones denoting the IP allocated for the resource needs to come from.
-Example:
-[
-  1
-  2
-  3
-]
-''')
-@maxLength(3)
+@description('A list of availability zones denoting the IP allocated for the resource needs to come from.')
+@allowed([
+  []
+  [1]
+  [2]
+  [3]
+  [1, 2]
+  [1, 3]
+  [2, 3]
+  [1, 2, 3]
+])
 param publicIPPrefixesZones array = []
 
-resource publicIPPrefixes 'Microsoft.Network/publicIPPrefixes@2023-02-01' = {
+@description('The resource ID of the custom IP prefix that this public IP prefix is associated with. If not provided, no custom IP prefix is used.')
+param customIPPrefixResourceId string?
+
+resource publicIPPrefixes 'Microsoft.Network/publicIPPrefixes@2025-01-01' = {
   name: publicIPPrefixesName
   location: location
   tags: tags
@@ -93,6 +90,7 @@ resource publicIPPrefixes 'Microsoft.Network/publicIPPrefixes@2023-02-01' = {
     prefixLength: publicIPPrefixesPrefixLength
     publicIPAddressVersion: publicIPAddressVersion
     ipTags: publicIPPrefixesIpTags
+    customIPPrefix: customIPPrefixResourceId != null ? { id: customIPPrefixResourceId } : null
   }
   zones: !empty(publicIPPrefixesZones) ? publicIPPrefixesZones : null
 }

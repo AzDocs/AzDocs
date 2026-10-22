@@ -5,7 +5,8 @@ Target Scope: resourceGroup
 ## User Defined Types
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
-| <a id="IdentityType">IdentityType</a>  | <pre></pre> | type |  | 
+| <a id="IdentityType">IdentityType</a>  | <pre>&nbsp;&nbsp;&nbsp;&#124; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: 'SystemAssigned'<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&#124; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: 'UserAssigned'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userAssignedIdentities: {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*: {}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&#124; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: 'None'<br>&nbsp;&nbsp;&nbsp;}<br></pre> | type |  | 
+| <a id="CatalogItemSyncType">CatalogItemSyncType</a>  | <pre>'EnvironmentDefinition' &#124; 'ImageDefinition'</pre> |  |  | 
 
 ## Synopsis
 Creating a Dev Center project.
@@ -22,7 +23,7 @@ This module creates a Dev Center project in an existing Dev Center.
 | devCenterProjectDescription | string | <input type="checkbox"> | None | <pre>'Dev Center project'</pre> | The description of the Dev Center project. |
 | identity | [IdentityType](#IdentityType) | <input type="checkbox"> | None | <pre>{<br>  type: 'SystemAssigned'<br>}</pre> | Managed service identity to use for this resource. Defaults to a system assigned managed identity. For object format, refer to [documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.web/sites?tabs=bicep#managedserviceidentity). |
 | maxDevBoxesPerUser | int? | <input type="checkbox" checked> | None | <pre></pre> | When provided, allows to restrict how many dev boxes each developer can create in a project. |
-| catalogItemSyncTypes | array? | <input type="checkbox" checked> | None | <pre></pre> | Indicates catalog item types that can be synced. Should contain a string array containing any of EnvironmentDefinition and ImageDefinition. |
+| catalogItemSyncTypes | [CatalogItemSyncType](#CatalogItemSyncType)[] | <input type="checkbox"> | None | <pre>[]</pre> | Indicates catalog item types that can be synced. Should contain a string array containing any of EnvironmentDefinition and ImageDefinition. |
 
 ## Outputs
 | Name | Type | Description |

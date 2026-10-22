@@ -72,11 +72,11 @@ Example:
 ''')
 param ruleCollections array = []
 
-resource firewallPolicy 'Microsoft.Network/firewallPolicies@2023-05-01' existing = {
+resource firewallPolicy 'Microsoft.Network/firewallPolicies@2025-05-01' existing = {
   name: firewallPolicyName
 }
 
-resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2023-05-01' = {
+resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2025-05-01' = {
   parent: firewallPolicy
   name: ruleCollectionGroupName
   properties: {

@@ -9,7 +9,7 @@ param principalType PrincipalType
 
 @description('The name of the DocumentDB instance to assign the permissions on. This DocumentDB instance should already exist.')
 @minLength(3)
-@maxLength(24)
+@maxLength(44)
 param documentDbInstanceName string
 
 @description('The roledefinition ID you want to assign.')
@@ -17,7 +17,7 @@ param documentDbInstanceName string
 @maxLength(36)
 param roleDefinitionId string
 
-@description('Fetch the existing storage account for the role assignment scope in the next step.')
+@description('Fetch the existing DocumentDB instance for the role assignment scope in the next step.')
 resource documentDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' existing = {
   name: documentDbInstanceName
 }

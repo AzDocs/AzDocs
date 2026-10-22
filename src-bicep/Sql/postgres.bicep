@@ -129,8 +129,7 @@ type postgresSkuTier = 'Burstable' | 'GeneralPurpose' | 'MemoryOptimized'
 param skuTier postgresSkuTier = 'GeneralPurpose'
 
 @description('The types of identities associated with this resource; currently restricted to None and UserAssigned')
-type userAssignedIdentity = 'None' | 'UserAssigned'
-param userAssignedIdentityType userAssignedIdentity = createPostgresUserAssignedManagedIdentity
+param userAssignedIdentityType resourceInput<'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01'>.identity.type  = createPostgresUserAssignedManagedIdentity
   ? 'UserAssigned'
   : 'None'
 
@@ -175,12 +174,6 @@ param dataEncryption dataEncryptionType = 'SystemManaged'
 @description('The IOPS for the Postgres server.')
 param iops int = 500
 
-// ================================================= Resources =================================================
-resource postgresServerUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (createPostgresUserAssignedManagedIdentity) {
-  name: userAssignedManagedIdentityName
-  location: location
-}
-
 @description('Create the user assigned managed identity object for the Postgres server')
 var userAssignedIdentityObject = createPostgresUserAssignedManagedIdentity
   ? {
@@ -191,18 +184,25 @@ var userAssignedIdentityObject = createPostgresUserAssignedManagedIdentity
     }
   : null
 
+// ================================================= Resources =================================================
+resource postgresServerUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (createPostgresUserAssignedManagedIdentity) {
+  name: userAssignedManagedIdentityName
+  location: location
+}
+
 @description('Upsert the Postgres Server, vnet whitelisting rules, security assessments, alertpolicies, auditsettings & vulnerability scans with the passed parameters')
 resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
-  identity: {
-    type: userAssignedIdentityType
-    userAssignedIdentities: userAssignedIdentityObject
-  }
-  location: location
   name: postgresServerName
+  location: location
   sku: {
     name: skuName
     tier: skuTier
   }
+  identity: {
+    type: userAssignedIdentityType
+    userAssignedIdentities: userAssignedIdentityObject
+  }
+  tags: tags
   properties: {
     storage: {
       autoGrow: storageAutoGrow
@@ -239,13 +239,12 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' =
       startMinute: startMinute
     }
   }
-  tags: tags
 }
 
 @description('Create the Postgres database under the Postgres server')
 resource Database 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
-  name: postgresSqlDatabaseName
   parent: postgresServer
+  name: postgresSqlDatabaseName
 }
 
 @description('Output the postgres server Id')

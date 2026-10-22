@@ -84,6 +84,12 @@ type IdentityType =
     }
   }
   | {
+    type: 'SystemAssigned,UserAssigned'
+    userAssignedIdentities: {
+      *: {}
+    }
+  }
+  | {
     type: 'None'
   }
 
@@ -96,6 +102,11 @@ param containerAppName string
 @minLength(2)
 @maxLength(126)
 param managedEnvironmentName string
+
+@description('The name of the resourcegroup where the managed environment resides. Defaults to the current resourcegroup.')
+@minLength(1)
+@maxLength(90)
+param managedEnvironmentResourceGroupName string = az.resourceGroup().name
 
 @description('Optional. Bool to disable all ingress traffic for the container app.')
 param disableIngress bool = false
@@ -310,6 +321,9 @@ param ingressTargetPort int = 80
 ])
 param ingressTransport string = 'auto'
 
+@description('Optional. The termination grace period for the container app.')
+param terminationGracePeriodSeconds int?
+
 @description('The name of the existing container app workload profile. If used, it should be pre-existing in the managed environment.')
 param workloadProfileName string = ''
 
@@ -423,8 +437,9 @@ type container = {
 }
 
 type containerResources = {
-  @description('Required. Required CPU in cores, e.g. 1, 2, 4. Must be an integer value.')
-  cpu: int
+  @description('Required. Required CPU in cores, e.g. 1, 2, 4. Also supports decimals like 0.25, 0.5, 0.75 and 1.5.')
+  #disable-next-line no-explicit-any // Bicep currently does not support decimal numbers, so we need to use any here in favor of int. 
+  cpu: any
 
   @description('Required. Required memory, e.g. "0.5Gi", "1Gi", "2Gi"')
   memory: string
@@ -572,6 +587,7 @@ type serviceBind = {
 
 @description('the managed environment of the container app. Should be pre-existing')
 resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' existing = {
+  scope: resourceGroup(managedEnvironmentResourceGroupName)
   name: managedEnvironmentName
 }
 
@@ -631,6 +647,7 @@ resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
     }
     template: {
       containers: containers
+      terminationGracePeriodSeconds: terminationGracePeriodSeconds
       initContainers: !empty(initContainersTemplate) ? initContainersTemplate : null
       revisionSuffix: revisionSuffix
       scale: {

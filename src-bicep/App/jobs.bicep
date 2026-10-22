@@ -120,6 +120,11 @@ param jobName string
 @maxLength(126)
 param managedEnvironmentName string
 
+@description('The name of the resourcegroup where the managed environment resides. Defaults to the current resourcegroup.')
+@minLength(1)
+@maxLength(90)
+param managedEnvironmentResourceGroupName string = az.resourceGroup().name
+
 @description('''
 Required. The trigger type of the job.
 - Manual: Job can be triggered manually
@@ -508,6 +513,7 @@ var formattedInitContainers = [
 
 @description('Reference to the managed environment. Should be pre-existing.')
 resource managedEnvironment 'Microsoft.App/managedEnvironments@2025-01-01' existing = {
+  scope: resourceGroup(managedEnvironmentResourceGroupName)
   name: managedEnvironmentName
 }
 

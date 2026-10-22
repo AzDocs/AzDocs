@@ -6,7 +6,7 @@ Target Scope: resourceGroup
 | Name | Type | Discriminator | Description
 | -- |  -- | -- | -- |
 | <a id="ResolutionPolicyType">ResolutionPolicyType</a>  | <pre>'Default' &#124; 'NxDomainRedirect'</pre> |  |  | 
-| <a id="virtualNetworkLinkType">virtualNetworkLinkType</a>  | <pre>{</pre> |  | For adding virtual network links to the private DNS zone. | 
+| <a id="virtualNetworkLinkType">virtualNetworkLinkType</a>  | <pre>{<br>&nbsp;&nbsp;&nbsp;@minLength(0)<br>&nbsp;&nbsp;&nbsp;@maxLength(80)<br>&nbsp;&nbsp;&nbsp;privateDnsLinkName: string<br>&nbsp;&nbsp;&nbsp;registrationEnabled: bool?<br>&nbsp;&nbsp;&nbsp;resolutionPolicy: ResolutionPolicyType?<br>&nbsp;&nbsp;&nbsp;virtualNetworkResourceId: string<br>}<br></pre> |  | For adding virtual network links to the private DNS zone. | 
 
 ## Synopsis
 Creating a private DNS zone
@@ -19,10 +19,10 @@ Creating a private DNS zone.
 | -- |  -- | -- | -- | -- | -- |
 | privateDnsZoneName | string | <input type="checkbox" checked> | Length between 1-63 | <pre></pre> | The name of the private DNS zone in which the private endpoint can be looked up.<br>Example<br>'privatelink.blob.&#36;{environment().suffixes.storage}' |
 | registrationEnabled | bool | <input type="checkbox"> | None | <pre>false</pre> | Auto register your eligible private endpoints within this DNS zone. Note: This should be default false unless you have a good reason to make this true. |
-| resolutionPolicy | ResolutionPolicyType | <input type="checkbox"> | None | <pre>'Default'</pre> | The resolution policy on the virtual network link. Only applicable for virtual network links to privatelink zones, and for A,AAAA,CNAME queries. <br>When set to 'NxDomainRedirect', Azure DNS resolver falls back to public resolution if private dns query resolution results in non-existent domain response. |
+| resolutionPolicy | [ResolutionPolicyType](#ResolutionPolicyType) | <input type="checkbox"> | None | <pre>'Default'</pre> | The resolution policy on the virtual network link. Only applicable for virtual network links to privatelink zones, and for A,AAAA,CNAME queries. <br>When set to 'NxDomainRedirect', Azure DNS resolver falls back to public resolution if private dns query resolution results in non-existent domain response. |
 | virtualNetworkResourceId | string | <input type="checkbox"> | None | <pre>''</pre> | The id of the virtual network you want to link to. Should be pre-existing.<br>Example:<br>'&#36;{subscription().id}/resourceGroups/&#36;{resourceGroup().name}/providers/Microsoft.Network/virtualNetworks/&#36;{virtualNetworkName}' |
 | privateDnsLinkName | string | <input type="checkbox"> | Length between 0-80 | <pre>''</pre> | The name of the virtual network link in the DNS Zone.<br>After you create a private DNS zone in Azure, you will need to link a virtual network to it.<br>A virtual network can be linked to private DNS zone as a registration (autoregistration true) or as a resolution virtual network (autoregistration false). |
-| VirtualNetworkLinks | virtualNetworkLinkType[] | <input type="checkbox"> | None | <pre>[]</pre> | If you need multiple network links you can use this property to add multiple links in one go. |
+| VirtualNetworkLinks | [virtualNetworkLinkType](#virtualNetworkLinkType)[] | <input type="checkbox"> | None | <pre>[]</pre> | If you need multiple network links you can use this property to add multiple links in one go. |
 
 ## Outputs
 | Name | Type | Description |

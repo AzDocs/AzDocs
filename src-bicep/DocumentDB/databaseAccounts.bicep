@@ -3,6 +3,7 @@
 Creating a document db account with the given specs.
 .DESCRIPTION
 This module creates a document db account with the given specs.
+When the 'EnableServerless' capability is added, the account is created in serverless capacity mode: the total throughput limit is omitted and free tier is forced off, since neither is supported for serverless accounts. All other callers are unaffected.
 .EXAMPLE
 <pre>
 module documentDb 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts:latest' = {
@@ -10,6 +11,9 @@ module documentDb 'br:contosoregistry.azurecr.io/documentdb/databaseaccounts:lat
   scope: resourceGroup
   params: {
     documentDbName: 'MyFirstDocumentDb'
+    capabilitiesToAdd: [
+        'EnableServerless'
+    ]
     locations: [
       {
         locationName: 'westeurope'
@@ -70,6 +74,24 @@ param documentDbKind string = 'GlobalDocumentDB'
 ])
 @description('MongoDB server version. Only applicable when documentDbKind is MongoDB. Defaults to 7.0.')
 param mongoDbServerVersion string = '7.0'
+
+/*
+Not supported capabilities have been removed from the allowed list to prevent confusion.
+'EnableCassandra' - Needs additional configuration, which is currently not supported by this module.
+*/
+@allowed([
+  'EnableTable'
+  'EnableGremlin'
+  'EnableMongo'
+  'DisableRateLimitingResponses'
+  'EnableServerless'
+  'EnableNoSQLVectorSearch'
+  'EnableNoSQLFullTextSearch'
+  'EnableMaterializedViews'
+  'DeleteAllItemsByPartitionKey'
+])
+@description('Optional. A list of Azure Cosmos DB specific capabilities for the account.')
+param capabilitiesToAdd string[]?
 
 @allowed([
   'Continuous7Days'
@@ -155,10 +177,10 @@ param tags object = {}
 ])
 param publicNetworkAccess string = 'Enabled'
 
-@description('The capacity for the DocumentDB account. Defaults to totallimit 1000 RU/s.')
+@description('The capacity for the DocumentDB account. Defaults to totallimit 1000 RU/s. Ignored for serverless accounts (the EnableServerless capability), where a total throughput limit is not supported.')
 param totalThroughputLimit int = 1000
 
-@description('Enable free tier for the DocumentDB account. Defaults to false.')
+@description('Enable free tier for the DocumentDB account. Defaults to false. Forced to false for serverless accounts (the EnableServerless capability), where free tier is not supported.')
 param enableFreeTier bool = false
 
 @description('Enable burst capacity for the DocumentDB account. Defaults to false.')
@@ -197,6 +219,9 @@ var virtualNetworkRules = [
   }
 ]
 
+// Serverless accounts do not support a total throughput limit or free tier, so those properties must be omitted for them.
+var isServerless = contains(capabilitiesToAdd ?? [], 'EnableServerless')
+
 @description('Upserting the DocumentDB account.')
 resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' = {
   name: documentDbName
@@ -213,18 +238,29 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' = {
     backupPolicy: backupPolicy
     minimalTlsVersion: minimalTlsVersion
     publicNetworkAccess: publicNetworkAccess
-    enableFreeTier: enableFreeTier
+    enableFreeTier: isServerless ? false : enableFreeTier
     enableBurstCapacity: enableBurstCapacity
     enablePartitionMerge: enablePartitionMerge
     enablePerRegionPerPartitionAutoscale: enablePerRegionPerPartitionAutoscale
+    capabilities: map(capabilitiesToAdd ?? [], capability => {
+      name: capability
+    })
     apiProperties: documentDbKind == 'MongoDB' ? {
       serverVersion: mongoDbServerVersion
     } : null
-    capacity: {
-      totalThroughputLimit: totalThroughputLimit
-    }
+    ...(isServerless ? {} : {
+      capacity: {
+        totalThroughputLimit: totalThroughputLimit
+      }
+    })
     ipRules: ipsToWhitelist
-    disableLocalAuth: true
+    ...(contains(capabilitiesToAdd ?? [], 'EnableGremlin') ? {
+      // Key-based authentication is the only allowed authentication method with Azure Cosmos DB for Apache Gremlin.
+      disableLocalAuth: false
+      disableKeyBasedMetadataWriteAccess: false
+    } : {
+      disableLocalAuth: true
+    })
   }
 }
 
