@@ -1,5 +1,9 @@
 [[_TOC_]]
 
+> **AzDocs is sunset as of 22 October 2026.** This repository is no longer maintained.
+> For new and future work, please use [Azure Verified Modules (AVM)](https://aka.ms/avm).
+> See the [AzDocs readme on GitHub](https://github.com/AzDocs/AzDocs#azdocs-is-sunset) for details and migration tips.
+
 # Introduction to AzDocs
 
 Welcome on the AzDocs (Azure Documentation) Wiki.
